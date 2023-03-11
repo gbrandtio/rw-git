@@ -39,7 +39,7 @@ Retrieve the commits between two tags:
   print("Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}");
 ```
 
-Retrieve statistics regarding code changes between two tags:
+Retrieve code-change statistics between two tags:
 ```dart
   ShortStatDto shortStatDto = await rwGit.stats(localDirectoryToCloneInto, oldTag, newTag);
   print('Number of lines inserted: ${shortStatDto.insertions}'
