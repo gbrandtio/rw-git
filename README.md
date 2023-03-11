@@ -1,4 +1,4 @@
-rw_git is a GIT wrapper that provides out-of-the-box execution of common, useful
+`rw_git` is a GIT wrapper that provides out-of-the-box execution of common, useful
 GIT operations.
 
 ## Features
@@ -13,7 +13,8 @@ GIT operations.
 
 ## Getting started
 
-
+pubspec.yaml:
+`rw_git: 1.0.0`
 
 ## Usage
 Initialize RwGit:
@@ -49,6 +50,4 @@ Retrieve code-change statistics between two tags:
 
 ## Additional information
 
-TODO: Tell users more about the package: where to find more information, how to
-contribute to the package, how to file issues, what response they can expect
-from the package authors, and more.
+Please file any issues on the [github issue tracker](https://github.com/gbrandtio/rw-git/issues).
