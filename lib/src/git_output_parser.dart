@@ -1,5 +1,5 @@
 import 'dart:convert';
-import 'package:rw_git/src//models/short_stat_dto.dart';
+import 'package:rw_git/src/models/short_stat_dto.dart';
 
 /// ----------------------------------------------------------------------------
 /// git_output_parser.dart

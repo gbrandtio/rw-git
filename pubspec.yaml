@@ -1,7 +1,7 @@
 name: rw_git
-description: A starting point for Dart libraries or applications.
+description: A git wrapper that facilitates the execution of various useful git commands.
 version: 1.0.0
-# repository: https://github.com/my_org/my_repo
+repository: https://github.com/gbrandtio/rw-git
 
 environment:
   sdk: '>=2.19.4 <3.0.0'
