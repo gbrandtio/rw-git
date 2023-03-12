@@ -1,15 +1,15 @@
-`rw_git` is a GIT wrapper that provides out-of-the-box execution of common, useful
-GIT operations.
+## About
+
+`rw_git` is a git wrapper that facilitates the out-of-the-box execution of common git operations.
 
 ## Features
 
-- `init`: Initialize a local GIT directory. If the local directory does not exist, it will be created.
-- `clone`: Clone a remote repository into a local folder. If the local directory does not exist, it will be created.
-- `checkout`: Checkout a GIT branch on the specified, existing directory.
-- `fetchTags`: Retrieve a list of tags of the specified repository.
-
-- `getCommitsBetween`: Retrieve a list of commits between two given tags.
-- `stats`: Get the number of lines inserted, deleted and number of files changed.
+- [x] `init`: Initialize a local GIT directory. If the local directory does not exist, it will be created.
+- [x] `clone`: Clone a remote repository into a local folder. If the local directory does not exist, it will be created.
+- [x] `checkout`: Checkout a GIT branch on the specified, existing directory.
+- [x] `fetchTags`: Retrieve a list of tags of the specified repository.
+- [x] `getCommitsBetween`: Retrieve a list of commits between two given tags.
+- [x] `stats`: Get the number of lines inserted, deleted and number of files changed.
 
 ## Getting started
 
