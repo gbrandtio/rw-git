@@ -1,3 +1,4 @@
+![CI](https://github.com/gbrandtio/rw-git/actions/workflows/dart.yml/badge.svg)
 ## About
 
 `rw_git` is a git wrapper that facilitates the out-of-the-box execution of common git operations.
