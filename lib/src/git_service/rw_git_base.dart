@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:rw_git/src/git_output_parser.dart';
+import 'package:rw_git/src/git_service/git_output_parser.dart';
 import 'package:git/git.dart' as git_service;
 import 'package:rw_git/src/models/short_stat_dto.dart';
 
