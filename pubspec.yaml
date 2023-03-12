@@ -1,6 +1,6 @@
 name: rw_git
 description: A git wrapper that facilitates the execution of various useful git commands.
-version: 1.0.0
+version: 1.0.1
 repository: https://github.com/gbrandtio/rw-git
 
 environment:
