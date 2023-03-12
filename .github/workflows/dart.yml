@@ -1,4 +1,4 @@
-name: CI/rw_git
+name: CI | rw_git
 
 on:
   push:
