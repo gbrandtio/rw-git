@@ -15,7 +15,8 @@ class RwGit {
   /// not exist it will be created.
   Future<bool> init(String directoryToInit) async {
     await Directory(directoryToInit).create(recursive: true);
-    ProcessResult processResult = await git_service.runGit(['init'], echoOutput: false, processWorkingDir: directoryToInit);
+    ProcessResult processResult = await git_service.runGit(['init'],
+        echoOutput: false, processWorkingDir: directoryToInit);
 
     return processResult.exitCode == 0;
   }
@@ -26,17 +27,21 @@ class RwGit {
   /// NOTES:
   /// * Even if the [git clone] is successful, the return code will not be 0. There
   ///   isn't a reliable way of determining the success / failure of the command.
-  Future<bool> clone(String localDirectoryToCloneInto, String repository) async {
+  Future<bool> clone(
+      String localDirectoryToCloneInto, String repository) async {
     await Directory(localDirectoryToCloneInto).create(recursive: true);
-    await git_service.runGit(['clone', repository], echoOutput: false, processWorkingDir: localDirectoryToCloneInto);
+    await git_service.runGit(['clone', repository],
+        echoOutput: false, processWorkingDir: localDirectoryToCloneInto);
     return true;
   }
 
   /// `git checkout` the specified [branchToCheckout] on the [localCheckoutDirectory].
   /// Returns true if the operation has been completed successfully.
-  Future<bool> checkout(String localCheckoutDirectory, String branchToCheckout) async {
-    ProcessResult processResult =
-    await git_service.runGit(['checkout', branchToCheckout], echoOutput: false, processWorkingDir: localCheckoutDirectory);
+  Future<bool> checkout(
+      String localCheckoutDirectory, String branchToCheckout) async {
+    ProcessResult processResult = await git_service.runGit(
+        ['checkout', branchToCheckout],
+        echoOutput: false, processWorkingDir: localCheckoutDirectory);
 
     return processResult.exitCode == 0;
   }
@@ -45,8 +50,10 @@ class RwGit {
   /// Returns a [List<String>] that contains the retrieved tags.
   /// [localCheckoutDirectory] - the local GIT directory to retrieve the tags.
   Future<List<String>> fetchTags(String localCheckoutDirectory) async {
-    ProcessResult processResult = await git_service.runGit(['tag', '-l'], echoOutput: false, processWorkingDir: localCheckoutDirectory);
-    List<String> tags = GitOutputParser.parseGitStdoutBasedOnNewLine(processResult.stdout.toString());
+    ProcessResult processResult = await git_service.runGit(['tag', '-l'],
+        echoOutput: false, processWorkingDir: localCheckoutDirectory);
+    List<String> tags = GitOutputParser.parseGitStdoutBasedOnNewLine(
+        processResult.stdout.toString());
     return tags;
   }
 
@@ -56,12 +63,14 @@ class RwGit {
   /// ```
   /// in order to fetch all the commits done between two tags.
   /// Returns a raw [List<String>] that contains the command output.
-  Future<List<String>> getCommitsBetween(String localCheckoutDirectory, String firstTag, String secondTag) async {
+  Future<List<String>> getCommitsBetween(
+      String localCheckoutDirectory, String firstTag, String secondTag) async {
     String rawResult = "";
 
     try {
-      ProcessResult processResult =
-      await git_service.runGit(['rev-list', '$firstTag...$secondTag'], echoOutput: true, processWorkingDir: localCheckoutDirectory);
+      ProcessResult processResult = await git_service.runGit(
+          ['rev-list', '$firstTag...$secondTag'],
+          echoOutput: true, processWorkingDir: localCheckoutDirectory);
 
       rawResult = processResult.stdout;
     } catch (e) {
@@ -73,12 +82,14 @@ class RwGit {
 
   /// `git --shortstat oldTag newTag` to fetch statistics related to
   /// insertions, deletions and number of changed files between two tags.
-  Future<ShortStatDto> stats(String localCheckoutDirectory, String oldTag, newTag) async {
+  Future<ShortStatDto> stats(
+      String localCheckoutDirectory, String oldTag, newTag) async {
     String rawResult = "";
 
     try {
-      ProcessResult processResult =
-      await git_service.runGit(['diff', '--shortstat', oldTag, newTag], echoOutput: false, processWorkingDir: localCheckoutDirectory);
+      ProcessResult processResult = await git_service.runGit(
+          ['diff', '--shortstat', oldTag, newTag],
+          echoOutput: false, processWorkingDir: localCheckoutDirectory);
 
       rawResult = processResult.stdout;
     } catch (e) {
