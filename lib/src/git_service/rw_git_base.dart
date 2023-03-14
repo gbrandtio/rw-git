@@ -21,6 +21,16 @@ class RwGit {
     return processResult.exitCode == 0;
   }
 
+  /// Checks if the [directoryToCheck] is a git directory and returns true if
+  /// it is, otherwise false.
+  Future<bool> isGitRepository(String directoryToCheck) async {
+    ProcessResult processResult = await git_service.runGit(
+        ['rev-parse', '--is-inside-work-tree'],
+        echoOutput: false, processWorkingDir: directoryToCheck);
+
+    return processResult.stdout.toString().toLowerCase().trim() == "true";
+  }
+
   /// Clones a repository by `git clone` into the specified [localDirectoryToCloneInto] folder.
   /// If the [localDirectoryToCloneInto] does not exist, it will be created.
   /// Returns true if the command was successful.
