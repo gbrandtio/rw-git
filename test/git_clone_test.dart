@@ -21,12 +21,15 @@ void main() {
 
   /// Test group for [rwGit.clone()] function.
   group('clone', () {
-    test('will create a local directory and clone the specified repository inside', () async {
+    test(
+        'will create a local directory and clone the specified repository inside',
+        () async {
       bool isCloneSuccess = await rwGit.clone(testDir, validRemoteRepository);
       expect(isCloneSuccess, true);
     });
 
-    test('will create a local directory that will be empty, if the clone fails', () async {
+    test('will create a local directory that will be empty, if the clone fails',
+        () async {
       bool isCloneSuccess = await rwGit.clone(testDir, invalidRemoteRepository);
       expect(isCloneSuccess, false);
     });

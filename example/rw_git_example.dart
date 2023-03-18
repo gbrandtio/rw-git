@@ -10,10 +10,12 @@ void main() async {
   final localDirectoryName = "RW_GIT";
   final oldTag = "v6.0.8";
   final newTag = "v7.0.0";
-  final repositoryToClone = "https://github.com/jasontaylordev/CleanArchitecture";
+  final repositoryToClone =
+      "https://github.com/jasontaylordev/CleanArchitecture";
 
   // Create a local directory and clone into it.
-  String localDirectoryToCloneInto = _createCheckoutDirectory(localDirectoryName);
+  String localDirectoryToCloneInto =
+      _createCheckoutDirectory(localDirectoryName);
   rwGit.clone(localDirectoryToCloneInto, repositoryToClone);
 
   // Retrieve and count all the tags.
@@ -23,10 +25,12 @@ void main() async {
   // Count all commits between two tags.
   List<String> listOfCommitsBetweenTwoTags =
       await rwGit.getCommitsBetween(localDirectoryToCloneInto, oldTag, newTag);
-  print("Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}");
+  print(
+      "Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}");
 
   // Retrieve lines of code inserted, deleted and number of changed files.
-  ShortStatDto shortStatDto = await rwGit.stats(localDirectoryToCloneInto, oldTag, newTag);
+  ShortStatDto shortStatDto =
+      await rwGit.stats(localDirectoryToCloneInto, oldTag, newTag);
   print('Number of lines inserted: ${shortStatDto.insertions}'
       ' Number of lines deleted: ${shortStatDto.deletions}'
       ' Number of files changed: ${shortStatDto.numberOfChangedFiles}');

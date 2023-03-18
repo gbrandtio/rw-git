@@ -17,9 +17,10 @@ void main() {
     await Directory(testDir).delete(recursive: true);
   });
 
-  /// Test group for [rwGit.init()] function.
+  /// Test group for [rwGit.isGitRepository()] function.
   group('isGitRepository', () {
-    test('will succeed if the specified repository is a git repository', () async {
+    test('will succeed if the specified repository is a git repository',
+        () async {
       await rwGit.init(testDir);
       bool isGitRepository = await rwGit.isGitRepository(testDir);
       expect(isGitRepository, true);
