@@ -23,18 +23,13 @@ class RwGit {
   }
 
   /// Checks if the [directoryToCheck] is a git directory and returns true if
-  /// it is, otherwise false. In order to determine if it is a git repository, it will check:
-  /// - If the repository belongs to a git tree.
-  /// - If there is a .git folder inside the repository.
+  /// it is, otherwise false. In order to determine if it is a git repository, it will check whether
+  /// the repository belongs to a git tree.
   Future<bool> isGitRepository(String directoryToCheck) async {
     ProcessResult processResult = await git_service.runGit(['rev-parse', '--is-inside-work-tree'],
         throwOnError: false, echoOutput: false, processWorkingDir: directoryToCheck);
 
-    List<FileSystemEntity> files = await Directory(directoryToCheck).list().toList();
-    files = files.where((element) => element.uri.toString().contains(gitRepoIndicator)).toList();
-
-    bool isGitRepository = processResult.stdout.toString().toLowerCase().trim() == "true" && files.length > 1;
-    return isGitRepository;
+    return processResult.stdout.toString().toLowerCase().trim() == "true";
   }
 
   /// Clones a repository by `git clone` into the specified [localDirectoryToCloneInto] folder.
