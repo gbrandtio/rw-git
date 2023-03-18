@@ -108,17 +108,23 @@ void main() {
   /// Test group for [parseGitShortStatStdout] function.
   group('parseGitShortStatStdout', () {
     test('will parse a sample line into a ShortStatDto object', () {
-      final sampleShortStatRawString = " 3 files changed, 455 insertions(+), 12 deletions(-) ";
-      ShortStatDto shortStatDto = GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
+      final sampleShortStatRawString =
+          " 3 files changed, 455 insertions(+), 12 deletions(-) ";
+      ShortStatDto shortStatDto =
+          GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
 
       expect(shortStatDto.numberOfChangedFiles, 3);
       expect(shortStatDto.insertions, 455);
       expect(shortStatDto.deletions, 12);
     });
 
-    test('will have default values for all properties if the line failed to be parsed', () {
-      final sampleShortStatRawString = " 3fileschanged455insertions(+)12deletions(-) ";
-      ShortStatDto shortStatDto = GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
+    test(
+        'will have default values for all properties if the line failed to be parsed',
+        () {
+      final sampleShortStatRawString =
+          " 3fileschanged455insertions(+)12deletions(-) ";
+      ShortStatDto shortStatDto =
+          GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
 
       expect(shortStatDto.numberOfChangedFiles, -1);
       expect(shortStatDto.insertions, -1);
