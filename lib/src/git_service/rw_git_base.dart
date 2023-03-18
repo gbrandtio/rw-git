@@ -85,21 +85,18 @@ class RwGit {
   /// ```
   /// in order to fetch all the commits done between two tags.
   /// In case of success, will return a list with a commit hash on each position, whereas in case of
-  /// failure will return a list with one [invalidGitCommandResult] element.
+  /// failure will return an empty list.
   Future<List<String>> getCommitsBetween(
       String localCheckoutDirectory, String firstTag, String secondTag) async {
     String rawResult = "";
 
-    try {
-      ProcessResult processResult = await git_service.runGit(
-          ['rev-list', '$firstTag...$secondTag'],
-          echoOutput: true, processWorkingDir: localCheckoutDirectory);
+    ProcessResult processResult = await git_service.runGit(
+        ['rev-list', '$firstTag...$secondTag'],
+        throwOnError: false,
+        echoOutput: true,
+        processWorkingDir: localCheckoutDirectory);
 
-      rawResult = processResult.stdout;
-    } catch (e) {
-      rawResult = invalidGitCommandResult;
-    }
-
+    rawResult = processResult.stdout;
     return GitOutputParser.parseGitStdoutBasedOnNewLine(rawResult);
   }
 

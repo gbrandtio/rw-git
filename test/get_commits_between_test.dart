@@ -1,34 +1,42 @@
+import 'dart:io';
+
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
+final testDir = "COMMITS_BETWEEN_TEST_DIR";
+final repository = "https://github.com/google/material-design-lite";
 
 void main() {
   late RwGit rwGit;
 
-  // Actions execution before every test.
   setUp(() {
     rwGit = RwGit();
   });
 
+  tearDown(() async {
+    await Directory(testDir).delete(recursive: true);
+  });
+
   /// Test group for [rwGit.getCommitsBetween()] function.
   group('getCommitsBetween', () {
-    test('returns a List with one entry which is equal to INVALID', () async {
-      List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
-          './extinct', 'v1.0.0_extinct', 'v1.0.1_extinct');
+    test(
+        'output count will be greater than 0, if the provided repository and tags are valid',
+            () async {
+          await rwGit.clone(testDir, repository);
+          List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
+              testDir, 'v1.0.4', 'v1.0.6');
 
-      expect(commitsBetweenTags[0], invalidResult);
-    });
+          expect(commitsBetweenTags.isNotEmpty, true);
+        });
 
     test(
-        'output length will be 0, if we do not take into consideration the INVALID entry',
-        () async {
-      List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
-          './extinct', 'v1.0.0_extinct', 'v1.0.1_extinct');
+        'output length will be 0, if the provided tags or directory are invalid',
+            () async {
+          List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
+              './extinct', 'v1.0.0_extinct', 'v1.0.1_extinct');
 
-      commitsBetweenTags.removeWhere((element) => element == invalidResult);
-      int countOfCommits = commitsBetweenTags.length;
-      expect(countOfCommits, 0);
-    });
+          expect(commitsBetweenTags.length, 0);
+        });
   });
 }
