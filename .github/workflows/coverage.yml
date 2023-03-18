@@ -1,4 +1,4 @@
-name: Test | rw_git
+name: coverage
 
 on:
   push:
