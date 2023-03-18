@@ -1,0 +1,105 @@
+import 'package:rw_git/src/git_service/git_output_parser.dart';
+import 'package:test/test.dart';
+
+void main() {
+  /// Test group for [rwGit.stats()] function.
+  group('parseGitStdoutBasedOnNewLine', () {
+    test('will split a string into a list based on new line characters', () {
+      final strWithNewLineWindowsCharacters = "AA \r\n BBB \r\n CCC";
+      final strWithNewLineLinuxCharacters = "AAA \n BBB \n CCC";
+      final strWithNewLineMacOSCharacters = "AAA \r BBB \r CCC";
+
+      List<String> windowsLines = GitOutputParser.parseGitStdoutBasedOnNewLine(
+          strWithNewLineWindowsCharacters);
+      List<String> linuxLines = GitOutputParser.parseGitStdoutBasedOnNewLine(
+          strWithNewLineLinuxCharacters);
+      List<String> macosLines = GitOutputParser.parseGitStdoutBasedOnNewLine(
+          strWithNewLineMacOSCharacters);
+
+      for (int i = 0; i < 3; i++) {
+        expect(windowsLines[i].isEmpty, false);
+        expect(linuxLines[i].isEmpty, false);
+        expect(macosLines[i].isEmpty, false);
+      }
+    });
+
+    test('will return an empty list, if passed an empty string', () {
+      final emptyString = "";
+      List<String> mustBeAnEmptyList =
+          GitOutputParser.parseGitStdoutBasedOnNewLine(emptyString);
+      expect(mustBeAnEmptyList.isEmpty, true);
+    });
+  });
+
+  group('retrieveTagsInBetweenOf', () {
+    List<String> fakeTagsEvenNumber = List.empty(growable: true);
+    List<String> fakeTagsOddNumber = List.empty(growable: true);
+
+    setUp(() {
+      fakeTagsEvenNumber = ["v1.0.0", "v1.0.1", "v1.0.2", "v1.0.3"];
+      fakeTagsOddNumber = ["v1.0.0", "v1.0.1", "v1.0.2", "v1.0.3", "v1.0.4"];
+    });
+
+    test(
+        'will return all the values between the supplied tags of even number, including the last tag',
+        () {
+      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber, "v1.0.1", "v1.0.3");
+      expect(tagsInBetween.length, 2);
+      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
+    });
+
+    test(
+        'will return only one tag, which will be the last one, if there are not any in between tags',
+        () {
+      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber, "v1.0.1", "v1.0.2");
+      expect(tagsInBetween.length, 1);
+      expect(tagsInBetween[0], "v1.0.2");
+    });
+
+    test(
+        'will return all the values between the supplied tags of odd number, including the last tag',
+        () {
+      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+          fakeTagsOddNumber, "v1.0.1", "v1.0.3");
+
+      expect(tagsInBetween.length, 2);
+      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
+    });
+
+    test(
+        'will return a list containing all the tags till the end, if the end tag does not exist (for even number of tags)',
+        () {
+      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber, "v1.0.0", "v1.0.7");
+      expect(tagsInBetween.length, 3);
+    });
+
+    test(
+        'will return a list containing all the tags till the end, if the end tag does not exist (for odd number of tags)',
+        () {
+      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+          fakeTagsOddNumber, "v1.0.0", "v1.0.7");
+      expect(tagsInBetween.length, 4);
+    });
+
+    test(
+        'will return a list containing all the tags till the end, when the new tag is the last tag (for even number of tags)',
+        () {
+      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber, "v1.0.1", "v1.0.3");
+      expect(tagsInBetween.length, 2);
+      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
+    });
+
+    test(
+        'will return a list containing all the tags till the end, when the new tag is the last tag (for odd number of tags)',
+        () {
+      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+          fakeTagsOddNumber, "v1.0.1", "v1.0.4");
+      expect(tagsInBetween.length, 3);
+      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.4");
+    });
+  });
+}
