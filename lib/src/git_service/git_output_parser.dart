@@ -18,8 +18,7 @@ class GitOutputParser {
   /// Given a [List] that contains all the tags of a component, returns a new [List]
   /// that contains only the tags between the [oldTag] and the [newTag], including
   /// the [newTag] (but not the [oldTag]).
-  static List<String> retrieveTagsInBetweenOf(
-      List<String> allTags, String oldTag, String newTag) {
+  static List<String> retrieveTagsInBetweenOf(List<String> allTags, String oldTag, String newTag) {
     List<String> inBetweenTags = List<String>.empty(growable: true);
 
     try {
