@@ -1,4 +1,5 @@
-![CI | rw_git](https://github.com/gbrandtio/rw-git/actions/workflows/dart.yml/badge.svg)
+![build](https://github.com/gbrandtio/rw-git/actions/workflows/dart.yml/badge.svg)
+[![coverage](https://github.com/gbrandtio/rw-git/actions/workflows/coverage.yml/badge.svg)](https://github.com/gbrandtio/rw-git/actions/workflows/coverage.yml)
 ## About
 
 `rw_git` is a git wrapper that facilitates the out-of-the-box execution of common git operations.
