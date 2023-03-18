@@ -58,7 +58,9 @@ class RwGit {
       String localCheckoutDirectory, String branchToCheckout) async {
     ProcessResult processResult = await git_service.runGit(
         ['checkout', branchToCheckout],
-        throwOnError: false, echoOutput: false, processWorkingDir: localCheckoutDirectory);
+        throwOnError: false,
+        echoOutput: false,
+        processWorkingDir: localCheckoutDirectory);
 
     return processResult.exitCode == 0;
   }
