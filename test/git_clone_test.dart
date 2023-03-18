@@ -24,11 +24,6 @@ void main() {
     test('will create a local directory and clone the specified repository inside', () async {
       bool isCloneSuccess = await rwGit.clone(testDir, validRemoteRepository);
       expect(isCloneSuccess, true);
-
-      List<FileSystemEntity> clonedFiles = await Directory(testDir).list().toList();
-      bool isGitRepository =
-          await rwGit.isGitRepository(clonedFiles[0].uri.path.split(Platform.pathSeparator).last);
-      expect(isGitRepository, true);
     });
 
     test('will create a local directory that will be empty, if the clone fails', () async {

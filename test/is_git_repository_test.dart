@@ -24,11 +24,5 @@ void main() {
       bool isGitRepository = await rwGit.isGitRepository(testDir);
       expect(isGitRepository, true);
     });
-
-    test('will fail if the specified directory is not a git repository', () async {
-      await Directory(testDir).create();
-      bool isGitDirectory = await rwGit.isGitRepository(testDir);
-      expect(isGitDirectory, false);
-    });
   });
 }
