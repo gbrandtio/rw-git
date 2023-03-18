@@ -33,16 +33,17 @@ class RwGit {
 
   /// Clones a repository by `git clone` into the specified [localDirectoryToCloneInto] folder.
   /// If the [localDirectoryToCloneInto] does not exist, it will be created.
-  /// Returns true if the command was successful.
-  /// NOTES:
-  /// * Even if the [git clone] is successful, the return code will not be 0. There
-  ///   isn't a reliable way of determining the success / failure of the command.
+  /// Returns true if the command was successful, false if failed for any reason.
   Future<bool> clone(
       String localDirectoryToCloneInto, String repository) async {
     await Directory(localDirectoryToCloneInto).create(recursive: true);
-    await git_service.runGit(['clone', repository],
-        echoOutput: false, processWorkingDir: localDirectoryToCloneInto);
-    return true;
+    ProcessResult processResult = await git_service.runGit(
+        ['clone', repository],
+        throwOnError: false,
+        echoOutput: false,
+        processWorkingDir: localDirectoryToCloneInto);
+
+    return processResult.exitCode == 0;
   }
 
   /// `git checkout` the specified [branchToCheckout] on the [localCheckoutDirectory].
@@ -62,8 +63,10 @@ class RwGit {
   Future<List<String>> fetchTags(String localCheckoutDirectory) async {
     ProcessResult processResult = await git_service.runGit(['tag', '-l'],
         echoOutput: false, processWorkingDir: localCheckoutDirectory);
+
     List<String> tags = GitOutputParser.parseGitStdoutBasedOnNewLine(
         processResult.stdout.toString());
+
     return tags;
   }
 
