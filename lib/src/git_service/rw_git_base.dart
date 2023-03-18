@@ -106,23 +106,18 @@ class RwGit {
   /// `git --shortstat oldTag newTag` to fetch statistics related to
   /// insertions, deletions and number of changed files between two tags.
   /// In case of success will return a [ShortStatDto] object with the available data,
-  /// whereas an [invalidGitCommandResult] in case of failure.
+  /// whereas an object with the default values.
   Future<ShortStatDto> stats(
       String localCheckoutDirectory, String oldTag, newTag) async {
     String rawResult = "";
 
-    try {
-      ProcessResult processResult = await git_service.runGit(
-          ['diff', '--shortstat', oldTag, newTag],
-          throwOnError: false,
-          echoOutput: false,
-          processWorkingDir: localCheckoutDirectory);
+    ProcessResult processResult = await git_service.runGit(
+        ['diff', '--shortstat', oldTag, newTag],
+        throwOnError: false,
+        echoOutput: false,
+        processWorkingDir: localCheckoutDirectory);
 
-      rawResult = processResult.stdout;
-    } catch (e) {
-      rawResult = invalidGitCommandResult;
-    }
-
+    rawResult = processResult.stdout;
     return GitOutputParser.parseGitShortStatStdout(rawResult);
   }
 }
