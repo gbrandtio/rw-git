@@ -10,49 +10,49 @@ import 'package:rw_git/src/models/short_stat_dto.dart';
 /// pretty GIT result.
 class RwGit {
   final invalidGitCommandResult = "INVALID";
+  final gitRepoIndicator = ".git";
 
   /// Performs a `git init` in a local directory. If the supplied directory does
   /// not exist it will be created.
   Future<bool> init(String directoryToInit) async {
     await Directory(directoryToInit).create(recursive: true);
-    ProcessResult processResult = await git_service.runGit(['init'],
-        echoOutput: false, processWorkingDir: directoryToInit);
+    ProcessResult processResult = await git_service
+        .runGit(['init'], throwOnError: false, echoOutput: false, processWorkingDir: directoryToInit);
 
     return processResult.exitCode == 0;
   }
 
   /// Checks if the [directoryToCheck] is a git directory and returns true if
-  /// it is, otherwise false.
+  /// it is, otherwise false. In order to determine if it is a git repository, it will check:
+  /// - If the repository belongs to a git tree.
+  /// - If there is a .git folder inside the repository.
   Future<bool> isGitRepository(String directoryToCheck) async {
-    ProcessResult processResult = await git_service.runGit(
-        ['rev-parse', '--is-inside-work-tree'],
-        echoOutput: false, processWorkingDir: directoryToCheck);
+    ProcessResult processResult = await git_service.runGit(['rev-parse', '--is-inside-work-tree'],
+        throwOnError: false, echoOutput: false, processWorkingDir: directoryToCheck);
 
-    return processResult.stdout.toString().toLowerCase().trim() == "true";
+    List<FileSystemEntity> files = await Directory(directoryToCheck).list().toList();
+    files = files.where((element) => element.uri.toString().contains(gitRepoIndicator)).toList();
+
+    bool isGitRepository = processResult.stdout.toString().toLowerCase().trim() == "true" && files.length > 1;
+    return isGitRepository;
   }
 
   /// Clones a repository by `git clone` into the specified [localDirectoryToCloneInto] folder.
   /// If the [localDirectoryToCloneInto] does not exist, it will be created.
   /// Returns true if the command was successful, false if failed for any reason.
-  Future<bool> clone(
-      String localDirectoryToCloneInto, String repository) async {
+  Future<bool> clone(String localDirectoryToCloneInto, String repository) async {
     await Directory(localDirectoryToCloneInto).create(recursive: true);
-    ProcessResult processResult = await git_service.runGit(
-        ['clone', repository],
-        throwOnError: false,
-        echoOutput: false,
-        processWorkingDir: localDirectoryToCloneInto);
+    ProcessResult processResult = await git_service.runGit(['clone', repository],
+        throwOnError: false, echoOutput: false, processWorkingDir: localDirectoryToCloneInto);
 
     return processResult.exitCode == 0;
   }
 
   /// `git checkout` the specified [branchToCheckout] on the [localCheckoutDirectory].
   /// Returns true if the operation has been completed successfully.
-  Future<bool> checkout(
-      String localCheckoutDirectory, String branchToCheckout) async {
-    ProcessResult processResult = await git_service.runGit(
-        ['checkout', branchToCheckout],
-        echoOutput: false, processWorkingDir: localCheckoutDirectory);
+  Future<bool> checkout(String localCheckoutDirectory, String branchToCheckout) async {
+    ProcessResult processResult = await git_service
+        .runGit(['checkout', branchToCheckout], echoOutput: false, processWorkingDir: localCheckoutDirectory);
 
     return processResult.exitCode == 0;
   }
@@ -61,11 +61,10 @@ class RwGit {
   /// Returns a [List<String>] that contains the retrieved tags.
   /// [localCheckoutDirectory] - the local GIT directory to retrieve the tags.
   Future<List<String>> fetchTags(String localCheckoutDirectory) async {
-    ProcessResult processResult = await git_service.runGit(['tag', '-l'],
-        echoOutput: false, processWorkingDir: localCheckoutDirectory);
+    ProcessResult processResult =
+        await git_service.runGit(['tag', '-l'], echoOutput: false, processWorkingDir: localCheckoutDirectory);
 
-    List<String> tags = GitOutputParser.parseGitStdoutBasedOnNewLine(
-        processResult.stdout.toString());
+    List<String> tags = GitOutputParser.parseGitStdoutBasedOnNewLine(processResult.stdout.toString());
 
     return tags;
   }
@@ -81,8 +80,7 @@ class RwGit {
     String rawResult = "";
 
     try {
-      ProcessResult processResult = await git_service.runGit(
-          ['rev-list', '$firstTag...$secondTag'],
+      ProcessResult processResult = await git_service.runGit(['rev-list', '$firstTag...$secondTag'],
           echoOutput: true, processWorkingDir: localCheckoutDirectory);
 
       rawResult = processResult.stdout;
@@ -95,13 +93,11 @@ class RwGit {
 
   /// `git --shortstat oldTag newTag` to fetch statistics related to
   /// insertions, deletions and number of changed files between two tags.
-  Future<ShortStatDto> stats(
-      String localCheckoutDirectory, String oldTag, newTag) async {
+  Future<ShortStatDto> stats(String localCheckoutDirectory, String oldTag, newTag) async {
     String rawResult = "";
 
     try {
-      ProcessResult processResult = await git_service.runGit(
-          ['diff', '--shortstat', oldTag, newTag],
+      ProcessResult processResult = await git_service.runGit(['diff', '--shortstat', oldTag, newTag],
           echoOutput: false, processWorkingDir: localCheckoutDirectory);
 
       rawResult = processResult.stdout;

@@ -15,24 +15,23 @@ void main() {
     rwGit = RwGit();
   });
 
+  tearDown(() async {
+    await Directory(testDir).delete(recursive: true);
+  });
+
   /// Test group for [rwGit.clone()] function.
   group('clone', () {
-    tearDown(() async {
-      await Directory(testDir).delete(recursive: true);
-    });
-
-    test(
-        'will create a local directory and clone the specified repository inside',
-        () async {
+    test('will create a local directory and clone the specified repository inside', () async {
       bool isCloneSuccess = await rwGit.clone(testDir, validRemoteRepository);
       expect(isCloneSuccess, true);
 
-      bool isGitRepository = await rwGit.isGitRepository(testDir);
+      List<FileSystemEntity> clonedFiles = await Directory(testDir).list().toList();
+      bool isGitRepository =
+          await rwGit.isGitRepository(clonedFiles[0].uri.path.split(Platform.pathSeparator).last);
       expect(isGitRepository, true);
     });
 
-    test('will create a local directory that will be empty, if the clone fails',
-        () async {
+    test('will create a local directory that will be empty, if the clone fails', () async {
       bool isCloneSuccess = await rwGit.clone(testDir, invalidRemoteRepository);
       expect(isCloneSuccess, false);
     });
