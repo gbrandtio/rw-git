@@ -1,8 +1,9 @@
+import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/git_service/git_output_parser.dart';
 import 'package:test/test.dart';
 
 void main() {
-  /// Test group for [rwGit.stats()] function.
+  /// Test group for [parseGitStdoutBasedOnNewLine] function.
   group('parseGitStdoutBasedOnNewLine', () {
     test('will split a string into a list based on new line characters', () {
       final strWithNewLineWindowsCharacters = "AA \r\n BBB \r\n CCC";
@@ -31,6 +32,7 @@ void main() {
     });
   });
 
+  /// Test group for [retrieveTagsInBetweenOf] function.
   group('retrieveTagsInBetweenOf', () {
     List<String> fakeTagsEvenNumber = List.empty(growable: true);
     List<String> fakeTagsOddNumber = List.empty(growable: true);
@@ -100,6 +102,27 @@ void main() {
           fakeTagsOddNumber, "v1.0.1", "v1.0.4");
       expect(tagsInBetween.length, 3);
       expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.4");
+    });
+  });
+
+  /// Test group for [parseGitShortStatStdout] function.
+  group('parseGitShortStatStdout', () {
+    test('will parse a sample line into a ShortStatDto object', () {
+      final sampleShortStatRawString = " 3 files changed, 455 insertions(+), 12 deletions(-) ";
+      ShortStatDto shortStatDto = GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
+
+      expect(shortStatDto.numberOfChangedFiles, 3);
+      expect(shortStatDto.insertions, 455);
+      expect(shortStatDto.deletions, 12);
+    });
+
+    test('will have default values for all properties if the line failed to be parsed', () {
+      final sampleShortStatRawString = " 3fileschanged455insertions(+)12deletions(-) ";
+      ShortStatDto shortStatDto = GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
+
+      expect(shortStatDto.numberOfChangedFiles, -1);
+      expect(shortStatDto.insertions, -1);
+      expect(shortStatDto.deletions, -1);
     });
   });
 }
