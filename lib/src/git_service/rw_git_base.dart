@@ -93,10 +93,11 @@ class RwGit {
     ProcessResult processResult = await git_service.runGit(
         ['rev-list', '$firstTag...$secondTag'],
         throwOnError: false,
-        echoOutput: true,
+        echoOutput: false,
         processWorkingDir: localCheckoutDirectory);
 
-    rawResult = processResult.stdout;
+    rawResult =
+        processResult.stdout == null ? "" : processResult.stdout.toString();
     return GitOutputParser.parseGitStdoutBasedOnNewLine(rawResult);
   }
 
