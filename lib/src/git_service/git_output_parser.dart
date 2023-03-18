@@ -18,29 +18,16 @@ class GitOutputParser {
   /// Given a [List] that contains all the tags of a component, returns a new [List]
   /// that contains only the tags between the [oldTag] and the [newTag], including
   /// the [newTag] (but not the [oldTag]).
-  static List<String> retrieveTagsInBetweenOf(List<String> allTags, String oldTag, String newTag) {
-    List<String> inBetweenTags = List<String>.empty(growable: true);
+  static List<String> retrieveTagsInBetweenOf(
+      List<String> allTags, String oldTag, String newTag) {
+    int oldTagIndex = allTags.indexOf(oldTag) + 1;
+    int newTagIndex = allTags.indexOf(newTag);
 
-    try {
-      List<String> cornerTags = [oldTag, newTag];
+    newTagIndex = newTagIndex == -1 ? allTags.length - 1 : newTagIndex;
+    // Include the element at [newTagIndex] in the resulting sublist.
+    newTagIndex++;
 
-      for (int i = 0; i < allTags.length; i++) {
-        if (cornerTags.contains(allTags[i])) {
-          cornerTags.remove(allTags[i]);
-
-          for (int j = i + 1; j < allTags.length; j++) {
-            inBetweenTags.add(allTags[i]);
-
-            if (cornerTags.contains(allTags[i])) {
-              break;
-            }
-          }
-        }
-      }
-    } catch (e) {
-      print(e.toString());
-    }
-
+    List<String> inBetweenTags = allTags.sublist(oldTagIndex, newTagIndex);
     return inBetweenTags;
   }
 
@@ -65,7 +52,9 @@ class GitOutputParser {
       insertions = int.parse(shortStatParts[1].split(' ')[0]);
       deletions = int.parse(shortStatParts[2].split(' ')[0]);
     } catch (e) {
-      print(e.toString());
+      numberOfChangedFiles = -1;
+      insertions = -1;
+      deletions = -1;
     }
 
     return ShortStatDto(numberOfChangedFiles, insertions, deletions);

@@ -1,8 +1,7 @@
 ![build](https://github.com/gbrandtio/rw-git/actions/workflows/dart.yml/badge.svg)
 [![coverage](https://github.com/gbrandtio/rw-git/actions/workflows/coverage.yml/badge.svg)](https://github.com/gbrandtio/rw-git/actions/workflows/coverage.yml)
-<a href="https://codecov.io/gh/gbrandtio/rw-git" >
-<img src="https://codecov.io/gh/gbrandtio/rw-git/branch/main/graph/badge.svg?token=ETZPSI51EH"/>
-</a>
+<a href="https://codecov.io/gh/gbrandtio/rw-git" ><img src="https://codecov.io/gh/gbrandtio/rw-git/branch/main/graph/badge.svg?token=ETZPSI51EH"/></a>
+<a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 
 ## About
 

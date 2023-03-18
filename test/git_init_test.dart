@@ -3,7 +3,7 @@ import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
-final testDir = "TEST_DIR";
+final testDir = "TEST_DIR_INIT";
 
 void main() {
   late RwGit rwGit;
