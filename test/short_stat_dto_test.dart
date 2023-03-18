@@ -7,8 +7,8 @@ void main() {
     test('will not have null properties when initialized', () async {
       ShortStatDto shortStatDto = ShortStatDto(10, 20, 30);
       expect(shortStatDto.numberOfChangedFiles, 10);
-      expect(shortStatDto.deletions, 20);
-      expect(shortStatDto.insertions, 30);
+      expect(shortStatDto.insertions, 20);
+      expect(shortStatDto.deletions, 30);
     });
   });
 }
