@@ -1,5 +1,4 @@
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/git_service/rw_git_parser.dart';
 import 'package:test/test.dart';
 
 void main() {
