@@ -2,10 +2,10 @@ import 'dart:convert';
 import 'package:rw_git/src/models/short_stat_dto.dart';
 
 /// ----------------------------------------------------------------------------
-/// git_output_parser.dart
+/// rw_git_parser.dart
 /// ----------------------------------------------------------------------------
 /// Provides functionality for the parsing of the cmd output of git commands.
-class GitOutputParser {
+class RwGitParser {
   /// Parses a stdout git output into a list. The parsing is achieved by
   /// splitting the data based on newline characters.
   static List<String> parseGitStdoutBasedOnNewLine(String gitStdout) {
