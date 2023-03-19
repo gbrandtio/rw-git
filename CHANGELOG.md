@@ -10,3 +10,6 @@
 - Fixed various bugs surfaced from unit testing.
 - Code coverage 100%.
 - Improved performance and logical output of some commands.
+
+## 1.0.3
+- Exposing RwGitParser through the rw_git package for enhanced flexibility.

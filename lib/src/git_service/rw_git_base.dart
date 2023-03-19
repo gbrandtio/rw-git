@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:rw_git/src/git_service/git_output_parser.dart';
+import 'package:rw_git/src/git_service/rw_git_parser.dart';
 import 'package:git/git.dart' as git_service;
 import 'package:rw_git/src/models/short_stat_dto.dart';
 
@@ -74,7 +74,7 @@ class RwGit {
     ProcessResult processResult = await git_service.runGit(['tag', '-l'],
         echoOutput: false, processWorkingDir: localCheckoutDirectory);
 
-    List<String> tags = GitOutputParser.parseGitStdoutBasedOnNewLine(
+    List<String> tags = RwGitParser.parseGitStdoutBasedOnNewLine(
         processResult.stdout.toString());
     return tags;
   }
@@ -98,7 +98,7 @@ class RwGit {
 
     rawResult =
         processResult.stdout == null ? "" : processResult.stdout.toString();
-    return GitOutputParser.parseGitStdoutBasedOnNewLine(rawResult);
+    return RwGitParser.parseGitStdoutBasedOnNewLine(rawResult);
   }
 
   /// `git --shortstat oldTag newTag` to fetch statistics related to
@@ -116,6 +116,6 @@ class RwGit {
         processWorkingDir: localCheckoutDirectory);
 
     rawResult = processResult.stdout;
-    return GitOutputParser.parseGitShortStatStdout(rawResult);
+    return RwGitParser.parseGitShortStatStdout(rawResult);
   }
 }

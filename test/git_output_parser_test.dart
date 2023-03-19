@@ -1,5 +1,5 @@
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/git_service/git_output_parser.dart';
+import 'package:rw_git/src/git_service/rw_git_parser.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -10,11 +10,11 @@ void main() {
       final strWithNewLineLinuxCharacters = "AAA \n BBB \n CCC";
       final strWithNewLineMacOSCharacters = "AAA \r BBB \r CCC";
 
-      List<String> windowsLines = GitOutputParser.parseGitStdoutBasedOnNewLine(
+      List<String> windowsLines = RwGitParser.parseGitStdoutBasedOnNewLine(
           strWithNewLineWindowsCharacters);
-      List<String> linuxLines = GitOutputParser.parseGitStdoutBasedOnNewLine(
+      List<String> linuxLines = RwGitParser.parseGitStdoutBasedOnNewLine(
           strWithNewLineLinuxCharacters);
-      List<String> macosLines = GitOutputParser.parseGitStdoutBasedOnNewLine(
+      List<String> macosLines = RwGitParser.parseGitStdoutBasedOnNewLine(
           strWithNewLineMacOSCharacters);
 
       for (int i = 0; i < 3; i++) {
@@ -27,7 +27,7 @@ void main() {
     test('will return an empty list, if passed an empty string', () {
       final emptyString = "";
       List<String> mustBeAnEmptyList =
-          GitOutputParser.parseGitStdoutBasedOnNewLine(emptyString);
+          RwGitParser.parseGitStdoutBasedOnNewLine(emptyString);
       expect(mustBeAnEmptyList.isEmpty, true);
     });
   });
@@ -45,7 +45,7 @@ void main() {
     test(
         'will return all the values between the supplied tags of even number, including the last tag',
         () {
-      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
           fakeTagsEvenNumber, "v1.0.1", "v1.0.3");
       expect(tagsInBetween.length, 2);
       expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
@@ -54,7 +54,7 @@ void main() {
     test(
         'will return only one tag, which will be the last one, if there are not any in between tags',
         () {
-      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
           fakeTagsEvenNumber, "v1.0.1", "v1.0.2");
       expect(tagsInBetween.length, 1);
       expect(tagsInBetween[0], "v1.0.2");
@@ -63,7 +63,7 @@ void main() {
     test(
         'will return all the values between the supplied tags of odd number, including the last tag',
         () {
-      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
           fakeTagsOddNumber, "v1.0.1", "v1.0.3");
 
       expect(tagsInBetween.length, 2);
@@ -73,7 +73,7 @@ void main() {
     test(
         'will return a list containing all the tags till the end, if the end tag does not exist (for even number of tags)',
         () {
-      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
           fakeTagsEvenNumber, "v1.0.0", "v1.0.7");
       expect(tagsInBetween.length, 3);
     });
@@ -81,7 +81,7 @@ void main() {
     test(
         'will return a list containing all the tags till the end, if the end tag does not exist (for odd number of tags)',
         () {
-      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
           fakeTagsOddNumber, "v1.0.0", "v1.0.7");
       expect(tagsInBetween.length, 4);
     });
@@ -89,7 +89,7 @@ void main() {
     test(
         'will return a list containing all the tags till the end, when the new tag is the last tag (for even number of tags)',
         () {
-      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
           fakeTagsEvenNumber, "v1.0.1", "v1.0.3");
       expect(tagsInBetween.length, 2);
       expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
@@ -98,7 +98,7 @@ void main() {
     test(
         'will return a list containing all the tags till the end, when the new tag is the last tag (for odd number of tags)',
         () {
-      List<String> tagsInBetween = GitOutputParser.retrieveTagsInBetweenOf(
+      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
           fakeTagsOddNumber, "v1.0.1", "v1.0.4");
       expect(tagsInBetween.length, 3);
       expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.4");
@@ -111,7 +111,7 @@ void main() {
       final sampleShortStatRawString =
           " 3 files changed, 455 insertions(+), 12 deletions(-) ";
       ShortStatDto shortStatDto =
-          GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
+          RwGitParser.parseGitShortStatStdout(sampleShortStatRawString);
 
       expect(shortStatDto.numberOfChangedFiles, 3);
       expect(shortStatDto.insertions, 455);
@@ -124,7 +124,7 @@ void main() {
       final sampleShortStatRawString =
           " 3fileschanged455insertions(+)12deletions(-) ";
       ShortStatDto shortStatDto =
-          GitOutputParser.parseGitShortStatStdout(sampleShortStatRawString);
+          RwGitParser.parseGitShortStatStdout(sampleShortStatRawString);
 
       expect(shortStatDto.numberOfChangedFiles, -1);
       expect(shortStatDto.insertions, -1);
