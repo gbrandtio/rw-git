@@ -11,6 +11,8 @@ class RwGitParser {
   static List<String> parseGitStdoutBasedOnNewLine(String gitStdout) {
     LineSplitter independentLineSplitter = const LineSplitter();
     List<String> independentLines = independentLineSplitter.convert(gitStdout);
+    independentLines =
+        independentLines.where((element) => element.isNotEmpty).toList();
 
     return independentLines;
   }
