@@ -13,9 +13,7 @@ void main() {
     rwGit = RwGit();
   });
 
-  tearDown(() async {
-
-  });
+  tearDown(() async {});
 
   /// Test group for [rwGit.isGitRepository()] function.
   group('isGitRepository', () {

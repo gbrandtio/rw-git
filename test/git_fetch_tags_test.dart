@@ -14,9 +14,7 @@ void main() {
     rwGit = RwGit();
   });
 
-  tearDown(() async {
-
-  });
+  tearDown(() async {});
 
   /// Test group for [rwGit.fetchTags()] function.
   group('fetchTags', () {
