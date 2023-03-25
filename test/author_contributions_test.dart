@@ -31,6 +31,8 @@ void main() {
           await rwGit.contributionsByAuthor(clonedFiles[0].uri.path);
 
       expect(contributionsByAuthor.length, greaterThan(1));
+      expect(contributionsByAuthor[0].numberOfContributions, greaterThan(0));
+      expect(contributionsByAuthor[0].authorName, "Aaron");
     });
   });
 }

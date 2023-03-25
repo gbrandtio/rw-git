@@ -72,7 +72,7 @@ class RwGitParser {
     String authorName = "";
 
     try {
-      List<String> shortLogParts = rawGitShortLog.trim().split(" ");
+      List<String> shortLogParts = rawGitShortLog.trim().split(RegExp('\\s+'));
       numberOfContributions = int.parse(shortLogParts[0]);
       authorName = shortLogParts[1];
     } catch (e) {
