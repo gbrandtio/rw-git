@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:rw_git/src/git_service/rw_git_parser.dart';
 import 'package:git/git.dart' as git_service;
+import 'package:rw_git/src/models/short_log_dto.dart';
 import 'package:rw_git/src/models/short_stat_dto.dart';
 
 /// ----------------------------------------------------------------------------
@@ -101,10 +102,10 @@ class RwGit {
     return RwGitParser.parseGitStdoutBasedOnNewLine(rawResult);
   }
 
-  /// `git --shortstat oldTag newTag` to fetch statistics related to
+  /// `git diff --shortstat oldTag newTag` to fetch statistics related to
   /// insertions, deletions and number of changed files between two tags.
   /// In case of success will return a [ShortStatDto] object with the available data,
-  /// whereas an object with the default values.
+  /// whereas an object with the default values otherwise.
   Future<ShortStatDto> stats(
       String localCheckoutDirectory, String oldTag, newTag) async {
     String rawResult = "";
@@ -117,5 +118,20 @@ class RwGit {
 
     rawResult = processResult.stdout;
     return RwGitParser.parseGitShortStatStdout(rawResult);
+  }
+
+  /// `git shortlog -s` to fetch author contributions.
+  /// In case of success will return a [ShortLogDto] object with the available
+  /// data, whereas an object with the default values otherwise.
+  Future<List<ShortLogDto>> contributionsByAuthor(
+      String localCheckoutDirectory) async {
+    ProcessResult processResult = await Process.run('git', ['shortlog', 'HEAD', '-s'], workingDirectory: localCheckoutDirectory);
+
+    List<String> rawList =
+        RwGitParser.parseGitStdoutBasedOnNewLine(processResult.stdout);
+    List<ShortLogDto> contributionsByAuthor =
+        rawList.map((e) => RwGitParser.parseGitShortLogStdout(e)).toList();
+
+    return contributionsByAuthor;
   }
 }
