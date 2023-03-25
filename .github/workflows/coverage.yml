@@ -19,6 +19,9 @@ jobs:
           flutter-version: '3.7.7'
           channel: 'stable'
 
+      - name: Clean Dart
+        run: dart pub cache clean
+
       - name: Clean Flutter
         run: flutter clean && flutter packages get
 
@@ -26,7 +29,7 @@ jobs:
         run: dart pub get && flutter pub get
         
       - name: Run tests
-        run: flutter test --coverage
+        run: flutter test -r expanded --coverage
         
       - name: Install lcov
         run: sudo apt-get install -y lcov
