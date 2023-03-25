@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v3
@@ -19,11 +19,8 @@ jobs:
           flutter-version: '3.7.7'
           channel: 'stable'
 
-      - name: Clean Dart
-        run: dart pub cache clean
-
-      - name: Clean Flutter
-        run: flutter clean && flutter packages get
+      - name: Clean Flutter and Dart
+        run: flutter clean && dart pub cache clean
 
       - name: Install flutter dependencies
         run: dart pub get && flutter pub get
