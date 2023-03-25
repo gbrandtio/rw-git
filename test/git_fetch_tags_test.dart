@@ -33,7 +33,7 @@ void main() {
   });
 
   test('will return an empty list if the repository does not exist', () async {
-    await Directory(testDir).create();
+    await rwGit.init(testDir);
     List<String> tags = await rwGit.fetchTags(testDir);
     expect(tags.isEmpty, true);
   });
