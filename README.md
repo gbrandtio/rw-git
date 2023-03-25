@@ -24,9 +24,14 @@
 ## Getting started
 
 pubspec.yaml:
-`rw_git: 1.0.0`
+`rw_git: 1.0.3`
 
 ## Usage
+Import library:
+```
+import 'package:rw_git/rw_git.dart';
+```
+
 Initialize RwGit:
 ```dart
 RwGit rwGit = RwGit();
