@@ -23,7 +23,7 @@ jobs:
         run: flutter clean && flutter packages get
 
       - name: Install flutter dependencies
-        run: flutter pub get
+        run: dart pub get && flutter pub get
         
       - name: Run tests
         run: flutter test --coverage
