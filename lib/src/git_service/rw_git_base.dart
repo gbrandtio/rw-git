@@ -125,7 +125,9 @@ class RwGit {
   /// data, whereas an object with the default values otherwise.
   Future<List<ShortLogDto>> contributionsByAuthor(
       String localCheckoutDirectory) async {
-    ProcessResult processResult = await Process.run('git', ['shortlog', 'HEAD', '-s'], workingDirectory: localCheckoutDirectory);
+    ProcessResult processResult = await Process.run(
+        'git', ['shortlog', 'HEAD', '-s'],
+        workingDirectory: localCheckoutDirectory);
 
     List<String> rawList =
         RwGitParser.parseGitStdoutBasedOnNewLine(processResult.stdout);
