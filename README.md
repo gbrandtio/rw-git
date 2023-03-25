@@ -10,7 +10,9 @@
 
 ## About
 
-`rw_git` is a git wrapper that facilitates the out-of-the-box execution of common git operations.
+`rw_git` is a git wrapper that facilitates the out-of-the-box execution of common git operations.  
+
+<a href='https://pub.dev/documentation/rw_git/latest/rw_git/rw_git-library.html'><img src="https://img.shields.io/badge/Check-Documentation-blue?style=for-the-badge&logo=readthedocs" alt="Documentation" /></a><br>
 
 ## Features
 
