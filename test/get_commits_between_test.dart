@@ -12,6 +12,10 @@ void main() {
     rwGit = RwGit();
   });
 
+  tearDown(() async {
+    await Directory(testDir).delete(recursive: true);
+  });
+
   /// Test group for [rwGit.getCommitsBetween()] function.
   group('getCommitsBetween', () {
     test(
@@ -25,7 +29,6 @@ void main() {
           clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6');
 
       expect(commitsBetweenTags.isNotEmpty, true);
-      await Directory(testDir).delete(recursive: true);
     });
 
     test(
@@ -36,7 +39,6 @@ void main() {
           testDir, 'v1.0.0_extinct', 'v1.0.1_extinct');
 
       expect(commitsBetweenTags.length, 0);
-      await Directory(testDir).delete(recursive: true);
     });
   });
 }

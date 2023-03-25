@@ -14,7 +14,9 @@ void main() {
     rwGit = RwGit();
   });
 
-  tearDown(() async {});
+  tearDown(() async {
+    await Directory(testDir).delete(recursive: true);
+  });
 
   /// Test group for [rwGit.fetchTags()] function.
   group('fetchTags', () {
@@ -27,7 +29,6 @@ void main() {
       bool isTagsMoreThanOne = tags.length > 1;
 
       expect(isTagsMoreThanOne, true);
-      await Directory(testDir).delete(recursive: true);
     });
   });
 
@@ -35,6 +36,5 @@ void main() {
     await rwGit.init(testDir);
     List<String> tags = await rwGit.fetchTags(testDir);
     expect(tags.isEmpty, true);
-    await Directory(testDir).delete(recursive: true);
   });
 }

@@ -15,6 +15,10 @@ void main() {
     rwGit = RwGit();
   });
 
+  tearDown(() async {
+    await Directory(testDir).delete(recursive: true);
+  });
+
   /// Test group for [rwGit.clone()] function.
   group('clone', () {
     test(
@@ -22,14 +26,12 @@ void main() {
         () async {
       bool isCloneSuccess = await rwGit.clone(testDir, validRemoteRepository);
       expect(isCloneSuccess, true);
-      await Directory(testDir).delete(recursive: true);
     });
 
     test('will create a local directory that will be empty, if the clone fails',
         () async {
       bool isCloneSuccess = await rwGit.clone(testDir, invalidRemoteRepository);
       expect(isCloneSuccess, false);
-      await Directory(testDir).delete(recursive: true);
     });
   });
 }
