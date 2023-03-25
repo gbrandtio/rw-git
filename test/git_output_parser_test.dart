@@ -1,4 +1,5 @@
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/models/short_log_dto.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -128,6 +129,18 @@ void main() {
       expect(shortStatDto.numberOfChangedFiles, -1);
       expect(shortStatDto.insertions, -1);
       expect(shortStatDto.deletions, -1);
+    });
+  });
+
+  /// Test group for [parseGitShortLogStdout] function.
+  group('parseGitShortLogStdout', () {
+    test('will return default values given a string with invalid format', () {
+      final invalidShortLogString = "InvalidShortLogString";
+      ShortLogDto shortLogDto =
+          RwGitParser.parseGitShortLogStdout(invalidShortLogString);
+
+      expect(shortLogDto.numberOfContributions, isNegative);
+      expect(shortLogDto.authorName, isEmpty);
     });
   });
 }
