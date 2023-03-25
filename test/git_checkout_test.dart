@@ -14,10 +14,6 @@ void main() {
     rwGit = RwGit();
   });
 
-  tearDown(() async {
-    await Directory(testDir).delete(recursive: true);
-  });
-
   /// Test group for [rwGit.checkout()] function.
   group('checkout', () {
     test('will succeed on a valid git repository with a valid branch',
@@ -29,6 +25,7 @@ void main() {
       bool isCheckoutSuccess =
           await rwGit.checkout(clonedFiles[0].uri.path, "main");
       expect(isCheckoutSuccess, true);
+      await Directory(testDir).delete(recursive: true);
     });
 
     test('will fail if the specified branch is invalid', () async {
@@ -36,6 +33,7 @@ void main() {
       bool isCheckoutSuccess = await rwGit.checkout(testDir, "invalid");
 
       expect(isCheckoutSuccess, false);
+      await Directory(testDir).delete(recursive: true);
     });
   });
 }

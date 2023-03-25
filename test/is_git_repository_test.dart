@@ -14,7 +14,7 @@ void main() {
   });
 
   tearDown(() async {
-    await Directory(testDir).delete(recursive: true);
+
   });
 
   /// Test group for [rwGit.isGitRepository()] function.
@@ -23,7 +23,9 @@ void main() {
         () async {
       await rwGit.init(testDir);
       bool isGitRepository = await rwGit.isGitRepository(testDir);
+
       expect(isGitRepository, true);
+      await Directory(testDir).delete(recursive: true);
     });
   });
 }

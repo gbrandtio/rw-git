@@ -14,10 +14,6 @@ void main() {
     rwGit = RwGit();
   });
 
-  tearDown(() async {
-    await Directory(testDir).delete(recursive: true);
-  });
-
   /// Test group for [rwGit.stats()] function.
   group('stats', () {
     test('will create a ShortStatDto that will contain all the available data',
@@ -33,6 +29,7 @@ void main() {
       expect(shortStatDto.numberOfChangedFiles >= 0, true);
       expect(shortStatDto.deletions >= 0, true);
       expect(shortStatDto.insertions >= 0, true);
+      await Directory(testDir).delete(recursive: true);
     });
 
     test(
@@ -45,6 +42,7 @@ void main() {
       expect(shortStatDto.numberOfChangedFiles == -1, true);
       expect(shortStatDto.deletions == -1, true);
       expect(shortStatDto.insertions == -1, true);
+      await Directory(testDir).delete(recursive: true);
     });
   });
 }
