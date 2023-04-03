@@ -22,6 +22,7 @@
 - [x] `fetchTags`: Retrieve a list of tags of the specified repository.
 - [x] `getCommitsBetween`: Retrieve a list of commits between two given tags.
 - [x] `stats`: Get the number of lines inserted, deleted and number of files changed.
+- [x] `contibutionsByAuthor`: Returns the number of contributions for every author of the repository.
 
 ## Getting started
 
