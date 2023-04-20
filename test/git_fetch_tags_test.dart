@@ -21,11 +21,12 @@ void main() {
   /// Test group for [rwGit.fetchTags()] function.
   group('fetchTags', () {
     test('will retrieve a list of tags from a valid git repository', () async {
-      await rwGit.clone(testDir, repositoryWithTags);
+      await rwGit.gitCommon.clone(testDir, repositoryWithTags);
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> tags = await rwGit.fetchTags(clonedFiles[0].uri.path);
+      List<String> tags =
+          await rwGit.gitCommon.fetchTags(clonedFiles[0].uri.path);
       bool isTagsMoreThanOne = tags.length > 1;
 
       expect(isTagsMoreThanOne, true);
@@ -33,8 +34,8 @@ void main() {
   });
 
   test('will return an empty list if the repository does not exist', () async {
-    await rwGit.init(testDir);
-    List<String> tags = await rwGit.fetchTags(testDir);
+    await rwGit.gitCommon.init(testDir);
+    List<String> tags = await rwGit.gitCommon.fetchTags(testDir);
     expect(tags.isEmpty, true);
   });
 }

@@ -21,8 +21,8 @@ void main() {
   group('isGitRepository', () {
     test('will succeed if the specified repository is a git repository',
         () async {
-      await rwGit.init(testDir);
-      bool isGitRepository = await rwGit.isGitRepository(testDir);
+      await rwGit.gitCommon.init(testDir);
+      bool isGitRepository = await rwGit.gitCommon.isGitRepository(testDir);
       expect(isGitRepository, true);
     });
   });

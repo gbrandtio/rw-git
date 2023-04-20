@@ -21,12 +21,12 @@ void main() {
     test(
         'output count will be greater than 0, if the provided repository and tags are valid',
         () async {
-      await rwGit.clone(testDir, repository);
+      await rwGit.gitCommon.clone(testDir, repository);
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
-          clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6');
+      List<String> commitsBetweenTags = await rwGit.gitCommon
+          .getCommitsBetween(clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6');
 
       expect(commitsBetweenTags.isNotEmpty, true);
     });
@@ -35,8 +35,8 @@ void main() {
         'output length will be 0, if the provided tags or directory are invalid',
         () async {
       await Directory(testDir).create();
-      List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
-          testDir, 'v1.0.0_extinct', 'v1.0.1_extinct');
+      List<String> commitsBetweenTags = await rwGit.gitCommon
+          .getCommitsBetween(testDir, 'v1.0.0_extinct', 'v1.0.1_extinct');
 
       expect(commitsBetweenTags.length, 0);
     });

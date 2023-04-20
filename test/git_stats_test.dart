@@ -22,13 +22,16 @@ void main() {
   group('stats', () {
     test('will create a ShortStatDto that will contain all the available data',
         () async {
-      await rwGit.clone(testDir, repositoryWithTags);
+      await rwGit.gitCommon.clone(testDir, repositoryWithTags);
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> tags = await rwGit.fetchTags(clonedFiles[0].uri.path);
-      ShortStatDto shortStatDto = await rwGit.stats(clonedFiles[0].uri.path,
-          tags[tags.length - 2], tags[tags.length - 1]);
+      List<String> tags =
+          await rwGit.gitCommon.fetchTags(clonedFiles[0].uri.path);
+      ShortStatDto shortStatDto = await rwGit.gitStats.stats(
+          clonedFiles[0].uri.path,
+          tags[tags.length - 2],
+          tags[tags.length - 1]);
 
       expect(shortStatDto.numberOfChangedFiles >= 0, true);
       expect(shortStatDto.deletions >= 0, true);
@@ -40,7 +43,7 @@ void main() {
         () async {
       await Directory(testDir).create();
       ShortStatDto shortStatDto =
-          await rwGit.stats(testDir, "oldTag", "newTag");
+          await rwGit.gitStats.stats(testDir, "oldTag", "newTag");
 
       expect(shortStatDto.numberOfChangedFiles == -1, true);
       expect(shortStatDto.deletions == -1, true);

@@ -24,13 +24,15 @@ void main() {
     test(
         'will create a local directory and clone the specified repository inside',
         () async {
-      bool isCloneSuccess = await rwGit.clone(testDir, validRemoteRepository);
+      bool isCloneSuccess =
+          await rwGit.gitCommon.clone(testDir, validRemoteRepository);
       expect(isCloneSuccess, true);
     });
 
     test('will create a local directory that will be empty, if the clone fails',
         () async {
-      bool isCloneSuccess = await rwGit.clone(testDir, invalidRemoteRepository);
+      bool isCloneSuccess =
+          await rwGit.gitCommon.clone(testDir, invalidRemoteRepository);
       expect(isCloneSuccess, false);
     });
   });
