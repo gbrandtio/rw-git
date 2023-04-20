@@ -19,12 +19,13 @@ void main() async {
   rwGit.gitCommon.clone(localDirectoryToCloneInto, repositoryToClone);
 
   // Retrieve and count all the tags.
-  List<String> tags = await rwGit.gitCommon.fetchTags(localDirectoryToCloneInto);
+  List<String> tags =
+      await rwGit.gitCommon.fetchTags(localDirectoryToCloneInto);
   print("Number of tags: ${tags.length}");
 
   // Count all commits between two tags.
-  List<String> listOfCommitsBetweenTwoTags =
-      await rwGit.gitCommon.getCommitsBetween(localDirectoryToCloneInto, oldTag, newTag);
+  List<String> listOfCommitsBetweenTwoTags = await rwGit.gitCommon
+      .getCommitsBetween(localDirectoryToCloneInto, oldTag, newTag);
   print(
       "Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}");
 
