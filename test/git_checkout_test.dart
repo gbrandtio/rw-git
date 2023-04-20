@@ -22,18 +22,19 @@ void main() {
   group('checkout', () {
     test('will succeed on a valid git repository with a valid branch',
         () async {
-      await rwGit.clone(testDir, validRemoteRepository);
+      await rwGit.gitCommon.clone(testDir, validRemoteRepository);
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
       bool isCheckoutSuccess =
-          await rwGit.checkout(clonedFiles[0].uri.path, "main");
+          await rwGit.gitCommon.checkout(clonedFiles[0].uri.path, "main");
       expect(isCheckoutSuccess, true);
     });
 
     test('will fail if the specified branch is invalid', () async {
-      await rwGit.clone(testDir, validRemoteRepository);
-      bool isCheckoutSuccess = await rwGit.checkout(testDir, "invalid");
+      await rwGit.gitCommon.clone(testDir, validRemoteRepository);
+      bool isCheckoutSuccess =
+          await rwGit.gitCommon.checkout(testDir, "invalid");
 
       expect(isCheckoutSuccess, false);
     });

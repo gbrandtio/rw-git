@@ -23,12 +23,12 @@ void main() {
   group('authorContributions', () {
     test('will create a ShortLogDto that will contain all the available data',
         () async {
-      await rwGit.clone(testDir, repositoryWithTags);
+      await rwGit.gitCommon.clone(testDir, repositoryWithTags);
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
       List<ShortLogDto> contributionsByAuthor =
-          await rwGit.contributionsByAuthor(clonedFiles[0].uri.path);
+          await rwGit.gitStats.contributionsByAuthor(clonedFiles[0].uri.path);
 
       expect(contributionsByAuthor.length, greaterThan(1));
       expect(contributionsByAuthor[0].numberOfContributions, greaterThan(0));
