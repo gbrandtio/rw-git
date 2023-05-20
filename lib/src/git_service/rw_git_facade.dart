@@ -58,6 +58,7 @@ class RwGit {
 
     ShortStatDto shortStatDto = ShortStatDto.defaultStats();
     if (clonedSuccessfully) {
+      // Navigate inside the cloned directory
       String localCheckoutDirectory = localDirectoryToCloneInto +
           Platform.pathSeparator +
           GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
