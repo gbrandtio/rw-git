@@ -10,5 +10,12 @@ void main() {
       expect(shortStatDto.insertions, 20);
       expect(shortStatDto.deletions, 30);
     });
+
+    test('will have the default values', () async {
+      ShortStatDto shortStatDto = ShortStatDto.defaultStats();
+      expect(shortStatDto.numberOfChangedFiles, -1);
+      expect(shortStatDto.insertions, -1);
+      expect(shortStatDto.deletions, -1);
+    });
   });
 }
