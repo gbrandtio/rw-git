@@ -4,6 +4,12 @@ import 'package:test/test.dart';
 void main() {
   /// Test group for ShortStatDto
   group('ShortStatDto', () {
+    test('default valued must be initialized and equal to -1', () async {
+      expect(ShortStatDto.defaultStats().numberOfChangedFiles, -1);
+      expect(ShortStatDto.defaultStats().insertions, -1);
+      expect(ShortStatDto.defaultStats().deletions, -1);
+    });
+
     test('will not have null properties when initialized', () async {
       ShortStatDto shortStatDto = ShortStatDto(10, 20, 30);
       expect(shortStatDto.numberOfChangedFiles, 10);

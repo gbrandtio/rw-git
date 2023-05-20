@@ -3,9 +3,9 @@
 /// ----------------------------------------------------------------------------
 /// A model representation of the output of the git --shortstat command.
 class ShortStatDto {
-  late int numberOfChangedFiles = -1;
-  late int deletions = -1;
-  late int insertions = -1;
+  late int numberOfChangedFiles;
+  late int deletions;
+  late int insertions;
 
   ShortStatDto(this.numberOfChangedFiles, this.insertions, this.deletions);
   ShortStatDto.defaultStats() {
