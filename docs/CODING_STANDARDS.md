@@ -15,7 +15,7 @@ We strictly adhere to the official [Effective Dart](https://dart.dev/effective-d
 - **DON'T** use a leading underscore for identifiers that aren't private.
 
 ### Formatting
-- **DO** format your code using `dart format --line-length=80 .`. This is strictly enforced by CI.
+- **DO** format your code using `dart format --line-length=80 .`. This is strictly enforced by CI. Agents MUST run this command before completing any task.
 - **PREFER** lines of 80 characters or fewer.
 - **DO** use curly braces for all flow control statements to prevent dangling `else` bugs.
 
