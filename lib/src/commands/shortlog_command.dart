@@ -7,9 +7,10 @@ class ShortlogCommand extends GitCommand<List<ShortLogDto>> {
   ShortlogCommand(super.runner);
 
   @override
-  Future<List<ShortLogDto>> execute(String directory) async {
+  Future<List<ShortLogDto>> execute(String directory,
+      {bool streamOutput = false}) async {
     final result = await runner.run('git', ['shortlog', 'HEAD', '-s'],
-        workingDirectory: directory);
+        workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
 
     List<String> rawList = RwGitParser.parseGitStdoutBasedOnNewLine(

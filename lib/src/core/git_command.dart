@@ -12,5 +12,5 @@ abstract class GitCommand<T> {
   GitCommand(this.runner);
 
   /// Executes the git command within the given [directory]
-  Future<T> execute(String directory);
+  Future<T> execute(String directory, {bool streamOutput = false});
 }

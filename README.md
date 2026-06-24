@@ -180,6 +180,13 @@ String logOutput = await rwGit.runCommand(localDirectoryToCloneInto, ['log', '-n
 print(logOutput);
 ```
 
+### Streaming Output
+You can opt-in to streaming the standard output and standard error of any Git command directly to the console in real-time by passing `streamOutput: true`. This is especially useful for long-running operations like clones or fetching large repositories:
+
+```dart
+await rwGit.clone(localDirectoryToCloneInto, "https://github.com/google/flutter", streamOutput: true);
+```
+
 ### Exception Handling
 `rw_git` strictly enforces type-safe exception handling. It will **never** silently swallow an execution error. All non-zero exit codes throw a `RwGitException` (or a subclass like `GitBranchNotFoundException`) that exposes the underlying `stderr` output.
 

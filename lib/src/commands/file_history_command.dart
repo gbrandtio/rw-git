@@ -8,12 +8,13 @@ class FileHistoryCommand extends GitCommand<List<String>> {
   FileHistoryCommand(super.runner, {required this.filePath});
 
   @override
-  Future<List<String>> execute(String directory) async {
+  Future<List<String>> execute(String directory,
+      {bool streamOutput = false}) async {
     // --follow traces history across renames
     // --oneline is usually easiest to parse for basic history
     final result = await runner.run(
         'git', ['log', '--follow', '--oneline', '--', filePath],
-        workingDirectory: directory);
+        workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
     return RwGitParser.parseGitStdoutBasedOnNewLine(
         result.stdout?.toString() ?? '');

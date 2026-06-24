@@ -8,12 +8,12 @@ class CloneCommand extends GitCommand<bool> {
   CloneCommand(super.runner, {required this.repository});
 
   @override
-  Future<bool> execute(String directory) async {
+  Future<bool> execute(String directory, {bool streamOutput = false}) async {
     await Directory(directory).create(recursive: true);
 
     // Using -- to prevent flag injection, though clone usually takes the repo directly
     final result = await runner.run('git', ['clone', '--', repository],
-        workingDirectory: directory);
+        workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
     return result.exitCode == 0;
   }

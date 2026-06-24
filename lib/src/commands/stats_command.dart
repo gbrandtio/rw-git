@@ -10,10 +10,11 @@ class StatsCommand extends GitCommand<ShortStatDto> {
   StatsCommand(super.runner, {required this.oldTag, required this.newTag});
 
   @override
-  Future<ShortStatDto> execute(String directory) async {
+  Future<ShortStatDto> execute(String directory,
+      {bool streamOutput = false}) async {
     final result = await runner.run(
         'git', ['diff', '--shortstat', oldTag, newTag],
-        workingDirectory: directory);
+        workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
     return RwGitParser.parseGitShortStatStdout(result.stdout?.toString() ?? '');
   }

@@ -1,3 +1,7 @@
+## 2.1.0
+- Added `streamOutput` opt-in flag across all `RwGit` methods to support real-time streaming of Git standard output and standard error to the console.
+- Refactored `ProcessRunner` to use `Process.start` to support seamless output streaming without blocking.
+
 ## 1.0.1
 - Support for common git commands and operations:
   - `git init`

@@ -175,7 +175,7 @@ class MockProcessRunner implements ProcessRunner {
 
   @override
   Future<ProcessResult> run(String executable, List<String> args,
-      {String? workingDirectory, bool runInShell = false}) async {
+      {String? workingDirectory, bool streamOutput = false}) async {
     if (args.contains('rev-list') && args.contains('--count')) {
       return ProcessResult(0, exitCode, '10\n', ''); // Mock 10 commits
     }

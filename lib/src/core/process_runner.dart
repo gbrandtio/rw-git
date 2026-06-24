@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:convert';
 import 'exceptions.dart';
 
 /// ----------------------------------------------------------------------------
@@ -16,23 +17,46 @@ abstract class ProcessRunner {
 
   /// Executes the given [executable] with the provided [arguments] securely.
   Future<ProcessResult> run(String executable, List<String> arguments,
-      {String? workingDirectory});
+      {String? workingDirectory, bool streamOutput = false});
 }
 
 class StandardProcessRunner implements ProcessRunner {
   @override
   Future<ProcessResult> run(String executable, List<String> arguments,
-      {String? workingDirectory}) async {
+      {String? workingDirectory, bool streamOutput = false}) async {
     try {
       // SECURITY.md: Never use runInShell: true for executing commands.
-      final result = await Process.run(
+      final process = await Process.start(
         executable,
         arguments,
         workingDirectory: workingDirectory,
         runInShell: false,
       );
 
-      return result;
+      final stdoutBuffer = StringBuffer();
+      final stderrBuffer = StringBuffer();
+
+      final stdoutFuture =
+          process.stdout.transform(utf8.decoder).forEach((data) {
+        stdoutBuffer.write(data);
+        if (streamOutput) {
+          stdout.write(data);
+        }
+      });
+
+      final stderrFuture =
+          process.stderr.transform(utf8.decoder).forEach((data) {
+        stderrBuffer.write(data);
+        if (streamOutput) {
+          stderr.write(data);
+        }
+      });
+
+      final exitCode = await process.exitCode;
+      await Future.wait([stdoutFuture, stderrFuture]);
+
+      return ProcessResult(process.pid, exitCode, stdoutBuffer.toString(),
+          stderrBuffer.toString());
     } on ProcessException catch (e) {
       throw GitExecutableNotFoundException(
         message:
@@ -56,10 +80,18 @@ class MockProcessRunner implements ProcessRunner {
 
   @override
   Future<ProcessResult> run(String executable, List<String> arguments,
-      {String? workingDirectory}) async {
+      {String? workingDirectory, bool streamOutput = false}) async {
     final key = '$executable ${arguments.join(' ')}';
-    return _mockResults[key] ??
+
+    final result = _mockResults[key] ??
         ProcessResult(0, 1, '', 'Mock result not found for $key');
+
+    if (streamOutput) {
+      stdout.write(result.stdout);
+      stderr.write(result.stderr);
+    }
+
+    return result;
   }
 }
 

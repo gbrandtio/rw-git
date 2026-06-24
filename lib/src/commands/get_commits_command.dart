@@ -10,11 +10,12 @@ class GetCommitsCommand extends GitCommand<List<String>> {
       {required this.firstTag, required this.secondTag});
 
   @override
-  Future<List<String>> execute(String directory) async {
+  Future<List<String>> execute(String directory,
+      {bool streamOutput = false}) async {
     // using ... syntax for rev-list
     final result = await runner.run(
         'git', ['rev-list', '$firstTag...$secondTag'],
-        workingDirectory: directory);
+        workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
     return RwGitParser.parseGitStdoutBasedOnNewLine(
         result.stdout?.toString() ?? '');
