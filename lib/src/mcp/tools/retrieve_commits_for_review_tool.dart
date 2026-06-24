@@ -42,8 +42,10 @@ class RetrieveCommitsForReviewTool implements McpTool {
     return '''
 You are an expert AI code reviewer. Please analyze the following git commits.
 I want you to specifically check for:
-1. Bad commit messages: look for frustrated, unhelpful, non-detailed, or low-effort messages (e.g., "fixed stuff", "argh", "wip").
+1. Bad commit messages: look for frustrated, unhelpful, non-detailed, or low-effort messages
+(e.g., "fixed stuff", "updates", "todo", "fixme", "do not touch", "argh", "wip").
 2. Commented-out code blocks left behind in the diff.
+3. Too many changes with a vague or incomplete or inaccurate summary / commit message.
 
 Commits to review:
 --------------------------------------------------
