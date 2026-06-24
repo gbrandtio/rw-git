@@ -4,7 +4,9 @@ import 'package:test/test.dart';
 
 void main() {
   group('CodeQualityTracker', () {
-    test('calculateChurn will correctly parse the unified diff output from git log', () async {
+    test(
+        'calculateChurn will correctly parse the unified diff output from git log',
+        () async {
       String mockGitLogP = '''
 commit a1b2c3d4e5f6
 Author: John Doe <john@doe.com>
@@ -45,7 +47,7 @@ index 123456..789012 100644
       expect(result.fileChurn['lib/main.dart'], 2);
       expect(result.blockChurn['class RwGitFacade {'], 2);
       expect(result.blockChurn['void main() {'], 1);
-      
+
       expect(result.classChurn['RwGitFacade'], 2);
     });
   });
@@ -56,7 +58,8 @@ class MockProcessRunner implements ProcessRunner {
   MockProcessRunner(this.mockOutput);
 
   @override
-  Future<ProcessResult> run(String executable, List<String> args, {String? workingDirectory, bool runInShell = false}) async {
+  Future<ProcessResult> run(String executable, List<String> args,
+      {String? workingDirectory, bool runInShell = false}) async {
     if (args.contains('rev-list') && args.contains('--count')) {
       return ProcessResult(0, 0, '10\n', ''); // Mock 10 commits
     }

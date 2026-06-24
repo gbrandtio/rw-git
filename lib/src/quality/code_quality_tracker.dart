@@ -2,6 +2,7 @@ import 'dart:isolate';
 import '../core/process_runner.dart';
 import '../models/churn_metrics_dto.dart';
 import '../models/churn_metrics_with_authors_dto.dart';
+
 /// ----------------------------------------------------------------------------
 /// code_quality_tracker.dart
 /// ----------------------------------------------------------------------------
@@ -20,33 +21,42 @@ class CodeQualityTracker {
   /// Analyzes the recent commits for suspicious keywords.
   Future<List<String>> findSuspiciousCommits(String directory) async {
     // Fetch recent commit logs
-    final result = await runner.run('git', ['log', '--format=%H||%B'], workingDirectory: directory);
+    final result = await runner.run('git', ['log', '--format=%H||%B'],
+        workingDirectory: directory);
     evaluateProcessResult(result);
-    
+
     final rawOutput = result.stdout?.toString() ?? '';
-    
+
     // Offload parsing to an Isolate
     return await Isolate.run(() => _parseSuspiciousCommits(rawOutput));
   }
-  
+
   /// Identifies mega-commits (e.g. ones that touch more than 500 lines or 20 files)
-  Future<List<String>> findMegaCommits(String directory, {int lineThreshold = 500, int fileThreshold = 20}) async {
-    final result = await runner.run('git', ['log', '--shortstat', '--format=%H'], workingDirectory: directory);
+  Future<List<String>> findMegaCommits(String directory,
+      {int lineThreshold = 500, int fileThreshold = 20}) async {
+    final result = await runner.run(
+        'git', ['log', '--shortstat', '--format=%H'],
+        workingDirectory: directory);
     evaluateProcessResult(result);
-    
+
     final rawOutput = result.stdout?.toString() ?? '';
-    
+
     // Offload parsing to an Isolate
-    return await Isolate.run(() => _parseMegaCommits(rawOutput, lineThreshold, fileThreshold));
+    return await Isolate.run(
+        () => _parseMegaCommits(rawOutput, lineThreshold, fileThreshold));
   }
 
   /// Calculates churn metrics (file, class, and block level churn frequencies).
   Future<ChurnMetricsDto> calculateChurn(String directory) async {
-    final commitCountResult = await runner.run('git', ['rev-list', '--count', 'HEAD'], workingDirectory: directory);
+    final commitCountResult = await runner.run(
+        'git', ['rev-list', '--count', 'HEAD'],
+        workingDirectory: directory);
     evaluateProcessResult(commitCountResult);
-    final totalCommits = int.tryParse(commitCountResult.stdout?.toString().trim() ?? '0') ?? 0;
+    final totalCommits =
+        int.tryParse(commitCountResult.stdout?.toString().trim() ?? '0') ?? 0;
 
-    final result = await runner.run('git', ['log', '-p', '--format='], workingDirectory: directory);
+    final result = await runner.run('git', ['log', '-p', '--format='],
+        workingDirectory: directory);
     evaluateProcessResult(result);
 
     final rawOutput = result.stdout?.toString() ?? '';
@@ -57,18 +67,24 @@ class CodeQualityTracker {
 
   /// Calculates churn metrics (file, class, and block level churn frequencies)
   /// and includes the authors who contributed to each.
-  Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(String directory) async {
-    final commitCountResult = await runner.run('git', ['rev-list', '--count', 'HEAD'], workingDirectory: directory);
+  Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
+      String directory) async {
+    final commitCountResult = await runner.run(
+        'git', ['rev-list', '--count', 'HEAD'],
+        workingDirectory: directory);
     evaluateProcessResult(commitCountResult);
-    final totalCommits = int.tryParse(commitCountResult.stdout?.toString().trim() ?? '0') ?? 0;
+    final totalCommits =
+        int.tryParse(commitCountResult.stdout?.toString().trim() ?? '0') ?? 0;
 
-    final result = await runner.run('git', ['log', '-p', '--format=AUTHOR:%an'], workingDirectory: directory);
+    final result = await runner.run('git', ['log', '-p', '--format=AUTHOR:%an'],
+        workingDirectory: directory);
     evaluateProcessResult(result);
 
     final rawOutput = result.stdout?.toString() ?? '';
 
     // Offload parsing to an Isolate
-    return await Isolate.run(() => _parseChurnMetricsWithAuthors(rawOutput, totalCommits));
+    return await Isolate.run(
+        () => _parseChurnMetricsWithAuthors(rawOutput, totalCommits));
   }
 }
 
@@ -80,8 +96,7 @@ List<String> _parseSuspiciousCommits(String rawLog) {
   final List<String> flaggedCommits = [];
   final regex = RegExp(
       r'\b(fixme|fix me|to-do|todo|hack|workaround|kludge|temporary|temp|wip|do not touch|dont touch|magic|dirty|ugly|hotfix|quick fix|oops|wtf|password|passwd|secret|api_key|apikey|credentials|creds|bypass|backdoor)\b',
-      caseSensitive: false
-  );
+      caseSensitive: false);
 
   final lines = rawLog.split('\n');
   for (final line in lines) {
@@ -90,47 +105,53 @@ List<String> _parseSuspiciousCommits(String rawLog) {
     if (parts.length >= 2) {
       final hash = parts[0];
       final message = parts.sublist(1).join('||');
-      
+
       if (regex.hasMatch(message)) {
         flaggedCommits.add(hash);
       }
     }
   }
-  
+
   return flaggedCommits;
 }
 
-List<String> _parseMegaCommits(String rawLog, int lineThreshold, int fileThreshold) {
+List<String> _parseMegaCommits(
+    String rawLog, int lineThreshold, int fileThreshold) {
   final List<String> flaggedCommits = [];
-  
+
   final lines = rawLog.split('\n');
   String currentHash = '';
-  
+
   for (final line in lines) {
     if (line.trim().isEmpty) continue;
-    
+
     // If line doesn't start with space, it's a commit hash
     if (!line.startsWith(' ')) {
       currentHash = line.trim();
-    } else if (line.contains('changed') || line.contains('insertion') || line.contains('deletion')) {
+    } else if (line.contains('changed') ||
+        line.contains('insertion') ||
+        line.contains('deletion')) {
       // Parse shortstat
       // Example: 3 files changed, 455 insertions(+), 12 deletions(-)
       int insertions = 0;
       int deletions = 0;
       int filesChanged = 0;
-      
+
       final parts = line.split(',');
       for (final part in parts) {
         if (part.contains('insertion')) {
           insertions = int.tryParse(part.trim().split(' ')[0]) ?? 0;
         } else if (part.contains('deletion')) {
           deletions = int.tryParse(part.trim().split(' ')[0]) ?? 0;
-        } else if (part.contains('file changed') || part.contains('files changed')) {
+        } else if (part.contains('file changed') ||
+            part.contains('files changed')) {
           filesChanged = int.tryParse(part.trim().split(' ')[0]) ?? 0;
         }
       }
-      
-      if (((insertions + deletions) >= lineThreshold || filesChanged >= fileThreshold) && currentHash.isNotEmpty) {
+
+      if (((insertions + deletions) >= lineThreshold ||
+              filesChanged >= fileThreshold) &&
+          currentHash.isNotEmpty) {
         flaggedCommits.add(currentHash);
       }
     }
@@ -182,7 +203,8 @@ ChurnMetricsDto _parseChurnMetrics(String rawLog, int totalCommits) {
   );
 }
 
-ChurnMetricsWithAuthorsDto _parseChurnMetricsWithAuthors(String rawLog, int totalCommits) {
+ChurnMetricsWithAuthorsDto _parseChurnMetricsWithAuthors(
+    String rawLog, int totalCommits) {
   final Map<String, Map<String, int>> fileChurn = {};
   final Map<String, Map<String, int>> classChurn = {};
   final Map<String, Map<String, int>> blockChurn = {};
@@ -199,7 +221,8 @@ ChurnMetricsWithAuthorsDto _parseChurnMetricsWithAuthors(String rawLog, int tota
       final fileName = line.substring(6).trim();
       if (fileName != '/dev/null') {
         fileChurn.putIfAbsent(fileName, () => {});
-        fileChurn[fileName]![currentAuthor] = (fileChurn[fileName]![currentAuthor] ?? 0) + 1;
+        fileChurn[fileName]![currentAuthor] =
+            (fileChurn[fileName]![currentAuthor] ?? 0) + 1;
       }
     } else if (line.startsWith('@@ ')) {
       final parts = line.split('@@');
@@ -207,13 +230,15 @@ ChurnMetricsWithAuthorsDto _parseChurnMetricsWithAuthors(String rawLog, int tota
         final context = parts.sublist(2).join('@@').trim();
         if (context.isNotEmpty) {
           blockChurn.putIfAbsent(context, () => {});
-          blockChurn[context]![currentAuthor] = (blockChurn[context]![currentAuthor] ?? 0) + 1;
+          blockChurn[context]![currentAuthor] =
+              (blockChurn[context]![currentAuthor] ?? 0) + 1;
 
           if (context.startsWith('class ')) {
             final className = context.split(' ')[1].replaceAll('{', '').trim();
             if (className.isNotEmpty) {
               classChurn.putIfAbsent(className, () => {});
-              classChurn[className]![currentAuthor] = (classChurn[className]![currentAuthor] ?? 0) + 1;
+              classChurn[className]![currentAuthor] =
+                  (classChurn[className]![currentAuthor] ?? 0) + 1;
             }
           }
         }

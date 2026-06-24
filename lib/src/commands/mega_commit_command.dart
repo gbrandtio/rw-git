@@ -10,10 +10,13 @@ class MegaCommitCheckCommand extends GitCommand<List<String>> {
   @override
   Future<List<String>> execute(String directory) async {
     // git log --shortstat returns the stat per commit which we can parse to find mega-commits
-    final result = await runner.run('git', ['log', '--shortstat', '--format=oneline'], workingDirectory: directory);
+    final result = await runner.run(
+        'git', ['log', '--shortstat', '--format=oneline'],
+        workingDirectory: directory);
     evaluateProcessResult(result);
-    
+
     // the parser logic will be handled outside, but for now we just return the raw lines to be processed
-    return RwGitParser.parseGitStdoutBasedOnNewLine(result.stdout?.toString() ?? '');
+    return RwGitParser.parseGitStdoutBasedOnNewLine(
+        result.stdout?.toString() ?? '');
   }
 }

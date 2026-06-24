@@ -25,16 +25,19 @@ void main() {
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> commitsBetweenTags = await rwGit
-          .getCommitsBetween(clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6');
+      List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
+          clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6');
 
       expect(commitsBetweenTags.isNotEmpty, true);
     });
 
-    test('will throw RwGitException if the provided tags or directory are invalid', () async {
+    test(
+        'will throw RwGitException if the provided tags or directory are invalid',
+        () async {
       await Directory(testDir).create();
       try {
-        await rwGit.getCommitsBetween(testDir, 'v1.0.0_extinct', 'v1.0.1_extinct');
+        await rwGit.getCommitsBetween(
+            testDir, 'v1.0.0_extinct', 'v1.0.1_extinct');
         fail('Should have thrown RwGitException');
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);

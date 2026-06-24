@@ -25,8 +25,7 @@ void main() {
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> tags =
-          await rwGit.fetchTags(clonedFiles[0].uri.path);
+      List<String> tags = await rwGit.fetchTags(clonedFiles[0].uri.path);
       bool isTagsMoreThanOne = tags.length > 1;
 
       expect(isTagsMoreThanOne, true);

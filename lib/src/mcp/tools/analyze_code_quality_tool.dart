@@ -67,6 +67,9 @@ ${_formatTop(churn.blockChurn)}
     if (data.isEmpty) return 'None found.';
     final sorted = data.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    return sorted.take(top).map((e) => '- ${e.key}: ${e.value} changes').join('\n');
+    return sorted
+        .take(top)
+        .map((e) => '- ${e.key}: ${e.value} changes')
+        .join('\n');
   }
 }

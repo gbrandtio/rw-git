@@ -22,7 +22,10 @@ class McpServer {
 
   /// Starts listening to the input stream for JSON-RPC messages.
   void start() {
-    inputStream.transform(utf8.decoder).transform(const LineSplitter()).listen((line) async {
+    inputStream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .listen((line) async {
       try {
         final request = jsonDecode(line);
         if (request is! Map<String, dynamic>) return;
@@ -70,7 +73,8 @@ class McpServer {
         final resultText = await tool.execute(args);
         _sendToolResult(id, resultText);
       } on RwGitException catch (e) {
-        _sendError(id, -32000, 'Git error (code ${e.exitCode}): ${e.message}\\n${e.stderr}');
+        _sendError(id, -32000,
+            'Git error (code ${e.exitCode}): ${e.message}\\n${e.stderr}');
       } catch (e) {
         _sendError(id, -32000, 'Tool execution error: $e');
       }

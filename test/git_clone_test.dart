@@ -24,8 +24,7 @@ void main() {
     test(
         'will create a local directory and clone the specified repository inside',
         () async {
-      bool isCloneSuccess =
-          await rwGit.clone(testDir, validRemoteRepository);
+      bool isCloneSuccess = await rwGit.clone(testDir, validRemoteRepository);
       expect(isCloneSuccess, true);
     });
 

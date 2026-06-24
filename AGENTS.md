@@ -108,6 +108,7 @@ Implement the solution following the patterns found in the documentation. Valida
 6.  **Version Control**: Never perform VCS operations directly via standard `git` terminal commands if testing. Use mocked `ProcessRunner` interfaces or create temporary, isolated test repositories.
 7.  **Isolate Enforcement**: If a parsing task blocks the main isolate for more than 16ms during high-load scenarios, you must offload it to a background Isolate.
 8.  **Magic Numbers**: Use expressive constants instead of literals for exit codes or buffer sizes.
+9.  **Formatting**: All Dart files must be formatted with an 80-character line limit. You must run `dart format --line-length=80 .` before finalizing your changes to ensure the CI build passes.
 
 ## Testing
 *   **Unit Tests**: Parsing logic and command strategies must be testable.

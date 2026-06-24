@@ -11,7 +11,9 @@ class StatsCommand extends GitCommand<ShortStatDto> {
 
   @override
   Future<ShortStatDto> execute(String directory) async {
-    final result = await runner.run('git', ['diff', '--shortstat', oldTag, newTag], workingDirectory: directory);
+    final result = await runner.run(
+        'git', ['diff', '--shortstat', oldTag, newTag],
+        workingDirectory: directory);
     evaluateProcessResult(result);
     return RwGitParser.parseGitShortStatStdout(result.stdout?.toString() ?? '');
   }

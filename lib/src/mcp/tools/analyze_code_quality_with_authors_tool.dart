@@ -41,7 +41,8 @@ class AnalyzeCodeQualityWithAuthorsTool implements McpTool {
     // Calculate High Churn files (>10% of total commits)
     final highChurnThreshold = (churn.totalCommits * 0.10).ceil();
     final highChurnFiles = churn.fileChurn.entries
-        .where((e) => e.value.total >= highChurnThreshold && churn.totalCommits > 0)
+        .where((e) =>
+            e.value.total >= highChurnThreshold && churn.totalCommits > 0)
         .toList()
       ..sort((a, b) => b.value.total.compareTo(a.value.total));
 
@@ -65,7 +66,8 @@ ${_formatTop(churn.blockChurn)}
 
   String _formatAuthors(Map<String, int> authors) {
     if (authors.isEmpty) return '    (No authors)';
-    final sorted = authors.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final sorted = authors.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     return sorted.map((e) => '    * ${e.key}: ${e.value}').join('\n');
   }
 
@@ -73,6 +75,10 @@ ${_formatTop(churn.blockChurn)}
     if (data.isEmpty) return 'None found.';
     final sorted = data.entries.toList()
       ..sort((a, b) => b.value.total.compareTo(a.value.total));
-    return sorted.take(top).map((e) => '- ${e.key}: ${e.value.total} changes\n${_formatAuthors(e.value.authors)}').join('\n');
+    return sorted
+        .take(top)
+        .map((e) =>
+            '- ${e.key}: ${e.value.total} changes\n${_formatAuthors(e.value.authors)}')
+        .join('\n');
   }
 }

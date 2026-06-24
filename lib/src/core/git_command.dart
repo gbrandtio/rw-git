@@ -3,7 +3,7 @@ import 'process_runner.dart';
 /// ----------------------------------------------------------------------------
 /// git_command.dart
 /// ----------------------------------------------------------------------------
-/// Defines the strategy interface for all Git commands adhering to the 
+/// Defines the strategy interface for all Git commands adhering to the
 /// Open/Closed Principle.
 
 abstract class GitCommand<T> {

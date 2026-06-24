@@ -12,7 +12,8 @@ class RetrieveCommitsForReviewTool implements McpTool {
   String get name => 'retrieve_commits_for_ai_review';
 
   @override
-  String get description => 'Retrieves recent commits with a structured prompt instructing an AI agent to look for bad commit messages and commented out code.';
+  String get description =>
+      'Retrieves recent commits with a structured prompt instructing an AI agent to look for bad commit messages and commented out code.';
 
   @override
   Map<String, dynamic> get inputSchema => {
@@ -35,7 +36,8 @@ class RetrieveCommitsForReviewTool implements McpTool {
     final directory = arguments['directory'] as String;
     final limit = arguments['limit']?.toString() ?? '10';
 
-    final result = await rwGit.runCommand(directory, ['log', '-n', limit, '-p']);
+    final result =
+        await rwGit.runCommand(directory, ['log', '-n', limit, '-p']);
 
     return '''
 You are an expert AI code reviewer. Please analyze the following git commits.

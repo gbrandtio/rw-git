@@ -48,7 +48,8 @@ class GitNotInitializedException extends RwGitException {
 class GitExecutableNotFoundException extends RwGitException {
   GitExecutableNotFoundException({String? message, Object? originalException})
       : super(
-          message: message ?? 'Failed to execute git. Ensure git is installed and in the system PATH.',
+          message: message ??
+              'Failed to execute git. Ensure git is installed and in the system PATH.',
           originalException: originalException,
         );
 }

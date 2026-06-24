@@ -25,7 +25,8 @@ class RwGit {
 
   final ProcessRunner runner;
 
-  RwGit({ProcessRunner? runner}) : runner = runner ?? ProcessRunner.defaultRunner();
+  RwGit({ProcessRunner? runner})
+      : runner = runner ?? ProcessRunner.defaultRunner();
 
   Future<bool> init(String directoryToInit) {
     return InitCommand(runner).execute(directoryToInit);
@@ -36,33 +37,42 @@ class RwGit {
   }
 
   Future<bool> clone(String localDirectoryToCloneInto, String repository) {
-    return CloneCommand(runner, repository: repository).execute(localDirectoryToCloneInto);
+    return CloneCommand(runner, repository: repository)
+        .execute(localDirectoryToCloneInto);
   }
 
-  Future<bool> checkout(String localCheckoutDirectory, String branchToCheckout) {
-    return CheckoutCommand(runner, branchToCheckout: branchToCheckout).execute(localCheckoutDirectory);
+  Future<bool> checkout(
+      String localCheckoutDirectory, String branchToCheckout) {
+    return CheckoutCommand(runner, branchToCheckout: branchToCheckout)
+        .execute(localCheckoutDirectory);
   }
 
   Future<List<String>> fetchTags(String localCheckoutDirectory) {
     return FetchTagsCommand(runner).execute(localCheckoutDirectory);
   }
 
-  Future<List<String>> getCommitsBetween(String localCheckoutDirectory, String firstTag, String secondTag) {
-    return GetCommitsCommand(runner, firstTag: firstTag, secondTag: secondTag).execute(localCheckoutDirectory);
+  Future<List<String>> getCommitsBetween(
+      String localCheckoutDirectory, String firstTag, String secondTag) {
+    return GetCommitsCommand(runner, firstTag: firstTag, secondTag: secondTag)
+        .execute(localCheckoutDirectory);
   }
 
-  Future<ShortStatDto> stats(String localCheckoutDirectory, String oldTag, String newTag) {
-    return StatsCommand(runner, oldTag: oldTag, newTag: newTag).execute(localCheckoutDirectory);
+  Future<ShortStatDto> stats(
+      String localCheckoutDirectory, String oldTag, String newTag) {
+    return StatsCommand(runner, oldTag: oldTag, newTag: newTag)
+        .execute(localCheckoutDirectory);
   }
 
-  Future<List<ShortLogDto>> contributionsByAuthor(String localCheckoutDirectory) {
+  Future<List<ShortLogDto>> contributionsByAuthor(
+      String localCheckoutDirectory) {
     return ShortlogCommand(runner).execute(localCheckoutDirectory);
   }
 
   /// Clones the provided [repository] and checks out the provided [branchToCheckout].
   Future<bool> cloneSpecificBranch(String localDirectoryToCloneInto,
       String repository, String branchToCheckout) async {
-    bool clonedSuccessfully = await clone(localDirectoryToCloneInto, repository);
+    bool clonedSuccessfully =
+        await clone(localDirectoryToCloneInto, repository);
 
     if (clonedSuccessfully) {
       String localCheckoutDirectory = localDirectoryToCloneInto +
@@ -78,7 +88,8 @@ class RwGit {
   /// and returns the statistics between the supplied [oldTag] and [newTag]
   Future<ShortStatDto> cloneAndGetStatistics(String localDirectoryToCloneInto,
       String repository, String oldTag, String newTag) async {
-    bool clonedSuccessfully = await clone(localDirectoryToCloneInto, repository);
+    bool clonedSuccessfully =
+        await clone(localDirectoryToCloneInto, repository);
 
     if (clonedSuccessfully) {
       String localCheckoutDirectory = localDirectoryToCloneInto +

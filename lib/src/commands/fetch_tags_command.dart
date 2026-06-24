@@ -7,7 +7,8 @@ class FetchTagsCommand extends GitCommand<List<String>> {
 
   @override
   Future<List<String>> execute(String directory) async {
-    final result = await runner.run('git', ['tag', '-l'], workingDirectory: directory);
+    final result =
+        await runner.run('git', ['tag', '-l'], workingDirectory: directory);
     evaluateProcessResult(result);
     return RwGitParser.parseGitStdoutBasedOnNewLine(result.stdout.toString());
   }

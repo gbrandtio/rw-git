@@ -8,14 +8,12 @@ class GetRwGitDocumentationTool implements McpTool {
   String get name => 'get_rw_git_documentation';
 
   @override
-  String get description => 'Retrieve detailed descriptions and parameter requirements for all RwGit facade out-of-the-box operations.';
+  String get description =>
+      'Retrieve detailed descriptions and parameter requirements for all RwGit facade out-of-the-box operations.';
 
   @override
-  Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {},
-        'required': []
-      };
+  Map<String, dynamic> get inputSchema =>
+      {'type': 'object', 'properties': {}, 'required': []};
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

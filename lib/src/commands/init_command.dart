@@ -7,7 +7,8 @@ class InitCommand extends GitCommand<bool> {
   @override
   Future<bool> execute(String directory) async {
     await Directory(directory).create(recursive: true);
-    final result = await runner.run('git', ['init'], workingDirectory: directory);
+    final result =
+        await runner.run('git', ['init'], workingDirectory: directory);
     return result.exitCode == 0;
   }
 }

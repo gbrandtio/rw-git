@@ -12,7 +12,8 @@ class ExecuteGitCommandTool implements McpTool {
   String get name => 'execute_git_command';
 
   @override
-  String get description => 'Execute an arbitrary git command securely. Available out-of-the-box '
+  String get description =>
+      'Execute an arbitrary git command securely. Available out-of-the-box '
       'operations in RwGit include: init, isGitRepository, clone, checkout, fetchTags, getCommitsBetween,'
       'stats, contributionsByAuthor, cloneSpecificBranch, cloneAndGetStatistics, and runCommand.';
 
@@ -37,7 +38,7 @@ class ExecuteGitCommandTool implements McpTool {
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments['directory'] as String;
     final args = (arguments['args'] as List).cast<String>();
-    
+
     // Command validation could go here if needed, but RwGit.runCommand
     // encapsulates safe argument passing to Process.run without shell.
     return await rwGit.runCommand(directory, args);

@@ -6,13 +6,17 @@ class GetCommitsCommand extends GitCommand<List<String>> {
   final String firstTag;
   final String secondTag;
 
-  GetCommitsCommand(super.runner, {required this.firstTag, required this.secondTag});
+  GetCommitsCommand(super.runner,
+      {required this.firstTag, required this.secondTag});
 
   @override
   Future<List<String>> execute(String directory) async {
     // using ... syntax for rev-list
-    final result = await runner.run('git', ['rev-list', '$firstTag...$secondTag'], workingDirectory: directory);
+    final result = await runner.run(
+        'git', ['rev-list', '$firstTag...$secondTag'],
+        workingDirectory: directory);
     evaluateProcessResult(result);
-    return RwGitParser.parseGitStdoutBasedOnNewLine(result.stdout?.toString() ?? '');
+    return RwGitParser.parseGitStdoutBasedOnNewLine(
+        result.stdout?.toString() ?? '');
   }
 }

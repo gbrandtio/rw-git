@@ -10,9 +10,10 @@ class CloneCommand extends GitCommand<bool> {
   @override
   Future<bool> execute(String directory) async {
     await Directory(directory).create(recursive: true);
-    
+
     // Using -- to prevent flag injection, though clone usually takes the repo directly
-    final result = await runner.run('git', ['clone', '--', repository], workingDirectory: directory);
+    final result = await runner.run('git', ['clone', '--', repository],
+        workingDirectory: directory);
     evaluateProcessResult(result);
     return result.exitCode == 0;
   }

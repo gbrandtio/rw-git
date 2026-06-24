@@ -11,8 +11,11 @@ class FileHistoryCommand extends GitCommand<List<String>> {
   Future<List<String>> execute(String directory) async {
     // --follow traces history across renames
     // --oneline is usually easiest to parse for basic history
-    final result = await runner.run('git', ['log', '--follow', '--oneline', '--', filePath], workingDirectory: directory);
+    final result = await runner.run(
+        'git', ['log', '--follow', '--oneline', '--', filePath],
+        workingDirectory: directory);
     evaluateProcessResult(result);
-    return RwGitParser.parseGitStdoutBasedOnNewLine(result.stdout?.toString() ?? '');
+    return RwGitParser.parseGitStdoutBasedOnNewLine(
+        result.stdout?.toString() ?? '');
   }
 }
