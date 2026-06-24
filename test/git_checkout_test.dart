@@ -40,5 +40,20 @@ void main() {
         expect(e.exitCode != 0, true);
       }
     });
+
+    test('will sanitize branch name starting with hyphen', () async {
+      await rwGit.clone(testDir, validRemoteRepository);
+      try {
+        // -invalid-branch should become refs/heads/-invalid-branch instead of failing on git flag injection
+        await rwGit.checkout(testDir, "-invalid-branch");
+        fail('Should have thrown RwGitException');
+      } on RwGitException catch (e) {
+        // the error output should reflect that it tried to checkout refs/heads/-invalid-branch
+        expect(
+            e.stderr?.contains('refs/heads/-invalid-branch') == true ||
+                e.stderr?.contains('did not match') == true,
+            true);
+      }
+    });
   });
 }

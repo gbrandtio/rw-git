@@ -68,37 +68,36 @@ class RwGit {
     return ShortlogCommand(runner).execute(localCheckoutDirectory);
   }
 
-  /// Clones the provided [repository] and checks out the provided [branchToCheckout].
   Future<bool> cloneSpecificBranch(String localDirectoryToCloneInto,
       String repository, String branchToCheckout) async {
-    bool clonedSuccessfully =
-        await clone(localDirectoryToCloneInto, repository);
+    try {
+      await clone(localDirectoryToCloneInto, repository);
 
-    if (clonedSuccessfully) {
       String localCheckoutDirectory = localDirectoryToCloneInto +
           Platform.pathSeparator +
           GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
 
       return checkout(localCheckoutDirectory, branchToCheckout);
+    } on RwGitException {
+      return false;
     }
-    return false;
   }
 
   /// Clones the specified [repository] into the [localDirectoryToCloneInto]
   /// and returns the statistics between the supplied [oldTag] and [newTag]
   Future<ShortStatDto> cloneAndGetStatistics(String localDirectoryToCloneInto,
       String repository, String oldTag, String newTag) async {
-    bool clonedSuccessfully =
-        await clone(localDirectoryToCloneInto, repository);
+    try {
+      await clone(localDirectoryToCloneInto, repository);
 
-    if (clonedSuccessfully) {
       String localCheckoutDirectory = localDirectoryToCloneInto +
           Platform.pathSeparator +
           GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
 
       return stats(localCheckoutDirectory, oldTag, newTag);
+    } on RwGitException {
+      return ShortStatDto.defaultStats();
     }
-    return ShortStatDto.defaultStats();
   }
 
   /// Generic command execution to support all available git commands.

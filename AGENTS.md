@@ -111,5 +111,6 @@ Implement the solution following the patterns found in the documentation. Valida
 9.  **Formatting**: All Dart files must be formatted with an 80-character line limit. You must run `dart format --line-length=80 .` before finalizing your changes to ensure the CI build passes.
 
 ## Testing
+*   **Coverage Requirement (CRITICAL)**: The codebase must maintain 100% test coverage. Any new code or modifications must include unit tests that cover all added or changed lines.
 *   **Unit Tests**: Parsing logic and command strategies must be testable.
 *   **Mocking**: Use the Factory or Strategy Patterns (as detailed in `CODING_STANDARDS.md`) to swap out actual `Process.run` calls with Mock implementations that yield controlled stdout/stderr streams and exit codes.

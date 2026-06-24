@@ -202,3 +202,12 @@ class GitConfig {
   GitConfig._internal();
 }
 ```
+
+---
+
+## 5. Testing and Coverage
+
+### 100% Test Coverage Requirement
+- **DO** maintain 100% code coverage across the entire codebase. This is a strict requirement for all changes.
+- **DO** write unit tests for every new feature, command, parser, or utility.
+- **DO** test both successful execution (happy paths) and expected failure scenarios (exceptions, invalid input, process failures).
