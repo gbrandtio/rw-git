@@ -57,7 +57,7 @@ void main() {
     });
 
     void sendInput(dynamic json) {
-      inputStreamController.add(utf8.encode(jsonEncode(json) + '\n'));
+      inputStreamController.add(utf8.encode('${jsonEncode(json)}\n'));
     }
 
     test('responds to initialize', () async {

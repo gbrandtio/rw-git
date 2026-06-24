@@ -99,6 +99,9 @@ Implement the solution following the patterns found in the documentation. Valida
 ### Step 5: Format (CRITICAL)
 Before completing any task, you MUST strictly run `dart format --line-length=80 .` to format the code. Failure to do so will break the CI build and is considered a severe violation of the project's guidelines. You must run this command before telling the user the task is complete.
 
+### Step 6: Analyze (CRITICAL)
+Before completing any task, you MUST strictly run `dart analyze` to ensure there are no static analysis warnings or errors. Failure to do so will break the CI build. You must resolve all issues and ensure the command passes before telling the user the task is complete.
+
 ---
 
 ## Project-Specific Guardrails
@@ -112,6 +115,7 @@ Before completing any task, you MUST strictly run `dart format --line-length=80 
 7.  **Isolate Enforcement**: If a parsing task blocks the main isolate for more than 16ms during high-load scenarios, you must offload it to a background Isolate.
 8.  **Magic Numbers**: Use expressive constants instead of literals for exit codes or buffer sizes.
 9.  **Formatting (STRICTLY ENFORCED)**: All Dart files must be formatted with an 80-character line limit. You MUST strictly run `dart format --line-length=80 .` before finalizing your changes and completing the task to ensure the CI build passes. Do not skip this step under any circumstances.
+10. **Analysis (STRICTLY ENFORCED)**: You MUST strictly run `dart analyze` before finalizing your changes. All warnings and info messages must be resolved. Do not skip this step under any circumstances.
 
 ## Testing
 *   **Coverage Requirement (CRITICAL)**: The codebase must maintain 100% test coverage. Any new code or modifications must include unit tests that cover all added or changed lines.

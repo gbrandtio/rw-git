@@ -21,12 +21,11 @@ void main() async {
 
   server.start();
 
-  inputStreamController.add(utf8.encode(jsonEncode({
+  inputStreamController.add(utf8.encode('${jsonEncode({
         'jsonrpc': '2.0',
         'id': 1,
         'method': 'initialize',
-      }) +
-      '\n'));
+      })}\n'));
 
   final outputLines = await outputStreamController.stream
       .transform(utf8.decoder)
@@ -34,7 +33,7 @@ void main() async {
       .take(1)
       .toList();
 
-  print('Result: \${outputLines}');
+  print('Result: $outputLines');
 
   print('Closing...');
   await inputStreamController.close();

@@ -1,7 +1,7 @@
 import 'dart:io';
 
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/core/process_runner.dart';
+
 import 'package:test/test.dart';
 
 void main() {
