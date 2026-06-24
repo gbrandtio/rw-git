@@ -31,9 +31,12 @@ void main() {
 
     test('will create a local directory that will be empty, if the clone fails',
         () async {
-      bool isCloneSuccess =
-          await rwGit.clone(testDir, invalidRemoteRepository);
-      expect(isCloneSuccess, false);
+      try {
+        await rwGit.clone(testDir, invalidRemoteRepository);
+        fail('Should have thrown RwGitException');
+      } on RwGitException catch (e) {
+        expect(e.exitCode != 0, true);
+      }
     });
   });
 }
