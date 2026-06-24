@@ -22,13 +22,13 @@ void main() {
   group('stats', () {
     test('will create a ShortStatDto that will contain all the available data',
         () async {
-      await rwGit.gitCommon.clone(testDir, repositoryWithTags);
+      await rwGit.clone(testDir, repositoryWithTags);
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
       List<String> tags =
-          await rwGit.gitCommon.fetchTags(clonedFiles[0].uri.path);
-      ShortStatDto shortStatDto = await rwGit.gitStats.stats(
+          await rwGit.fetchTags(clonedFiles[0].uri.path);
+      ShortStatDto shortStatDto = await rwGit.stats(
           clonedFiles[0].uri.path,
           tags[tags.length - 2],
           tags[tags.length - 1]);
@@ -38,16 +38,14 @@ void main() {
       expect(shortStatDto.insertions >= 0, true);
     });
 
-    test(
-        'will result to a ShortStatDto with negative values if the git command fails',
-        () async {
+    test('will throw RwGitException if the git command fails', () async {
       await Directory(testDir).create();
-      ShortStatDto shortStatDto =
-          await rwGit.gitStats.stats(testDir, "oldTag", "newTag");
-
-      expect(shortStatDto.numberOfChangedFiles == -1, true);
-      expect(shortStatDto.deletions == -1, true);
-      expect(shortStatDto.insertions == -1, true);
+      try {
+        await rwGit.stats(testDir, "oldTag", "newTag");
+        fail('Should have thrown RwGitException');
+      } on RwGitException catch (e) {
+        expect(e.exitCode != 0, true);
+      }
     });
   });
 }

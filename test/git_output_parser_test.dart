@@ -1,5 +1,4 @@
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/models/short_log_dto.dart';
 import 'package:test/test.dart';
 
 void main() {

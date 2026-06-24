@@ -25,16 +25,20 @@ void main() {
         'will create a local directory and clone the specified repository inside'
         ' while also checking out the specified branch', () async {
       bool specificBranchClonedSuccessfully = await rwGit.cloneSpecificBranch(
-          testDir, validRemoteRepository, branch);
+          testDir, validRemoteRepository, 'main');
       expect(specificBranchClonedSuccessfully, true);
     });
 
     test(
         'will try to clone the remote repository and checkout an invalid branch',
         () async {
-      bool specificBranchClonedSuccessfully = await rwGit.cloneSpecificBranch(
-          testDir, validRemoteRepository, invalidBranch);
-      expect(specificBranchClonedSuccessfully, false);
+      try {
+        await rwGit.cloneSpecificBranch(
+            testDir, validRemoteRepository, invalidBranch);
+        fail('Should throw RwGitException for invalid branch');
+      } on RwGitException catch (e) {
+        expect(e.exitCode != 0, true);
+      }
     });
   });
 

@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/models/short_log_dto.dart';
 import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
@@ -23,12 +22,12 @@ void main() {
   group('authorContributions', () {
     test('will create a ShortLogDto that will contain all the available data',
         () async {
-      await rwGit.gitCommon.clone(testDir, repositoryWithTags);
+      await rwGit.clone(testDir, repositoryWithTags);
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
       List<ShortLogDto> contributionsByAuthor =
-          await rwGit.gitStats.contributionsByAuthor(clonedFiles[0].uri.path);
+          await rwGit.contributionsByAuthor(clonedFiles[0].uri.path);
 
       expect(contributionsByAuthor.length, greaterThan(1));
       expect(contributionsByAuthor[0].numberOfContributions, greaterThan(0));
