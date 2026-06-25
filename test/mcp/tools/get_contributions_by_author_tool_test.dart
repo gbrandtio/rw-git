@@ -10,7 +10,8 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['shortlog', 'HEAD', '-s'], 0, '    10\tJohnDoe\n     5\tJaneDoe', '');
+      mock.setMockResult('git', ['shortlog', 'HEAD', '-s'], 0,
+          '    10\tJohnDoe\n     5\tJaneDoe', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = GetContributionsByAuthorTool(rwGit);

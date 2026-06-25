@@ -25,12 +25,16 @@ void main() {
           result,
           contains(
               '**execute_git_command**: Use this to execute raw git commands'));
+      expect(result,
+          contains('**init_repository**: Initializes a new Git repository.'));
       expect(
-          result, contains('**init_repository**: Initializes a new Git repository.'));
-      expect(result,
-          contains('**clone_repository**: Clones the remote repository URL into a local directory.'));
-      expect(result,
-          contains('**get_stats**: Retrieves code statistics (insertions, deletions) between two tags.'));
+          result,
+          contains(
+              '**clone_repository**: Clones the remote repository URL into a local directory.'));
+      expect(
+          result,
+          contains(
+              '**get_stats**: Retrieves code statistics (insertions, deletions) between two tags.'));
     });
   });
 }

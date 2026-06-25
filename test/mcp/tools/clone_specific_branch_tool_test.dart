@@ -10,8 +10,10 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0, 'Cloning...', '');
-      mock.setMockResult('git', ['checkout', 'main'], 0, 'Switched to branch main', '');
+      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0,
+          'Cloning...', '');
+      mock.setMockResult(
+          'git', ['checkout', 'main'], 0, 'Switched to branch main', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = CloneSpecificBranchTool(rwGit);

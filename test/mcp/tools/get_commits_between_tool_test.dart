@@ -10,7 +10,8 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['rev-list', 'v1...v2'], 0, 'commit1\ncommit2', '');
+      mock.setMockResult(
+          'git', ['rev-list', 'v1...v2'], 0, 'commit1\ncommit2', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = GetCommitsBetweenTool(rwGit);

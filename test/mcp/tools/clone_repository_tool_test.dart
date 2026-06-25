@@ -10,7 +10,8 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0, 'Cloning...', '');
+      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0,
+          'Cloning...', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = CloneRepositoryTool(rwGit);

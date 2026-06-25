@@ -10,7 +10,8 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['rev-parse', '--is-inside-work-tree'], 0, 'true', '');
+      mock.setMockResult(
+          'git', ['rev-parse', '--is-inside-work-tree'], 0, 'true', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = IsGitRepositoryTool(rwGit);

@@ -10,7 +10,8 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['init'], 0, 'Initialized empty Git repository', '');
+      mock.setMockResult(
+          'git', ['init'], 0, 'Initialized empty Git repository', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = InitRepositoryTool(rwGit);

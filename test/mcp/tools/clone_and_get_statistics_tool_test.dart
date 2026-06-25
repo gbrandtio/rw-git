@@ -10,8 +10,10 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0, 'Cloning...', '');
-      mock.setMockResult('git', ['diff', '--shortstat', 'v1', 'v2'], 0, ' 3 files changed, 50 insertions(+), 10 deletions(-)', '');
+      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0,
+          'Cloning...', '');
+      mock.setMockResult('git', ['diff', '--shortstat', 'v1', 'v2'], 0,
+          ' 3 files changed, 50 insertions(+), 10 deletions(-)', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = CloneAndGetStatisticsTool(rwGit);
