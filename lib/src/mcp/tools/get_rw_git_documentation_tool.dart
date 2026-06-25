@@ -1,7 +1,7 @@
 import '../mcp_tool.dart';
 
 /// get_rw_git_documentation_tool.dart
-/// Provides detailed documentation for the RwGit facade out-of-the-box operations.
+/// Provides detailed documentation for the RwGit facade out-of-the-box operations and MCP tools.
 
 class GetRwGitDocumentationTool implements McpTool {
   @override
@@ -9,7 +9,8 @@ class GetRwGitDocumentationTool implements McpTool {
 
   @override
   String get description =>
-      'Retrieve detailed descriptions and parameter requirements for all RwGit facade out-of-the-box operations.';
+      'Retrieve detailed descriptions and parameter requirements for all RwGit facade out-of-the-box operations and MCP tools. '
+      'To invoke this tool, no arguments are required.';
 
   @override
   Map<String, dynamic> get inputSchema =>
@@ -18,54 +19,36 @@ class GetRwGitDocumentationTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     return '''
-# RwGit Facade Documentation
+# RwGit Agent Guide & Documentation
 
-RwGit provides several out-of-the-box operations to simplify Git interactions.
-Below is the list of available functions and their parameters:
+⚠️ **IMPORTANT INSTRUCTIONS FOR AI AGENTS**
+You are interacting with the RwGit repository through the Model Context Protocol (MCP) using JSON-RPC tools.
+- **Do NOT** attempt to run `rw_git` as a CLI command (e.g., `rw_git --help`). It is not an executable in your shell.
+- Use the provided MCP tools below to perform actions directly.
 
-1.  **init(String directoryToInit)**
-    Initializes a new Git repository in the specified `directoryToInit`.
-    Returns a `Future<bool>` indicating success.
+## 1. Raw Git Execution Tool
+- **execute_git_command**: Use this to execute raw git commands (e.g., `['log', '-n', '5']`).
 
-2.  **isGitRepository(String directoryToCheck)**
-    Checks if the specified `directoryToCheck` is a valid Git repository.
-    Returns a `Future<bool>`.
+## 2. Code Quality Analysis Tools
+- **analyze_code_quality**: Use this to get AI-ready metrics on tech debt, suspicious commits, and high-churn files.
+- **analyze_code_quality_with_authors**: Similar to the above, but includes author contributions.
 
-3.  **clone(String localDirectoryToCloneInto, String repository)**
-    Clones the remote `repository` URL into `localDirectoryToCloneInto`.
-    Returns a `Future<bool>` indicating success.
+## 3. RwGit Facade Tools
+The following out-of-the-box Dart facade functions are exposed as individual, strongly-typed MCP tools for your convenience:
 
-4.  **checkout(String localCheckoutDirectory, String branchToCheckout)**
-    Checks out the specified `branchToCheckout` within the `localCheckoutDirectory`.
-    Returns a `Future<bool>` indicating success.
+- **init_repository**: Initializes a new Git repository.
+- **is_git_repository**: Checks if a directory is a valid Git repository.
+- **clone_repository**: Clones the remote repository URL into a local directory.
+- **checkout_branch**: Checks out the specified branch.
+- **fetch_tags**: Fetches all tags from the remote.
+- **get_commits_between**: Retrieves all commits between two tags.
+- **get_stats**: Retrieves code statistics (insertions, deletions) between two tags.
+- **get_contributions_by_author**: Retrieves the shortlog summary of contributions by each author.
+- **clone_specific_branch**: Clones the repository and immediately checks out a branch.
+- **clone_and_get_statistics**: Clones the repository and then retrieves the statistics between two tags.
 
-5.  **fetchTags(String localCheckoutDirectory)**
-    Fetches all tags from the remote for the repository in `localCheckoutDirectory`.
-    Returns a `Future<List<String>>` containing the tags.
-
-6.  **getCommitsBetween(String localCheckoutDirectory, String firstTag, String secondTag)**
-    Retrieves all commits between `firstTag` and `secondTag` in the specified directory.
-    Returns a `Future<List<String>>` of commit logs.
-
-7.  **stats(String localCheckoutDirectory, String oldTag, String newTag)**
-    Retrieves code statistics (insertions, deletions) between `oldTag` and `newTag`.
-    Returns a `Future<ShortStatDto>`.
-
-8.  **contributionsByAuthor(String localCheckoutDirectory)**
-    Retrieves the shortlog summary of contributions by each author.
-    Returns a `Future<List<ShortLogDto>>`.
-
-9.  **cloneSpecificBranch(String localDirectoryToCloneInto, String repository, String branchToCheckout)**
-    Clones the `repository` and immediately checks out `branchToCheckout`.
-    Returns a `Future<bool>`.
-
-10. **cloneAndGetStatistics(String localDirectoryToCloneInto, String repository, String oldTag, String newTag)**
-    Clones the `repository` and then retrieves the statistics between `oldTag` and `newTag`.
-    Returns a `Future<ShortStatDto>`.
-
-11. **runCommand(String directory, List<String> args)**
-    A generic command executor to support any raw Git command by passing a list of `args` to run within `directory`.
-    Returns a `Future<String>` containing the stdout output.
+## 4. Documentation
+- **get_rw_git_documentation**: Returns this guide.
 ''';
   }
 }

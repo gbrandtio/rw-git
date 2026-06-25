@@ -21,7 +21,7 @@ class CodeQualityTracker {
   /// Analyzes the recent commits for suspicious keywords.
   Future<List<String>> findSuspiciousCommits(String directory) async {
     // Fetch recent commit logs
-    final result = await runner.run('git', ['log', '--format=%H||%B'],
+    final result = await runner.run('git', ['log', '--format=%H||%an||%ad||%s'],
         workingDirectory: directory);
     evaluateProcessResult(result);
 
@@ -35,7 +35,7 @@ class CodeQualityTracker {
   Future<List<String>> findMegaCommits(String directory,
       {int lineThreshold = 500, int fileThreshold = 20}) async {
     final result = await runner.run(
-        'git', ['log', '--shortstat', '--format=%H'],
+        'git', ['log', '--shortstat', '--format=%H||%an||%ad||%s'],
         workingDirectory: directory);
     evaluateProcessResult(result);
 
@@ -102,12 +102,21 @@ List<String> _parseSuspiciousCommits(String rawLog) {
   for (final line in lines) {
     if (line.trim().isEmpty) continue;
     final parts = line.split('||');
-    if (parts.length >= 2) {
+    if (parts.length >= 4) {
+      final hash = parts[0];
+      final author = parts[1];
+      final date = parts[2];
+      final message = parts.sublist(3).join('||');
+
+      if (regex.hasMatch(message)) {
+        flaggedCommits.add('$hash - $author ($date): $message');
+      }
+    } else if (parts.length >= 2) {
       final hash = parts[0];
       final message = parts.sublist(1).join('||');
 
       if (regex.hasMatch(message)) {
-        flaggedCommits.add(hash);
+        flaggedCommits.add('$hash - $message');
       }
     }
   }
@@ -120,14 +129,14 @@ List<String> _parseMegaCommits(
   final List<String> flaggedCommits = [];
 
   final lines = rawLog.split('\n');
-  String currentHash = '';
+  String currentHashInfo = '';
 
   for (final line in lines) {
     if (line.trim().isEmpty) continue;
 
-    // If line doesn't start with space, it's a commit hash
+    // If line doesn't start with space, it's a commit hash info
     if (!line.startsWith(' ')) {
-      currentHash = line.trim();
+      currentHashInfo = line.trim();
     } else if (line.contains('changed') ||
         line.contains('insertion') ||
         line.contains('deletion')) {
@@ -151,8 +160,18 @@ List<String> _parseMegaCommits(
 
       if (((insertions + deletions) >= lineThreshold ||
               filesChanged >= fileThreshold) &&
-          currentHash.isNotEmpty) {
-        flaggedCommits.add(currentHash);
+          currentHashInfo.isNotEmpty) {
+        final hashParts = currentHashInfo.split('||');
+        if (hashParts.length >= 4) {
+          final hash = hashParts[0];
+          final author = hashParts[1];
+          final date = hashParts[2];
+          final message = hashParts.sublist(3).join('||');
+          flaggedCommits.add('$hash - $author ($date): $message');
+        } else {
+          flaggedCommits.add(currentHashInfo);
+        }
+        currentHashInfo = '';
       }
     }
   }

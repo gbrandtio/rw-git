@@ -76,8 +76,18 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
 
 void main() {
   group('AnalyzeCodeQualityTool', () {
+    late MockProcessRunner mockRunner;
+    late RwGit rwGit;
+
+    setUp(() {
+      mockRunner = MockProcessRunner();
+      rwGit = RwGit(runner: mockRunner);
+      mockRunner.setMockResult(
+          'git', ['log', '-n', '10', '-p'], 0, 'mocked commit log', '');
+    });
+
     test('has correct name and input schema', () {
-      final tool = AnalyzeCodeQualityTool(MockCodeQualityTracker());
+      final tool = AnalyzeCodeQualityTool(MockCodeQualityTracker(), rwGit);
       expect(tool.name, 'analyze_code_quality');
       expect(tool.description, contains('surface architectural bottlenecks'));
       expect(tool.inputSchema['type'], 'object');
@@ -86,7 +96,7 @@ void main() {
     });
 
     test('execute formats results correctly with data', () async {
-      final tool = AnalyzeCodeQualityTool(MockCodeQualityTracker());
+      final tool = AnalyzeCodeQualityTool(MockCodeQualityTracker(), rwGit);
       final result = await tool.execute({'directory': '/test/dir'});
 
       expect(result, contains('commit1: fixme'));
@@ -98,10 +108,12 @@ void main() {
       expect(result, isNot(contains('file2.dart')));
       expect(result, contains('- MyClass: 15 changes'));
       expect(result, contains('- myMethod: 10 changes'));
+      expect(result, contains('You are a Staff Software Engineer.'));
+      expect(result, contains('mocked commit log'));
     });
 
     test('execute handles empty data correctly', () async {
-      final tool = AnalyzeCodeQualityTool(MockEmptyCodeQualityTracker());
+      final tool = AnalyzeCodeQualityTool(MockEmptyCodeQualityTracker(), rwGit);
       final result = await tool.execute({'directory': '/test/dir'});
 
       expect(result,

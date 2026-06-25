@@ -50,6 +50,8 @@ class McpServer {
       });
     } else if (method == 'notifications/initialized') {
       // Just acknowledge
+    } else if (method == 'ping') {
+      _sendResponse(id, {});
     } else if (method == 'tools/list') {
       _sendResponse(id, {
         'tools': registry.getToolListings(),

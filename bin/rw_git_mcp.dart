@@ -12,10 +12,19 @@ void main() async {
 
   final registry = McpRegistry();
   registry.registerTool(ExecuteGitCommandTool(rwGit));
-  registry.registerTool(AnalyzeCodeQualityTool(tracker));
-  registry.registerTool(AnalyzeCodeQualityWithAuthorsTool(tracker));
-  registry.registerTool(RetrieveCommitsForReviewTool(rwGit));
+  registry.registerTool(AnalyzeCodeQualityTool(tracker, rwGit));
+  registry.registerTool(AnalyzeCodeQualityWithAuthorsTool(tracker, rwGit));
   registry.registerTool(GetRwGitDocumentationTool());
+  registry.registerTool(InitRepositoryTool(rwGit));
+  registry.registerTool(IsGitRepositoryTool(rwGit));
+  registry.registerTool(CloneRepositoryTool(rwGit));
+  registry.registerTool(CheckoutBranchTool(rwGit));
+  registry.registerTool(FetchTagsTool(rwGit));
+  registry.registerTool(GetCommitsBetweenTool(rwGit));
+  registry.registerTool(GetStatsTool(rwGit));
+  registry.registerTool(GetContributionsByAuthorTool(rwGit));
+  registry.registerTool(CloneSpecificBranchTool(rwGit));
+  registry.registerTool(CloneAndGetStatisticsTool(rwGit));
 
   final server = McpServer(registry: registry);
   server.start();

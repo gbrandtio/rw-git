@@ -36,16 +36,18 @@ class StandardProcessRunner implements ProcessRunner {
       final stdoutBuffer = StringBuffer();
       final stderrBuffer = StringBuffer();
 
-      final stdoutFuture =
-          process.stdout.transform(utf8.decoder).forEach((data) {
+      final stdoutFuture = process.stdout
+          .transform(const Utf8Decoder(allowMalformed: true))
+          .forEach((data) {
         stdoutBuffer.write(data);
         if (streamOutput) {
           stdout.write(data);
         }
       });
 
-      final stderrFuture =
-          process.stderr.transform(utf8.decoder).forEach((data) {
+      final stderrFuture = process.stderr
+          .transform(const Utf8Decoder(allowMalformed: true))
+          .forEach((data) {
         stderrBuffer.write(data);
         if (streamOutput) {
           stderr.write(data);

@@ -19,7 +19,7 @@ void main() {
     test('execute returns documentation markdown', () async {
       final result = await tool.execute({});
 
-      expect(result, contains('# RwGit Facade Documentation'));
+      expect(result, contains('# RwGit Facade and MCP Tools Documentation'));
       expect(result, contains('init(String directoryToInit)'));
       expect(
           result,
@@ -27,6 +27,14 @@ void main() {
               'clone(String localDirectoryToCloneInto, String repository)'));
       expect(
           result, contains('runCommand(String directory, List<String> args)'));
+      expect(result,
+          contains('execute_git_command(String directory, List<String> args)'));
+      expect(result,
+          contains('analyze_code_quality(String directory, [int limit = 10])'));
+      expect(
+          result,
+          contains(
+              'analyze_code_quality_with_authors(String directory, [int limit = 10])'));
     });
   });
 }

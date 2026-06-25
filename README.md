@@ -105,23 +105,24 @@ For Gemini CLI integrations supporting MCP plugins:
 
 When the MCP server connects to an AI agent, it exposes the following tools:
 
-1. **`execute_git_command`**
+1. **`get_rw_git_documentation`**
+   - **Description**: Retrieve detailed descriptions and parameter requirements for all RwGit facade out-of-the-box operations and MCP tools.
+   - **Arguments**: None.
+   - **Returns**: A markdown-formatted string documenting the available commands and tools.
+
+2. **`execute_git_command`**
    - **Description**: Allows the agent to run arbitrary git commands safely on the local file system.
    - **Arguments**: `directory` (path to the repo), `args` (array of strings, e.g., `["log", "-n", "5"]`).
    
-2. **`analyze_code_quality`**
-   - **Description**: Invokes the built-in `CodeQualityTracker` to scan the repository for architectural bottlenecks and technical debt.
-   - **Arguments**: `directory` (path to the repo).
-   - **Returns**: A formatted report highlighting "Suspicious Commits" (containing `TODO`/`FIXME` keywords), "Mega Commits" (commits with >500 lines changed or touching >20 files), and comprehensive churn metrics (highlighting files modified in >10% of all commits, along with top churned classes and methods).
+3. **`analyze_code_quality`**
+   - **Description**: Invokes the built-in `CodeQualityTracker` to scan the repository for architectural bottlenecks and technical debt. Retrieves the recent commits wrapped in a structured prompt that actively instructs the AI agent to look for bad, low-effort commit messages or commented-out code blocks left behind in the diff.
+   - **Arguments**: `directory` (path to the repo), `limit` (number of commits to fetch, default 10).
+   - **Returns**: A formatted report highlighting "Suspicious Commits" (containing `TODO`/`FIXME` keywords), "Mega Commits" (commits with >500 lines changed or touching >20 files), comprehensive churn metrics, and a structured AI review prompt with recent commit logs.
    
-3. **`analyze_code_quality_with_authors`**
+4. **`analyze_code_quality_with_authors`**
    - **Description**: Identical to `analyze_code_quality`, but additionally computes and formats a breakdown of which authors contributed to each high-churn file, class, and code block.
-   - **Arguments**: `directory` (path to the repo).
-   - **Returns**: A formatted report highlighting suspicious commits, mega commits, and churn metrics broken down by contributor name.
-
-4. **`retrieve_commits_for_ai_review`**
-   - **Description**: Designed specifically for AI review workflows. Retrieves the latest commits wrapped in a structured prompt that actively instructs the AI agent to look for bad, low-effort commit messages (e.g., "fixed stuff", "wip") or commented-out code blocks left behind in the diff.
-   - **Arguments**: `directory` (path to the repo), `limit` (number of commits to fetch).
+   - **Arguments**: `directory` (path to the repo), `limit` (number of commits to fetch, default 10).
+   - **Returns**: A formatted report highlighting suspicious commits, mega commits, churn metrics broken down by contributor name, and a structured AI review prompt with recent commit logs.
 
 ## Getting started
 

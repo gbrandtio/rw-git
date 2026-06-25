@@ -13,9 +13,9 @@ class ExecuteGitCommandTool implements McpTool {
 
   @override
   String get description =>
-      'Execute an arbitrary git command securely. Available out-of-the-box '
-      'operations in RwGit include: init, isGitRepository, clone, checkout, fetchTags, getCommitsBetween,'
-      'stats, contributionsByAuthor, cloneSpecificBranch, cloneAndGetStatistics, and runCommand.';
+      'Execute an arbitrary git command securely. Use this for standard git CLI commands. '
+      'To invoke this tool, provide the `directory` (String) and `args` (List<String>). '
+      'For a complete guide on how to use the rw_git MCP tools, invoke the get_rw_git_documentation tool.';
 
   @override
   Map<String, dynamic> get inputSchema => {

@@ -89,12 +89,12 @@ index 123456..789012 100644
     test('findSuspiciousCommits identifies commits with suspicious keywords',
         () async {
       String mockGitLog = [
-        'a1b2c3d4e5f6||Implemented feature X',
-        'b2c3d4e5f6g7||FIXME: this is a hack',
-        'c3d4e5f6g7h8||Added a new temporary file',
-        'd4e5f6g7h8i9||Cleaned up code',
-        'e5f6g7h8i9j0||todo: refactor this',
-        'f6g7h8i9j0k1||Normal commit with those letters in the middle of a word like atodont',
+        'a1b2c3d4e5f6||Author A||Date A||Implemented feature X',
+        'b2c3d4e5f6g7||Author B||Date B||FIXME: this is a hack',
+        'c3d4e5f6g7h8||Author C||Date C||Added a new temporary file',
+        'd4e5f6g7h8i9||Author D||Date D||Cleaned up code',
+        'e5f6g7h8i9j0||Author E||Date E||todo: refactor this',
+        'f6g7h8i9j0k1||Author F||Date F||Normal commit with those letters in the middle of a word like atodont',
       ].join('\n');
       final runner = MockProcessRunner(mockGitLog);
       final tracker = CodeQualityTracker(runner);
@@ -102,29 +102,34 @@ index 123456..789012 100644
       final suspicious = await tracker.findSuspiciousCommits('dummyDir');
 
       expect(suspicious.length, 3);
-      expect(suspicious, contains('b2c3d4e5f6g7')); // FIXME
-      expect(suspicious, contains('c3d4e5f6g7h8')); // temporary
-      expect(suspicious, contains('e5f6g7h8i9j0')); // todo
+      expect(suspicious,
+          contains('b2c3d4e5f6g7 - Author B (Date B): FIXME: this is a hack'));
+      expect(
+          suspicious,
+          contains(
+              'c3d4e5f6g7h8 - Author C (Date C): Added a new temporary file'));
+      expect(suspicious,
+          contains('e5f6g7h8i9j0 - Author E (Date E): todo: refactor this'));
     });
 
     test('findMegaCommits identifies commits exceeding thresholds', () async {
       String mockGitLog = '''
-a1b2c3d4e5f6
+a1b2c3d4e5f6||Author A||Date A||Small commit
  1 file changed, 10 insertions(+), 5 deletions(-)
 
-b2c3d4e5f6g7
+b2c3d4e5f6g7||Author B||Date B||Many files
  25 files changed, 10 insertions(+), 5 deletions(-)
 
-c3d4e5f6g7h8
+c3d4e5f6g7h8||Author C||Date C||Many lines
  2 files changed, 400 insertions(+), 150 deletions(-)
 
-d4e5f6g7h8i9
+d4e5f6g7h8i9||Author D||Date D||Normal
  5 files changed, 100 insertions(+), 10 deletions(-)
 
-e5f6g7h8i9j0
+e5f6g7h8i9j0||Author E||Date E||Many insertions
  600 insertions(+)
 
-f6g7h8i9j0k1
+f6g7h8i9j0k1||Author F||Date F||Many deletions
  600 deletions(-)
 ''';
       final runner = MockProcessRunner(mockGitLog);
@@ -133,10 +138,22 @@ f6g7h8i9j0k1
       final mega = await tracker.findMegaCommits('dummyDir');
 
       expect(mega.length, 4);
-      expect(mega, contains('b2c3d4e5f6g7')); // Exceeds 20 files
-      expect(mega, contains('c3d4e5f6g7h8')); // Exceeds 500 lines (400 + 150)
-      expect(mega, contains('e5f6g7h8i9j0')); // Exceeds 500 insertions
-      expect(mega, contains('f6g7h8i9j0k1')); // Exceeds 500 deletions
+      expect(
+          mega,
+          contains(
+              'b2c3d4e5f6g7 - Author B (Date B): Many files')); // Exceeds 20 files
+      expect(
+          mega,
+          contains(
+              'c3d4e5f6g7h8 - Author C (Date C): Many lines')); // Exceeds 500 lines (400 + 150)
+      expect(
+          mega,
+          contains(
+              'e5f6g7h8i9j0 - Author E (Date E): Many insertions')); // Exceeds 500 insertions
+      expect(
+          mega,
+          contains(
+              'f6g7h8i9j0k1 - Author F (Date F): Many deletions')); // Exceeds 500 deletions
     });
 
     test('findMegaCommits handles empty output', () async {

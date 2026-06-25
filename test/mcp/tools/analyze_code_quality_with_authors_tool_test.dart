@@ -77,9 +77,19 @@ class MockEmptyCodeQualityTrackerWithAuthors implements CodeQualityTracker {
 
 void main() {
   group('AnalyzeCodeQualityWithAuthorsTool', () {
+    late MockProcessRunner mockRunner;
+    late RwGit rwGit;
+
+    setUp(() {
+      mockRunner = MockProcessRunner();
+      rwGit = RwGit(runner: mockRunner);
+      mockRunner.setMockResult(
+          'git', ['log', '-n', '10', '-p'], 0, 'mocked commit log', '');
+    });
+
     test('has correct name and input schema', () {
       final tool = AnalyzeCodeQualityWithAuthorsTool(
-          MockCodeQualityTrackerWithAuthors());
+          MockCodeQualityTrackerWithAuthors(), rwGit);
       expect(tool.name, 'analyze_code_quality_with_authors');
       expect(
           tool.description, contains('breakdown of which authors contributed'));
@@ -90,7 +100,7 @@ void main() {
 
     test('execute formats results correctly with data and authors', () async {
       final tool = AnalyzeCodeQualityWithAuthorsTool(
-          MockCodeQualityTrackerWithAuthors());
+          MockCodeQualityTrackerWithAuthors(), rwGit);
       final result = await tool.execute({'directory': '/test/dir'});
 
       expect(result, contains('commit1: fixme'));
@@ -106,11 +116,13 @@ void main() {
       expect(result, contains('* Charlie: 15'));
 
       expect(result, contains('- myMethod: 10 changes'));
+      expect(result, contains('You are a Staff Software Engineer.'));
+      expect(result, contains('mocked commit log'));
     });
 
     test('execute handles empty data correctly', () async {
       final tool = AnalyzeCodeQualityWithAuthorsTool(
-          MockEmptyCodeQualityTrackerWithAuthors());
+          MockEmptyCodeQualityTrackerWithAuthors(), rwGit);
       final result = await tool.execute({'directory': '/test/dir'});
 
       expect(result,
