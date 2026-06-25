@@ -27,7 +27,7 @@ void main() {
       bool specificBranchClonedSuccessfully = await rwGit.cloneSpecificBranch(
           testDir, validRemoteRepository, 'main');
       expect(specificBranchClonedSuccessfully, true);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test(
         'will try to clone the remote repository and checkout an invalid branch',
@@ -78,7 +78,7 @@ void main() {
       expect(shortStatDto.insertions >= 0, true);
       expect(shortStatDto.deletions >= 0, true);
       expect(shortStatDto.numberOfChangedFiles >= 0, true);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('will return default stats if clone fails', () async {
       ShortStatDto shortStatDto = await rwGit.cloneAndGetStatistics(

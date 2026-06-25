@@ -19,22 +19,18 @@ void main() {
     test('execute returns documentation markdown', () async {
       final result = await tool.execute({});
 
-      expect(result, contains('# RwGit Facade and MCP Tools Documentation'));
-      expect(result, contains('init(String directoryToInit)'));
+      expect(result, contains('# RwGit Agent Guide & Documentation'));
+      expect(result, contains('**IMPORTANT INSTRUCTIONS FOR AI AGENTS**'));
       expect(
           result,
           contains(
-              'clone(String localDirectoryToCloneInto, String repository)'));
+              '**execute_git_command**: Use this to execute raw git commands'));
       expect(
-          result, contains('runCommand(String directory, List<String> args)'));
+          result, contains('**init_repository**: Initializes a new Git repository.'));
       expect(result,
-          contains('execute_git_command(String directory, List<String> args)'));
+          contains('**clone_repository**: Clones the remote repository URL into a local directory.'));
       expect(result,
-          contains('analyze_code_quality(String directory, [int limit = 10])'));
-      expect(
-          result,
-          contains(
-              'analyze_code_quality_with_authors(String directory, [int limit = 10])'));
+          contains('**get_stats**: Retrieves code statistics (insertions, deletions) between two tags.'));
     });
   });
 }

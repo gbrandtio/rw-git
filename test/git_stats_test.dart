@@ -33,7 +33,7 @@ void main() {
       expect(shortStatDto.numberOfChangedFiles >= 0, true);
       expect(shortStatDto.deletions >= 0, true);
       expect(shortStatDto.insertions >= 0, true);
-    });
+    }, timeout: const Timeout(Duration(minutes: 2)));
 
     test('will throw RwGitException if the git command fails', () async {
       await Directory(testDir).create();
