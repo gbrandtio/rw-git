@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -24,14 +25,15 @@ void main() {
     test(
         'will create a local directory and clone the specified repository inside',
         () async {
-      bool isCloneSuccess = await rwGit.clone(testDir, validRemoteRepository);
+      bool isCloneSuccess =
+          (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
       expect(isCloneSuccess, true);
     });
 
     test('will create a local directory that will be empty, if the clone fails',
         () async {
       try {
-        await rwGit.clone(testDir, invalidRemoteRepository);
+        (await rwGit.clone(testDir, invalidRemoteRepository)).getOrThrow();
         fail('Should have thrown RwGitException');
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);

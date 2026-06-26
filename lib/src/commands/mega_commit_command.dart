@@ -8,8 +8,8 @@ class MegaCommitCheckCommand extends GitCommand<List<String>> {
   MegaCommitCheckCommand(super.runner, {this.thresholdLinesChanged = 500});
 
   @override
-  Future<List<String>> execute(String directory,
-      {bool streamOutput = false}) async {
+  Future<List<String>> run(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
     // git log --shortstat returns the stat per commit which we can parse to find mega-commits
     final result = await runner.run(
         'git', ['log', '--shortstat', '--format=oneline'],

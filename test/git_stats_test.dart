@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -22,13 +23,15 @@ void main() {
   group('stats', () {
     test('will create a ShortStatDto that will contain all the available data',
         () async {
-      await rwGit.clone(testDir, repositoryWithTags);
+      (await rwGit.clone(testDir, repositoryWithTags)).getOrThrow();
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> tags = await rwGit.fetchTags(clonedFiles[0].uri.path);
-      ShortStatDto shortStatDto = await rwGit.stats(clonedFiles[0].uri.path,
-          tags[tags.length - 2], tags[tags.length - 1]);
+      List<String> tags =
+          (await rwGit.fetchTags(clonedFiles[0].uri.path)).getOrThrow();
+      ShortStatDto shortStatDto = (await rwGit.stats(clonedFiles[0].uri.path,
+              tags[tags.length - 2], tags[tags.length - 1]))
+          .getOrThrow();
 
       expect(shortStatDto.numberOfChangedFiles >= 0, true);
       expect(shortStatDto.deletions >= 0, true);
@@ -38,7 +41,7 @@ void main() {
     test('will throw RwGitException if the git command fails', () async {
       await Directory(testDir).create();
       try {
-        await rwGit.stats(testDir, "oldTag", "newTag");
+        (await rwGit.stats(testDir, "oldTag", "newTag")).getOrThrow();
         fail('Should have thrown RwGitException');
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);

@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
@@ -12,7 +13,7 @@ void main() {
     });
 
     test('will retain properties when initialized', () {
-      final dto = ChurnMetricsDto(
+      final dto = const ChurnMetricsDto(
         fileChurn: {'main.dart': 5},
         classChurn: {'RwGit': 3},
         blockChurn: {'fetchTags': 2},

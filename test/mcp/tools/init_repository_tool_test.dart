@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -19,7 +20,7 @@ void main() {
 
     test('execute returns success', () async {
       final result = await tool.execute({'directoryToInit': 'test_dir'});
-      final json = jsonDecode(result);
+      final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);
     });
   });

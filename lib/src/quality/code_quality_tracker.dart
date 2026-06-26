@@ -103,7 +103,6 @@ class CodeQualityTracker {
         () => _parseMegaCommits(rawOutput, lineThreshold, fileThreshold));
   }
 
-  /// Calculates churn metrics (file, class, and block level churn frequencies).
   Future<ChurnMetricsDto> calculateChurn(String directory,
       {String? limit}) async {
     final countArgs = ['rev-list', '--count'];
@@ -123,14 +122,47 @@ class CodeQualityTracker {
       logArgs.insert(1, '-n');
       logArgs.insert(2, limit);
     }
-    final result =
-        await runner.run('git', logArgs, workingDirectory: directory);
-    evaluateProcessResult(result);
 
-    final rawOutput = result.stdout?.toString() ?? '';
+    final stream =
+        runner.runStream('git', logArgs, workingDirectory: directory);
 
-    // Offload parsing to an Isolate
-    return await Isolate.run(() => _parseChurnMetrics(rawOutput, totalCommits));
+    final Map<String, int> fileChurn = {};
+    final Map<String, int> classChurn = {};
+    final Map<String, int> blockChurn = {};
+
+    await for (final line in stream) {
+      if (line.trim().isEmpty) continue;
+
+      if (line.startsWith('--- a/')) {
+        final fileName = line.substring(6).trim();
+        if (fileName != '/dev/null') {
+          fileChurn[fileName] = (fileChurn[fileName] ?? 0) + 1;
+        }
+      } else if (line.startsWith('@@ ')) {
+        final parts = line.split('@@');
+        if (parts.length >= 3) {
+          final context = parts.sublist(2).join('@@').trim();
+          if (context.isNotEmpty) {
+            blockChurn[context] = (blockChurn[context] ?? 0) + 1;
+
+            if (context.startsWith('class ')) {
+              final className =
+                  context.split(' ')[1].replaceAll('{', '').trim();
+              if (className.isNotEmpty) {
+                classChurn[className] = (classChurn[className] ?? 0) + 1;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return ChurnMetricsDto(
+      fileChurn: fileChurn,
+      classChurn: classChurn,
+      blockChurn: blockChurn,
+      totalCommits: totalCommits,
+    );
   }
 
   /// Extracts added or modified comments from the diff, along with context.
@@ -151,8 +183,6 @@ class CodeQualityTracker {
     return await Isolate.run(() => _parseChangedComments(rawOutput));
   }
 
-  /// Calculates churn metrics (file, class, and block level churn frequencies)
-  /// and includes the authors who contributed to each.
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(String directory,
       {String? limit}) async {
     final countArgs = ['rev-list', '--count'];
@@ -172,15 +202,67 @@ class CodeQualityTracker {
       logArgs.insert(1, '-n');
       logArgs.insert(2, limit);
     }
-    final result =
-        await runner.run('git', logArgs, workingDirectory: directory);
-    evaluateProcessResult(result);
 
-    final rawOutput = result.stdout?.toString() ?? '';
+    final stream =
+        runner.runStream('git', logArgs, workingDirectory: directory);
 
-    // Offload parsing to an Isolate
-    return await Isolate.run(
-        () => _parseChurnMetricsWithAuthors(rawOutput, totalCommits));
+    final Map<String, Map<String, int>> fileChurn = {};
+    final Map<String, Map<String, int>> classChurn = {};
+    final Map<String, Map<String, int>> blockChurn = {};
+
+    String currentAuthor = 'Unknown';
+
+    await for (final line in stream) {
+      if (line.trim().isEmpty) continue;
+
+      if (line.startsWith('AUTHOR:')) {
+        currentAuthor = line.substring(7).trim();
+      } else if (line.startsWith('--- a/')) {
+        final fileName = line.substring(6).trim();
+        if (fileName != '/dev/null') {
+          fileChurn.putIfAbsent(fileName, () => {});
+          fileChurn[fileName]![currentAuthor] =
+              (fileChurn[fileName]![currentAuthor] ?? 0) + 1;
+        }
+      } else if (line.startsWith('@@ ')) {
+        final parts = line.split('@@');
+        if (parts.length >= 3) {
+          final context = parts.sublist(2).join('@@').trim();
+          if (context.isNotEmpty) {
+            blockChurn.putIfAbsent(context, () => {});
+            blockChurn[context]![currentAuthor] =
+                (blockChurn[context]![currentAuthor] ?? 0) + 1;
+
+            if (context.startsWith('class ')) {
+              final className =
+                  context.split(' ')[1].replaceAll('{', '').trim();
+              if (className.isNotEmpty) {
+                classChurn.putIfAbsent(className, () => {});
+                classChurn[className]![currentAuthor] =
+                    (classChurn[className]![currentAuthor] ?? 0) + 1;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    Map<String, ContributionStats> toStats(Map<String, Map<String, int>> map) {
+      final result = <String, ContributionStats>{};
+      for (final entry in map.entries) {
+        final total = entry.value.values.fold<int>(0, (sum, val) => sum + val);
+        result[entry.key] =
+            ContributionStats(total: total, authors: entry.value);
+      }
+      return result;
+    }
+
+    return ChurnMetricsWithAuthorsDto(
+      fileChurn: toStats(fileChurn),
+      classChurn: toStats(classChurn),
+      blockChurn: toStats(blockChurn),
+      totalCommits: totalCommits,
+    );
   }
 }
 
@@ -301,109 +383,4 @@ String _parseChangedComments(String rawLog) {
   flushBlock();
 
   return buffer.toString().trim();
-}
-
-ChurnMetricsDto _parseChurnMetrics(String rawLog, int totalCommits) {
-  final Map<String, int> fileChurn = {};
-  final Map<String, int> classChurn = {};
-  final Map<String, int> blockChurn = {};
-
-  final lines = rawLog.split('\n');
-
-  for (final line in lines) {
-    if (line.trim().isEmpty) continue;
-
-    if (line.startsWith('--- a/')) {
-      final fileName = line.substring(6).trim();
-      if (fileName != '/dev/null') {
-        fileChurn[fileName] = (fileChurn[fileName] ?? 0) + 1;
-      }
-    } else if (line.startsWith('@@ ')) {
-      // Example line: @@ -10,5 +10,6 @@ class CodeQualityTracker {
-      // We want to extract the context after the second '@@ '
-      final parts = line.split('@@');
-      if (parts.length >= 3) {
-        final context = parts.sublist(2).join('@@').trim();
-        if (context.isNotEmpty) {
-          blockChurn[context] = (blockChurn[context] ?? 0) + 1;
-
-          // A simple heuristic for class churn: check if context starts with 'class '
-          if (context.startsWith('class ')) {
-            final className = context.split(' ')[1].replaceAll('{', '').trim();
-            if (className.isNotEmpty) {
-              classChurn[className] = (classChurn[className] ?? 0) + 1;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  return ChurnMetricsDto(
-    fileChurn: fileChurn,
-    classChurn: classChurn,
-    blockChurn: blockChurn,
-    totalCommits: totalCommits,
-  );
-}
-
-ChurnMetricsWithAuthorsDto _parseChurnMetricsWithAuthors(
-    String rawLog, int totalCommits) {
-  final Map<String, Map<String, int>> fileChurn = {};
-  final Map<String, Map<String, int>> classChurn = {};
-  final Map<String, Map<String, int>> blockChurn = {};
-
-  final lines = rawLog.split('\n');
-  String currentAuthor = 'Unknown';
-
-  for (final line in lines) {
-    if (line.trim().isEmpty) continue;
-
-    if (line.startsWith('AUTHOR:')) {
-      currentAuthor = line.substring(7).trim();
-    } else if (line.startsWith('--- a/')) {
-      final fileName = line.substring(6).trim();
-      if (fileName != '/dev/null') {
-        fileChurn.putIfAbsent(fileName, () => {});
-        fileChurn[fileName]![currentAuthor] =
-            (fileChurn[fileName]![currentAuthor] ?? 0) + 1;
-      }
-    } else if (line.startsWith('@@ ')) {
-      final parts = line.split('@@');
-      if (parts.length >= 3) {
-        final context = parts.sublist(2).join('@@').trim();
-        if (context.isNotEmpty) {
-          blockChurn.putIfAbsent(context, () => {});
-          blockChurn[context]![currentAuthor] =
-              (blockChurn[context]![currentAuthor] ?? 0) + 1;
-
-          if (context.startsWith('class ')) {
-            final className = context.split(' ')[1].replaceAll('{', '').trim();
-            if (className.isNotEmpty) {
-              classChurn.putIfAbsent(className, () => {});
-              classChurn[className]![currentAuthor] =
-                  (classChurn[className]![currentAuthor] ?? 0) + 1;
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Convert the internal maps to ContributionStats
-  Map<String, ContributionStats> toStats(Map<String, Map<String, int>> map) {
-    final result = <String, ContributionStats>{};
-    for (final entry in map.entries) {
-      final total = entry.value.values.fold<int>(0, (sum, val) => sum + val);
-      result[entry.key] = ContributionStats(total: total, authors: entry.value);
-    }
-    return result;
-  }
-
-  return ChurnMetricsWithAuthorsDto(
-    fileChurn: toStats(fileChurn),
-    classChurn: toStats(classChurn),
-    blockChurn: toStats(blockChurn),
-    totalCommits: totalCommits,
-  );
 }

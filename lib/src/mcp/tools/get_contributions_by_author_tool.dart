@@ -32,7 +32,8 @@ class GetContributionsByAuthorTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final localDir = arguments['localCheckoutDirectory'] as String;
-    final contributions = await rwGit.contributionsByAuthor(localDir);
+    final contributions =
+        (await rwGit.contributionsByAuthor(localDir)).getOrThrow();
     return jsonEncode({
       'contributions': contributions
           .map((c) => {

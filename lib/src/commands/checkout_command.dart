@@ -7,7 +7,8 @@ class CheckoutCommand extends GitCommand<bool> {
   CheckoutCommand(super.runner, {required this.branchToCheckout});
 
   @override
-  Future<bool> execute(String directory, {bool streamOutput = false}) async {
+  Future<bool> run(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
     // Ensure branchToCheckout doesn't start with hyphen to prevent flag injection.
     // We cannot use '--' before the branch name because git treats it as a pathspec.
     final sanitizedBranch = branchToCheckout.startsWith('-')

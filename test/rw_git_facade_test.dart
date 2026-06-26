@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/git_service/libgit2_rw_git.dart';
@@ -27,8 +28,9 @@ void main() {
     test(
         'will create a local directory and clone the specified repository inside'
         ' while also checking out the specified branch', () async {
-      bool specificBranchClonedSuccessfully = await rwGit.cloneSpecificBranch(
-          testDir, validRemoteRepository, 'main');
+      bool specificBranchClonedSuccessfully = (await rwGit.cloneSpecificBranch(
+              testDir, validRemoteRepository, 'main'))
+          .getOrThrow();
       expect(specificBranchClonedSuccessfully, true);
     }, timeout: const Timeout(Duration(minutes: 2)));
 
@@ -36,26 +38,26 @@ void main() {
         'will try to clone the remote repository and checkout an invalid branch',
         () async {
       try {
-        await rwGit.cloneSpecificBranch(
-            testDir, validRemoteRepository, invalidBranch);
+        (await rwGit.cloneSpecificBranch(
+                testDir, validRemoteRepository, invalidBranch))
+            .getOrThrow();
         fail('Should throw RwGitException for invalid branch');
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);
       }
     });
-    test('will return false if clone throws RwGitException', () async {
+    test('will throw RwGitException if clone fails', () async {
       try {
-        await rwGit.cloneSpecificBranch(
-            testDir, 'invalid_repository_url_12345', branch);
-        fail('Should return false, not throw or succeed');
-      } on RwGitException catch (_) {
-        fail('Should catch RwGitException and return false');
+        (await rwGit.cloneSpecificBranch(
+                testDir, 'invalid_repository_url_12345', branch))
+            .getOrThrow();
+        fail('Should throw RwGitException');
       } catch (e) {
-        expect(e, isNot(isA<RwGitException>()));
+        expect(e, isA<RwGitException>());
       }
     });
 
-    test('will return false if checkout throws RwGitException', () async {
+    test('will throw RwGitException if checkout fails', () async {
       final mockRunner = ProcessRunner.mock() as MockProcessRunner;
       mockRunner.setMockResult(
           'git', ['clone', validRemoteRepository], 0, '', '');
@@ -63,9 +65,11 @@ void main() {
           'fatal: pathspec did not match any file(s) known to git');
 
       final mockGit = RwGit(runner: mockRunner);
-      final result = await mockGit.cloneSpecificBranch(
-          testDir, validRemoteRepository, invalidBranch);
-      expect(result, false);
+      expect(
+          () async => (await mockGit.cloneSpecificBranch(
+                  testDir, validRemoteRepository, invalidBranch))
+              .getOrThrow(),
+          throwsA(isA<RwGitException>()));
     });
   });
 
@@ -75,23 +79,24 @@ void main() {
       String oldTag = "v1.0.4";
       String newTag = "v1.3.0";
 
-      ShortStatDto shortStatDto = await rwGit.cloneAndGetStatistics(
-          testDir, repositoryWithTags, oldTag, newTag);
+      ShortStatDto shortStatDto = (await rwGit.cloneAndGetStatistics(
+              testDir, repositoryWithTags, oldTag, newTag))
+          .getOrThrow();
 
       expect(shortStatDto.insertions >= 0, true);
       expect(shortStatDto.deletions >= 0, true);
       expect(shortStatDto.numberOfChangedFiles >= 0, true);
     }, timeout: const Timeout(Duration(minutes: 2)));
 
-    test('will return default stats if clone fails', () async {
-      ShortStatDto shortStatDto = await rwGit.cloneAndGetStatistics(
-          testDir, 'invalid_repository_url_12345', 'v1', 'v2');
-      expect(shortStatDto.insertions, -1);
-      expect(shortStatDto.deletions, -1);
-      expect(shortStatDto.numberOfChangedFiles, -1);
+    test('will throw RwGitException if clone fails', () async {
+      expect(
+          () async => (await rwGit.cloneAndGetStatistics(
+                  testDir, 'invalid_repository_url_12345', 'v1', 'v2'))
+              .getOrThrow(),
+          throwsA(isA<RwGitException>()));
     });
 
-    test('will return default stats if stats throws RwGitException', () async {
+    test('will throw RwGitException if stats throws RwGitException', () async {
       final mockRunner = ProcessRunner.mock() as MockProcessRunner;
       mockRunner.setMockResult('git', ['clone', repositoryWithTags], 0, '', '');
       mockRunner.setMockResult(
@@ -102,24 +107,27 @@ void main() {
           'fatal: ambiguous argument');
 
       final mockGit = RwGit(runner: mockRunner);
-      final result = await mockGit.cloneAndGetStatistics(
-          testDir, repositoryWithTags, 'v1.0.4', 'invalid_tag');
-      expect(result.insertions, -1);
+      expect(
+          () async => (await mockGit.cloneAndGetStatistics(
+                  testDir, repositoryWithTags, 'v1.0.4', 'invalid_tag'))
+              .getOrThrow(),
+          throwsA(isA<RwGitException>()));
     });
   });
 
   group('runCommand', () {
     test('will successfully execute a generic git command', () async {
-      await rwGit.init(testDir);
-      String result = await rwGit.runCommand(testDir, ['status']);
+      (await rwGit.init(testDir)).getOrThrow();
+      String result =
+          (await rwGit.runCommand(testDir, ['status'])).getOrThrow();
       expect(result.isNotEmpty, true);
       expect(result.contains('On branch'), true);
     });
 
     test('will throw exception on invalid git command', () async {
-      await rwGit.init(testDir);
+      (await rwGit.init(testDir)).getOrThrow();
       try {
-        await rwGit.runCommand(testDir, ['invalid_command']);
+        (await rwGit.runCommand(testDir, ['invalid_command'])).getOrThrow();
         fail('Should throw an exception');
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);

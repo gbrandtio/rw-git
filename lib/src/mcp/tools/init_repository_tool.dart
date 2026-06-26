@@ -32,7 +32,7 @@ class InitRepositoryTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final dir = arguments['directoryToInit'] as String;
-    final result = await rwGit.init(dir);
+    final result = (await rwGit.init(dir)).getOrThrow();
     return jsonEncode({'success': result});
   }
 }

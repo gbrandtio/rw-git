@@ -39,8 +39,21 @@ class ExecuteGitCommandTool implements McpTool {
     final directory = arguments['directory'] as String;
     final args = (arguments['args'] as List).cast<String>();
 
-    // Command validation could go here if needed, but RwGit.runCommand
-    // encapsulates safe argument passing to Process.run without shell.
-    return await rwGit.runCommand(directory, args);
+    if (directory.trim().isEmpty) {
+      throw ArgumentError('Directory cannot be empty.');
+    }
+    if (directory.contains('../') || directory.contains('..\\')) {
+      throw ArgumentError('Path traversal is not allowed.');
+    }
+
+    const blockedCommands = ['push', 'reset', 'clean', 'remote'];
+    for (final arg in args) {
+      if (blockedCommands.contains(arg)) {
+        throw ArgumentError(
+            'The git command "$arg" is blocked for security reasons.');
+      }
+    }
+
+    return (await rwGit.runCommand(directory, args)).getOrThrow();
   }
 }

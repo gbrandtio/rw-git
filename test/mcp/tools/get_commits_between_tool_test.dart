@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -23,7 +24,7 @@ void main() {
         'firstTag': 'v1',
         'secondTag': 'v2'
       });
-      final json = jsonDecode(result);
+      final json = jsonDecode(result) as Map<String, dynamic>;
       expect((json['commits'] as List).length, 2);
     });
   });

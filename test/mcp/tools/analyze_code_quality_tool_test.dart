@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
@@ -26,7 +27,7 @@ class MockCodeQualityTracker implements CodeQualityTracker {
   @override
   Future<ChurnMetricsDto> calculateChurn(String repository,
       {String? limit}) async {
-    return ChurnMetricsDto(
+    return const ChurnMetricsDto(
       totalCommits: 100,
       fileChurn: {
         'file1.dart': 20,
@@ -75,7 +76,7 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
   @override
   Future<ChurnMetricsDto> calculateChurn(String repository,
       {String? limit}) async {
-    return ChurnMetricsDto(
+    return const ChurnMetricsDto(
       totalCommits: 0,
       fileChurn: {},
       classChurn: {},

@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -34,7 +35,7 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
       String repository,
       {String? limit}) async {
-    return ChurnMetricsWithAuthorsDto(
+    return const ChurnMetricsWithAuthorsDto(
       totalCommits: 100,
       fileChurn: {
         'high_risk.dart': ContributionStats(

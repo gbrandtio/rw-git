@@ -8,8 +8,8 @@ class FileHistoryCommand extends GitCommand<List<String>> {
   FileHistoryCommand(super.runner, {required this.filePath});
 
   @override
-  Future<List<String>> execute(String directory,
-      {bool streamOutput = false}) async {
+  Future<List<String>> run(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
     // --follow traces history across renames
     // --oneline is usually easiest to parse for basic history
     final result = await runner.run(

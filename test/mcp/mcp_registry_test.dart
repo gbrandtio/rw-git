@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:rw_git/src/mcp/mcp_registry.dart';
 import 'package:rw_git/src/mcp/mcp_tool.dart';
 import 'package:test/test.dart';

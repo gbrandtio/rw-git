@@ -1,77 +1,94 @@
 import 'package:libgit2dart/libgit2dart.dart';
 import '../../rw_git.dart';
+import '../core/result.dart';
 import 'base_rw_git.dart';
 
 /// Stub implementation for libgit2 integration (FFI-based).
 /// This implementation will be expanded to support mobile platforms
 /// where the system 'git' executable is unavailable.
+class _AuthorCount {
+  final String name;
+  int commits;
+
+  _AuthorCount(this.name, this.commits);
+}
+
 class LibGit2RwGit extends BaseRwGit {
   LibGit2RwGit();
 
   @override
-  Future<bool> init(String directoryToInit, {bool streamOutput = false}) async {
+  Future<Result<bool, RwGitException>> init(String directoryToInit,
+      {bool streamOutput = false}) async {
     try {
       Repository.init(path: directoryToInit);
-      return true;
+      return const Success(true);
     } catch (e) {
-      return false;
+      return Failure(
+          RwGitException(message: 'LibGit2 init failed', originalException: e));
     }
   }
 
   @override
-  Future<bool> isGitRepository(String directoryToCheck,
+  Future<Result<bool, RwGitException>> isGitRepository(String directoryToCheck,
       {bool streamOutput = false}) async {
     try {
       final repo = Repository.open(directoryToCheck);
       repo.free();
-      return true;
+      return const Success(true);
     } catch (e) {
-      return false;
+      return Failure(RwGitException(
+          message: 'LibGit2 isGitRepository failed', originalException: e));
     }
   }
 
   @override
-  Future<bool> clone(String localDirectoryToCloneInto, String repository,
+  Future<Result<bool, RwGitException>> clone(
+      String localDirectoryToCloneInto, String repository,
       {bool streamOutput = false}) async {
     try {
       final repo = Repository.clone(
           url: repository, localPath: localDirectoryToCloneInto);
       repo.free();
-      return true;
+      return const Success(true);
     } catch (e) {
-      return false;
+      return Failure(RwGitException(
+          message: 'LibGit2 clone failed', originalException: e));
     }
   }
 
   @override
-  Future<bool> checkout(String localCheckoutDirectory, String branchToCheckout,
+  Future<Result<bool, RwGitException>> checkout(
+      String localCheckoutDirectory, String branchToCheckout,
       {bool streamOutput = false}) async {
     try {
       final repo = Repository.open(localCheckoutDirectory);
       repo.setHead('refs/heads/$branchToCheckout');
       Checkout.head(repo: repo);
       repo.free();
-      return true;
+      return const Success(true);
     } catch (e) {
-      return false;
+      return Failure(RwGitException(
+          message: 'LibGit2 checkout failed', originalException: e));
     }
   }
 
   @override
-  Future<List<String>> fetchTags(String localCheckoutDirectory,
+  Future<Result<List<String>, RwGitException>> fetchTags(
+      String localCheckoutDirectory,
       {bool streamOutput = false}) async {
     try {
       final repo = Repository.open(localCheckoutDirectory);
       final tags = repo.tags;
       repo.free();
-      return tags;
+      return Success(tags);
     } catch (e) {
-      return [];
+      return Failure(RwGitException(
+          message: 'LibGit2 fetchTags failed', originalException: e));
     }
   }
 
   @override
-  Future<List<String>> getCommitsBetween(
+  Future<Result<List<String>, RwGitException>> getCommitsBetween(
       String localCheckoutDirectory, String firstTag, String secondTag,
       {bool streamOutput = false}) async {
     try {
@@ -91,14 +108,15 @@ class LibGit2RwGit extends BaseRwGit {
       walker.free();
       repo.free();
 
-      return result;
+      return Success(result);
     } catch (e) {
-      return [];
+      return Failure(RwGitException(
+          message: 'LibGit2 getCommitsBetween failed', originalException: e));
     }
   }
 
   @override
-  Future<ShortStatDto> stats(
+  Future<Result<ShortStatDto, RwGitException>> stats(
       String localCheckoutDirectory, String oldTag, String newTag,
       {bool streamOutput = false}) async {
     try {
@@ -125,29 +143,31 @@ class LibGit2RwGit extends BaseRwGit {
       newRef.free();
       repo.free();
 
-      return statDto;
+      return Success(statDto);
     } catch (e) {
-      return ShortStatDto.defaultStats();
+      return Failure(RwGitException(
+          message: 'LibGit2 stats failed', originalException: e));
     }
   }
 
   @override
-  Future<List<ShortLogDto>> contributionsByAuthor(String localCheckoutDirectory,
+  Future<Result<List<ShortLogDto>, RwGitException>> contributionsByAuthor(
+      String localCheckoutDirectory,
       {bool streamOutput = false}) async {
     try {
       final repo = Repository.open(localCheckoutDirectory);
       final walker = RevWalk(repo)..pushHead();
       final commits = walker.walk();
 
-      final counts = <String, Map<String, dynamic>>{};
+      final counts = <String, _AuthorCount>{};
 
       for (final commit in commits) {
         final author = commit.author;
         final key = '${author.name} <${author.email}>';
         if (!counts.containsKey(key)) {
-          counts[key] = {'name': author.name, 'commits': 0};
+          counts[key] = _AuthorCount(author.name, 0);
         }
-        counts[key]!['commits'] = (counts[key]!['commits'] as int) + 1;
+        counts[key]!.commits++;
         commit.free();
       }
 
@@ -155,24 +175,85 @@ class LibGit2RwGit extends BaseRwGit {
       repo.free();
 
       final result = counts.values
-          .map((data) =>
-              ShortLogDto(data['commits'] as int, data['name'] as String))
+          .map((data) => ShortLogDto(data.commits, data.name))
           .toList();
       result.sort(
           (a, b) => b.numberOfContributions.compareTo(a.numberOfContributions));
-      return result;
+      return Success(result);
     } catch (e) {
-      return [];
+      return Failure(RwGitException(
+          message: 'LibGit2 contributionsByAuthor failed',
+          originalException: e));
     }
   }
 
   @override
-  Future<String> runCommand(String directory, List<String> args,
+  Future<Result<List<String>, RwGitException>> branch(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(
+        RwGitException(message: 'LibGit2 branch not implemented yet'));
+  }
+
+  @override
+  Future<Result<String, RwGitException>> status(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(
+        RwGitException(message: 'LibGit2 status not implemented yet'));
+  }
+
+  @override
+  Future<Result<bool, RwGitException>> pull(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(RwGitException(message: 'LibGit2 pull not implemented yet'));
+  }
+
+  @override
+  Future<Result<bool, RwGitException>> push(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(RwGitException(message: 'LibGit2 push not implemented yet'));
+  }
+
+  @override
+  Future<Result<String, RwGitException>> diff(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(RwGitException(message: 'LibGit2 diff not implemented yet'));
+  }
+
+  @override
+  Future<Result<bool, RwGitException>> merge(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(
+        RwGitException(message: 'LibGit2 merge not implemented yet'));
+  }
+
+  @override
+  Future<Result<bool, RwGitException>> stash(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(
+        RwGitException(message: 'LibGit2 stash not implemented yet'));
+  }
+
+  @override
+  Future<Result<String, RwGitException>> blame(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(
+        RwGitException(message: 'LibGit2 blame not implemented yet'));
+  }
+
+  @override
+  Future<Result<String, RwGitException>> show(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+    return Failure(RwGitException(message: 'LibGit2 show not implemented yet'));
+  }
+
+  @override
+  Future<Result<String, RwGitException>> runCommand(
+      String directory, List<String> args,
       {bool streamOutput = false}) async {
     final runner = ProcessRunner.defaultRunner();
     final result = await runner.run('git', args,
         workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
-    return result.stdout?.toString() ?? '';
+    return Success(result.stdout?.toString() ?? '');
   }
 }

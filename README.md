@@ -22,6 +22,15 @@ Built with a focus on Security and Dependency Inversion, `rw_git` never uses `ru
 - [x] `init`: Initialize a local GIT directory.
 - [x] `clone`: Clone a remote repository into a local folder.
 - [x] `checkout`: Checkout a GIT branch.
+- [x] `branch`: Create, list, or delete branches.
+- [x] `status`: Check the status of the repository.
+- [x] `pull`: Fetch from and integrate with another repository or a local branch.
+- [x] `push`: Update remote refs along with associated objects.
+- [x] `diff`: Show changes between commits, commit and working tree, etc.
+- [x] `merge`: Join two or more development histories together.
+- [x] `stash`: Stash the changes in a dirty working directory away.
+- [x] `blame`: Show what revision and author last modified each line of a file.
+- [x] `show`: Show various types of objects.
 - [x] `fetchTags`: Retrieve a list of tags of the specified repository.
 - [x] `getCommitsBetween`: Retrieve a list of commits between two given tags.
 - [x] `stats`: Get the number of lines inserted, deleted, and files changed.
@@ -220,14 +229,21 @@ You can opt-in to streaming the standard output and standard error of any Git co
 await rwGit.clone(localDirectoryToCloneInto, "https://github.com/google/flutter", streamOutput: true);
 ```
 
-### Exception Handling
-`rw_git` strictly enforces type-safe exception handling. It will **never** silently swallow an execution error. All non-zero exit codes throw a `RwGitException` (or a subclass like `GitBranchNotFoundException`) that exposes the underlying `stderr` output.
+### Exception Handling & Result Pattern
+`rw_git` strictly enforces type-safe exception handling via the `Result<T, E>` pattern. It will **never** silently swallow an execution error. All non-zero exit codes return a `Result.failure` containing an `RwGitException` (or a subclass like `GitBranchNotFoundException`) that exposes the underlying `stderr` output. You can elegantly handle success and failure paths or extract the value using `.getOrThrow()`.
 
 ```dart
+final result = await rwGit.checkout(localDirectoryToCloneInto, 'invalid-branch');
+result.fold(
+  (success) => print("Checkout successful!"),
+  (error) => print("Failed to checkout branch. Exit code: ${error.exitCode}, Stderr: ${error.stderr}"),
+);
+
+// Or throw if you prefer try/catch:
 try {
-  await rwGit.checkout(localDirectoryToCloneInto, 'invalid-branch');
+  await rwGit.checkout(localDirectoryToCloneInto, 'invalid-branch').then((r) => r.getOrThrow());
 } on RwGitException catch (e) {
-  print("Failed to checkout branch. Exit code: ${e.exitCode}, Stderr: ${e.stderr}");
+  print("Caught error: ${e.message}");
 }
 ```
 

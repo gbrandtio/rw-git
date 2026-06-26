@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -22,19 +23,19 @@ void main() {
   group('checkout', () {
     test('will succeed on a valid git repository with a valid branch',
         () async {
-      await rwGit.clone(testDir, validRemoteRepository);
+      (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
       bool isCheckoutSuccess =
-          await rwGit.checkout(clonedFiles[0].uri.path, "main");
+          (await rwGit.checkout(clonedFiles[0].uri.path, "main")).getOrThrow();
       expect(isCheckoutSuccess, true);
     });
 
     test('will fail if the specified branch is invalid', () async {
-      await rwGit.clone(testDir, validRemoteRepository);
+      (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
       try {
-        await rwGit.checkout(testDir, "invalid");
+        (await rwGit.checkout(testDir, "invalid")).getOrThrow();
         fail('Should have thrown RwGitException');
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);
@@ -42,10 +43,10 @@ void main() {
     });
 
     test('will sanitize branch name starting with hyphen', () async {
-      await rwGit.clone(testDir, validRemoteRepository);
+      (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
       try {
         // -invalid-branch should become refs/heads/-invalid-branch instead of failing on git flag injection
-        await rwGit.checkout(testDir, "-invalid-branch");
+        (await rwGit.checkout(testDir, "-invalid-branch")).getOrThrow();
         fail('Should have thrown RwGitException');
       } on RwGitException catch (e) {
         // the error output should reflect that it tried to checkout refs/heads/-invalid-branch

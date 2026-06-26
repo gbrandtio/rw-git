@@ -37,7 +37,7 @@ class CheckoutBranchTool implements McpTool {
   Future<String> execute(Map<String, dynamic> arguments) async {
     final localDir = arguments['localCheckoutDirectory'] as String;
     final branch = arguments['branchToCheckout'] as String;
-    final result = await rwGit.checkout(localDir, branch);
+    final result = (await rwGit.checkout(localDir, branch)).getOrThrow();
     return jsonEncode({'success': result});
   }
 }

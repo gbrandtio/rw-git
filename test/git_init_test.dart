@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -16,14 +17,14 @@ void main() {
   /// Test group for [rwGit.init()] function.
   group('init', () {
     test('will create a local directory', () async {
-      await rwGit.init(testDir);
+      (await rwGit.init(testDir)).getOrThrow();
       bool directoryExists = await Directory(testDir).exists();
       expect(directoryExists, true);
     });
 
     test('will initialize a git directory', () async {
-      await rwGit.init(testDir);
-      bool isGitDirectory = await rwGit.isGitRepository(testDir);
+      (await rwGit.init(testDir)).getOrThrow();
+      bool isGitDirectory = (await rwGit.isGitRepository(testDir)).getOrThrow();
       expect(isGitDirectory, true);
       await Directory(testDir).delete(recursive: true);
     });

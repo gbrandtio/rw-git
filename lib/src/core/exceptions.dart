@@ -3,6 +3,7 @@
 /// ----------------------------------------------------------------------------
 /// Strongly typed exceptions for the rw_git package based on
 /// ERROR_HANDLING.md guidelines.
+library;
 
 class RwGitException implements Exception {
   final String message;
@@ -26,39 +27,32 @@ class RwGitException implements Exception {
 class GitBranchNotFoundException extends RwGitException {
   final String branchName;
 
-  GitBranchNotFoundException(this.branchName, {int? exitCode, String? stderr})
+  GitBranchNotFoundException(this.branchName, {super.exitCode, super.stderr})
       : super(
           message: 'Branch not found: $branchName',
-          exitCode: exitCode,
-          stderr: stderr,
         );
 }
 
 class GitNotInitializedException extends RwGitException {
   final String directory;
 
-  GitNotInitializedException(this.directory, {int? exitCode, String? stderr})
+  GitNotInitializedException(this.directory, {super.exitCode, super.stderr})
       : super(
           message: 'Directory is not a git repository: $directory',
-          exitCode: exitCode,
-          stderr: stderr,
         );
 }
 
 class GitExecutableNotFoundException extends RwGitException {
-  GitExecutableNotFoundException({String? message, Object? originalException})
+  GitExecutableNotFoundException({String? message, super.originalException})
       : super(
           message: message ??
               'Failed to execute git. Ensure git is installed and in the system PATH.',
-          originalException: originalException,
         );
 }
 
 class GitMergeConflictException extends RwGitException {
-  GitMergeConflictException({int? exitCode, String? stderr})
+  GitMergeConflictException({super.exitCode, super.stderr})
       : super(
           message: 'Merge conflict detected.',
-          exitCode: exitCode,
-          stderr: stderr,
         );
 }

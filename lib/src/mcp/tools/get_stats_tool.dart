@@ -42,7 +42,7 @@ class GetStatsTool implements McpTool {
     final localDir = arguments['localCheckoutDirectory'] as String;
     final oldTag = arguments['oldTag'] as String;
     final newTag = arguments['newTag'] as String;
-    final stats = await rwGit.stats(localDir, oldTag, newTag);
+    final stats = (await rwGit.stats(localDir, oldTag, newTag)).getOrThrow();
     return jsonEncode({
       'numberOfChangedFiles': stats.numberOfChangedFiles,
       'insertions': stats.insertions,

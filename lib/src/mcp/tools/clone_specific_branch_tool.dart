@@ -46,7 +46,8 @@ class CloneSpecificBranchTool implements McpTool {
     final localDir = arguments['localDirectoryToCloneInto'] as String;
     final repoUrl = arguments['repository'] as String;
     final branch = arguments['branchToCheckout'] as String;
-    final result = await rwGit.cloneSpecificBranch(localDir, repoUrl, branch);
+    final result = (await rwGit.cloneSpecificBranch(localDir, repoUrl, branch))
+        .getOrThrow();
     return jsonEncode({'success': result});
   }
 }

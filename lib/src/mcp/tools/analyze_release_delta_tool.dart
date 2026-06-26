@@ -53,12 +53,14 @@ class AnalyzeReleaseDeltaTool implements McpTool {
     final detailed = arguments['detailed'] as bool? ?? false;
 
     // 1. Get all commits and authors
-    final logRaw = await rwGit.runCommand(localDir,
-        ['log', '$firstTag..$secondTag', '--format=%H||%an||%ad||%s']);
+    final logRaw = (await rwGit.runCommand(localDir,
+            ['log', '$firstTag..$secondTag', '--format=%H||%an||%ad||%s']))
+        .getOrThrow();
 
     // 2. Get file diff stats
-    final numstatRaw = await rwGit
-        .runCommand(localDir, ['diff', '--numstat', firstTag, secondTag]);
+    final numstatRaw = (await rwGit
+            .runCommand(localDir, ['diff', '--numstat', firstTag, secondTag]))
+        .getOrThrow();
 
     // Offload parsing to an Isolate
     final resultMap = await Isolate.run(

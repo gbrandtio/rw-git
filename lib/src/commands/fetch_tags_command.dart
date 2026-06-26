@@ -6,8 +6,8 @@ class FetchTagsCommand extends GitCommand<List<String>> {
   FetchTagsCommand(super.runner);
 
   @override
-  Future<List<String>> execute(String directory,
-      {bool streamOutput = false}) async {
+  Future<List<String>> run(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
     final result = await runner.run('git', ['tag', '-l'],
         workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);

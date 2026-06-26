@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
@@ -74,7 +75,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 1);
       expect(response['result']['protocolVersion'], '2024-11-05');
     });
@@ -93,7 +94,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 99);
       expect(response['result'], isEmpty);
     });
@@ -114,7 +115,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 2);
       expect(response['result']['tools'][0]['name'], 'test_tool');
     });
@@ -140,7 +141,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 3);
       expect(response['result']['content'][0]['text'], 'Tool output: value');
     });
@@ -161,7 +162,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32602);
       expect(response['error']['message'], contains('missing tool name'));
     });
@@ -182,7 +183,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], 32601);
       expect(response['error']['message'],
           contains('Method not found: unknown_tool'));
@@ -210,7 +211,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32000);
       expect(response['error']['message'], contains('Custom Git Error'));
     });
@@ -233,7 +234,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32000);
       expect(response['error']['message'], contains('Generic error'));
     });
@@ -253,7 +254,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32601);
       expect(response['error']['message'],
           contains('Method not found: unknown/method'));
@@ -282,7 +283,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 9);
     });
 
@@ -320,7 +321,7 @@ void main() {
           .take(1)
           .toList();
 
-      final response = jsonDecode(outputLines.first);
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 10);
     });
 

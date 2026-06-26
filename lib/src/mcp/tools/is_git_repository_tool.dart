@@ -32,7 +32,7 @@ class IsGitRepositoryTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final dir = arguments['directoryToCheck'] as String;
-    final result = await rwGit.isGitRepository(dir);
+    final result = (await rwGit.isGitRepository(dir)).getOrThrow();
     return jsonEncode({'isGitRepository': result});
   }
 }

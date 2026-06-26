@@ -24,17 +24,17 @@ jobs:
       - name: Install flutter dependencies
         run: dart pub get && flutter pub get
         
+      - name: Verify formatting
+        run: dart format --output=none --set-exit-if-changed --line-length=80 .
+
+      - name: Analyze project source
+        run: dart analyze --fatal-infos
+
       - name: Run tests
         run: flutter test -r expanded --coverage
         
-      - name: Install lcov
-        run: sudo apt-get install -y lcov
-        
       - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v1.2.1
+        uses: codecov/codecov-action@v5
         with:
           file: coverage/lcov.info
           token: "${{ secrets.CODECOV_TOKEN }}"
-          
-      - name: Remove generated coverage files
-        run: lcov --remove coverage/lcov.info

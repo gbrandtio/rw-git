@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:rw_git/src/models/churn_metrics_with_authors_dto.dart';
 import 'package:test/test.dart';
 

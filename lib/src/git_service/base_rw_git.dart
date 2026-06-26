@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import '../../rw_git.dart';
+import '../core/result.dart';
 import 'parsers/git_url_parser.dart';
 
 abstract class BaseRwGit implements RwGit {
@@ -10,40 +11,41 @@ abstract class BaseRwGit implements RwGit {
   final String gitRepoIndicator = ".git";
 
   @override
-  Future<bool> cloneSpecificBranch(String localDirectoryToCloneInto,
-      String repository, String branchToCheckout,
+  Future<Result<bool, RwGitException>> cloneSpecificBranch(
+      String localDirectoryToCloneInto,
+      String repository,
+      String branchToCheckout,
       {bool streamOutput = false}) async {
-    try {
-      await clone(localDirectoryToCloneInto, repository,
-          streamOutput: streamOutput);
+    final cloneResult = await clone(localDirectoryToCloneInto, repository,
+        streamOutput: streamOutput);
 
+    return cloneResult.fold((_) {
       String localCheckoutDirectory = localDirectoryToCloneInto +
           Platform.pathSeparator +
           GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
 
       return checkout(localCheckoutDirectory, branchToCheckout,
           streamOutput: streamOutput);
-    } on RwGitException {
-      return false;
-    }
+    }, (e) => Failure(e));
   }
 
   @override
-  Future<ShortStatDto> cloneAndGetStatistics(String localDirectoryToCloneInto,
-      String repository, String oldTag, String newTag,
+  Future<Result<ShortStatDto, RwGitException>> cloneAndGetStatistics(
+      String localDirectoryToCloneInto,
+      String repository,
+      String oldTag,
+      String newTag,
       {bool streamOutput = false}) async {
-    try {
-      await clone(localDirectoryToCloneInto, repository,
-          streamOutput: streamOutput);
+    final cloneResult = await clone(localDirectoryToCloneInto, repository,
+        streamOutput: streamOutput);
 
+    return cloneResult.fold((_) {
       String localCheckoutDirectory = localDirectoryToCloneInto +
           Platform.pathSeparator +
           GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
 
       return stats(localCheckoutDirectory, oldTag, newTag,
           streamOutput: streamOutput);
-    } on RwGitException {
-      return ShortStatDto.defaultStats();
-    }
+    }, (e) => Failure(e));
   }
 }

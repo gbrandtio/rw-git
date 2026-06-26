@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:rw_git/src/mcp/tools/get_rw_git_documentation_tool.dart';
 import 'package:test/test.dart';
 

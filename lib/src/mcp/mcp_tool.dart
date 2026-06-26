@@ -1,5 +1,6 @@
 /// mcp_tool.dart
 /// Defines the strategy interface for all MCP tools.
+library;
 
 abstract interface class McpTool {
   /// The unique name of the tool, used for routing the JSON-RPC request.

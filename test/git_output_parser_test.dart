@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
@@ -140,6 +141,19 @@ void main() {
 
       expect(shortLogDto.numberOfContributions, isNegative);
       expect(shortLogDto.authorName, isEmpty);
+    });
+
+    test(
+        'will correctly parse a valid shortlog string with a multi-word author name',
+        () {
+      final validShortLogString =
+          "   156 Ioannis Brant-Ioannidis (Some Extra Words)";
+      ShortLogDto shortLogDto =
+          RwGitParser.parseGitShortLogStdout(validShortLogString);
+
+      expect(shortLogDto.numberOfContributions, 156);
+      expect(
+          shortLogDto.authorName, "Ioannis Brant-Ioannidis (Some Extra Words)");
     });
   });
 }

@@ -61,7 +61,8 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
     final promptInstructions = getPromptInstructions();
 
     final commitsLog =
-        await rwGit.runCommand(directory, ['log', '-n', limit, '--stat']);
+        (await rwGit.runCommand(directory, ['log', '-n', limit, '--stat']))
+            .getOrThrow();
 
     return '''
 You are a Staff Software Engineer. The task is to analyze, as per the instructions given below and provide a

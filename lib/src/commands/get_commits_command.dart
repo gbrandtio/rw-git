@@ -10,8 +10,8 @@ class GetCommitsCommand extends GitCommand<List<String>> {
       {required this.firstTag, required this.secondTag});
 
   @override
-  Future<List<String>> execute(String directory,
-      {bool streamOutput = false}) async {
+  Future<List<String>> run(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
     // using ... syntax for rev-list
     final result = await runner.run(
         'git', ['rev-list', '$firstTag...$secondTag'],

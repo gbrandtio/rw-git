@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
@@ -19,7 +20,8 @@ void main() {
           'Cloning into repo...',
           '');
 
-      final result = await rwGit.clone('my_dir', 'https://fake.url/repo.git');
+      final result = (await rwGit.clone('my_dir', 'https://fake.url/repo.git'))
+          .getOrThrow();
       expect(result, true);
     });
 
@@ -28,7 +30,7 @@ void main() {
           'fatal: repository not found');
 
       try {
-        await rwGit.clone('my_dir', 'bad_url');
+        (await rwGit.clone('my_dir', 'bad_url')).getOrThrow();
         fail('Should have thrown RwGitException');
       } on RwGitException catch (e) {
         expect(e.exitCode, 128);
@@ -40,7 +42,7 @@ void main() {
       mockRunner.setMockResult('git', ['diff', '--shortstat', 'v1', 'v2'], 0,
           ' 3 files changed, 50 insertions(+), 10 deletions(-)', '');
 
-      final stats = await rwGit.stats('my_dir', 'v1', 'v2');
+      final stats = (await rwGit.stats('my_dir', 'v1', 'v2')).getOrThrow();
       expect(stats.numberOfChangedFiles, 3);
       expect(stats.insertions, 50);
       expect(stats.deletions, 10);

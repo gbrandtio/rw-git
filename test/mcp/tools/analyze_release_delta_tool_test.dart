@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -84,7 +85,8 @@ void main() {
 
       final result = jsonDecode(resultRaw) as Map<String, dynamic>;
       expect(result.containsKey('commits'), isTrue);
-      expect((result['commits'] as List).first, 'hash1||Alice||date||msg1');
+      expect(((result['commits'] as List) as List).first,
+          'hash1||Alice||date||msg1');
     });
   });
 }

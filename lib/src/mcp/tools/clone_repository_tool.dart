@@ -37,7 +37,7 @@ class CloneRepositoryTool implements McpTool {
   Future<String> execute(Map<String, dynamic> arguments) async {
     final localDir = arguments['localDirectoryToCloneInto'] as String;
     final repoUrl = arguments['repository'] as String;
-    final result = await rwGit.clone(localDir, repoUrl);
+    final result = (await rwGit.clone(localDir, repoUrl)).getOrThrow();
     return jsonEncode({'success': result});
   }
 }

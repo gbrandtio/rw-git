@@ -33,6 +33,11 @@ You are interacting with the RwGit repository via the MCP tools provided in your
 ## 2. Code Quality Analysis Tools
 - **analyze_code_quality**: Use this to get AI-ready metrics on tech debt, suspicious commits, and high-churn files.
 - **analyze_code_quality_with_authors**: Similar to the above, but includes author contributions.
+- **analyze_release_delta**: Analyzes the difference between two tags to provide a summary of changes, regressions, and code churn.
+- **analyze_bus_factor**: Analyzes the repository to identify files that are heavily reliant on a single author.
+- **evaluate_comment_llm_generation**: Evaluates code comments based on LLM-generated feedback criteria.
+- **evaluate_comment_quality**: Evaluates the quality and professionalism of code comments.
+- **evaluate_comment_necessity**: Evaluates whether code comments are necessary or redundant.
 
 ## 3. RwGit Facade Tools
 The following out-of-the-box Dart facade functions are exposed as individual, strongly-typed MCP tools for your convenience:

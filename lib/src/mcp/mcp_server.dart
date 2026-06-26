@@ -40,18 +40,23 @@ class McpServer {
   Future<void> _handleRequest(Map<String, dynamic> request) async {
     final id = request['id'];
     final method = request['method'];
-    final params = request['params'] ?? <String, dynamic>{};
+    final params =
+        (request['params'] as Map<String, dynamic>?) ?? <String, dynamic>{};
 
     if (method == 'initialize') {
       _sendResponse(id, {
         'protocolVersion': '2024-11-05',
-        'capabilities': {'tools': {}},
+        'capabilities': {'tools': {}, 'resources': {}, 'prompts': {}},
         'serverInfo': {'name': 'rw_git_mcp', 'version': '1.0.0'}
       });
     } else if (method == 'notifications/initialized') {
       // Just acknowledge
     } else if (method == 'ping') {
       _sendResponse(id, {});
+    } else if (method == 'resources/list') {
+      _sendResponse(id, {'resources': []});
+    } else if (method == 'prompts/list') {
+      _sendResponse(id, {'prompts': []});
     } else if (method == 'tools/list') {
       _sendResponse(id, {
         'tools': registry.getToolListings(),

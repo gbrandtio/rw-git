@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -21,12 +22,13 @@ void main() {
     test(
         'output count will be greater than 0, if the provided repository and tags are valid',
         () async {
-      await rwGit.clone(testDir, repository);
+      (await rwGit.clone(testDir, repository)).getOrThrow();
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> commitsBetweenTags = await rwGit.getCommitsBetween(
-          clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6');
+      List<String> commitsBetweenTags = (await rwGit.getCommitsBetween(
+              clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6'))
+          .getOrThrow();
 
       expect(commitsBetweenTags.isNotEmpty, true);
     });
@@ -36,8 +38,9 @@ void main() {
         () async {
       await Directory(testDir).create();
       try {
-        await rwGit.getCommitsBetween(
-            testDir, 'v1.0.0_extinct', 'v1.0.1_extinct');
+        (await rwGit.getCommitsBetween(
+                testDir, 'v1.0.0_extinct', 'v1.0.1_extinct'))
+            .getOrThrow();
         fail('Should have thrown RwGitException');
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);

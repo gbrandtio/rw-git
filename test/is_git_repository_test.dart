@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -21,8 +22,9 @@ void main() {
   group('isGitRepository', () {
     test('will succeed if the specified repository is a git repository',
         () async {
-      await rwGit.init(testDir);
-      bool isGitRepository = await rwGit.isGitRepository(testDir);
+      (await rwGit.init(testDir)).getOrThrow();
+      bool isGitRepository =
+          (await rwGit.isGitRepository(testDir)).getOrThrow();
       expect(isGitRepository, true);
     });
   });

@@ -32,7 +32,7 @@ class FetchTagsTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final localDir = arguments['localCheckoutDirectory'] as String;
-    final tags = await rwGit.fetchTags(localDir);
+    final tags = (await rwGit.fetchTags(localDir)).getOrThrow();
     return jsonEncode({'tags': tags});
   }
 }

@@ -3,8 +3,8 @@
 /// ----------------------------------------------------------------------------
 /// A model representation of the output of the git shortstat -s command.
 class ShortLogDto {
-  int numberOfContributions;
-  String authorName;
+  final int numberOfContributions;
+  final String authorName;
 
-  ShortLogDto(this.numberOfContributions, this.authorName);
+  const ShortLogDto(this.numberOfContributions, this.authorName);
 }

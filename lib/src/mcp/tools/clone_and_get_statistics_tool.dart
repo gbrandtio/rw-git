@@ -53,7 +53,8 @@ class CloneAndGetStatisticsTool implements McpTool {
     final oldTag = arguments['oldTag'] as String;
     final newTag = arguments['newTag'] as String;
     final stats =
-        await rwGit.cloneAndGetStatistics(localDir, repoUrl, oldTag, newTag);
+        (await rwGit.cloneAndGetStatistics(localDir, repoUrl, oldTag, newTag))
+            .getOrThrow();
     return jsonEncode({
       'numberOfChangedFiles': stats.numberOfChangedFiles,
       'insertions': stats.insertions,

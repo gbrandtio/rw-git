@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -21,11 +22,12 @@ void main() {
   /// Test group for [rwGit.fetchTags()] function.
   group('fetchTags', () {
     test('will retrieve a list of tags from a valid git repository', () async {
-      await rwGit.clone(testDir, repositoryWithTags);
+      (await rwGit.clone(testDir, repositoryWithTags)).getOrThrow();
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> tags = await rwGit.fetchTags(clonedFiles[0].uri.path);
+      List<String> tags =
+          (await rwGit.fetchTags(clonedFiles[0].uri.path)).getOrThrow();
       bool isTagsMoreThanOne = tags.length > 1;
 
       expect(isTagsMoreThanOne, true);
@@ -33,8 +35,8 @@ void main() {
   });
 
   test('will return an empty list if the repository does not exist', () async {
-    await rwGit.init(testDir);
-    List<String> tags = await rwGit.fetchTags(testDir);
+    (await rwGit.init(testDir)).getOrThrow();
+    List<String> tags = (await rwGit.fetchTags(testDir)).getOrThrow();
     expect(tags.isEmpty, true);
   });
 }

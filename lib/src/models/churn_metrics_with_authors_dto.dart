@@ -3,6 +3,7 @@
 /// ----------------------------------------------------------------------------
 /// A model representation of the code churn metrics across a git repository,
 /// including author contributions.
+library;
 
 /// Represents statistics for a single entity (file, class, or block),
 /// including total churn and a breakdown by author.

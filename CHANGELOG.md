@@ -1,3 +1,13 @@
+## 3.2.0
+- **FEAT (Core):** Implemented the `Result<T, E>` pattern (`Result.getOrThrow()`) across all internal commands and public facades, removing raw Exceptions and unhandled `ProcessException`s from the execution flow.
+- **FEAT (Core):** Added 9 new highly-requested git operations to `RwGit`: `branch`, `status`, `pull`, `push`, `diff`, `merge`, `stash`, `blame`, and `show`.
+- **FEAT (Core):** Upgraded `GitCommand` execution to support path sanitization (directory traversal protection), observability via `dart:developer` timing logs, and extensibility hooks (`onBeforeRun`, `onAfterRun`).
+- **FEAT (Core):** Unified argument handling by allowing `List<String> extraArgs` in all internal git commands.
+- **PERF (Quality):** Optimized `CodeQualityTracker.calculateChurn` and `calculateChurnWithAuthors` to stream `git log` output asynchronously, eliminating Out of Memory crashes on massive repositories.
+- **FIX (Quality):** Fixed a bug in `RwGitParser.parseGitShortLogStdout` where multi-word author names were incorrectly truncated.
+- **CHORE:** Removed `dynamic` typing entirely from the codebase, updated `lints` to `^5.0.0`, and strictly enforced `dart analyze --fatal-infos`.
+- **MCP:** Added native support for MCP Resources and Prompts protocol capabilities.
+
 ## 3.1.0
 - Architecture: `RwGit` is now an abstract factory interface, preparing the core library for non-CLI Git operations.
 - Architecture: Added `CliRwGit` to encapsulate existing `Process.run` functionality, ensuring no breaking changes to default behavior.
@@ -5,6 +15,12 @@
 - Tooling: Added `executables` declaration in `pubspec.yaml` to allow running the MCP server globally via `dart pub global activate rw_git`.
 - Distribution: Created GitHub Actions workflow `.github/workflows/release_mcp.yml` for automated cross-platform binary compilation.
 - Distribution: Created scaffolding for npm and Homebrew packaging.
+
+## 3.0.4
+- [REFACTOR] `analyze_code_quality` and `analyze_code_quality_with_authors` tools to use Template Method pattern (`BaseAnalyzeCodeQualityTool`) eliminating duplicated code logic.
+
+## 3.0.3
+- Exposing RwGitParser through the rw_git package for enhanced flexibility.
 
 ## 2.3.0
 - Memory Efficiency: Refactored `CodeQualityTracker` to use an asynchronous stream state-machine (`runStream`) for processing `git log` outputs. This eliminates unbounded memory consumption when analyzing massive diffs in large repositories.
@@ -26,9 +42,23 @@
 - MCP: Updated tool descriptions to include explicit invocation instructions for better LLM context.
 - MCP: Improved code quality tracker outputs for suspicious and mega commits to include author, date, and commit message.
 
+## 1.2.0
+- **FEAT**: Added `evaluate_comment_llm_generation` MCP tool to detect LLM artifacts in comments.
+- **FEAT**: Added `evaluate_comment_quality` MCP tool to analyze the quality of newly added or modified comments.
+- **FEAT**: Added `evaluate_comment_necessity` MCP tool to evaluate whether comments are redundant and if code could be self-documenting instead.
+- **REFACTOR**: Consolidated CodeQuality tools.
+
+## 1.1.0
+- [REFACTOR] `analyze_code_quality` and `analyze_code_quality_with_authors` tools to use Template Method pattern (`BaseAnalyzeCodeQualityTool`) eliminating duplicated code logic.
+
 ## 1.0.4
 - MCP: Combined `retrieve_commits_for_ai_review` functionality into `analyze_code_quality` and `analyze_code_quality_with_authors` to provide an internal AI prompt combined with code quality metrics and recent commits for a comprehensive code review context. 
 - MCP: Removed `retrieve_commits_for_ai_review`.
+
+## 1.0.2
+- Fixed various bugs surfaced from unit testing.
+- Code coverage 100%.
+- Improved performance and logical output of some commands.
 
 ## 1.0.1
 - Support for common git commands and operations:
@@ -37,23 +67,3 @@
   - `git fetch tags`
   - Count commits between two tags
   - Retrieve statistics regarding code changes (insertions, deletions, number of files changed).
-
-## 1.0.2
-- Fixed various bugs surfaced from unit testing.
-- Code coverage 100%.
-- Improved performance and logical output of some commands.
-
-## [1.2.0]
-- **FEAT**: Added `evaluate_comment_llm_generation` MCP tool to detect LLM artifacts in comments.
-- **FEAT**: Added `evaluate_comment_quality` MCP tool to analyze the quality of newly added or modified comments.
-- **FEAT**: Added `evaluate_comment_necessity` MCP tool to evaluate whether comments are redundant and if code could be self-documenting instead.
-- **REFACTOR**: Consolidated CodeQuality tools.
-
-## [1.1.0]
-- [REFACTOR] `analyze_code_quality` and `analyze_code_quality_with_authors` tools to use Template Method pattern (`BaseAnalyzeCodeQualityTool`) eliminating duplicated code logic.
-
-## [3.0.4]
-- [REFACTOR] `analyze_code_quality` and `analyze_code_quality_with_authors` tools to use Template Method pattern (`BaseAnalyzeCodeQualityTool`) eliminating duplicated code logic.
-
-## [3.0.3]
-- Exposing RwGitParser through the rw_git package for enhanced flexibility.

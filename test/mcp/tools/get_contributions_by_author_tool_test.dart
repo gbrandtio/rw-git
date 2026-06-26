@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -21,7 +22,7 @@ void main() {
       final result = await tool.execute({
         'localCheckoutDirectory': 'test_dir',
       });
-      final json = jsonDecode(result);
+      final json = jsonDecode(result) as Map<String, dynamic>;
       final contributions = json['contributions'] as List;
       expect(contributions.length, 2);
       expect(contributions[0]['authorName'], 'JohnDoe');

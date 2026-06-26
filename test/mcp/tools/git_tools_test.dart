@@ -1,5 +1,7 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'package:test/test.dart';
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/core/result.dart';
 
 class MockRwGit implements RwGit {
   @override
@@ -9,53 +11,110 @@ class MockRwGit implements RwGit {
   String get gitRepoIndicator => '.git';
 
   @override
-  Future<bool> init(String directoryToInit,
+  Future<Result<bool, RwGitException>> init(String directoryToInit,
           {bool streamOutput = false}) async =>
-      true;
+      const Success(true);
   @override
-  Future<bool> isGitRepository(String directoryToCheck,
+  Future<Result<bool, RwGitException>> isGitRepository(String directoryToCheck,
           {bool streamOutput = false}) async =>
-      true;
+      const Success(true);
   @override
-  Future<bool> clone(String localDirectoryToCloneInto, String repository,
+  Future<Result<bool, RwGitException>> clone(
+          String localDirectoryToCloneInto, String repository,
           {bool streamOutput = false}) async =>
-      true;
+      const Success(true);
   @override
-  Future<bool> checkout(String localCheckoutDirectory, String branchToCheckout,
+  Future<Result<bool, RwGitException>> checkout(
+          String localCheckoutDirectory, String branchToCheckout,
           {bool streamOutput = false}) async =>
-      true;
+      const Success(true);
   @override
-  Future<List<String>> fetchTags(String localCheckoutDirectory,
+  Future<Result<List<String>, RwGitException>> fetchTags(
+          String localCheckoutDirectory,
           {bool streamOutput = false}) async =>
-      ['v1.0.0'];
+      const Success(['v1.0.0']);
   @override
-  Future<List<String>> getCommitsBetween(
+  Future<Result<List<String>, RwGitException>> getCommitsBetween(
           String localCheckoutDirectory, String firstTag, String secondTag,
           {bool streamOutput = false}) async =>
-      ['commit1', 'commit2'];
+      const Success(['commit1', 'commit2']);
   @override
-  Future<ShortStatDto> stats(
+  Future<Result<ShortStatDto, RwGitException>> stats(
           String localCheckoutDirectory, String oldTag, String newTag,
           {bool streamOutput = false}) async =>
-      ShortStatDto(1, 2, 3);
+      const Success(ShortStatDto(1, 2, 3));
   @override
-  Future<List<ShortLogDto>> contributionsByAuthor(String localCheckoutDirectory,
+  Future<Result<List<ShortLogDto>, RwGitException>> contributionsByAuthor(
+          String localCheckoutDirectory,
           {bool streamOutput = false}) async =>
-      [ShortLogDto(10, 'Author')];
+      const Success([ShortLogDto(10, 'Author')]);
   @override
-  Future<String> runCommand(String directory, List<String> args,
-          {bool streamOutput = false}) async =>
-      'command output';
   @override
-  Future<bool> cloneSpecificBranch(String localDirectoryToCloneInto,
-          String repository, String branchToCheckout,
-          {bool streamOutput = false}) async =>
-      true;
+  Future<Result<List<String>, RwGitException>> branch(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success([]);
   @override
-  Future<ShortStatDto> cloneAndGetStatistics(String localDirectoryToCloneInto,
-          String repository, String oldTag, String newTag,
+  Future<Result<String, RwGitException>> status(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success('');
+  @override
+  Future<Result<bool, RwGitException>> pull(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success(true);
+  @override
+  Future<Result<bool, RwGitException>> push(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success(true);
+  @override
+  Future<Result<String, RwGitException>> diff(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success('');
+  @override
+  Future<Result<bool, RwGitException>> merge(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success(true);
+  @override
+  Future<Result<bool, RwGitException>> stash(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success(true);
+  @override
+  Future<Result<String, RwGitException>> blame(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success('');
+  @override
+  Future<Result<String, RwGitException>> show(String directory,
+          {List<String> extraArgs = const [],
+          bool streamOutput = false}) async =>
+      const Success('');
+
+  @override
+  Future<Result<String, RwGitException>> runCommand(
+          String directory, List<String> args,
           {bool streamOutput = false}) async =>
-      ShortStatDto(1, 2, 3);
+      const Success('command output');
+  @override
+  Future<Result<bool, RwGitException>> cloneSpecificBranch(
+          String localDirectoryToCloneInto,
+          String repository,
+          String branchToCheckout,
+          {bool streamOutput = false}) async =>
+      const Success(true);
+  @override
+  Future<Result<ShortStatDto, RwGitException>> cloneAndGetStatistics(
+          String localDirectoryToCloneInto,
+          String repository,
+          String oldTag,
+          String newTag,
+          {bool streamOutput = false}) async =>
+      const Success(ShortStatDto(1, 2, 3));
 }
 
 void main() {

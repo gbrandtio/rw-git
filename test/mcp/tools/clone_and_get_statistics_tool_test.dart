@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -26,7 +27,7 @@ void main() {
         'oldTag': 'v1',
         'newTag': 'v2'
       });
-      final json = jsonDecode(result);
+      final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['numberOfChangedFiles'], 3);
       expect(json['insertions'], 50);
       expect(json['deletions'], 10);

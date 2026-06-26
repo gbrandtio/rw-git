@@ -43,7 +43,8 @@ class GetCommitsBetweenTool implements McpTool {
     final firstTag = arguments['firstTag'] as String;
     final secondTag = arguments['secondTag'] as String;
     final commits =
-        await rwGit.getCommitsBetween(localDir, firstTag, secondTag);
+        (await rwGit.getCommitsBetween(localDir, firstTag, secondTag))
+            .getOrThrow();
     return jsonEncode({'commits': commits});
   }
 }

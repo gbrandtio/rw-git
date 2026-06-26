@@ -4,7 +4,8 @@ class IsGitRepositoryCommand extends GitCommand<bool> {
   IsGitRepositoryCommand(super.runner);
 
   @override
-  Future<bool> execute(String directory, {bool streamOutput = false}) async {
+  Future<bool> run(String directory,
+      {List<String> extraArgs = const [], bool streamOutput = false}) async {
     final result = await runner.run(
         'git', ['rev-parse', '--is-inside-work-tree'],
         workingDirectory: directory, streamOutput: streamOutput);

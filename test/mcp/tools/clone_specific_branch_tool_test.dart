@@ -1,3 +1,4 @@
+// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -25,7 +26,7 @@ void main() {
         'repository': 'https://github.com/repo',
         'branchToCheckout': 'main'
       });
-      final json = jsonDecode(result);
+      final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);
     });
   });
