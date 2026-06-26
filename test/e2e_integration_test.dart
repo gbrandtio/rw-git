@@ -26,6 +26,12 @@ void main() {
       final initResult = await rwGit.init(testDir);
       expect(initResult.isSuccess, isTrue);
 
+      // Configure git user for CI environments
+      await rwGit
+          .runCommand(testDir, ['config', 'user.email', 'test@example.com']);
+      await rwGit
+          .runCommand(testDir, ['config', 'user.name', 'E2E Test Runner']);
+
       // Create a dummy file
       final file = File(p.join(testDir, 'test_file.txt'));
       file.writeAsStringSync('Hello, E2E!');
