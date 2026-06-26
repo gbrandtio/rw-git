@@ -44,6 +44,13 @@ index 123456..789012 100644
       expect(result.classChurn['RwGitFacade'], 2);
     });
 
+    test('calculateChurn passes limit parameter correctly', () async {
+      final runner = MockProcessRunner('');
+      final tracker = CodeQualityTracker(runner);
+      await tracker.calculateChurn('dummyDir', limit: '10');
+      // No exception means it passed
+    });
+
     test(
         'calculateChurnWithAuthors parses unified diff output with authors correctly',
         () async {
@@ -86,6 +93,13 @@ index 123456..789012 100644
       expect(result.classChurn['RwGitFacade']?.total, 2);
     });
 
+    test('calculateChurnWithAuthors passes limit parameter correctly',
+        () async {
+      final runner = MockProcessRunner('');
+      final tracker = CodeQualityTracker(runner);
+      await tracker.calculateChurnWithAuthors('dummyDir', limit: '10');
+    });
+
     test('findSuspiciousCommits identifies commits with suspicious keywords',
         () async {
       String mockGitLog = [
@@ -110,6 +124,12 @@ index 123456..789012 100644
               'c3d4e5f6g7h8 - Author C (Date C): Added a new temporary file'));
       expect(suspicious,
           contains('e5f6g7h8i9j0 - Author E (Date E): todo: refactor this'));
+    });
+
+    test('findSuspiciousCommits passes limit parameter correctly', () async {
+      final runner = MockProcessRunner('');
+      final tracker = CodeQualityTracker(runner);
+      await tracker.findSuspiciousCommits('dummyDir', limit: '10');
     });
 
     test('findMegaCommits identifies commits exceeding thresholds', () async {
@@ -154,6 +174,12 @@ f6g7h8i9j0k1||Author F||Date F||Many deletions
           mega,
           contains(
               'f6g7h8i9j0k1 - Author F (Date F): Many deletions')); // Exceeds 500 deletions
+    });
+
+    test('findMegaCommits passes limit parameter correctly', () async {
+      final runner = MockProcessRunner('');
+      final tracker = CodeQualityTracker(runner);
+      await tracker.findMegaCommits('dummyDir', limit: '10');
     });
 
     test('findMegaCommits handles empty output', () async {
@@ -234,6 +260,12 @@ e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add complex feature
       expect(result, contains('+  // TODO: Refactor this later'));
       expect(result, contains('+    /// This is an LLM generated doc comment'));
       expect(result, contains('class Feature {'));
+    });
+
+    test('extractChangedComments passes limit parameter correctly', () async {
+      final runner = MockProcessRunner('');
+      final tracker = CodeQualityTracker(runner);
+      await tracker.extractChangedComments('fake_dir', limit: '10');
     });
   });
 }

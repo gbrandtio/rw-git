@@ -79,6 +79,25 @@ void main() {
       expect(response['result']['protocolVersion'], '2024-11-05');
     });
 
+    test('responds to ping', () async {
+      server.start();
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 99,
+        'method': 'ping',
+      });
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first);
+      expect(response['id'], 99);
+      expect(response['result'], isEmpty);
+    });
+
     test('responds to tools/list', () async {
       registry.registerTool(MockMcpTool('test_tool', (_) async => ''));
       server.start();

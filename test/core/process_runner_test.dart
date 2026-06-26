@@ -13,6 +13,12 @@ void main() {
       expect(result.stdout.toString().trim(), 'hello');
     });
 
+    test('StandardProcessRunner run with streamOutput=true', () async {
+      final runner = ProcessRunner.defaultRunner();
+      final result = await runner.run('echo', ['hello'], streamOutput: true);
+      expect(result.exitCode, 0);
+    });
+
     test(
         'StandardProcessRunner throws GitExecutableNotFoundException on ProcessException',
         () async {
@@ -30,6 +36,15 @@ void main() {
       final result = await runner.run('git', ['status']);
       expect(result.exitCode, 0);
       expect(result.stdout, 'clean');
+    });
+
+    test('MockProcessRunner returns mocked result with streamOutput=true',
+        () async {
+      final runner = MockProcessRunner();
+      runner.setMockResult('git', ['status'], 0, 'clean', '');
+
+      final result = await runner.run('git', ['status'], streamOutput: true);
+      expect(result.exitCode, 0);
     });
 
     test('MockProcessRunner returns error for unmocked result', () async {
@@ -57,6 +72,16 @@ void main() {
       );
     });
 
+    test(
+        'StandardProcessRunner runStream throws GitExecutableNotFoundException on ProcessException',
+        () async {
+      final runner = ProcessRunner.defaultRunner();
+      expect(
+        runner.runStream('non_existent_executable_123', []).toList(),
+        throwsA(isA<GitExecutableNotFoundException>()),
+      );
+    });
+
     test('MockProcessRunner runStream returns mocked stream', () async {
       final runner = MockProcessRunner();
       runner.setMockResult('git', ['log', '-p'], 0, 'line1\nline2\nline3', '');
@@ -67,6 +92,18 @@ void main() {
       expect(lines[0], 'line1');
       expect(lines[1], 'line2');
       expect(lines[2], 'line3');
+    });
+
+    test('MockProcessRunner runStream evaluates ProcessResult if exitCode != 0',
+        () async {
+      final runner = MockProcessRunner();
+      runner.setMockResult(
+          'git', ['badcmd'], 1, 'output', 'fatal: not a git repository');
+
+      expect(
+        runner.runStream('git', ['badcmd']).toList(),
+        throwsA(isA<GitNotInitializedException>()),
+      );
     });
 
     test('MockProcessRunner runStream returns error for unmocked stream',

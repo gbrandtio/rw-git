@@ -36,9 +36,18 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
     return ChurnMetricsWithAuthorsDto(
       totalCommits: 100,
       fileChurn: {
-        'file1.dart':
-            ContributionStats(total: 20, authors: {'Alice': 15, 'Bob': 5}),
-        'file2.dart': ContributionStats(total: 5, authors: {'Alice': 5}),
+        'file1.dart': ContributionStats(
+          total: 20,
+          authors: {'Alice': 15, 'Bob': 5},
+        ),
+        'file2.dart': ContributionStats(
+          total: 5,
+          authors: {'Alice': 5},
+        ),
+        'file3.dart': ContributionStats(
+          total: 25,
+          authors: {'Alice': 25},
+        ),
       },
       classChurn: {
         'MyClass': ContributionStats(total: 15, authors: {'Charlie': 15}),

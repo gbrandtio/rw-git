@@ -31,6 +31,7 @@ class MockCodeQualityTracker implements CodeQualityTracker {
       fileChurn: {
         'file1.dart': 20,
         'file2.dart': 5,
+        'file3.dart': 25,
       },
       classChurn: {
         'MyClass': 15,
