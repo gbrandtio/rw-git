@@ -1,7 +1,13 @@
+import 'dart:convert';
 import '../../../rw_git.dart';
 
 /// base_analyze_code_quality_tool.dart
-/// Abstract base class for code quality analysis tools using the Template Method pattern.
+/// Abstract base class for code quality analysis tools
+/// using the Template Method pattern.
+///
+/// Returns structured JSON instead of prose prompts,
+/// aligning with `analyze_release_delta` and
+/// `analyze_bus_factor` output conventions.
 
 abstract class BaseAnalyzeCodeQualityTool implements McpTool {
   final CodeQualityTracker tracker;
@@ -19,33 +25,48 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
           },
           'limit': {
             'type': 'number',
-            'description':
-                'Number of commits to retrieve for AI review (default: 10).'
+            'description': 'Number of commits to analyze (default: 10).'
           },
-          'includeRawLog': {
+          'includeCommitLog': {
             'type': 'boolean',
-            'description':
-                'If true, appends the full raw git log output to the end of the prompt. (default: false)'
+            'description': 'If true, includes a compact commit log '
+                '(hash, message, shortstat) in the response. '
+                '(default: false)'
+          },
+          'includeCodeDiff': {
+            'type': 'boolean',
+            'description': 'If true, includes the actual code diffs '
+                'for the recent commits, allowing the LLM to '
+                'check for code smells. (default: false)'
           },
           'topN': {
             'type': 'number',
-            'description':
-                'If provided, limits the size of the top lists (suspicious, mega, churned files, etc.) to N.'
+            'description': 'Limits all top-N lists (suspicious, mega, '
+                'churn files, classes, blocks) to this '
+                'many entries.'
           }
         },
         'required': ['directory']
       };
 
   @override
-  Future<String> execute(Map<String, dynamic> arguments) async {
+  Future<String> execute(
+    Map<String, dynamic> arguments,
+  ) async {
     final directory = arguments['directory'] as String;
     final limit = arguments['limit']?.toString() ?? '10';
-    final includeRawLog = arguments['includeRawLog'] as bool? ?? false;
+    final includeCommitLog = arguments['includeCommitLog'] as bool? ?? false;
+    final includeCodeDiff = arguments['includeCodeDiff'] as bool? ?? false;
     final topN = arguments['topN'] as int?;
 
-    var suspicious =
-        await tracker.findSuspiciousCommits(directory, limit: limit);
-    var mega = await tracker.findMegaCommits(directory, limit: limit);
+    var suspicious = await tracker.findSuspiciousCommits(
+      directory,
+      limit: limit,
+    );
+    var mega = await tracker.findMegaCommits(
+      directory,
+      limit: limit,
+    );
 
     if (topN != null) {
       if (suspicious.length > topN) {
@@ -56,53 +77,56 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
       }
     }
 
-    final churnMetricsString =
-        await getChurnMetricsString(directory, limit, topN);
-    final promptInstructions = getPromptInstructions();
+    final churnData = await getChurnData(directory, limit, topN);
 
-    final commitsLog =
-        (await rwGit.runCommand(directory, ['log', '-n', limit, '--stat']))
-            .getOrThrow();
+    final Map<String, dynamic> result = {
+      'suspicious_commits': suspicious,
+      'mega_commits': mega,
+      ...churnData,
+      ...getAnalysisGuidance(includeCodeDiff),
+    };
 
-    return '''
-You are a Staff Software Engineer. The task is to analyze, as per the instructions given below and provide a
-report. The report must be structured as follows:
-a. Executive summary section.
-b. Code quality metrics section.
-c. Conclusion.
+    if (includeCommitLog) {
+      final commitsLog = (await rwGit.runCommand(
+        directory,
+        [
+          'log',
+          '-n',
+          limit,
+          '--shortstat',
+          '--format=%H %s',
+        ],
+      ))
+          .getOrThrow();
+      result['commit_log'] = commitsLog;
+    }
 
-In the report:
-$promptInstructions
+    if (includeCodeDiff) {
+      final codeDiff = (await rwGit.runCommand(
+        directory,
+        [
+          'log',
+          '-n',
+          limit,
+          '-p',
+        ],
+      ))
+          .getOrThrow();
+      result['code_diff'] = codeDiff;
+    }
 
-Please analyze/review the following code quality metrics and recent git commits.
-I want you to specifically check for:
-1. Bad commit messages: look for frustrated, unhelpful, non-detailed, or low-effort messages (e.g., "fixed stuff", "updates", "todo", "fixme", "do not touch", "argh", "wip").
-2. Too many changes with a vague or incomplete or inaccurate summary / commit message (evaluate change size using the --stat output).
-3. Architectural bottlenecks or technical debt highlighted in the quality metrics below (high churn files, mega commits, suspicious commits).
-4. Code smells / bad code / code that doesn't follow best practices.
-
-Code Quality Metrics:
---------------------------------------------------
-Suspicious Commits (fixme/todo/temporary):
-${suspicious.isEmpty ? 'None found.' : suspicious.join('\n')}
-
-Mega Commits (>500 lines changed or >20 files):
-${mega.isEmpty ? 'None found.' : mega.join('\n')}
-
-$churnMetricsString
---------------------------------------------------
-${includeRawLog ? '''
-Commits to review:
---------------------------------------------------
-$commitsLog
---------------------------------------------------
-''' : ''}''';
+    return jsonEncode(result);
   }
 
-  /// Hook method to retrieve and format churn metrics.
-  Future<String> getChurnMetricsString(
-      String directory, String limit, int? topN);
+  /// Hook method to retrieve and format churn metrics
+  /// as a structured Map for JSON serialization.
+  Future<Map<String, dynamic>> getChurnData(
+    String directory,
+    String limit,
+    int? topN,
+  );
 
-  /// Hook method to retrieve specific prompt instructions for the tool.
-  String getPromptInstructions();
+  /// Hook method returning analysis guidance fields
+  /// to include in the JSON response.
+  Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff);
 }
