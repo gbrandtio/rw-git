@@ -18,7 +18,9 @@ void main() {
   });
 
   tearDown(() async {
-    if (await Directory(testDir).exists()) { await Directory(testDir).delete(recursive: true); }
+    if (await Directory(testDir).exists()) {
+      await Directory(testDir).delete(recursive: true);
+    }
   });
 
   group('cloneSpecificBranch', () {

@@ -9,27 +9,53 @@ class MockRwGit implements RwGit {
   String get gitRepoIndicator => '.git';
 
   @override
-  Future<bool> init(String directoryToInit, {bool streamOutput = false}) async => true;
+  Future<bool> init(String directoryToInit,
+          {bool streamOutput = false}) async =>
+      true;
   @override
-  Future<bool> isGitRepository(String directoryToCheck, {bool streamOutput = false}) async => true;
+  Future<bool> isGitRepository(String directoryToCheck,
+          {bool streamOutput = false}) async =>
+      true;
   @override
-  Future<bool> clone(String localDirectoryToCloneInto, String repository, {bool streamOutput = false}) async => true;
+  Future<bool> clone(String localDirectoryToCloneInto, String repository,
+          {bool streamOutput = false}) async =>
+      true;
   @override
-  Future<bool> checkout(String localCheckoutDirectory, String branchToCheckout, {bool streamOutput = false}) async => true;
+  Future<bool> checkout(String localCheckoutDirectory, String branchToCheckout,
+          {bool streamOutput = false}) async =>
+      true;
   @override
-  Future<List<String>> fetchTags(String localCheckoutDirectory, {bool streamOutput = false}) async => ['v1.0.0'];
+  Future<List<String>> fetchTags(String localCheckoutDirectory,
+          {bool streamOutput = false}) async =>
+      ['v1.0.0'];
   @override
-  Future<List<String>> getCommitsBetween(String localCheckoutDirectory, String firstTag, String secondTag, {bool streamOutput = false}) async => ['commit1', 'commit2'];
+  Future<List<String>> getCommitsBetween(
+          String localCheckoutDirectory, String firstTag, String secondTag,
+          {bool streamOutput = false}) async =>
+      ['commit1', 'commit2'];
   @override
-  Future<ShortStatDto> stats(String localCheckoutDirectory, String oldTag, String newTag, {bool streamOutput = false}) async => ShortStatDto(1, 2, 3);
+  Future<ShortStatDto> stats(
+          String localCheckoutDirectory, String oldTag, String newTag,
+          {bool streamOutput = false}) async =>
+      ShortStatDto(1, 2, 3);
   @override
-  Future<List<ShortLogDto>> contributionsByAuthor(String localCheckoutDirectory, {bool streamOutput = false}) async => [ShortLogDto(10, 'Author')];
+  Future<List<ShortLogDto>> contributionsByAuthor(String localCheckoutDirectory,
+          {bool streamOutput = false}) async =>
+      [ShortLogDto(10, 'Author')];
   @override
-  Future<String> runCommand(String directory, List<String> args, {bool streamOutput = false}) async => 'command output';
+  Future<String> runCommand(String directory, List<String> args,
+          {bool streamOutput = false}) async =>
+      'command output';
   @override
-  Future<bool> cloneSpecificBranch(String localDirectoryToCloneInto, String repository, String branchToCheckout, {bool streamOutput = false}) async => true;
+  Future<bool> cloneSpecificBranch(String localDirectoryToCloneInto,
+          String repository, String branchToCheckout,
+          {bool streamOutput = false}) async =>
+      true;
   @override
-  Future<ShortStatDto> cloneAndGetStatistics(String localDirectoryToCloneInto, String repository, String oldTag, String newTag, {bool streamOutput = false}) async => ShortStatDto(1, 2, 3);
+  Future<ShortStatDto> cloneAndGetStatistics(String localDirectoryToCloneInto,
+          String repository, String oldTag, String newTag,
+          {bool streamOutput = false}) async =>
+      ShortStatDto(1, 2, 3);
 }
 
 void main() {
@@ -53,13 +79,15 @@ void main() {
 
   test('CloneRepositoryTool', () async {
     final tool = CloneRepositoryTool(rwGit);
-    final result = await tool.execute({'localDirectoryToCloneInto': 'testDir', 'repository': 'url'});
+    final result = await tool
+        .execute({'localDirectoryToCloneInto': 'testDir', 'repository': 'url'});
     expect(result, contains('true'));
   });
 
   test('CheckoutBranchTool', () async {
     final tool = CheckoutBranchTool(rwGit);
-    final result = await tool.execute({'localCheckoutDirectory': 'testDir', 'branchToCheckout': 'main'});
+    final result = await tool.execute(
+        {'localCheckoutDirectory': 'testDir', 'branchToCheckout': 'main'});
     expect(result, contains('true'));
   });
 
@@ -71,13 +99,18 @@ void main() {
 
   test('GetCommitsBetweenTool', () async {
     final tool = GetCommitsBetweenTool(rwGit);
-    final result = await tool.execute({'localCheckoutDirectory': 'testDir', 'firstTag': 'v1', 'secondTag': 'v2'});
+    final result = await tool.execute({
+      'localCheckoutDirectory': 'testDir',
+      'firstTag': 'v1',
+      'secondTag': 'v2'
+    });
     expect(result, contains('commit1'));
   });
 
   test('GetStatsTool', () async {
     final tool = GetStatsTool(rwGit);
-    final result = await tool.execute({'localCheckoutDirectory': 'testDir', 'oldTag': 'v1', 'newTag': 'v2'});
+    final result = await tool.execute(
+        {'localCheckoutDirectory': 'testDir', 'oldTag': 'v1', 'newTag': 'v2'});
     expect(result, contains('1'));
   });
 
@@ -89,13 +122,22 @@ void main() {
 
   test('CloneSpecificBranchTool', () async {
     final tool = CloneSpecificBranchTool(rwGit);
-    final result = await tool.execute({'localDirectoryToCloneInto': 'testDir', 'repository': 'url', 'branchToCheckout': 'main'});
+    final result = await tool.execute({
+      'localDirectoryToCloneInto': 'testDir',
+      'repository': 'url',
+      'branchToCheckout': 'main'
+    });
     expect(result, contains('true'));
   });
 
   test('CloneAndGetStatisticsTool', () async {
     final tool = CloneAndGetStatisticsTool(rwGit);
-    final result = await tool.execute({'localDirectoryToCloneInto': 'testDir', 'repository': 'url', 'oldTag': 'v1', 'newTag': 'v2'});
+    final result = await tool.execute({
+      'localDirectoryToCloneInto': 'testDir',
+      'repository': 'url',
+      'oldTag': 'v1',
+      'newTag': 'v2'
+    });
     expect(result, contains('1'));
   });
 
