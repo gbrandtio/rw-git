@@ -181,6 +181,60 @@ f6g7h8i9j0k1||Author F||Date F||Many deletions
       expect(result.classChurn, isEmpty);
       expect(result.blockChurn, isEmpty);
     });
+
+    test(
+        'findSuspiciousCommits identifies commits with suspicious keywords in diffs',
+        () async {
+      String mockGitLogP = '''
+a1b2c3d4e5f6||Author A||Date A||Normal message
+diff --git a/file.dart b/file.dart
+--- a/file.dart
++++ b/file.dart
+@@ -10,2 +10,3 @@
++ // FIXME: this is a hack
++ print('test');
+b2c3d4e5f6g7||Author B||Date B||Another message
+diff --git a/file2.dart b/file2.dart
+--- a/file2.dart
++++ b/file2.dart
+@@ -10,2 +10,3 @@
+- // fixme
++ // good code
+''';
+      final runner = MockProcessRunner(mockGitLogP);
+      final tracker = CodeQualityTracker(runner);
+
+      final suspicious = await tracker.findSuspiciousCommits('dummyDir');
+
+      expect(suspicious.length, 1);
+      expect(suspicious,
+          contains('a1b2c3d4e5f6 - Author A (Date A): Normal message'));
+    });
+
+    test('extractChangedComments extracts comments with context correctly',
+        () async {
+      final mockOutput = '''
+e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add complex feature
++++ b/lib/feature.dart
+@@ -10,5 +10,6 @@
+ class Feature {
++  // TODO: Refactor this later
+   void execute() {
++    /// This is an LLM generated doc comment
++    final x = 42;
+   }
+ }
+''';
+      final runner = MockProcessRunner(mockOutput);
+      final tracker = CodeQualityTracker(runner);
+
+      final result = await tracker.extractChangedComments('fake_dir');
+      expect(result, contains('Commit: e2a4b3c - John Doe'));
+      expect(result, contains('File: lib/feature.dart'));
+      expect(result, contains('+  // TODO: Refactor this later'));
+      expect(result, contains('+    /// This is an LLM generated doc comment'));
+      expect(result, contains('class Feature {'));
+    });
   });
 }
 
@@ -197,5 +251,20 @@ class MockProcessRunner implements ProcessRunner {
       return ProcessResult(0, exitCode, '10\n', ''); // Mock 10 commits
     }
     return ProcessResult(0, exitCode, mockOutput, 'mock stderr');
+  }
+
+  @override
+  Stream<String> runStream(String executable, List<String> args,
+      {String? workingDirectory}) async* {
+    if (exitCode != 0) {
+      throw RwGitException(
+          message: 'Git command failed',
+          exitCode: exitCode,
+          stderr: 'mock stderr');
+    }
+    final lines = mockOutput.split('\n');
+    for (final line in lines) {
+      yield line;
+    }
   }
 }

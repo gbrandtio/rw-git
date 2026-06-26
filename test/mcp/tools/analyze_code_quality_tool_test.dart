@@ -7,18 +7,25 @@ class MockCodeQualityTracker implements CodeQualityTracker {
 
   @override
   Future<List<String>> findSuspiciousCommits(String repository,
-      {List<String> keywords = const []}) async {
+      {List<String> keywords = const [], String? limit}) async {
     return ['commit1: fixme', 'commit2: todo'];
   }
 
   @override
+  Future<String> extractChangedComments(String directory,
+      {String? limit}) async {
+    return '';
+  }
+
+  @override
   Future<List<String>> findMegaCommits(String repository,
-      {int fileThreshold = 20, int lineThreshold = 500}) async {
+      {int fileThreshold = 20, int lineThreshold = 500, String? limit}) async {
     return ['commit3: 1000 lines'];
   }
 
   @override
-  Future<ChurnMetricsDto> calculateChurn(String repository) async {
+  Future<ChurnMetricsDto> calculateChurn(String repository,
+      {String? limit}) async {
     return ChurnMetricsDto(
       totalCommits: 100,
       fileChurn: {
@@ -36,7 +43,8 @@ class MockCodeQualityTracker implements CodeQualityTracker {
 
   @override
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
-      String repository) async {
+      String repository,
+      {String? limit}) async {
     throw UnimplementedError();
   }
 }
@@ -47,18 +55,25 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
 
   @override
   Future<List<String>> findSuspiciousCommits(String repository,
-      {List<String> keywords = const []}) async {
+      {List<String> keywords = const [], String? limit}) async {
     return [];
+  }
+
+  @override
+  Future<String> extractChangedComments(String directory,
+      {String? limit}) async {
+    return '';
   }
 
   @override
   Future<List<String>> findMegaCommits(String repository,
-      {int fileThreshold = 20, int lineThreshold = 500}) async {
+      {int fileThreshold = 20, int lineThreshold = 500, String? limit}) async {
     return [];
   }
 
   @override
-  Future<ChurnMetricsDto> calculateChurn(String repository) async {
+  Future<ChurnMetricsDto> calculateChurn(String repository,
+      {String? limit}) async {
     return ChurnMetricsDto(
       totalCommits: 0,
       fileChurn: {},
@@ -69,7 +84,8 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
 
   @override
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
-      String repository) async {
+      String repository,
+      {String? limit}) async {
     throw UnimplementedError();
   }
 }
@@ -83,7 +99,7 @@ void main() {
       mockRunner = MockProcessRunner();
       rwGit = RwGit(runner: mockRunner);
       mockRunner.setMockResult(
-          'git', ['log', '-n', '10', '-p'], 0, 'mocked commit log', '');
+          'git', ['log', '-n', '10', '--stat'], 0, 'mocked commit log', '');
     });
 
     test('has correct name and input schema', () {
@@ -97,7 +113,8 @@ void main() {
 
     test('execute formats results correctly with data', () async {
       final tool = AnalyzeCodeQualityTool(MockCodeQualityTracker(), rwGit);
-      final result = await tool.execute({'directory': '/test/dir'});
+      final result =
+          await tool.execute({'directory': '/test/dir', 'includeRawLog': true});
 
       expect(result, contains('commit1: fixme'));
       expect(result, contains('commit2: todo'));
@@ -128,6 +145,18 @@ void main() {
               'High Churn Files (modified in >10% of commits, total commits: 0):\nNone found.'));
       expect(result, contains('Top Churned Classes:\nNone found.'));
       expect(result, contains('Top Churned Blocks/Methods:\nNone found.'));
+    });
+    test('execute respects includeRawLog and topN', () async {
+      final tool = AnalyzeCodeQualityTool(MockCodeQualityTracker(), rwGit);
+      final result = await tool.execute({
+        'directory': '/test/dir',
+        'includeRawLog': false,
+        'topN': 1,
+      });
+
+      expect(result, isNot(contains('mocked commit log')));
+      expect(result, isNot(contains('commit2: todo'))); // Because topN is 1
+      expect(result, contains('commit1: fixme'));
     });
   });
 }

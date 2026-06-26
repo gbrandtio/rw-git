@@ -22,9 +22,10 @@ class GetRwGitDocumentationTool implements McpTool {
 # RwGit Agent Guide & Documentation
 
 ⚠️ **IMPORTANT INSTRUCTIONS FOR AI AGENTS**
-You are interacting with the RwGit repository through the Model Context Protocol (MCP) using JSON-RPC tools.
+You are interacting with the RwGit repository via the MCP tools provided in your environment.
 - **Do NOT** attempt to run `rw_git` as a CLI command (e.g., `rw_git --help`). It is not an executable in your shell.
-- Use the provided MCP tools below to perform actions directly.
+- **Do NOT** write scripts (e.g., Python) to manually send JSON-RPC requests to the server process.
+- **Do** invoke the provided MCP tools directly using your environment's native tool execution capabilities.
 
 ## 1. Raw Git Execution Tool
 - **execute_git_command**: Use this to execute raw git commands (e.g., `['log', '-n', '5']`).

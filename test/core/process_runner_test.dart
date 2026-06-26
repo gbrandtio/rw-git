@@ -38,6 +38,46 @@ void main() {
       expect(result.exitCode, 1);
       expect(result.stderr, contains('Mock result not found'));
     });
+
+    test('StandardProcessRunner runStream returns Stream of ProcessResult',
+        () async {
+      final runner = ProcessRunner.defaultRunner();
+      final stream = runner.runStream('echo', ['hello\nworld']);
+      final lines = await stream.toList();
+      expect(lines, contains('hello'));
+      expect(lines, contains('world'));
+    });
+
+    test('StandardProcessRunner runStream throws on failure', () async {
+      final runner = ProcessRunner.defaultRunner();
+      final stream = runner.runStream('ls', ['/non_existent_directory_123']);
+      expect(
+        stream.toList(),
+        throwsA(isA<RwGitException>()),
+      );
+    });
+
+    test('MockProcessRunner runStream returns mocked stream', () async {
+      final runner = MockProcessRunner();
+      runner.setMockResult('git', ['log', '-p'], 0, 'line1\nline2\nline3', '');
+
+      final stream = runner.runStream('git', ['log', '-p']);
+      final lines = await stream.toList();
+      expect(lines.length, 3);
+      expect(lines[0], 'line1');
+      expect(lines[1], 'line2');
+      expect(lines[2], 'line3');
+    });
+
+    test('MockProcessRunner runStream returns error for unmocked stream',
+        () async {
+      final runner = MockProcessRunner();
+      final stream = runner.runStream('git', ['unknown']);
+      expect(
+        stream.toList(),
+        throwsA(isA<RwGitException>()),
+      );
+    });
   });
 
   group('evaluateProcessResult', () {

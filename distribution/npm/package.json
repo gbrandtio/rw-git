@@ -1,0 +1,25 @@
+{
+  "name": "@gbrandtio/rw-git-mcp",
+  "version": "2.2.1",
+  "description": "Model Context Protocol (MCP) server for rw-git",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "node install.js"
+  },
+  "bin": {
+    "rw-git-mcp": "bin/rw-git-mcp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gbrandtio/rw-git.git"
+  },
+  "keywords": [
+    "mcp",
+    "git",
+    "ai",
+    "claude",
+    "cursor"
+  ],
+  "author": "Ioannis Brandt",
+  "license": "MIT"
+}

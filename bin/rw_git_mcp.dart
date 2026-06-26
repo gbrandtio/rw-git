@@ -7,8 +7,9 @@ import 'package:rw_git/rw_git.dart';
 /// Allows AI agents to interact with git repositories and analyze code quality.
 
 void main() async {
-  final rwGit = RwGit();
-  final tracker = CodeQualityTracker(rwGit.runner);
+  final runner = ProcessRunner.defaultRunner();
+  final rwGit = RwGit(runner: runner);
+  final tracker = CodeQualityTracker(runner);
 
   final registry = McpRegistry();
   registry.registerTool(ExecuteGitCommandTool(rwGit));
@@ -25,7 +26,11 @@ void main() async {
   registry.registerTool(GetContributionsByAuthorTool(rwGit));
   registry.registerTool(CloneSpecificBranchTool(rwGit));
   registry.registerTool(CloneAndGetStatisticsTool(rwGit));
-
+  registry.registerTool(AnalyzeReleaseDeltaTool(rwGit));
+  registry.registerTool(AnalyzeBusFactorTool(tracker, rwGit));
+  registry.registerTool(EvaluateCommentLlmGenerationTool(tracker));
+  registry.registerTool(EvaluateCommentQualityTool(tracker));
+  registry.registerTool(EvaluateCommentNecessityTool(tracker));
   final server = McpServer(registry: registry);
   server.start();
 }

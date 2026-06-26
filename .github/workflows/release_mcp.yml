@@ -1,0 +1,42 @@
+name: Release MCP Server
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+jobs:
+  build:
+    name: Build Native Executable
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            artifact_name: rw_git_mcp_linux_x64
+          - os: macos-13 # x64
+            artifact_name: rw_git_mcp_macos_x64
+          - os: macos-latest # arm64
+            artifact_name: rw_git_mcp_macos_arm64
+          - os: windows-latest
+            artifact_name: rw_git_mcp_windows_x64.exe
+
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Dart
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+          
+      - name: Install dependencies
+        run: dart pub get
+        
+      - name: Compile Executable
+        run: dart compile exe bin/rw_git_mcp.dart -o ${{ matrix.artifact_name }}
+        
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v2
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          files: ${{ matrix.artifact_name }}
