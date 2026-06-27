@@ -26,6 +26,12 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
   }
 
   @override
+  Future<List<String>> findSecrets(String directory,
+      {String? limit, String? branch}) async {
+    return [];
+  }
+
+  @override
   Future<ChurnMetricsDto> calculateChurn(String repository,
       {String? limit}) async {
     throw UnimplementedError();

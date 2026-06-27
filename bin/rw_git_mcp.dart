@@ -1,4 +1,5 @@
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/mcp/tools/detect_secrets_tool.dart';
 
 /// ----------------------------------------------------------------------------
 /// rw_git_mcp.dart
@@ -31,6 +32,7 @@ void main() async {
   registry.registerTool(EvaluateCommentLlmGenerationTool(tracker));
   registry.registerTool(EvaluateCommentQualityTool(tracker));
   registry.registerTool(EvaluateCommentNecessityTool(tracker));
+  registry.registerTool(DetectSecretsTool(tracker));
   final server = McpServer(registry: registry);
   server.start();
 }

@@ -35,6 +35,15 @@ class MockCodeQualityTracker implements CodeQualityTracker {
   }
 
   @override
+  Future<List<String>> findSecrets(
+    String directory, {
+    String? limit,
+    String? branch,
+  }) async {
+    return ['commit4: Found Potential Secret: AKIA***'];
+  }
+
+  @override
   Future<ChurnMetricsDto> calculateChurn(
     String repository, {
     String? limit,
@@ -91,6 +100,15 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
     int fileThreshold = 20,
     int lineThreshold = 500,
     String? limit,
+  }) async {
+    return [];
+  }
+
+  @override
+  Future<List<String>> findSecrets(
+    String directory, {
+    String? limit,
+    String? branch,
   }) async {
     return [];
   }

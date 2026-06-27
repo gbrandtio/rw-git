@@ -165,6 +165,11 @@ When the MCP server connects to an AI agent, it exposes the following tools:
    - **Arguments**: `directory` (path to the repo), `limit` (number of commits).
    - **Returns**: A formatted report advising on whether recent comments are necessary or redundant.
 
+10. **`detect_secrets_in_commits`**
+    - **Description**: Scans commit history (deltas) using Isolates for exposed secrets, API keys, or credentials without blocking the main event loop.
+    - **Arguments**: `directory` (path to the repo), `limit` (optional, number of commits), `branch` (optional, branch name).
+    - **Returns**: A formatted string listing detected secrets (redacted) along with their commit hashes and files.
+
 ## Getting started
 
 Add the package to your `pubspec.yaml`:

@@ -264,6 +264,28 @@ class CodeQualityTracker {
       totalCommits: totalCommits,
     );
   }
+
+  /// Scans commit diffs for exposed secrets, API keys, or sensitive credentials.
+  /// Offloads the heavy regex scanning to an Isolate.
+  Future<List<String>> findSecrets(String directory,
+      {String? limit, String? branch}) async {
+    final args = ['log', '-p', '--format=%H||%an||%ad||%s'];
+    if (limit != null) {
+      args.insert(1, '-n');
+      args.insert(2, limit);
+    }
+    if (branch != null && branch.isNotEmpty) {
+      args.add(branch);
+    }
+
+    final result = await runner.run('git', args, workingDirectory: directory);
+    evaluateProcessResult(result);
+
+    final rawOutput = result.stdout?.toString() ?? '';
+
+    // Offload heavy regex parsing to an Isolate
+    return await Isolate.run(() => _parseSecrets(rawOutput));
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -383,4 +405,66 @@ String _parseChangedComments(String rawLog) {
   flushBlock();
 
   return buffer.toString().trim();
+}
+
+List<String> _parseSecrets(String rawLog) {
+  final lines = rawLog.split('\n');
+  final List<String> detectedSecrets = [];
+
+  String currentCommitHeader = '';
+  String currentFile = '';
+
+  // Comprehensive regex for detecting secrets
+  // Includes AWS keys, generic bearer tokens, private keys, etc.
+  final secretRegex = RegExp(
+    r'(?:'
+    r'AKIA[0-9A-Z]{16}|' // AWS Access Key
+    r'xox[baprs]-[0-9a-zA-Z]{10,48}|' // Slack Token
+    r'EAACEdEose0cBA[0-9A-Za-z]+|' // Facebook Access Token
+    r'(?:sk|pk)_(?:test|live)_[0-9a-zA-Z]{24}|' // Stripe Key
+    r'ya29\.[0-9a-zA-Z_-]+|' // Google OAuth token
+    r'-----BEGIN (?:RSA|DSA|EC|OPENSSH|PGP) PRIVATE KEY-----|' // Private Keys
+    r'ey[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}|' // JWT tokens
+    r'(?:api_key|apikey|secret|password|passwd|token|auth)[^a-zA-Z0-9]{1,3}[a-zA-Z0-9_\-\.]{12,}' // Generic assignment to secrets
+    r')',
+    caseSensitive: false,
+  );
+
+  for (final line in lines) {
+    if (line.trim().isEmpty) continue;
+
+    if (line.contains('||') &&
+        !line.startsWith(' ') &&
+        !line.startsWith('+') &&
+        !line.startsWith('-') &&
+        !line.startsWith('@@') &&
+        !line.startsWith('diff') &&
+        !line.startsWith('index')) {
+      final parts = line.split('||');
+      if (parts.length >= 4) {
+        currentCommitHeader =
+            '${parts[0]} - ${parts[1]} (${parts[2]}): ${parts.sublist(3).join('||')}';
+      } else {
+        currentCommitHeader = line.trim();
+      }
+    } else if (line.startsWith('+++ b/')) {
+      currentFile = line.substring(6).trim();
+    } else if (line.startsWith('+') && !line.startsWith('+++')) {
+      final content = line.substring(1); // remove '+'
+
+      final matches = secretRegex.allMatches(content);
+      for (final match in matches) {
+        // Redact the secret for reporting to avoid exposing it again
+        final secretVal = match.group(0) ?? '';
+        final redacted = secretVal.length > 6
+            ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
+            : '***';
+
+        detectedSecrets.add(
+            'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret: $redacted');
+      }
+    }
+  }
+
+  return detectedSecrets;
 }

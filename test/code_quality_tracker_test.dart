@@ -268,6 +268,44 @@ e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add complex feature
       final tracker = CodeQualityTracker(runner);
       await tracker.extractChangedComments('fake_dir', limit: '10');
     });
+
+    test('findSecrets detects various types of exposed secrets', () async {
+      final mockOutput = '''
+e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add complex feature
++++ b/lib/aws_config.dart
+@@ -10,5 +10,6 @@
++  final awsKey = "AKIA1234567890ABCDEF";
++++ b/lib/stripe.dart
+@@ -10,5 +10,6 @@
++  String stripeLiveKey = "sk_live_1234567890abcdef12345678";
++++ b/lib/slack.dart
+@@ -10,5 +10,6 @@
++  var token = "xoxb-123456789012-1234567890123-abcdef1234567890abcdef12";
++++ b/lib/jwt.dart
+@@ -10,5 +10,6 @@
++  // My token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c
++++ b/lib/safe.dart
+@@ -1,2 +1,3 @@
++  final url = "https://example.com";
+''';
+      final runner = MockProcessRunner(mockOutput);
+      final tracker = CodeQualityTracker(runner);
+
+      final secrets = await tracker.findSecrets('fake_dir');
+
+      expect(secrets.length, 4);
+      expect(secrets[0], contains('AKI***DEF')); // AWS redacted
+      expect(secrets[1], contains('sk_***678')); // Stripe redacted
+      expect(secrets[2], contains('xox***012')); // Slack
+      // check if JWT is caught
+      expect(secrets[3], contains('tok***w5c'));
+    });
+
+    test('findSecrets passes limit and branch parameters correctly', () async {
+      final runner = MockProcessRunner('');
+      final tracker = CodeQualityTracker(runner);
+      await tracker.findSecrets('fake_dir', limit: '10', branch: 'main');
+    });
   });
 }
 

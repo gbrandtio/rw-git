@@ -57,5 +57,5 @@ When creating files (if applicable in `rw_git`), be mindful of the default permi
 - Periodically run `dart pub outdated` and audit dependencies.
 - Pin dependency versions securely. Do not use extremely loose version constraints that might automatically pull in an compromised update.
 
-### Immutability
-- Strive to make data structures immutable (`final` fields, `const` constructors). Immutable objects are inherently thread-safe and less susceptible to state-tampering bugs.
+### Automated Secret Scanning
+The `rw_git` package includes an automated secret scanning tool via the `CodeQualityTracker` (and its associated MCP tool `detect_secrets_in_commits`). This tool utilizes high-performance Isolates to scan git commit diffs for exposed credentials (e.g., AWS keys, Slack tokens, private keys) without blocking the main event loop. Developers and agents should regularly use this tool to ensure credentials are not accidentally pushed to version control. When credentials are detected, they are automatically redacted in the tool's output to prevent secondary exposure.
