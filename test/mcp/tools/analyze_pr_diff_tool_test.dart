@@ -3,7 +3,6 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/core/result.dart';
-import 'package:rw_git/src/mcp/tools/analyze_pr_diff_tool.dart';
 import 'package:test/test.dart';
 
 class _MockRunner implements ProcessRunner {

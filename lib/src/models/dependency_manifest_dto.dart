@@ -1,4 +1,4 @@
-/// Immutable DTO for parsed dependency manifests.
+// Immutable DTO for parsed dependency manifests.
 
 class DependencyManifestDto {
   final List<EcosystemReport> ecosystems;

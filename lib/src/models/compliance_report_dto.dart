@@ -1,4 +1,4 @@
-/// Immutable DTO for the compliance audit tool.results.
+// Immutable DTO for the compliance audit tool.results.
 
 class ComplianceReportDto {
   final int totalCommitsScanned;

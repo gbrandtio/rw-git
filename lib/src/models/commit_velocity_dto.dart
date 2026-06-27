@@ -1,4 +1,4 @@
-/// Immutable DTO for time-bucketed commit velocity data.
+// Immutable DTO for time-bucketed commit velocity data.
 
 class CommitVelocityDto {
   final List<TimeBucket> buckets;

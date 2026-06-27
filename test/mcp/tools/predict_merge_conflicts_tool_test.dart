@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/mcp/tools/predict_merge_conflicts_tool.dart';
 import 'package:test/test.dart';
 
 class _MockRunner implements ProcessRunner {

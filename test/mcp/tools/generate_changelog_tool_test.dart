@@ -2,7 +2,6 @@
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/core/result.dart';
-import 'package:rw_git/src/mcp/tools/generate_changelog_tool.dart';
 import 'package:test/test.dart';
 
 class _MockRwGit implements RwGit {
