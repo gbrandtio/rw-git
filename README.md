@@ -81,11 +81,27 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 
 ### Connecting MCP with Agents
 
-To use the MCP server, you can activate it globally via the Dart SDK:
+To use the MCP server, you can choose from several installation methods depending on your environment.
+
+**NPM / NPX (Recommended for Claude/Cursor/AGY)**
+The easiest way is to run the server via `npx` (requires Node.js):
+```bash
+npx -y @gbrandtio/rw-git-mcp
+```
+
+**Homebrew (macOS / Linux)**
+```bash
+brew tap gbrandtio/rw-git
+brew install rw-git-mcp
+```
+
+**Dart SDK (For Dart/Flutter developers)**
 ```bash
 dart pub global activate rw_git
 ```
-Then, configure your AI agent or IDE to use the `rw_git_mcp` command.
+
+**Pre-compiled Binaries**
+You can also download standalone native executables for Windows, macOS (Intel/Apple Silicon), and Linux from the [GitHub Releases](https://github.com/gbrandtio/rw-git/releases) page.
 
 #### Claude Desktop
 Add this to your `claude_desktop_config.json`:
@@ -93,8 +109,8 @@ Add this to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "rw_git": {
-      "command": "rw_git_mcp",
-      "args": []
+      "command": "npx",
+      "args": ["-y", "@gbrandtio/rw-git-mcp"]
     }
   }
 }
@@ -106,8 +122,8 @@ In Cursor's `mcp.json` or `.cursor/mcp.json`:
 {
   "mcpServers": {
     "rw_git": {
-      "command": "rw_git_mcp",
-      "args": []
+      "command": "npx",
+      "args": ["-y", "@gbrandtio/rw-git-mcp"]
     }
   }
 }
@@ -119,14 +135,14 @@ Add this to your MCP configuration block:
 {
   "mcpServers": {
     "rw_git": {
-      "command": "rw_git_mcp",
-      "args": []
+      "command": "npx",
+      "args": ["-y", "@gbrandtio/rw-git-mcp"]
     }
   }
 }
 ```
 
-*(Note: If you haven't activated it globally, you can provide the absolute path to `dart` and `run /absolute/path/to/rw-git/bin/rw_git_mcp.dart` instead).*
+*(Note: If you installed via Homebrew, Dart global activate, or downloaded the binaries, replace `npx` and its `args` with the absolute path to the executable, e.g., `["/usr/local/bin/rw-git-mcp"]` or `["/path/to/rw_git_mcp"]`).*
 
 ---
 
