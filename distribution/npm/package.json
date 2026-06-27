@@ -1,6 +1,6 @@
 {
   "name": "@gbrandtio/rw-git-mcp",
-  "version": "2.2.1",
+  "version": "2.0.0",
   "description": "Model Context Protocol (MCP) server for rw-git",
   "main": "index.js",
   "scripts": {
@@ -18,8 +18,10 @@
     "git",
     "ai",
     "claude",
-    "cursor"
+    "cursor",
+    "gemini",
+    "harness"
   ],
-  "author": "Ioannis Brandt",
+  "author": "Ioannis Brant-Ioannidis",
   "license": "MIT"
 }
