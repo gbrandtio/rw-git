@@ -53,7 +53,7 @@ class AnalyzeFileOwnershipTool implements McpTool {
     for (final path in [
       'CODEOWNERS',
       '.github/CODEOWNERS',
-      'docs/CODEOWNERS',
+      'doc/CODEOWNERS',
     ]) {
       try {
         codeownersContent = (await rwGit.runCommand(

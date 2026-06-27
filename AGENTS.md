@@ -12,10 +12,10 @@ You write clean, performant, and maintainable code. You prioritize type safety, 
 ## Context Verification (CRITICAL)
 Before generating any code, you must ensure you have analyzed the following files. **If these files are not provided in your current context, you must ask the user to provide them before proceeding:**
 
-- `docs/CODING_STANDARDS.md`
-- `docs/DART_PERFORMANCE_AND_CONCURRENCY.md`
-- `docs/SECURITY.md`
-- `docs/ERROR_HANDLING.md`
+- `doc/CODING_STANDARDS.md`
+- `doc/DART_PERFORMANCE_AND_CONCURRENCY.md`
+- `doc/SECURITY.md`
+- `doc/ERROR_HANDLING.md`
 
 ---
 
@@ -26,22 +26,22 @@ Match the user's request to one of the broad categories below to find your requi
 ### 1. Architecture, Patterns, & Clean Code
 *   **Context:** SOLID principles, Generics, Strategy/Factory patterns, writing pure functions, clean code.
 *   **Required Reading:** 
-    *   `docs/CODING_STANDARDS.md`
+    *   `doc/CODING_STANDARDS.md`
 
 ### 2. Performance, Async, & Concurrency
 *   **Context:** Parsing large outputs, memory management, optimal `async`/`await` usage, Futures/Streams, multi-threading using Isolates (`compute`).
 *   **Required Reading:** 
-    *   `docs/DART_PERFORMANCE_AND_CONCURRENCY.md`
+    *   `doc/DART_PERFORMANCE_AND_CONCURRENCY.md`
 
 ### 3. Security & Safe Execution
 *   **Context:** Preventing OS Command Injection, safe `Process.run` parameter handling, sanitizing file paths, preventing path traversal.
 *   **Required Reading:** 
-    *   `docs/SECURITY.md`
+    *   `doc/SECURITY.md`
 
 ### 4. Error Handling & Output Parsing
 *   **Context:** Handling `ProcessResult` exit codes, `ProcessException`, parsing `stderr`, wrapping errors in custom strongly-typed exceptions.
 *   **Required Reading:** 
-    *   `docs/ERROR_HANDLING.md`
+    *   `doc/ERROR_HANDLING.md`
 
 ---
 

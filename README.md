@@ -8,62 +8,84 @@
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 </p>
 
-## About
+## Empowering Dart & AI with Git
 
-`rw_git` is a robust git wrapper that facilitates the out-of-the-box execution of common git operations, provides advanced code quality heuristics via Isolates, and exposes an MCP server for AI agent integration.
+`rw_git` bridges the gap between your applications, artificial intelligence, and Git repositories. 
 
-Built with a focus on Security and Dependency Inversion, `rw_git` never uses `runInShell: true` and supports unit-testing via a mockable `ProcessRunner`. It now natively supports abstracting the Git execution layer, laying the foundation for mobile support via `libgit2` FFI.
+Whether you are building a Dart backend, a developer tool, or connecting an AI agent like Claude or Cursor to your codebase, `rw_git` provides a secure, high-performance, and deeply integrated Git experience. 
 
 <a href='https://pub.dev/documentation/rw_git/latest/rw_git/rw_git-library.html'><img src="https://img.shields.io/badge/Check-Documentation-blue?style=for-the-badge&logo=readthedocs" alt="Documentation" /></a><br>
 
-## Features
+## Core Git Commands
 
-### Core Operations (`RwGit` Facade)
-- [x] `init`: Initialize a local GIT directory.
-- [x] `clone`: Clone a remote repository into a local folder.
-- [x] `checkout`: Checkout a GIT branch.
-- [x] `branch`: Create, list, or delete branches.
-- [x] `status`: Check the status of the repository.
-- [x] `pull`: Fetch from and integrate with another repository or a local branch.
-- [x] `push`: Update remote refs along with associated objects.
-- [x] `diff`: Show changes between commits, commit and working tree, etc.
-- [x] `merge`: Join two or more development histories together.
-- [x] `stash`: Stash the changes in a dirty working directory away.
-- [x] `blame`: Show what revision and author last modified each line of a file.
-- [x] `show`: Show various types of objects.
-- [x] `fetchTags`: Retrieve a list of tags of the specified repository.
-- [x] `getCommitsBetween`: Retrieve a list of commits between two given tags.
-- [x] `stats`: Get the number of lines inserted, deleted, and files changed.
-- [x] `contributionsByAuthor`: Returns the number of contributions for every author of the repository.
-- [x] `runCommand`: Execute any arbitrary git command securely.
+Provides a clean, fluent API (`RwGit` facade) for all standard Git operations with robust, type-safe error handling.
 
-### Code Quality & AI Integrations
-- **`CodeQualityTracker`**: Offloads heavy parsing to background `Isolate`s to compute repository health metrics, detecting "mega-commits" and suspicious messages (TODO/FIXME).
+- `init`: Initializes a new Git repository.
+- `clone`: Clones a remote repository to a local directory.
+- `checkout`: Switches branches or restores working tree files.
+- `branch`: Lists, creates, or deletes branches.
+- `status`: Displays the state of the working directory and the staging area.
+- `pull`: Fetches from and integrates with another repository or a local branch.
+- `push`: Updates remote refs along with associated objects.
+- `diff`: Shows changes between commits, commit and working tree, etc.
+- `merge`: Joins two or more development histories together.
+- `stash`: Stashes the changes in a dirty working directory away.
+- `blame`: Shows what revision and author last modified each line of a file.
+- `show`: Shows various types of objects (commits, trees, tags).
+- `fetchTags`: Fetches all tags from the remote repository.
+- `getCommitsBetween`: Retrieves a list of commits between two tags or branches.
+- `stats`: Retrieves code-change statistics (insertions, deletions, files changed) between two points.
+
+---
 
 ## Model Context Protocol (MCP) Server
 
-`rw_git` ships with an embedded Model Context Protocol (MCP) server (`bin/rw_git_mcp.dart`) that allows AI agents and IDEs (like Claude Desktop, Antigravity, or Cursor) to interact directly with your git repositories. It communicates over standard I/O using JSON-RPC 2.0.
+`rw_git` ships with an embedded Model Context Protocol (MCP) server that allows AI agents and IDEs to interact directly with your git repositories. It communicates over standard I/O using JSON-RPC 2.0.
 
-### Installation & Configuration
+### Available MCP Tools
 
-To use the MCP server, you have several distribution options:
+`rw_git` provides a comprehensive suite of tools for AI agents to analyze and manipulate your repository:
 
-#### 1. Pre-compiled Native Binaries (Recommended)
-You can download standalone, pre-compiled executables for Windows, macOS, and Linux from the [GitHub Releases](https://github.com/gbrandtio/rw-git/releases) page. These do not require the Dart SDK to be installed.
+**Repository Operations:**
+- `init_repository`: Initializes a new Git repository.
+- `clone_repository`: Clones a remote repository.
+- `clone_specific_branch`: Clones a specific branch of a remote repository.
+- `checkout_branch`: Switches branches.
+- `execute_git_command`: Executes raw Git CLI commands (with safety restrictions).
+- `is_git_repository`: Checks if a directory is a valid Git repository.
+- `fetch_tags`: Retrieves all tags from the repository.
 
-#### 2. Via pub.dev
-If you have the Dart SDK installed, you can activate the MCP server globally:
+**Analysis & Metrics:**
+- `analyze_code_quality`: Analyzes recent commits to identify code smells and technical debt.
+- `analyze_code_quality_with_authors`: Analyzes code quality metrics along with author contributions.
+- `analyze_bus_factor`: Calculates the "bus factor" by analyzing file ownership and contribution concentration.
+- `analyze_commit_velocity`: Computes time-series commit velocity to track team productivity trends.
+- `analyze_dependency_drift`: Parses dependency manifests for supply chain risk analysis.
+- `analyze_file_ownership`: Cross-references CODEOWNERS with git blame history for ownership drift.
+- `analyze_pr_diff`: Analyzes PR diffs for risk signals like high churn and exposed secrets.
+- `analyze_release_delta`: Analyzes the changes and impact between two release tags.
+- `predict_merge_conflicts`: Identifies files modified on both branches to predict merge conflicts.
+- `get_stats`: Retrieves Git statistics like insertions and deletions.
+- `get_commits_between`: Lists commits between two tags or branches.
+- `get_contributions_by_author`: Retrieves commit counts grouped by author.
+- `clone_and_get_statistics`: Clones a repository and immediately retrieves its statistics.
+
+**Security & Compliance:**
+- `audit_compliance`: Scans commit history for unsigned commits, empty messages, and unrecognized author emails.
+- `detect_secrets_in_commits`: Scans commit history for exposed secrets or credentials.
+
+**Code Review AI Agents:**
+- `evaluate_comment_llm_generation`: Detects if code comments were likely generated by an LLM.
+- `evaluate_comment_necessity`: Evaluates if comments are redundant or if the code could be self-documenting.
+- `evaluate_comment_quality`: Analyzes the quality and usefulness of newly added comments.
+
+### Connecting MCP with Agents
+
+To use the MCP server, you can activate it globally via the Dart SDK:
 ```bash
 dart pub global activate rw_git
 ```
-Then, you can run it simply using the `rw_git_mcp` command.
-
-#### 3. Compile from source
-```bash
-dart compile exe bin/rw_git_mcp.dart -o rw_git_mcp
-```
-
-If you are configuring it for an MCP client, here are ready-to-use JSON configurations. Be sure to replace `/absolute/path/to/rw-git` with the actual path to your repository.
+Then, configure your AI agent or IDE to use the `rw_git_mcp` command.
 
 #### Claude Desktop
 Add this to your `claude_desktop_config.json`:
@@ -71,8 +93,8 @@ Add this to your `claude_desktop_config.json`:
 {
   "mcpServers": {
     "rw_git": {
-      "command": "dart",
-      "args": ["run", "/absolute/path/to/rw-git/bin/rw_git_mcp.dart"]
+      "command": "rw_git_mcp",
+      "args": []
     }
   }
 }
@@ -84,126 +106,29 @@ In Cursor's `mcp.json` or `.cursor/mcp.json`:
 {
   "mcpServers": {
     "rw_git": {
-      "command": "dart",
-      "args": ["run", "/absolute/path/to/rw-git/bin/rw_git_mcp.dart"]
+      "command": "rw_git_mcp",
+      "args": []
     }
   }
 }
 ```
 
 #### Antigravity (AGY CLI / Web IDE)
-For Google Antigravity or `agy-cli`, add this to your MCP configuration block in the agent definition:
+Add this to your MCP configuration block:
 ```json
 {
   "mcpServers": {
     "rw_git": {
-      "command": "dart",
-      "args": ["run", "/absolute/path/to/rw-git/bin/rw_git_mcp.dart"]
+      "command": "rw_git_mcp",
+      "args": []
     }
   }
 }
 ```
 
-#### Gemini CLI
-For Gemini CLI integrations supporting MCP plugins:
-```json
-{
-  "mcpServers": {
-    "rw_git": {
-      "command": "dart",
-      "args": ["run", "/absolute/path/to/rw-git/bin/rw_git_mcp.dart"]
-    }
-  }
-}
-```
+*(Note: If you haven't activated it globally, you can provide the absolute path to `dart` and `run /absolute/path/to/rw-git/bin/rw_git_mcp.dart` instead).*
 
-### Available AI Tools
-
-When the MCP server connects to an AI agent, it exposes the following tools:
-
-1. **`get_rw_git_documentation`**
-   - **Description**: Retrieve detailed descriptions and parameter requirements for all RwGit facade out-of-the-box operations and MCP tools.
-   - **Arguments**: None.
-   - **Returns**: A markdown-formatted string documenting the available commands and tools.
-
-2. **`execute_git_command`**
-   - **Description**: Allows the agent to run arbitrary git commands safely on the local file system.
-   - **Arguments**: `directory` (path to the repo), `args` (array of strings, e.g., `["log", "-n", "5"]`).
-   
-3. **`analyze_code_quality`**
-   - **Description**: Invokes the built-in `CodeQualityTracker` to scan the repository for architectural bottlenecks and technical debt. Retrieves the recent commits wrapped in a structured prompt that actively instructs the AI agent to look for bad, low-effort commit messages and assesses change sizes via the `--stat` summary.
-   - **Arguments**: `directory` (path to the repo), `limit` (number of commits to fetch, default 10).
-   - **Returns**: A formatted report highlighting "Suspicious Commits" (containing `TODO`/`FIXME` keywords), "Mega Commits" (commits with >500 lines changed or touching >20 files), comprehensive churn metrics, and a structured AI review prompt with recent commit logs.
-   
-4. **`analyze_code_quality_with_authors`**
-   - **Description**: Identical to `analyze_code_quality`, but additionally computes and formats a breakdown of which authors contributed to each high-churn file, class, and code block.
-   - **Arguments**: `directory` (path to the repo), `limit` (number of commits to fetch, default 10).
-   - **Returns**: A formatted report highlighting suspicious commits, mega commits, churn metrics broken down by contributor name, and a structured AI review prompt with recent commit logs.
-
-5. **`analyze_release_delta`**
-   - **Description**: Analyzes the changes between two releases (tags or commits) to identify major architectural shifts, new features, bug fixes, and potential stability risks.
-   - **Arguments**: `directory` (path to the repo), `oldVersion` (old tag/hash), `newVersion` (new tag/hash).
-   - **Returns**: A formatted string describing the changes.
-
-6. **`analyze_bus_factor`**
-   - **Description**: Calculates the "bus factor" by identifying high-risk files where a single author is responsible for a large percentage of the changes.
-   - **Arguments**: `directory` (path to the repo), `limit` (number of commits).
-   - **Returns**: A formatted string listing high-risk files.
-
-7. **`evaluate_comment_llm_generation`**
-   - **Description**: Evaluates whether the comments added or modified in the recent commits were likely generated by an LLM.
-   - **Arguments**: `directory` (path to the repo), `limit` (number of commits).
-   - **Returns**: A formatted report highlighting comments that exhibit signs of being LLM generated.
-
-8. **`evaluate_comment_quality`**
-   - **Description**: Evaluates whether the comments added or modified in the recent commits are of good quality and follow clean code practices.
-   - **Arguments**: `directory` (path to the repo), `limit` (number of commits).
-   - **Returns**: A formatted report analyzing the quality of the recent comments.
-
-9. **`evaluate_comment_necessity`**
-   - **Description**: Evaluates whether the comments added or modified in the recent commits are actually needed, or if the code should be refactored to be self-documenting.
-   - **Arguments**: `directory` (path to the repo), `limit` (number of commits).
-   - **Returns**: A formatted report advising on whether recent comments are necessary or redundant.
-
-10. **`detect_secrets_in_commits`**
-    - **Description**: Scans commit history (deltas) using Isolates for exposed secrets, API keys, or credentials without blocking the main event loop.
-    - **Arguments**: `directory` (path to the repo), `limit` (optional, number of commits), `branch` (optional, branch name).
-    - **Returns**: A formatted string listing detected secrets (redacted) along with their commit hashes and files.
-
-11. **`analyze_pr_diff`**
-    - **Description**: Analyzes the diff between a base and head branch (or commit range) for code review risk signals. Combines churn history, bus factor, and secret detection data into per-file composite risk scores.
-    - **Arguments**: `directory` (path to the repo), `base` (base branch/commit), `head` (head branch/commit), `topN` (optional, limit output).
-    - **Returns**: A structured JSON payload with `changed_files[]` (each with `risk_score`, `churn_rank`, `bus_factor_risk`, `has_secret_exposure`), `overall_risk_level`.
-
-12. **`predict_merge_conflicts`**
-    - **Description**: Identifies files modified on both branches since their merge base to predict potential merge conflicts before attempting a merge.
-    - **Arguments**: `directory` (path to the repo), `branchA`, `branchB`.
-    - **Returns**: JSON with `merge_base`, `conflicting_files[]`, `files_only_on_a[]`, `files_only_on_b[]`, `risk_level`.
-
-13. **`analyze_commit_velocity`**
-    - **Description**: Computes commit velocity over time, bucketed by day, week, or month. Returns time-series data with per-author breakdown, trend analysis, and anomaly detection.
-    - **Arguments**: `directory` (path to the repo), `limit` (optional), `since` (optional date), `until` (optional date), `granularity` (optional, "day"/"week"/"month").
-    - **Returns**: JSON with `time_series[]`, `average_per_period`, `trend`, `anomalies[]`.
-
-14. **`analyze_dependency_drift`**
-    - **Description**: Parses dependency manifests (pubspec.yaml, package.json, requirements.txt, go.mod, Cargo.toml, Gemfile) from the git working tree for supply chain risk analysis.
-    - **Arguments**: `directory` (path to the repo).
-    - **Returns**: JSON with `ecosystems[]` (each with `type`, `total_dependencies`, `pinned_count`, `floating_count`, `has_lock_file`), `overall_risk`.
-
-15. **`generate_changelog`**
-    - **Description**: Generates a structured changelog between two tags or commits using Conventional Commits conventions (feat, fix, BREAKING CHANGE). Falls back gracefully for non-conventional repositories.
-    - **Arguments**: `directory` (path to the repo), `from` (starting tag/commit), `to` (ending tag/commit), `includeRawMessages` (optional boolean).
-    - **Returns**: JSON with `features[]`, `fixes[]`, `breaking_changes[]`, `other[]`, `contributors[]`.
-
-16. **`audit_compliance`**
-    - **Description**: Scans commit history for compliance policy violations: unsigned commits (no GPG/SSH signature), empty commit messages, and commits from unrecognized author emails.
-    - **Arguments**: `directory` (path to the repo), `limit` (optional), `allowedEmails` (optional, comma-separated list).
-    - **Returns**: JSON with `unsigned_commits[]`, `empty_message_commits[]`, `unrecognized_author_commits[]`, `total_violations`.
-
-17. **`analyze_file_ownership`**
-    - **Description**: Reads the CODEOWNERS file and cross-references it with git blame history to detect ownership drift and unowned files.
-    - **Arguments**: `directory` (path to the repo), `limit` (optional, number of commits for authorship analysis).
-    - **Returns**: JSON with `codeowners_found`, `files[]` (each with `declared_owners`, `actual_top_contributor`, `ownership_drift`), `unowned_files[]`, `drift_count`.
+---
 
 ## Getting started
 
@@ -213,79 +138,28 @@ dependencies:
   rw_git: ^2.0.0
 ```
 
-## Usage
+### Quick Start
 
-### Basic Initialization
+Initialize the facade and start executing Git operations seamlessly:
+
 ```dart
 import 'package:rw_git/rw_git.dart';
 
-RwGit rwGit = RwGit();
-```
+void main() async {
+  // 1. Initialize the wrapper
+  RwGit rwGit = RwGit();
 
-### Mocking for Tests
-You can inject a `MockProcessRunner` to unit test your code without making actual git calls or hitting the file system:
-```dart
-final mockRunner = MockProcessRunner();
-mockRunner.setMockResult('git', ['clone', 'https://...', 'dir'], 0, 'Cloned!', '');
-RwGit rwGit = RwGit(runner: mockRunner);
-```
+  // 2. Clone a repository
+  String localDir = "./my-project";
+  await rwGit.clone(localDir, "https://github.com/google/flutter");
 
-### Examples
-
-Clone a remote repository:
-```dart
-String localDirectoryToCloneInto = "./my-project";
-await rwGit.clone(localDirectoryToCloneInto, "https://github.com/google/material-design-lite");
-```
-
-Fetch tags of a remote repository:
-```dart
-List<String> tags = await rwGit.fetchTags(localDirectoryToCloneInto);
-print("Number of tags: ${tags.length}");
-```
-
-Retrieve the commits between two tags:
-```dart
-List<String> commits = await rwGit.getCommitsBetween(localDirectoryToCloneInto, oldTag, newTag);
-print("Number of commits between $oldTag and $newTag: ${commits.length}");
-```
-
-Retrieve code-change statistics between two tags:
-```dart
-ShortStatDto shortStatDto = await rwGit.stats(localDirectoryToCloneInto, oldTag, newTag);
-print('Insertions: ${shortStatDto.insertions}, Deletions: ${shortStatDto.deletions}, Files Changed: ${shortStatDto.numberOfChangedFiles}');
-```
-
-Run an arbitrary Git command:
-```dart
-String logOutput = await rwGit.runCommand(localDirectoryToCloneInto, ['log', '-n', '5', '--oneline']);
-print(logOutput);
-```
-
-### Streaming Output
-You can opt-in to streaming the standard output and standard error of any Git command directly to the console in real-time by passing `streamOutput: true`. This is especially useful for long-running operations like clones or fetching large repositories:
-
-```dart
-await rwGit.clone(localDirectoryToCloneInto, "https://github.com/google/flutter", streamOutput: true);
-```
-
-### Exception Handling & Result Pattern
-`rw_git` strictly enforces type-safe exception handling via the `Result<T, E>` pattern. It will **never** silently swallow an execution error. All non-zero exit codes return a `Result.failure` containing an `RwGitException` (or a subclass like `GitBranchNotFoundException`) that exposes the underlying `stderr` output. You can elegantly handle success and failure paths or extract the value using `.getOrThrow()`.
-
-```dart
-final result = await rwGit.checkout(localDirectoryToCloneInto, 'invalid-branch');
-result.fold(
-  (success) => print("Checkout successful!"),
-  (error) => print("Failed to checkout branch. Exit code: ${error.exitCode}, Stderr: ${error.stderr}"),
-);
-
-// Or throw if you prefer try/catch:
-try {
-  await rwGit.checkout(localDirectoryToCloneInto, 'invalid-branch').then((r) => r.getOrThrow());
-} on RwGitException catch (e) {
-  print("Caught error: ${e.message}");
+  // 3. Retrieve code-change statistics
+  final stats = await rwGit.stats(localDir, "old-tag", "new-tag");
+  print('Files Changed: ${stats.numberOfChangedFiles}');
 }
 ```
+
+For comprehensive API details, please check our [official documentation](https://pub.dev/documentation/rw_git/latest/).
 
 ## Additional information
 
