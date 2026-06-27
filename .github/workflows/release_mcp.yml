@@ -9,6 +9,8 @@ jobs:
   build:
     name: Build Native Executable
     runs-on: ${{ matrix.os }}
+    permissions:
+      contents: write
     strategy:
       matrix:
         include:
