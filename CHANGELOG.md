@@ -1,3 +1,14 @@
+## 3.4.0
+- **FEAT (MCP):** Added `analyze_pr_diff` tool to analyze PR diffs for risk signals by combining churn history, bus factor, and secret detection into per-file composite risk scores.
+- **FEAT (MCP):** Added `predict_merge_conflicts` tool to identify files modified on both branches since their merge base, predicting potential merge conflicts before a merge attempt.
+- **FEAT (MCP):** Added `analyze_commit_velocity` tool to compute time-series commit velocity with per-author breakdown, trend analysis (accelerating/decelerating/stable), and anomaly detection.
+- **FEAT (MCP):** Added `analyze_dependency_drift` tool to parse dependency manifests (pubspec.yaml, package.json, requirements.txt, go.mod, Cargo.toml, Gemfile) for supply chain risk analysis.
+- **FEAT (MCP):** Added `generate_changelog` tool to generate structured changelogs using Conventional Commits conventions (feat/fix/BREAKING CHANGE).
+- **FEAT (MCP):** Added `audit_compliance` tool to scan commit history for unsigned commits, empty messages, and unrecognized author emails.
+- **FEAT (MCP):** Added `analyze_file_ownership` tool to cross-reference CODEOWNERS with git blame history for ownership drift detection.
+- **FEAT (Core):** Added `findConflictRiskFiles`, `calculateCommitVelocity`, `parseDependencyManifests`, `scanComplianceIssues` methods to `CodeQualityTracker`.
+- **FEAT (Models):** Added `CommitVelocityDto`, `DependencyManifestDto`, `ComplianceReportDto` immutable DTOs.
+
 ## 3.3.0
 - **FEAT (MCP):** Added `detect_secrets_in_commits` tool to scan commit history for exposed secrets using Isolates.
 - **FEAT (MCP):** Added an optional `includeCodeDiff` boolean parameter to the code quality tools to provide actual git diffs for LLM code smell analysis, replacing the previous hardcoded hallucination-prone prompt.

@@ -1,0 +1,94 @@
+import 'dart:convert';
+import '../../../rw_git.dart';
+
+/// analyze_commit_velocity_tool.dart
+/// Computes time-series commit velocity with trend
+/// analysis and anomaly detection.
+
+class AnalyzeCommitVelocityTool implements McpTool {
+  final CodeQualityTracker tracker;
+
+  AnalyzeCommitVelocityTool(this.tracker);
+
+  @override
+  String get name => 'analyze_commit_velocity';
+
+  @override
+  String get description => 'Computes commit velocity over time, bucketed by '
+      'day, week, or month. Returns time-series data '
+      'with per-author breakdown, trend analysis '
+      '(accelerating/decelerating/stable), and anomaly '
+      'detection (periods > 2 std deviations). '
+      'For a complete guide, invoke the '
+      'get_rw_git_documentation tool.';
+
+  @override
+  Map<String, dynamic> get inputSchema => {
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local repository path.',
+          },
+          'limit': {
+            'type': 'number',
+            'description': 'Maximum number of commits to analyze.',
+          },
+          'since': {
+            'type': 'string',
+            'description': 'Only commits after this date '
+                '(e.g. "2024-01-01").',
+          },
+          'until': {
+            'type': 'string',
+            'description': 'Only commits before this date '
+                '(e.g. "2024-12-31").',
+          },
+          'granularity': {
+            'type': 'string',
+            'description': 'Time bucket size: "day", "week", or '
+                '"month". Defaults to "week".',
+          },
+        },
+        'required': ['directory'],
+      };
+
+  @override
+  Future<String> execute(Map<String, dynamic> arguments) async {
+    final directory = arguments['directory'] as String;
+    final limit = arguments['limit']?.toString();
+    final since = arguments['since'] as String?;
+    final until = arguments['until'] as String?;
+    final granularity = arguments['granularity'] as String? ?? 'week';
+
+    final velocity = await tracker.calculateCommitVelocity(
+      directory,
+      limit: limit,
+      since: since,
+      until: until,
+      granularity: granularity,
+    );
+
+    return jsonEncode({
+      'total_commits': velocity.totalCommits,
+      'average_per_period': double.parse(
+        velocity.averagePerPeriod.toStringAsFixed(2),
+      ),
+      'trend': velocity.trend,
+      'granularity': granularity,
+      'time_series': velocity.buckets
+          .map((b) => {
+                'period': b.period,
+                'total_commits': b.totalCommits,
+                'authors': b.authors,
+              })
+          .toList(),
+      'anomalies': velocity.anomalies
+          .map((b) => {
+                'period': b.period,
+                'total_commits': b.totalCommits,
+              })
+          .toList(),
+    });
+  }
+}

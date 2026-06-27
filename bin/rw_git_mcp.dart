@@ -33,6 +33,13 @@ void main() async {
   registry.registerTool(EvaluateCommentQualityTool(tracker));
   registry.registerTool(EvaluateCommentNecessityTool(tracker));
   registry.registerTool(DetectSecretsTool(tracker));
+  registry.registerTool(AnalyzePrDiffTool(tracker, rwGit));
+  registry.registerTool(PredictMergeConflictsTool(tracker));
+  registry.registerTool(AnalyzeCommitVelocityTool(tracker));
+  registry.registerTool(AnalyzeDependencyDriftTool(tracker));
+  registry.registerTool(GenerateChangelogTool(rwGit));
+  registry.registerTool(AuditComplianceTool(tracker));
+  registry.registerTool(AnalyzeFileOwnershipTool(tracker, rwGit));
   final server = McpServer(registry: registry);
   server.start();
 }

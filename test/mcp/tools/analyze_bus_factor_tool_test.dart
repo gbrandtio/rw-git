@@ -61,6 +61,9 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
       blockChurn: {},
     );
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {

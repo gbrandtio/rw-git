@@ -86,6 +86,9 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
       },
     );
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 class MockEmptyCodeQualityTrackerWithAuthors implements CodeQualityTracker {
@@ -148,6 +151,9 @@ class MockEmptyCodeQualityTrackerWithAuthors implements CodeQualityTracker {
       blockChurn: {},
     );
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {

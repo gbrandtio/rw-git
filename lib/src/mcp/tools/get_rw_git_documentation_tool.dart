@@ -57,6 +57,15 @@ The following out-of-the-box Dart facade functions are exposed as individual, st
 
 ## 4. Documentation
 - **get_rw_git_documentation**: Returns this guide.
+
+## 5. Advanced Analysis Tools
+- **analyze_pr_diff**: Analyzes a PR diff (base..head) for risk signals. Returns per-file risk scores from churn history, bus factor, and secret detection. Use `topN` to limit output.
+- **predict_merge_conflicts**: Identifies files modified on both branches since their merge base to predict merge conflicts before attempting a merge.
+- **analyze_commit_velocity**: Computes commit velocity bucketed by day/week/month. Returns time-series data with per-author breakdown, trend analysis (accelerating/decelerating/stable), and anomaly detection.
+- **analyze_dependency_drift**: Parses dependency manifests (pubspec.yaml, package.json, requirements.txt, go.mod, Cargo.toml, Gemfile) for pinned vs floating version analysis and lock file presence.
+- **generate_changelog**: Generates a structured changelog between two tags/commits using Conventional Commits conventions (feat/fix/BREAKING CHANGE). Falls back gracefully.
+- **audit_compliance**: Scans commit history for unsigned commits, empty messages, and unrecognized author emails. Supply `allowedEmails` to flag unknown contributors.
+- **analyze_file_ownership**: Cross-references CODEOWNERS with git blame history to detect ownership drift and unowned files.
 ''';
   }
 }

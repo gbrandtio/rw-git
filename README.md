@@ -170,6 +170,41 @@ When the MCP server connects to an AI agent, it exposes the following tools:
     - **Arguments**: `directory` (path to the repo), `limit` (optional, number of commits), `branch` (optional, branch name).
     - **Returns**: A formatted string listing detected secrets (redacted) along with their commit hashes and files.
 
+11. **`analyze_pr_diff`**
+    - **Description**: Analyzes the diff between a base and head branch (or commit range) for code review risk signals. Combines churn history, bus factor, and secret detection data into per-file composite risk scores.
+    - **Arguments**: `directory` (path to the repo), `base` (base branch/commit), `head` (head branch/commit), `topN` (optional, limit output).
+    - **Returns**: A structured JSON payload with `changed_files[]` (each with `risk_score`, `churn_rank`, `bus_factor_risk`, `has_secret_exposure`), `overall_risk_level`.
+
+12. **`predict_merge_conflicts`**
+    - **Description**: Identifies files modified on both branches since their merge base to predict potential merge conflicts before attempting a merge.
+    - **Arguments**: `directory` (path to the repo), `branchA`, `branchB`.
+    - **Returns**: JSON with `merge_base`, `conflicting_files[]`, `files_only_on_a[]`, `files_only_on_b[]`, `risk_level`.
+
+13. **`analyze_commit_velocity`**
+    - **Description**: Computes commit velocity over time, bucketed by day, week, or month. Returns time-series data with per-author breakdown, trend analysis, and anomaly detection.
+    - **Arguments**: `directory` (path to the repo), `limit` (optional), `since` (optional date), `until` (optional date), `granularity` (optional, "day"/"week"/"month").
+    - **Returns**: JSON with `time_series[]`, `average_per_period`, `trend`, `anomalies[]`.
+
+14. **`analyze_dependency_drift`**
+    - **Description**: Parses dependency manifests (pubspec.yaml, package.json, requirements.txt, go.mod, Cargo.toml, Gemfile) from the git working tree for supply chain risk analysis.
+    - **Arguments**: `directory` (path to the repo).
+    - **Returns**: JSON with `ecosystems[]` (each with `type`, `total_dependencies`, `pinned_count`, `floating_count`, `has_lock_file`), `overall_risk`.
+
+15. **`generate_changelog`**
+    - **Description**: Generates a structured changelog between two tags or commits using Conventional Commits conventions (feat, fix, BREAKING CHANGE). Falls back gracefully for non-conventional repositories.
+    - **Arguments**: `directory` (path to the repo), `from` (starting tag/commit), `to` (ending tag/commit), `includeRawMessages` (optional boolean).
+    - **Returns**: JSON with `features[]`, `fixes[]`, `breaking_changes[]`, `other[]`, `contributors[]`.
+
+16. **`audit_compliance`**
+    - **Description**: Scans commit history for compliance policy violations: unsigned commits (no GPG/SSH signature), empty commit messages, and commits from unrecognized author emails.
+    - **Arguments**: `directory` (path to the repo), `limit` (optional), `allowedEmails` (optional, comma-separated list).
+    - **Returns**: JSON with `unsigned_commits[]`, `empty_message_commits[]`, `unrecognized_author_commits[]`, `total_violations`.
+
+17. **`analyze_file_ownership`**
+    - **Description**: Reads the CODEOWNERS file and cross-references it with git blame history to detect ownership drift and unowned files.
+    - **Arguments**: `directory` (path to the repo), `limit` (optional, number of commits for authorship analysis).
+    - **Returns**: JSON with `codeowners_found`, `files[]` (each with `declared_owners`, `actual_top_contributor`, `ownership_drift`), `unowned_files[]`, `drift_count`.
+
 ## Getting started
 
 Add the package to your `pubspec.yaml`:

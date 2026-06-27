@@ -71,6 +71,9 @@ class MockCodeQualityTracker implements CodeQualityTracker {
   }) async {
     throw UnimplementedError();
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 class MockEmptyCodeQualityTracker implements CodeQualityTracker {
@@ -133,6 +136,9 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
   }) async {
     throw UnimplementedError();
   }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {
