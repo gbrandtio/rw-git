@@ -68,7 +68,16 @@ npm install -g @gbrandtio/rw-git-mcp
 ```
 After installation, you can run the server simply by typing `rw-git-mcp` in your terminal.
 
+## Installing Agent Skills
+
+To install the bundled AI agent skills directly into your local workspace, run the following command:
+```bash
+npx @gbrandtio/rw-git-mcp install-skills
+```
+This will extract the skills to `./.agents/skills/rw-git-mcp/` in your current directory.
+
 ## MCP Client Configuration
+
 
 ### Claude Desktop
 Add the following to your `claude_desktop_config.json`:

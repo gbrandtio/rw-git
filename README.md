@@ -95,12 +95,6 @@ The easiest way is to run the server via `npx` (requires Node.js):
 npx -y @gbrandtio/rw-git-mcp
 ```
 
-**Homebrew (macOS / Linux)**
-```bash
-brew tap gbrandtio/rw-git
-brew install rw-git-mcp
-```
-
 **Dart SDK (For Dart/Flutter developers)**
 ```bash
 dart pub global activate rw_git
@@ -148,7 +142,7 @@ Add this to your MCP configuration block:
 }
 ```
 
-*(Note: If you installed via Homebrew, Dart global activate, or downloaded the binaries, replace `npx` and its `args` with the absolute path to the executable, e.g., `["/usr/local/bin/rw-git-mcp"]` or `["/path/to/rw_git_mcp"]`).*
+*(Note: If you installed via Dart global activate, or downloaded the binaries, replace `npx` and its `args` with the absolute path to the executable, e.g., `["/path/to/rw_git_mcp"]`).*
 
 ---
 
