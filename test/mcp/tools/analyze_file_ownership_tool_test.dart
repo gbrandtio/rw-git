@@ -37,7 +37,7 @@ class _MockRwGit implements RwGit {
     return const Success('');
   }
 
-    Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
       {String? limit}) async {
     return AdvancedCodeQualityDto(
       fileComplexity: {},
@@ -79,7 +79,7 @@ class _MockTracker implements CodeQualityTracker {
   }
 
   @override
-    Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
       {String? limit}) async {
     return AdvancedCodeQualityDto(
       fileComplexity: {},
