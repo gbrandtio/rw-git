@@ -85,7 +85,8 @@ void main() {
     });
 
     test('Maintainability Index', () {
-      final lexer = FsmLexer('int a = 1;\nint b = 2;\nint c = a + b; class D {}');
+      final lexer =
+          FsmLexer('int a = 1;\nint b = 2;\nint c = a + b; class D {}');
       final tokens = lexer.tokenize();
       final algorithm = MaintainabilityIndexAlgorithm();
       final result = algorithm.calculate(tokens, profile);

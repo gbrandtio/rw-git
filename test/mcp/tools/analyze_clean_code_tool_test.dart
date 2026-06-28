@@ -8,7 +8,7 @@ void main() {
     expect(tool.name, 'analyze_clean_code');
     expect(tool.description, isNotEmpty);
     expect(tool.inputSchema, isNotEmpty);
-    
+
     final res = await tool.execute({'file_path': 'nonexistent_repo'});
     expect(res, isNotNull);
   });

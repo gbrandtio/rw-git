@@ -179,7 +179,8 @@ void main() {
   test('analyze code quality limits topN', () async {
     final tracker = MockCodeQualityTracker();
     final tool = AnalyzeCodeQualityTool(tracker, RwGit());
-    final result = await tool.execute({'directory': 'test_repo', 'limit': '10', 'topN': 1});
+    final result = await tool
+        .execute({'directory': 'test_repo', 'limit': '10', 'topN': 1});
     expect(result, isNotNull);
   });
 
