@@ -16,7 +16,7 @@ void main() {
         void main() {
           if (a) {
             for (var b in c) {
-               if (d && e) {}
+               if (d && e || f) {}
             }
           }
           return a ? b : c;
@@ -27,7 +27,7 @@ void main() {
       final complexity = algorithm.calculate(tokens, profile);
 
       // Base (1) + if (1) + for (1) + if (1) + && (1) + ? (1) = 6
-      expect(complexity, 6);
+      expect(complexity, 7);
     });
 
     test('Cognitive Complexity penalizes nesting', () {
