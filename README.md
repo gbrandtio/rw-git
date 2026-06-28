@@ -75,6 +75,7 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 - `analyze_dart_ast_quality`: Performs deep AST-level analysis of Dart files.
 - `analyze_architecture_drift`: Analyzes git history to detect architectural drift by identifying commits that modify multiple layers.
 - `analyze_clean_code`: Language-agnostic tool to analyze basic clean code heuristics.
+- `calculate_universal_lexical_metrics`: Calculates language-agnostic code quality metrics (Cyclomatic, Halstead, Cognitive, Maintainability Index) for any source file.
 - `get_stats`: Retrieves Git statistics like insertions and deletions.
 - `get_commits_between`: Lists commits between two tags or branches.
 - `get_contributions_by_author`: Retrieves commit counts grouped by author.
