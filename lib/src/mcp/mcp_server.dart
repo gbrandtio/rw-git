@@ -56,7 +56,24 @@ class McpServer {
     } else if (method == 'resources/list') {
       _sendResponse(id, {'resources': []});
     } else if (method == 'prompts/list') {
-      _sendResponse(id, {'prompts': []});
+      _sendResponse(id, {'prompts': registry.getPromptListings()});
+    } else if (method == 'prompts/get') {
+      final promptName = params['name'] as String?;
+      if (promptName == null) {
+        _sendError(id, -32602, 'Invalid params: missing prompt name');
+        return;
+      }
+
+      final prompt = registry.getPrompt(promptName);
+      if (prompt == null) {
+        _sendError(id, 32601, 'Prompt not found: $promptName');
+        return;
+      }
+
+      _sendResponse(id, {
+        'description': prompt.description,
+        'messages': prompt.messages,
+      });
     } else if (method == 'tools/list') {
       _sendResponse(id, {
         'tools': registry.getToolListings(),

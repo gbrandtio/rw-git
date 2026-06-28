@@ -1,5 +1,6 @@
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/mcp/tools/detect_secrets_tool.dart';
+import 'package:rw_git/src/mcp/prompts/rw_git_mcp_reporting_prompt.dart';
 
 /// ----------------------------------------------------------------------------
 /// rw_git_mcp.dart
@@ -40,6 +41,9 @@ void main() async {
   registry.registerTool(GenerateChangelogTool(rwGit));
   registry.registerTool(AuditComplianceTool(tracker));
   registry.registerTool(AnalyzeFileOwnershipTool(tracker, rwGit));
+
+  registry.registerPrompt(RwGitMcpReportingPrompt());
+
   final server = McpServer(registry: registry);
   server.start();
 }

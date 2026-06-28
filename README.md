@@ -79,6 +79,12 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 - `evaluate_comment_necessity`: Evaluates if comments are redundant or if the code could be self-documenting.
 - `evaluate_comment_quality`: Analyzes the quality and usefulness of newly added comments.
 
+### Available Prompts
+
+The server natively exposes MCP Prompts that provide AI agents with detailed instructions and workflows on how to effectively use the repository tools:
+
+- `rw-git-mcp-reporting`: A comprehensive, step-by-step workflow instructing the AI on how to orchestrate the analysis tools to generate thorough repository reports, code quality assessments, and risk analysis.
+
 ### Connecting MCP with Agents
 
 To use the MCP server, you can choose from several installation methods depending on your environment.
