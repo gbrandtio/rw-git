@@ -12,16 +12,18 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
     String repository, {
     List<String> keywords = const [],
     String? limit,
+    String? since,
   }) async {
     return ['commit1: fixme'];
   }
 
   @override
-  Future<String> extractChangedComments(
+  Future<List<Map<String, dynamic>>> extractChangedComments(
     String directory, {
     String? limit,
+    String? since,
   }) async {
-    return '';
+    return [];
   }
 
   @override
@@ -30,6 +32,7 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
     int fileThreshold = 20,
     int lineThreshold = 500,
     String? limit,
+    String? since,
   }) async {
     return ['commit3: 1000 lines'];
   }
@@ -47,6 +50,7 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
   Future<ChurnMetricsDto> calculateChurn(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     throw UnimplementedError();
   }
@@ -55,6 +59,7 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     return const ChurnMetricsWithAuthorsDto(
       totalCommits: 100,
@@ -96,6 +101,18 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
   }
 
   @override
+  @override
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {},
+      methodChurn: {},
+      architectureDistribution: {},
+    );
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
@@ -108,16 +125,18 @@ class MockEmptyCodeQualityTrackerWithAuthors implements CodeQualityTracker {
     String repository, {
     List<String> keywords = const [],
     String? limit,
+    String? since,
   }) async {
     return [];
   }
 
   @override
-  Future<String> extractChangedComments(
+  Future<List<Map<String, dynamic>>> extractChangedComments(
     String directory, {
     String? limit,
+    String? since,
   }) async {
-    return '';
+    return [];
   }
 
   @override
@@ -126,6 +145,7 @@ class MockEmptyCodeQualityTrackerWithAuthors implements CodeQualityTracker {
     int fileThreshold = 20,
     int lineThreshold = 500,
     String? limit,
+    String? since,
   }) async {
     return [];
   }
@@ -143,6 +163,7 @@ class MockEmptyCodeQualityTrackerWithAuthors implements CodeQualityTracker {
   Future<ChurnMetricsDto> calculateChurn(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     throw UnimplementedError();
   }
@@ -151,12 +172,25 @@ class MockEmptyCodeQualityTrackerWithAuthors implements CodeQualityTracker {
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     return const ChurnMetricsWithAuthorsDto(
       totalCommits: 0,
       fileChurn: {},
       classChurn: {},
       blockChurn: {},
+    );
+  }
+
+  @override
+  @override
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {},
+      methodChurn: {},
+      architectureDistribution: {},
     );
   }
 

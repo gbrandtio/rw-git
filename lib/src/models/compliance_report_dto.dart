@@ -5,18 +5,21 @@ class ComplianceReportDto {
   final List<ComplianceViolation> unsignedCommits;
   final List<ComplianceViolation> emptyMessageCommits;
   final List<ComplianceViolation> unrecognizedAuthorCommits;
+  final List<ComplianceViolation> nonConventionalCommits;
 
   const ComplianceReportDto({
     required this.totalCommitsScanned,
     required this.unsignedCommits,
     required this.emptyMessageCommits,
     required this.unrecognizedAuthorCommits,
+    required this.nonConventionalCommits,
   });
 
   int get totalViolations =>
       unsignedCommits.length +
       emptyMessageCommits.length +
-      unrecognizedAuthorCommits.length;
+      unrecognizedAuthorCommits.length +
+      nonConventionalCommits.length;
 }
 
 class ComplianceViolation {

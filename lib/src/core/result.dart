@@ -8,6 +8,7 @@ sealed class Result<T, E extends Exception> {
   S fold<S>(S Function(T value) onSuccess, S Function(E error) onFailure);
 
   T getOrThrow() => fold((v) => v, (e) => throw e);
+  T? getOrNull() => fold((v) => v, (_) => null);
 }
 
 class Success<T, E extends Exception> extends Result<T, E> {

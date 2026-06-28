@@ -78,11 +78,14 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
     }
 
     final churnData = await getChurnData(directory, limit, topN);
+    final advancedMetrics =
+        await tracker.calculateAdvancedMetrics(directory, limit: limit);
 
     final Map<String, dynamic> result = {
       'suspicious_commits': suspicious,
       'mega_commits': mega,
       ...churnData,
+      'advanced_metrics': advancedMetrics.toJson(),
       ...getAnalysisGuidance(includeCodeDiff),
     };
 

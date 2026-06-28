@@ -16,6 +16,7 @@ void main() async {
   final registry = McpRegistry();
   registry.registerTool(AnalyzeCodeQualityTool(tracker, rwGit));
   registry.registerTool(AnalyzeCodeQualityWithAuthorsTool(tracker, rwGit));
+  registry.registerTool(AnalyzeBugHotspotsTool(tracker));
   registry.registerTool(GetRwGitDocumentationTool());
   registry.registerTool(InitRepositoryTool(rwGit));
   registry.registerTool(IsGitRepositoryTool(rwGit));
@@ -27,7 +28,7 @@ void main() async {
   registry.registerTool(GetContributionsByAuthorTool(rwGit));
   registry.registerTool(CloneSpecificBranchTool(rwGit));
 
-  registry.registerTool(AnalyzeReleaseDeltaTool(rwGit));
+  registry.registerTool(AnalyzeReleaseDeltaTool(rwGit, tracker));
   registry.registerTool(AnalyzeBusFactorTool(tracker, rwGit));
   registry.registerTool(EvaluateCommentLlmGenerationTool(tracker));
   registry.registerTool(EvaluateCommentQualityTool(tracker));
@@ -40,6 +41,9 @@ void main() async {
   registry.registerTool(GenerateChangelogTool(rwGit));
   registry.registerTool(AuditComplianceTool(tracker));
   registry.registerTool(AnalyzeFileOwnershipTool(tracker, rwGit));
+  registry.registerTool(AnalyzeDartAstQualityTool(rwGit));
+  registry.registerTool(AnalyzeArchitectureDriftTool(rwGit));
+  registry.registerTool(AnalyzeCleanCodeTool());
 
   registry.registerPrompt(RwGitMcpReportingPrompt());
 

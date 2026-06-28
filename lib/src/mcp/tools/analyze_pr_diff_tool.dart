@@ -55,10 +55,16 @@ class AnalyzePrDiffTool implements McpTool {
     final head = arguments['head'] as String;
     final topN = arguments['topN'] as int?;
 
-    // 1. Get numstat diff for the PR range
+    // 1. Get numstat and raw diff for the PR range
     final numstatRaw = (await rwGit.runCommand(
       directory,
       ['diff', '--numstat', '$base...$head'],
+    ))
+        .getOrThrow();
+
+    final diffRaw = (await rwGit.runCommand(
+      directory,
+      ['diff', '-U0', '$base...$head'],
     ))
         .getOrThrow();
 
@@ -91,6 +97,7 @@ class AnalyzePrDiffTool implements McpTool {
     final result = await Isolate.run(
       () => _scorePrDiff(
         numstatRaw,
+        diffRaw,
         churnMap,
         busFactorMap,
         secretsRaw,
@@ -108,6 +115,7 @@ class AnalyzePrDiffTool implements McpTool {
 
 Map<String, dynamic> _scorePrDiff(
   String numstatRaw,
+  String diffRaw,
   Map<String, int> churnMap,
   Map<String, double> busFactorMap,
   String secretsRaw,
@@ -138,6 +146,31 @@ Map<String, dynamic> _scorePrDiff(
     }
   }
 
+  // Parse diff for structural hunks
+  final hunksPerFile = <String, int>{};
+  final structuralHunksPerFile = <String, List<String>>{};
+  String currentDiffFile = '';
+
+  for (final line in diffRaw.split('\n')) {
+    if (line.startsWith('+++ b/')) {
+      currentDiffFile = line.substring(6).trim();
+      hunksPerFile.putIfAbsent(currentDiffFile, () => 0);
+      structuralHunksPerFile.putIfAbsent(currentDiffFile, () => []);
+    } else if (line.startsWith('@@ ')) {
+      if (currentDiffFile.isNotEmpty) {
+        hunksPerFile[currentDiffFile] =
+            (hunksPerFile[currentDiffFile] ?? 0) + 1;
+        final parts = line.split('@@');
+        if (parts.length >= 3) {
+          final context = parts.sublist(2).join('@@').trim();
+          if (context.isNotEmpty) {
+            structuralHunksPerFile[currentDiffFile]!.add(context);
+          }
+        }
+      }
+    }
+  }
+
   // Parse numstat and compute risk
   final changedFiles = <Map<String, dynamic>>[];
   final numstatLines = numstatRaw.split('\n');
@@ -161,16 +194,22 @@ Map<String, dynamic> _scorePrDiff(
     final hasSecret = secretFiles.contains(file);
 
     // Composite risk: 0.0 to 1.0
-    // - 40% weight: change magnitude
+    // - 30% weight: change magnitude (lines)
+    // - 10% weight: structural complexity (hunks)
     // - 30% weight: historical churn (normalized)
     // - 20% weight: bus factor concentration
     // - 10% weight: secret exposure
+    final hunks = hunksPerFile[file] ?? 0;
+    final structHunks = structuralHunksPerFile[file] ?? [];
+
     final changeMagnitude = (added + removed) / 1000.0;
+    final structuralMagnitude = hunks / 50.0;
     final churnScore = fileChurn / maxChurn;
     final busScore = busFactorRatio;
     final secretScore = hasSecret ? 1.0 : 0.0;
 
-    final risk = (changeMagnitude.clamp(0.0, 1.0) * 0.4) +
+    final risk = (changeMagnitude.clamp(0.0, 1.0) * 0.3) +
+        (structuralMagnitude.clamp(0.0, 1.0) * 0.1) +
         (churnScore.clamp(0.0, 1.0) * 0.3) +
         (busScore.clamp(0.0, 1.0) * 0.2) +
         (secretScore * 0.1);
@@ -182,6 +221,8 @@ Map<String, dynamic> _scorePrDiff(
       'risk_score': double.parse(
         risk.clamp(0.0, 1.0).toStringAsFixed(3),
       ),
+      'hunks': hunks,
+      'structural_contexts': structHunks.take(3).toList(),
       'churn_rank': fileChurn,
       'bus_factor_risk': double.parse(
         busFactorRatio.toStringAsFixed(3),

@@ -28,6 +28,7 @@ Dive into the specific changes, analyzing their impact and how fast the team is 
 - **For Tag/Release Comparisons:** Run `analyze_release_delta` to understand the structural changes between versions.
 - **Code Quality:** Run `analyze_code_quality` (or `analyze_code_quality_with_authors` if the breakdown of contributors is important) to spot code smells, complex files, and technical debt.
 - **Trend Analysis:** Run `analyze_commit_velocity` to gather time-series trend data, exposing anomalies in commit frequency and tracking team productivity over time.
+- **Deep Inspection:** If you are analyzing Dart code, use `analyze_dart_ast_quality` for AST-level insights into dead code, public signature diffs, and dependency graphs. Use `analyze_clean_code` on individual files to check basic SOLID principles and readability heuristics.
 
 ## 4. Security & Compliance Check
 Ensure the code being analyzed meets security policies and project compliance standards. This step is critical for CI/CD environments.
@@ -38,6 +39,7 @@ Ensure the code being analyzed meets security policies and project compliance st
 Detect architectural bottlenecks, ownership risks, and potential integration disasters.
 - **Knowledge Silos:** Run `analyze_bus_factor` and `analyze_file_ownership` to identify "mega-files" that have drifted in ownership or rely too heavily on a single author (low bus factor).
 - **Integration Risk:** If you are analyzing a branch intended for integration (PR), run `predict_merge_conflicts` to proactively surface files that will conflict with the base branch.
+- **Architecture Integrity:** Run `analyze_architecture_drift` to ensure that commits are not simultaneously modifying disparate architectural layers (which could signal leaky abstractions or tight coupling).
 
 ## 6. Code Review & Ecosystem Health
 Deep dive into the contents of the changes, focusing on dependencies and documentation.
@@ -46,7 +48,7 @@ Deep dive into the contents of the changes, focusing on dependencies and documen
 
 ## 7. Release Notes & Changelogs
 If the user's request involves summarizing changes between releases or wrapping up a large feature branch, prepare the user-facing documentation.
-- **Changelog Generation:** Run `generate_changelog` to retrieve a structured, human-readable list of features, fixes, and breaking changes.
+- **Changelog Generation:** Run `generate_changelog` to retrieve a structured, human-readable list of features, fixes, and breaking changes. Note that this tool also structurally links fixes to bug-introducing commits via SZZ.
 
 ## 8. Synthesis & Formatting
 Aggregate the outputs from all the invoked tools into a highly structured, unified Markdown artifact. 

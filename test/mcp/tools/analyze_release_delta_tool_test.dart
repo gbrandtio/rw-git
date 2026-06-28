@@ -3,6 +3,34 @@ import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
+class MockCodeQualityTrackerForReleaseDelta implements CodeQualityTracker {
+  @override
+  Future<BugHotspotDto> calculateBugHotspots(String directory,
+      {String? limit}) async {
+    return BugHotspotDto(
+      fileHotspots: {'file1.dart': 5},
+      authorHotspots: {'Alice': 2},
+      totalFixCommitsAnalyzed: 2,
+    );
+  }
+
+  @override
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {
+        'file1.dart': {'file2.dart': 3},
+      },
+      methodChurn: {},
+      architectureDistribution: {},
+    );
+  }
+
+  @override
+  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
+}
+
 void main() {
   group('AnalyzeReleaseDeltaTool', () {
     late MockProcessRunner mockRunner;
@@ -14,7 +42,8 @@ void main() {
     });
 
     test('has correct name and input schema', () {
-      final tool = AnalyzeReleaseDeltaTool(rwGit);
+      final tool = AnalyzeReleaseDeltaTool(
+          rwGit, MockCodeQualityTrackerForReleaseDelta());
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_release_delta');
@@ -39,7 +68,8 @@ void main() {
         '',
       );
 
-      final tool = AnalyzeReleaseDeltaTool(rwGit);
+      final tool = AnalyzeReleaseDeltaTool(
+          rwGit, MockCodeQualityTrackerForReleaseDelta());
       final resultRaw = await tool.execute({
         'localCheckoutDirectory': '/test/dir',
         'firstTag': 'v1',
@@ -77,7 +107,8 @@ void main() {
         '',
       );
 
-      final tool = AnalyzeReleaseDeltaTool(rwGit);
+      final tool = AnalyzeReleaseDeltaTool(
+          rwGit, MockCodeQualityTrackerForReleaseDelta());
       final resultRaw = await tool.execute({
         'localCheckoutDirectory': '/test/dir',
         'firstTag': 'v1',

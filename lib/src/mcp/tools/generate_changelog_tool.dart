@@ -4,7 +4,8 @@ import '../../../rw_git.dart';
 
 /// generate_changelog_tool.dart
 /// Generates a structured changelog from commit
-/// messages using Conventional Commits conventions.
+/// messages. Uses SZZ to link bug fixes to their introducing
+/// commits, and includes structural file impact for LLM summarization.
 
 class GenerateChangelogTool implements McpTool {
   final RwGit rwGit;
@@ -16,11 +17,10 @@ class GenerateChangelogTool implements McpTool {
 
   @override
   String get description => 'Generates a structured changelog between two tags '
-      'or commits using Conventional Commits conventions. '
-      'Groups commits into features, fixes, breaking '
-      'changes, and other. Falls back to ungrouped list '
-      'if the repository does not follow Conventional '
-      'Commits. '
+      'or commits. Enriches the output with SZZ algorithm '
+      'results (linking fixes to bug-introducing commits) '
+      'and structural impact (changed files) for deep '
+      'LLM summarization. '
       'For a complete guide, invoke the '
       'get_rw_git_documentation tool.';
 
@@ -40,11 +40,6 @@ class GenerateChangelogTool implements McpTool {
             'type': 'string',
             'description': 'The ending tag or commit hash.',
           },
-          'includeRawMessages': {
-            'type': 'boolean',
-            'description': 'If true, includes raw commit messages '
-                'in the output. Defaults to false.',
-          },
         },
         'required': ['directory', 'from', 'to'],
       };
@@ -54,7 +49,6 @@ class GenerateChangelogTool implements McpTool {
     final directory = arguments['directory'] as String;
     final from = arguments['from'] as String;
     final to = arguments['to'] as String;
-    final includeRaw = arguments['includeRawMessages'] as bool? ?? false;
 
     final logRaw = (await rwGit.runCommand(
       directory,
@@ -70,32 +64,168 @@ class GenerateChangelogTool implements McpTool {
       () => parseConventionalCommits(logRaw),
     );
 
-    // Collect unique contributors
-    final contributors = <String>{};
-    for (final list in parsed.values) {
-      for (final entry in list) {
-        final author = entry['author'] ?? '';
-        if (author.isNotEmpty) {
-          contributors.add(author);
-        }
-      }
+    // Enrich fixes with SZZ outputs
+    final enrichedFixes = <Map<String, dynamic>>[];
+    for (final dynamic fixDyn in parsed['fixes'] as List? ?? []) {
+      final fix = fixDyn as Map<String, dynamic>;
+      final hash = fix['hash']!;
+      final introducingCommits = await _runSzzForCommit(directory, hash);
+      final changedFiles = await _getChangedFiles(directory, hash);
+
+      enrichedFixes.add({
+        'hash': hash,
+        'author': fix['author'],
+        'message': fix['message'],
+        'bug_introducing_commits': introducingCommits,
+        'changed_files': changedFiles,
+      });
     }
 
-    final totalCommits = parsed.values.fold<int>(0, (s, l) => s + l.length);
+    // Enrich features and other with changed files
+    final enrichedFeatures = <Map<String, dynamic>>[];
+    for (final dynamic featDyn in parsed['features'] as List? ?? []) {
+      final feat = featDyn as Map<String, dynamic>;
+      final hash = feat['hash']!;
+      final changedFiles = await _getChangedFiles(directory, hash);
+      enrichedFeatures.add({
+        'hash': hash,
+        'author': feat['author'],
+        'message': feat['message'],
+        'changed_files': changedFiles,
+      });
+    }
+
+    final enrichedBreaking = <Map<String, dynamic>>[];
+    for (final dynamic bDyn in parsed['breaking_changes'] as List? ?? []) {
+      final b = bDyn as Map<String, dynamic>;
+      final hash = b['hash']!;
+      final changedFiles = await _getChangedFiles(directory, hash);
+      enrichedBreaking.add({
+        'hash': hash,
+        'author': b['author'],
+        'message': b['message'],
+        'changed_files': changedFiles,
+      });
+    }
+
+    final enrichedOther = <Map<String, dynamic>>[];
+    for (final dynamic oDyn in parsed['other'] as List? ?? []) {
+      final o = oDyn as Map<String, dynamic>;
+      final hash = o['hash']!;
+      final changedFiles = await _getChangedFiles(directory, hash);
+      enrichedOther.add({
+        'hash': hash,
+        'author': o['author'],
+        'message': o['message'],
+        'changed_files': changedFiles,
+      });
+    }
+
+    final contributors = <String>{};
+    for (final feat in enrichedFeatures) {
+      contributors.add(feat['author']);
+    }
+    for (final fix in enrichedFixes) {
+      contributors.add(fix['author']);
+    }
+    for (final b in enrichedBreaking) {
+      contributors.add(b['author']);
+    }
+    for (final o in enrichedOther) {
+      contributors.add(o['author']);
+    }
+    contributors.removeWhere((c) => c.isEmpty);
+
+    final totalCommits = enrichedFeatures.length +
+        enrichedFixes.length +
+        enrichedBreaking.length +
+        enrichedOther.length;
 
     final Map<String, dynamic> result = {
       'total_commits': totalCommits,
       'contributors': contributors.toList()..sort(),
-      'features': parsed['features'] ?? [],
-      'fixes': parsed['fixes'] ?? [],
-      'breaking_changes': parsed['breaking_changes'] ?? [],
-      'other': parsed['other'] ?? [],
+      'features': enrichedFeatures,
+      'fixes': enrichedFixes,
+      'breaking_changes': enrichedBreaking,
+      'other': enrichedOther,
     };
 
+    final includeRaw = arguments['includeRawMessages'] as bool? ?? false;
     if (includeRaw) {
       result['raw_log'] = logRaw;
     }
 
     return jsonEncode(result);
+  }
+
+  Future<List<String>> _getChangedFiles(String directory, String commit) async {
+    final res = await rwGit.runCommand(
+      directory,
+      ['show', '--name-only', '--format=', commit],
+    );
+    if (res.isFailure) return [];
+    final out = res.getOrThrow().trim();
+    if (out.isEmpty) return [];
+    return out
+        .split('\n')
+        .map((l) => l.trim())
+        .where((l) => l.isNotEmpty)
+        .toList();
+  }
+
+  Future<List<String>> _runSzzForCommit(String directory, String commit) async {
+    final introducing = <String>{};
+
+    final parentRes =
+        await rwGit.runCommand(directory, ['rev-parse', '$commit^']);
+    if (parentRes.isFailure) return [];
+    final parent = parentRes.getOrThrow().trim();
+    if (parent.isEmpty) return [];
+
+    final diffRes = await rwGit.runCommand(directory, ['diff', parent, commit]);
+    if (diffRes.isFailure) return [];
+
+    final diffOutput = diffRes.getOrThrow().split('\n');
+    String currentFile = '';
+
+    for (final line in diffOutput) {
+      if (line.startsWith('--- a/')) {
+        currentFile = line.substring(6).trim();
+      } else if (line.startsWith('@@ ') &&
+          currentFile.isNotEmpty &&
+          currentFile != '/dev/null') {
+        final parts = line.split(' ');
+        if (parts.length < 2) continue;
+        final minusPart = parts[1]; // -start,count
+        if (!minusPart.startsWith('-')) continue;
+
+        final minusParts = minusPart.substring(1).split(',');
+        final start = int.tryParse(minusParts[0]) ?? 0;
+        final count =
+            minusParts.length > 1 ? (int.tryParse(minusParts[1]) ?? 1) : 1;
+
+        if (count > 0 && start > 0) {
+          final end = start + count - 1;
+          final blameRes = await rwGit.runCommand(directory,
+              ['blame', '-e', '-L', '$start,$end', parent, '--', currentFile]);
+          if (blameRes.isSuccess) {
+            final blameLines =
+                blameRes.getOrThrow().split('\n').where((l) => l.isNotEmpty);
+            for (final bLine in blameLines) {
+              final match = RegExp(r'^([a-f0-9]+)\s+').firstMatch(bLine);
+              if (match != null) {
+                final blamedHash = match.group(1)!;
+                // Exclude uncommitted changes or all zeros
+                if (!blamedHash.startsWith('00000000')) {
+                  introducing.add(blamedHash);
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return introducing.toList();
   }
 }

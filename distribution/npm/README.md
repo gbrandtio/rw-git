@@ -30,6 +30,9 @@ The MCP can also be used to provide Git harness to your agent, while keeping AI 
 - `analyze_pr_diff`: Analyzes PR diffs for risk signals like high churn and exposed secrets.
 - `analyze_release_delta`: Analyzes the changes and impact between two release tags.
 - `predict_merge_conflicts`: Identifies files modified on both branches to predict merge conflicts.
+- `analyze_dart_ast_quality`: Performs deep AST-level analysis of Dart files.
+- `analyze_architecture_drift`: Analyzes git history to detect architectural drift by identifying commits that modify multiple layers.
+- `analyze_clean_code`: Language-agnostic tool to analyze basic clean code heuristics.
 - `get_stats`: Retrieves Git statistics like insertions and deletions.
 - `get_commits_between`: Lists commits between two tags or branches.
 - `get_contributions_by_author`: Retrieves commit counts grouped by author.

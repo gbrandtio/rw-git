@@ -75,11 +75,13 @@ class AnalyzeCommitVelocityTool implements McpTool {
         velocity.averagePerPeriod.toStringAsFixed(2),
       ),
       'trend': velocity.trend,
+      'total_burnout_commits': velocity.totalBurnoutCommits,
       'granularity': granularity,
       'time_series': velocity.buckets
           .map((b) => {
                 'period': b.period,
                 'total_commits': b.totalCommits,
+                'burnout_commits': b.burnoutCommits,
                 'authors': b.authors,
               })
           .toList(),

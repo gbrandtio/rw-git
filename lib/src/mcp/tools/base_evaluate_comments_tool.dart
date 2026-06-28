@@ -34,22 +34,22 @@ abstract class BaseEvaluateCommentsTool implements McpTool {
     final directory = arguments['directory'] as String;
     final limit = arguments['limit']?.toString() ?? '10';
 
-    final changedCommentsStr = await tracker.extractChangedComments(
+    final changedComments = await tracker.extractChangedComments(
       directory,
       limit: limit,
     );
 
-    if (changedCommentsStr.isEmpty) {
+    if (changedComments.isEmpty) {
       return jsonEncode({
         'status': 'no_comments_found',
         'message': 'No comments found in the added/modified '
-            'lines for the last $limit commits.',
+            'lines for the last $limit commits (excluding doc-only PRs).',
       });
     }
 
     return jsonEncode({
       'evaluation_criteria': getEvaluationCriteria(),
-      'changed_comments': changedCommentsStr,
+      'changed_comments': changedComments,
     });
   }
 

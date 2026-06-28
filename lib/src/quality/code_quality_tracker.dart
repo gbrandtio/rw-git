@@ -1,6 +1,8 @@
 import 'dart:isolate';
 import 'dart:math';
 import '../core/process_runner.dart';
+import '../models/advanced_code_quality_dto.dart';
+import '../models/bug_hotspot_dto.dart';
 import '../models/churn_metrics_dto.dart';
 import '../models/churn_metrics_with_authors_dto.dart';
 import '../models/commit_velocity_dto.dart';
@@ -170,7 +172,7 @@ class CodeQualityTracker {
   }
 
   /// Extracts added or modified comments from the diff, along with context.
-  Future<String> extractChangedComments(String directory,
+  Future<List<Map<String, dynamic>>> extractChangedComments(String directory,
       {String? limit}) async {
     final logArgs = ['log', '-p', '--format=%H||%an||%ad||%s'];
     if (limit != null) {
@@ -188,11 +190,14 @@ class CodeQualityTracker {
   }
 
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(String directory,
-      {String? limit}) async {
+      {String? limit, String? since}) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
       countArgs.add('-n');
       countArgs.add(limit);
+    }
+    if (since != null) {
+      countArgs.add('--since=$since');
     }
     countArgs.add('HEAD');
     final commitCountResult =
@@ -205,6 +210,9 @@ class CodeQualityTracker {
     if (limit != null) {
       logArgs.insert(1, '-n');
       logArgs.insert(2, limit);
+    }
+    if (since != null) {
+      logArgs.add('--since=$since');
     }
 
     final stream =
@@ -334,11 +342,38 @@ class CodeQualityTracker {
     final onlyA = setA.difference(setB).toList();
     final onlyB = setB.difference(setA).toList();
 
+    // Integrate git merge-tree for exact textual conflict detection
+    final List<String> textualConflicts = [];
+    try {
+      final mergeTreeResult = await runner.run(
+        'git',
+        ['merge-tree', '--write-tree', branchA, branchB],
+        workingDirectory: directory,
+      );
+
+      // merge-tree returns exit code 1 if there are conflicts, 0 if clean.
+      // If it returns > 1, it might mean the command failed (e.g. old git version).
+      if (mergeTreeResult.exitCode == 0 || mergeTreeResult.exitCode == 1) {
+        final outLines = (mergeTreeResult.stdout?.toString() ?? '').split('\n');
+        for (final line in outLines) {
+          if (line.startsWith('CONFLICT') && line.contains(' in ')) {
+            final parts = line.split(' in ');
+            if (parts.length > 1) {
+              textualConflicts.add(parts.last.trim());
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // Fallback if git merge-tree --write-tree is not supported, just rely on 'both'
+    }
+
     return {
       'merge_base': [mergeBase],
       'files_only_on_a': onlyA,
       'files_only_on_b': onlyB,
-      'conflicting_files': both,
+      'conflicting_files': both, // logical overlaps
+      'textual_conflicting_files': textualConflicts, // exact text conflicts
     };
   }
 
@@ -479,6 +514,128 @@ class CodeQualityTracker {
       () => _parseComplianceIssues(rawOutput, allowedEmails),
     );
   }
+
+  /// Extracts advanced metrics such as file complexity, co-change matrices,
+  /// method churn, and architectural distribution using deep history tracking.
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    final args = ['log', '-p', '--format=COMMIT:%H'];
+    if (limit != null) {
+      args.insert(1, '-n');
+      args.insert(2, limit);
+    }
+
+    final result = await runner.run('git', args, workingDirectory: directory);
+    evaluateProcessResult(result);
+    final rawOutput = result.stdout?.toString() ?? '';
+
+    return await Isolate.run(() => _parseAdvancedCodeQuality(rawOutput));
+  }
+
+  /// Implements the SZZ Algorithm to identify Bug Hotspots.
+  /// 1. Finds recent bug-fix commits.
+  /// 2. Finds deleted lines in those commits.
+  /// 3. Uses `git blame` to find the original author/commit that introduced the bug.
+  Future<BugHotspotDto> calculateBugHotspots(String directory,
+      {String? limit}) async {
+    final args = [
+      'log',
+      '--grep=fix\\|bug\\|patch\\|issue',
+      '-i',
+      '--no-merges',
+      '--format=format:%H'
+    ];
+    if (limit != null) {
+      args.insert(1, '-n');
+      args.insert(2, limit);
+    }
+
+    final res = await runner.run('git', args, workingDirectory: directory);
+    evaluateProcessResult(res);
+
+    final fixCommits = (res.stdout?.toString() ?? '')
+        .split('\n')
+        .map((c) => c.trim())
+        .where((c) => c.isNotEmpty)
+        .toList();
+
+    final fileHotspots = <String, int>{};
+    final authorHotspots = <String, int>{};
+
+    for (final commit in fixCommits) {
+      // Get parent of fix commit
+      final parentRes = await runner.run('git', ['rev-parse', '$commit^'],
+          workingDirectory: directory);
+      if (parentRes.exitCode != 0) continue;
+      final parent = parentRes.stdout?.toString().trim() ?? '';
+      if (parent.isEmpty) continue;
+
+      // Get diff of fix commit
+      final diffRes = await runner.run('git', ['diff', parent, commit],
+          workingDirectory: directory);
+      if (diffRes.exitCode != 0) continue;
+      final diffOutput = (diffRes.stdout?.toString() ?? '').split('\n');
+
+      String currentFile = '';
+      for (final line in diffOutput) {
+        if (line.startsWith('--- a/')) {
+          currentFile = line.substring(6).trim();
+        } else if (line.startsWith('@@ ') &&
+            currentFile.isNotEmpty &&
+            currentFile != '/dev/null') {
+          final parts = line.split(' ');
+          if (parts.length > 1) {
+            final minusPart = parts[1]; // -start,count
+            if (minusPart.startsWith('-')) {
+              final minusParts = minusPart.substring(1).split(',');
+              final start = int.tryParse(minusParts[0]) ?? 0;
+              final count = minusParts.length > 1
+                  ? (int.tryParse(minusParts[1]) ?? 1)
+                  : 1;
+
+              if (count > 0 && start > 0) {
+                final end = start + count - 1;
+                final blameRes = await runner.run(
+                    'git',
+                    [
+                      'blame',
+                      '-e',
+                      '-L',
+                      '$start,$end',
+                      parent,
+                      '--',
+                      currentFile
+                    ],
+                    workingDirectory: directory);
+                if (blameRes.exitCode == 0) {
+                  final blameLines = (blameRes.stdout?.toString() ?? '')
+                      .split('\n')
+                      .where((l) => l.trim().isNotEmpty);
+                  for (final bLine in blameLines) {
+                    final match = RegExp(r'^([a-f0-9]+)\s+\(\<([^>]+)\>')
+                        .firstMatch(bLine);
+                    if (match != null) {
+                      final author = match.group(2)!.trim();
+                      fileHotspots[currentFile] =
+                          (fileHotspots[currentFile] ?? 0) + 1;
+                      authorHotspots[author] =
+                          (authorHotspots[author] ?? 0) + 1;
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return BugHotspotDto(
+      fileHotspots: fileHotspots,
+      authorHotspots: authorHotspots,
+      totalFixCommitsAnalyzed: fixCommits.length,
+    );
+  }
 }
 
 // -----------------------------------------------------------------------------
@@ -539,23 +696,34 @@ List<String> _parseMegaCommits(
   return flaggedCommits;
 }
 
-String _parseChangedComments(String rawLog) {
+List<Map<String, dynamic>> _parseChangedComments(String rawLog) {
   final lines = rawLog.split('\n');
-  final buffer = StringBuffer();
+  final List<Map<String, dynamic>> results = [];
 
   String currentCommitHeader = '';
+  String currentCommitMessage = '';
   String currentFile = '';
   List<String> currentBlock = [];
   bool blockHasComment = false;
 
   final commentRegex = RegExp(r'(?:\/\/|/\*|\*/|^\s*\*\s|#\s|<!--|--\s|^\s*#)');
 
+  // To exclude doc-only commits, check if message has keywords like docs, readme.
+  final docOnlyRegex = RegExp(r'^(docs|readme|documentation|chore\(docs\)):?',
+      caseSensitive: false);
+
   void flushBlock() {
     if (blockHasComment && currentBlock.isNotEmpty) {
-      buffer.writeln('Commit: $currentCommitHeader');
-      buffer.writeln('File: $currentFile');
-      buffer.writeln(currentBlock.join('\n'));
-      buffer.writeln('-' * 40);
+      if (!docOnlyRegex.hasMatch(currentCommitMessage)) {
+        // Find the index of the last comment line.
+        // We will keep a few lines of context around it.
+        // For simplicity, we just keep the whole block but formatted clearly.
+        results.add({
+          'commit': currentCommitHeader,
+          'file': currentFile,
+          'diff_block': currentBlock.join('\n'), // anchoring context
+        });
+      }
     }
     currentBlock.clear();
     blockHasComment = false;
@@ -574,10 +742,12 @@ String _parseChangedComments(String rawLog) {
       flushBlock();
       final parts = line.split('||');
       if (parts.length >= 4) {
+        currentCommitMessage = parts.sublist(3).join('||');
         currentCommitHeader =
-            '${parts[0]} - ${parts[1]} (${parts[2]}): ${parts.sublist(3).join('||')}';
+            '${parts[0]} - ${parts[1]} (${parts[2]}): $currentCommitMessage';
       } else {
-        currentCommitHeader = line.trim();
+        currentCommitMessage = line.trim();
+        currentCommitHeader = currentCommitMessage;
       }
     } else if (line.startsWith('+++ b/')) {
       flushBlock();
@@ -597,7 +767,7 @@ String _parseChangedComments(String rawLog) {
   }
   flushBlock();
 
-  return buffer.toString().trim();
+  return results;
 }
 
 List<String> _parseSecrets(String rawLog) {
@@ -612,6 +782,7 @@ List<String> _parseSecrets(String rawLog) {
   final secretRegex = RegExp(
     r'(?:'
     r'AKIA[0-9A-Z]{16}|' // AWS Access Key
+    r'(?:ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36}|' // GitHub Tokens
     r'xox[baprs]-[0-9a-zA-Z]{10,48}|' // Slack Token
     r'EAACEdEose0cBA[0-9A-Za-z]+|' // Facebook Access Token
     r'(?:sk|pk)_(?:test|live)_[0-9a-zA-Z]{24}|' // Stripe Key
@@ -643,6 +814,14 @@ List<String> _parseSecrets(String rawLog) {
     } else if (line.startsWith('+++ b/')) {
       currentFile = line.substring(6).trim();
     } else if (line.startsWith('+') && !line.startsWith('+++')) {
+      // Add Context-Aware Risk Scoring (ignoring test/, etc.)
+      final isTestOrMock = currentFile.contains('test/') ||
+          currentFile.contains('mock') ||
+          currentFile.contains('fixture') ||
+          currentFile.endsWith('.md');
+
+      if (isTestOrMock) continue;
+
       final content = line.substring(1); // remove '+'
 
       final matches = secretRegex.allMatches(content);
@@ -654,12 +833,46 @@ List<String> _parseSecrets(String rawLog) {
             : '***';
 
         detectedSecrets.add(
-            'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret: $redacted');
+            'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret (Regex): $redacted');
+      }
+
+      // Configurable Shannon Entropy Detection
+      // Look for long alphanumeric strings (base64, hex, etc.)
+      final wordRegex = RegExp(r'[a-zA-Z0-9_\-\.\+]{20,}');
+      final wordMatches = wordRegex.allMatches(content);
+      for (final match in wordMatches) {
+        final word = match.group(0)!;
+
+        // Exclude common long non-secrets like very long URLs or paths if needed,
+        // but for now, rely on high entropy.
+        final entropy = _calculateEntropy(word);
+        if (entropy > 4.5 && !secretRegex.hasMatch(word)) {
+          // Threshold 4.5 is typical for base64/hex keys
+          final redacted =
+              '${word.substring(0, 3)}***${word.substring(word.length - 3)}';
+          detectedSecrets.add(
+              'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret (High Entropy: ${entropy.toStringAsFixed(2)}): $redacted');
+        }
       }
     }
   }
 
   return detectedSecrets;
+}
+
+double _calculateEntropy(String s) {
+  if (s.isEmpty) return 0.0;
+  final frequencies = <String, int>{};
+  for (int i = 0; i < s.length; i++) {
+    final char = s[i];
+    frequencies[char] = (frequencies[char] ?? 0) + 1;
+  }
+  double entropy = 0.0;
+  for (final count in frequencies.values) {
+    final p = count / s.length;
+    entropy -= p * (log(p) / ln2);
+  }
+  return entropy;
 }
 
 // -----------------------------------------------------------------------------
@@ -669,6 +882,7 @@ List<String> _parseSecrets(String rawLog) {
 CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
   final lines = rawLog.split('\n');
   final Map<String, Map<String, int>> bucketAuthors = {};
+  final Map<String, int> bucketBurnout = {};
 
   for (final line in lines) {
     if (line.trim().isEmpty) continue;
@@ -701,6 +915,12 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
     bucketAuthors.putIfAbsent(periodKey, () => {});
     bucketAuthors[periodKey]![author] =
         (bucketAuthors[periodKey]![author] ?? 0) + 1;
+
+    // Detect burnout (commits outside 09:00 - 17:00)
+    final isBurnout = date.hour < 9 || date.hour >= 17;
+    if (isBurnout) {
+      bucketBurnout[periodKey] = (bucketBurnout[periodKey] ?? 0) + 1;
+    }
   }
 
   // Sort by period
@@ -711,11 +931,13 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
   for (final key in sortedKeys) {
     final authors = bucketAuthors[key]!;
     final total = authors.values.fold<int>(0, (sum, v) => sum + v);
+    final burnout = bucketBurnout[key] ?? 0;
     commitCounts.add(total);
     buckets.add(TimeBucket(
       period: key,
       totalCommits: total,
       authors: authors,
+      burnoutCommits: burnout,
     ));
   }
 
@@ -755,12 +977,16 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
     }
   }
 
+  final totalBurnoutCommits =
+      buckets.fold<int>(0, (sum, b) => sum + b.burnoutCommits);
+
   return CommitVelocityDto(
     buckets: buckets,
     totalCommits: totalCommits,
     averagePerPeriod: avg,
     trend: trend,
     anomalies: anomalies,
+    totalBurnoutCommits: totalBurnoutCommits,
   );
 }
 
@@ -1037,9 +1263,16 @@ ComplianceReportDto _parseComplianceIssues(
   final unsigned = <ComplianceViolation>[];
   final emptyMsg = <ComplianceViolation>[];
   final unrecognized = <ComplianceViolation>[];
+  final nonConventional = <ComplianceViolation>[];
   int total = 0;
 
   final allowedSet = allowedEmails.toSet();
+
+  // Regex for Conventional Commits
+  final conventionalRegex = RegExp(
+    r'^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test)(\([a-z0-9\-]+\))?!?: .+',
+    caseSensitive: false,
+  );
 
   for (final line in lines) {
     if (line.trim().isEmpty) continue;
@@ -1072,6 +1305,9 @@ ComplianceReportDto _parseComplianceIssues(
 
     if (message.isEmpty) {
       emptyMsg.add(violation);
+    } else if (!conventionalRegex.hasMatch(message) &&
+        !message.startsWith('Merge ')) {
+      nonConventional.add(violation);
     }
 
     if (allowedSet.isNotEmpty && !allowedSet.contains(email)) {
@@ -1084,5 +1320,91 @@ ComplianceReportDto _parseComplianceIssues(
     unsignedCommits: unsigned,
     emptyMessageCommits: emptyMsg,
     unrecognizedAuthorCommits: unrecognized,
+    nonConventionalCommits: nonConventional,
+  );
+}
+
+AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
+  final lines = rawLog.split('\n');
+
+  final fileComplexity = <String, int>{};
+  final coChangeMatrix = <String, Map<String, int>>{};
+  final methodChurn = <String, int>{};
+  final dirCommits = <String, int>{};
+
+  final controlFlowRegex = RegExp(r'\b(if|for|while|switch|&&|\|\||\?)\b');
+
+  List<String> currentCommitFiles = [];
+  String currentFile = '';
+
+  void flushCommit() {
+    if (currentCommitFiles.isNotEmpty) {
+      for (int i = 0; i < currentCommitFiles.length; i++) {
+        final f1 = currentCommitFiles[i];
+        coChangeMatrix.putIfAbsent(f1, () => {});
+        for (final f2 in currentCommitFiles) {
+          if (f1 != f2) {
+            coChangeMatrix[f1]![f2] = (coChangeMatrix[f1]![f2] ?? 0) + 1;
+          }
+        }
+
+        final parts = f1.split('/');
+        if (parts.length > 1) {
+          final topLevelDir = parts[0];
+          dirCommits[topLevelDir] = (dirCommits[topLevelDir] ?? 0) + 1;
+        }
+      }
+    }
+    currentCommitFiles.clear();
+  }
+
+  for (final line in lines) {
+    if (line.trim().isEmpty) continue;
+
+    if (line.startsWith('COMMIT:')) {
+      flushCommit();
+    } else if (line.startsWith('--- a/')) {
+      final fileName = line.substring(6).trim();
+      if (fileName != '/dev/null') {
+        currentFile = fileName;
+        if (!currentCommitFiles.contains(fileName)) {
+          currentCommitFiles.add(fileName);
+        }
+      }
+    } else if (line.startsWith('@@ ')) {
+      final parts = line.split('@@');
+      if (parts.length >= 3) {
+        final context = parts.sublist(2).join('@@').trim();
+        if (context.isNotEmpty) {
+          methodChurn[context] = (methodChurn[context] ?? 0) + 1;
+        }
+      }
+    } else if (line.startsWith('+') && !line.startsWith('+++')) {
+      if (currentFile.isNotEmpty) {
+        final matches = controlFlowRegex.allMatches(line);
+        if (matches.isNotEmpty) {
+          fileComplexity[currentFile] =
+              (fileComplexity[currentFile] ?? 0) + matches.length;
+        }
+      }
+    }
+  }
+  flushCommit();
+
+  final architectureDistribution = <String, double>{};
+  final totalDirCommits =
+      dirCommits.values.fold<int>(0, (sum, val) => sum + val);
+  if (totalDirCommits > 0) {
+    for (final entry in dirCommits.entries) {
+      architectureDistribution[entry.key] =
+          double.parse((entry.value / totalDirCommits).toStringAsFixed(3));
+    }
+  }
+
+  return AdvancedCodeQualityDto(
+    fileComplexity: fileComplexity,
+    coChangeMatrix: coChangeMatrix,
+    methodChurn: methodChurn,
+    architectureDistribution: architectureDistribution,
   );
 }

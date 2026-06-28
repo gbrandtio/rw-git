@@ -13,6 +13,8 @@ void main() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
       mock.setMockResult('git', ['diff', '--shortstat', 'v1', 'v2'], 0,
           ' 3 files changed, 50 insertions(+), 10 deletions(-)', '');
+      mock.setMockResult('git', ['diff', '--numstat', 'v1', 'v2'], 0,
+          '10\t2\tfile1.dart\n40\t8\tfile2.dart', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = GetStatsTool(rwGit);

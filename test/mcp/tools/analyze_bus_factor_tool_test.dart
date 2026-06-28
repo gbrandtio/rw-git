@@ -14,9 +14,9 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
   }
 
   @override
-  Future<String> extractChangedComments(String directory,
+  Future<List<Map<String, dynamic>>> extractChangedComments(String directory,
       {String? limit}) async {
-    return '';
+    return [];
   }
 
   @override
@@ -38,9 +38,8 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
   }
 
   @override
-  Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
-      String repository,
-      {String? limit}) async {
+  Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(String directory,
+      {String? limit, String? since}) async {
     return const ChurnMetricsWithAuthorsDto(
       totalCommits: 100,
       fileChurn: {
@@ -73,6 +72,18 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
   }
 
   @override
+  @override
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {},
+      methodChurn: {},
+      architectureDistribution: {},
+    );
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
@@ -81,7 +92,80 @@ void main() {
     late RwGit rwGit;
 
     setUp(() {
-      rwGit = RwGit(runner: MockProcessRunner());
+      final runner = MockProcessRunner();
+      runner.setMockResult(
+          'git',
+          [
+            'log',
+            '-1',
+            '--format=%aI',
+            '--author',
+            'Alice',
+            '--',
+            'high_risk.dart'
+          ],
+          0,
+          '2024-01-01T12:00:00+00:00',
+          '');
+      runner.setMockResult(
+          'git',
+          ['log', '--format=%B', '--', 'high_risk.dart'],
+          0,
+          'Commit msg\nReviewed-by: Bob',
+          '');
+      runner.setMockResult(
+          'git',
+          [
+            'log',
+            '-1',
+            '--format=%aI',
+            '--author',
+            'Alice',
+            '--',
+            'high_risk_2.dart'
+          ],
+          0,
+          '2024-01-01T12:00:00+00:00',
+          '');
+      runner.setMockResult(
+          'git',
+          ['log', '--format=%B', '--', 'high_risk_2.dart'],
+          0,
+          'Commit msg\nReviewed-by: Bob',
+          '');
+      runner.setMockResult(
+          'git',
+          [
+            'log',
+            '-1',
+            '--format=%aI',
+            '--author',
+            'Alice',
+            '--',
+            'low_risk.dart'
+          ],
+          0,
+          '2024-01-01T12:00:00+00:00',
+          '');
+      runner.setMockResult('git', ['log', '--format=%B', '--', 'low_risk.dart'],
+          0, 'Commit msg\nReviewed-by: Bob', '');
+      runner.setMockResult(
+          'git',
+          [
+            'log',
+            '-1',
+            '--format=%aI',
+            '--author',
+            'Bob',
+            '--',
+            'ignored.dart'
+          ],
+          0,
+          '2024-01-01T12:00:00+00:00',
+          '');
+      runner.setMockResult('git', ['log', '--format=%B', '--', 'ignored.dart'],
+          0, 'Commit msg\nReviewed-by: Alice', '');
+      rwGit = RwGit(runner: runner);
     });
 
     test('has correct name and input schema', () {

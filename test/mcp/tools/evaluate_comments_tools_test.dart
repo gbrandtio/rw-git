@@ -53,8 +53,8 @@ void main() {
           isTrue,
         );
         expect(
-          result['changed_comments'],
-          contains('File: test.dart'),
+          (result['changed_comments'] as List).first['file'],
+          'test.dart',
         );
 
         // No persona in output
@@ -103,8 +103,8 @@ void main() {
           isTrue,
         );
         expect(
-          result['changed_comments'],
-          contains('File: test.dart'),
+          (result['changed_comments'] as List).first['file'],
+          'test.dart',
         );
       },
     );
@@ -150,8 +150,8 @@ void main() {
           isTrue,
         );
         expect(
-          result['changed_comments'],
-          contains('File: test.dart'),
+          (result['changed_comments'] as List).first['file'],
+          'test.dart',
         );
       },
     );

@@ -71,14 +71,67 @@ class AnalyzeBusFactorTool implements McpTool {
         'file': fileName,
         'total_changes': stats.total,
         'top_author': topAuthor.key,
+        'top_author_percentage': authorshipPercentage,
         'authorship_percentage':
             '${(authorshipPercentage * 100).toStringAsFixed(1)}%',
         'authors_breakdown': stats.authors,
       };
 
       allFiles.add(fileData);
+    } // Close the first loop
+
+    for (final fileData in allFiles) {
+      final stats = churn.fileChurn[fileData['file']]!;
+      final authorshipPercentage = fileData['top_author_percentage'] as double;
 
       if (stats.total >= 5 && authorshipPercentage >= 0.8) {
+        // Calculate Knowledge Decay (days since last touch by top author)
+        final lastTouchRes = await rwGit.runCommand(directory, [
+          'log',
+          '-1',
+          '--format=%aI',
+          '--author',
+          fileData['top_author'] as String,
+          '--',
+          fileData['file'] as String,
+        ]);
+
+        int knowledgeDecayDays = -1;
+        final dateStr = lastTouchRes.getOrNull()?.trim() ?? '';
+        if (dateStr.isNotEmpty) {
+          final date = DateTime.tryParse(dateStr);
+          if (date != null) {
+            knowledgeDecayDays = DateTime.now().difference(date).inDays;
+          }
+        }
+
+        // Calculate Review Coverage (% of commits with Reviewed-by or Co-authored-by)
+        final logRes = await rwGit.runCommand(directory, [
+          'log',
+          '--format=%B',
+          '--',
+          fileData['file'] as String,
+        ]);
+
+        final logText = logRes.getOrNull()?.trim() ?? '';
+        final commits = logText.split(RegExp(r'\n(?=commit )'));
+        int reviewedCount = 0;
+
+        for (final commitMsg in commits) {
+          if (commitMsg.contains('Reviewed-by:') ||
+              commitMsg.contains('Co-authored-by:') ||
+              commitMsg.contains('Approved-by:')) {
+            reviewedCount++;
+          }
+        }
+
+        final reviewCoverage =
+            commits.isEmpty ? 0.0 : reviewedCount / commits.length;
+
+        fileData['knowledge_decay_days'] = knowledgeDecayDays;
+        fileData['review_coverage_percentage'] =
+            '${(reviewCoverage * 100).toStringAsFixed(1)}%';
+
         highRiskFiles.add(fileData);
       }
     }
