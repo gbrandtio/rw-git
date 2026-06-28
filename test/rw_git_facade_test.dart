@@ -1,7 +1,6 @@
 // ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/git_service/libgit2_rw_git.dart';
 import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
@@ -132,11 +131,6 @@ void main() {
       } on RwGitException catch (e) {
         expect(e.exitCode != 0, true);
       }
-    });
-
-    test('RwGit facade returns LibGit2RwGit when useLibGit2 is true', () {
-      final rwGit = RwGit(useLibGit2: true);
-      expect(rwGit, isA<LibGit2RwGit>());
     });
   });
 }

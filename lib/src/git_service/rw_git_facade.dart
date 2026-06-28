@@ -1,7 +1,6 @@
 import '../../rw_git.dart';
 import '../core/result.dart';
 import 'cli_rw_git.dart';
-import 'libgit2_rw_git.dart';
 
 /// ----------------------------------------------------------------------------
 /// rw_git_facade.dart
@@ -16,11 +15,7 @@ abstract class RwGit {
 
   /// Factory constructor to support different Git runners.
   /// Uses [CliRwGit] by default which relies on `Process.run`.
-  /// If [useLibGit2] is set to true, returns the FFI-based [LibGit2RwGit] for mobile support.
-  factory RwGit({ProcessRunner? runner, bool useLibGit2 = false}) {
-    if (useLibGit2) {
-      return LibGit2RwGit();
-    }
+  factory RwGit({ProcessRunner? runner}) {
     return CliRwGit(runner: runner);
   }
 

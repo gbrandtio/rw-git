@@ -1,5 +1,4 @@
 ## 2.0.0
-- **FEAT (Core):** Migrated from the discontinued `libgit2dart` package to the actively maintained `git2dart` package for FFI-based integration.
 - **FEAT (MCP):** Added `analyze_pr_diff` tool to analyze PR diffs for risk signals by combining churn history, bus factor, and secret detection into per-file composite risk scores.
 - **FEAT (MCP):** Added `predict_merge_conflicts` tool to identify files modified on both branches since their merge base, predicting potential merge conflicts before a merge attempt.
 - **FEAT (MCP):** Added `analyze_commit_velocity` tool to compute time-series commit velocity with per-author breakdown, trend analysis (accelerating/decelerating/stable), and anomaly detection.
@@ -31,7 +30,6 @@
 
 - Architecture: `RwGit` is now an abstract factory interface, preparing the core library for non-CLI Git operations.
 - Architecture: Added `CliRwGit` to encapsulate existing `Process.run` functionality, ensuring no breaking changes to default behavior.
-- Architecture: Added `LibGit2RwGit` stub implementation to lay the foundation for mobile support via `libgit2` FFI.
 - Tooling: Added `executables` declaration in `pubspec.yaml` to allow running the MCP server globally via `dart pub global activate rw_git`.
 - Distribution: Created GitHub Actions workflow `.github/workflows/release_mcp.yml` for automated cross-platform binary compilation.
 - Distribution: Created scaffolding for npm and Homebrew packaging.
