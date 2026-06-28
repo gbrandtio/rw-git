@@ -46,11 +46,10 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 - `getCommitsBetween`: Retrieves a list of commits between two tags or branches.
 - `stats`: Retrieves code-change statistics (insertions, deletions, files changed) between two points.
 
----
 
 ## Model Context Protocol (MCP) Server
 
-`rw_git` ships with an embedded Model Context Protocol (MCP) server that allows AI agents and IDEs to interact directly with your git repositories. It communicates over standard I/O using JSON-RPC 2.0.
+`rw_git` ships with an embedded Model Context Protocol (MCP) server that allows AI agents and IDEs to interact directly with your git repositories. It communicates over standard I/O using JSON-RPC 2.0. The MCP can also be installed with bundled AI agent skills that provide structured workflows and detailed instructions for repository analysis.
 
 ### Available MCP Tools
 
@@ -93,6 +92,22 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 The server natively exposes MCP Prompts that provide AI agents with detailed instructions and workflows on how to effectively use the repository tools:
 
 - `rw-git-mcp-reporting`: A comprehensive, step-by-step workflow instructing the AI on how to orchestrate the analysis tools to generate thorough repository reports, code quality assessments, and risk analysis.
+
+You can review the available skills under `.agents/skills` or in the repository directly.
+
+### Installing Agent Skills
+
+To install the bundled AI agent skills directly into your local workspace, you can use `npx`:
+```bash
+npx @gbrandtio/rw-git-mcp install-skills
+```
+
+Alternatively, if you have installed the package globally via `npm install -g`, you can simply run:
+```bash
+rw-git-mcp install-skills
+```
+
+This will extract the skills to `./.agents/skills/rw-git-mcp/` in your current directory, making them available for your local agents.
 
 ### Connecting MCP with Agents
 

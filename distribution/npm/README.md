@@ -6,7 +6,7 @@ This package provides an embedded Model Context Protocol (MCP) server that allow
 
 `rw-git-mcp` provides a comprehensive suite of tools for AI agents to analyze and manipulate your repository, including core git commands (init, clone, checkout), code quality metrics, dependency drift analysis, compliance auditing, and LLM-assisted code review evaluations.
 
-The MCP can also be used to provide Git harness to your agent, while keeping AI tokens to a minimum.
+The MCP can also be used to provide Git harness to your agent, while keeping AI tokens to a minimum. It can be installed with bundled AI agent skills that offer structured workflows and best practices for repository analysis.
 
 ## Available MCP Tools
 
@@ -69,10 +69,16 @@ After installation, you can run the server simply by typing `rw-git-mcp` in your
 
 ## Installing Agent Skills
 
-To install the bundled AI agent skills directly into your local workspace, run the following command:
+To install the bundled AI agent skills directly into your local workspace, you can use `npx`:
 ```bash
 npx @gbrandtio/rw-git-mcp install-skills
 ```
+
+Alternatively, if you have installed the package globally via `npm install -g`, you can simply run:
+```bash
+rw-git-mcp install-skills
+```
+
 This will extract the skills to `./.agents/skills/rw-git-mcp/` in your current directory.
 
 ## MCP Client Configuration
