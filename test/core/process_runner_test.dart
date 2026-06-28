@@ -119,7 +119,8 @@ void main() {
 
     test('run with streamOutput writes stderr', () async {
       final runner = ProcessRunner.defaultRunner();
-      final result = await runner.run('dart', ['--unknown-flag-for-test'], streamOutput: true);
+      final result = await runner.run('dart', ['--unknown-flag-for-test'],
+          streamOutput: true);
       expect(result.exitCode, isNonZero);
     });
   });

@@ -127,6 +127,22 @@ index 123456..789012 100644
           contains('e5f6g7h8i9j0 - Author E (Date E): todo: refactor this'));
     });
 
+    test('findSuspiciousCommits handles malformed commit headers', () async {
+      String mockGitLog = [
+        'a1b2c3d4e5f6||FIXME: this is a hack', // 2 parts, flagged in header
+        'b2c3d4e5f6g7||Author B', // 2 parts, no keyword
+        '+ FIXME: in diff', // Flagged in diff, using 2 parts header
+      ].join('\n');
+      final runner = MockProcessRunner(mockGitLog);
+      final tracker = CodeQualityTracker(runner);
+
+      final suspicious = await tracker.findSuspiciousCommits('dummyDir');
+
+      expect(suspicious.length, 2);
+      expect(suspicious, contains('a1b2c3d4e5f6 - FIXME: this is a hack'));
+      expect(suspicious, contains('b2c3d4e5f6g7 - Author B'));
+    });
+
     test('findSuspiciousCommits passes limit parameter correctly', () async {
       final runner = MockProcessRunner('');
       final tracker = CodeQualityTracker(runner);

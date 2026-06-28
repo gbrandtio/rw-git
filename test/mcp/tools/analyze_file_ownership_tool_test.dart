@@ -78,6 +78,8 @@ void main() {
       final rwGit = _MockRwGit();
       final tool = AnalyzeFileOwnershipTool(tracker, rwGit);
 
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_file_ownership');
       expect(tool.inputSchema['required'], contains('directory'));
     });

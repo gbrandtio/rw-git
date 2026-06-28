@@ -28,6 +28,8 @@ void main() {
     });
 
     test('has correct properties', () {
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, isNotEmpty);
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema, isNotEmpty);

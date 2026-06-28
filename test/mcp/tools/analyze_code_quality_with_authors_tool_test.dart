@@ -77,11 +77,19 @@ class MockCodeQualityTrackerWithAuthors implements CodeQualityTracker {
           total: 15,
           authors: {'Charlie': 15},
         ),
+        'MyClass2': ContributionStats(
+          total: 10,
+          authors: {'Charlie': 10},
+        ),
       },
       blockChurn: {
         'myMethod': ContributionStats(
           total: 10,
           authors: {'Alice': 10},
+        ),
+        'myMethod2': ContributionStats(
+          total: 5,
+          authors: {'Alice': 5},
         ),
       },
     );

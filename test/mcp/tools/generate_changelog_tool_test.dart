@@ -32,6 +32,8 @@ void main() {
     test('has correct name and schema', () {
       final tool = GenerateChangelogTool(_MockRwGit(''));
 
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'generate_changelog');
       expect(tool.inputSchema['required'],
           containsAll(['directory', 'from', 'to']));

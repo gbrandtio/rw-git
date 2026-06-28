@@ -15,6 +15,8 @@ void main() {
 
     test('has correct name and input schema', () {
       final tool = AnalyzeReleaseDeltaTool(rwGit);
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_release_delta');
       expect(tool.inputSchema['required'],
           containsAll(['localCheckoutDirectory', 'firstTag', 'secondTag']));

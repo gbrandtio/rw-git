@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
@@ -5,13 +6,13 @@ class ThrowingMockRunner implements ProcessRunner {
   @override
   Future<ProcessResult> run(String executable, List<String> arguments,
       {String? workingDirectory, bool streamOutput = false}) async {
-    throw Exception('Unexpected system error');
+    throw Exception('Unexpected error executing git command');
   }
 
   @override
   Stream<String> runStream(String executable, List<String> arguments,
       {String? workingDirectory}) {
-    throw Exception('Unexpected stream error');
+    throw Exception('Unexpected error executing git command');
   }
 }
 
@@ -138,7 +139,8 @@ void main() {
         fail('Should throw');
       } catch (e) {
         expect(e, isA<RwGitException>());
-        expect((e as RwGitException).message, contains('Unexpected error executing git command'));
+        expect((e as RwGitException).message,
+            contains('Unexpected error executing git command'));
       }
     });
   });

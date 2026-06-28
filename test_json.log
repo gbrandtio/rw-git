@@ -1,0 +1,17 @@
+{"protocolVersion":"0.1.1","runnerVersion":"1.25.15","pid":21579,"type":"start","time":0}
+{"suite":{"id":0,"platform":"vm","path":"test/code_quality_tracker_extended_test.dart"},"type":"suite","time":0}
+{"test":{"id":1,"name":"loading test/code_quality_tracker_extended_test.dart","suiteID":0,"groupIDs":[],"metadata":{"skip":false,"skipReason":null},"line":null,"column":null,"url":null},"type":"testStart","time":0}
+{"count":1,"time":3,"type":"allSuites"}
+{"testID":1,"result":"success","skipped":false,"hidden":true,"type":"testDone","time":154}
+{"group":{"id":2,"suiteID":0,"parentID":null,"name":"","metadata":{"skip":false,"skipReason":null},"testCount":4,"line":null,"column":null,"url":null},"type":"group","time":155}
+{"group":{"id":3,"suiteID":0,"parentID":2,"name":"CodeQualityTracker Extended Coverage","metadata":{"skip":false,"skipReason":null},"testCount":4,"line":132,"column":3,"url":"file:///Users/ioannis/Documents/GitHub/rw-git/test/code_quality_tracker_extended_test.dart"},"type":"group","time":155}
+{"test":{"id":4,"name":"CodeQualityTracker Extended Coverage calculateCommitVelocity with arguments","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":133,"column":5,"url":"file:///Users/ioannis/Documents/GitHub/rw-git/test/code_quality_tracker_extended_test.dart"},"type":"testStart","time":155}
+{"testID":4,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":166}
+{"test":{"id":5,"name":"CodeQualityTracker Extended Coverage parseDependencyManifests handles multiple ecosystems","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":141,"column":5,"url":"file:///Users/ioannis/Documents/GitHub/rw-git/test/code_quality_tracker_extended_test.dart"},"type":"testStart","time":167}
+{"testID":5,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":171}
+{"test":{"id":6,"name":"CodeQualityTracker Extended Coverage extractChangedComments handles comment parsing","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":149,"column":5,"url":"file:///Users/ioannis/Documents/GitHub/rw-git/test/code_quality_tracker_extended_test.dart"},"type":"testStart","time":172}
+{"testID":6,"error":"Expected: true\n  Actual: <false>\n","stackTrace":"package:matcher                                     expect\ntest/code_quality_tracker_extended_test.dart 153:7  main.<fn>.<fn>\n","isFailure":true,"type":"error","time":178}
+{"testID":6,"result":"failure","skipped":false,"hidden":false,"type":"testDone","time":178}
+{"test":{"id":7,"name":"CodeQualityTracker Extended Coverage findSecrets identifies various secret patterns","suiteID":0,"groupIDs":[2,3],"metadata":{"skip":false,"skipReason":null},"line":156,"column":5,"url":"file:///Users/ioannis/Documents/GitHub/rw-git/test/code_quality_tracker_extended_test.dart"},"type":"testStart","time":178}
+{"testID":7,"result":"success","skipped":false,"hidden":false,"type":"testDone","time":185}
+{"success":false,"type":"done","time":187}

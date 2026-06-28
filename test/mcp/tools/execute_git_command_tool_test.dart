@@ -17,6 +17,8 @@ void main() {
     });
 
     test('has correct name and description', () {
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'execute_git_command');
       expect(tool.description, contains('Execute an arbitrary git command'));
     });

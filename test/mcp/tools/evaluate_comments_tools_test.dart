@@ -69,6 +69,8 @@ void main() {
       'EvaluateCommentQualityTool returns structured JSON',
       () async {
         final tool = EvaluateCommentQualityTool(tracker);
+        expect(tool.description, isNotEmpty);
+        expect(tool.inputSchema.isNotEmpty, isTrue);
         expect(tool.name, 'evaluate_comment_quality');
 
         runner.setMockResult(
@@ -112,6 +114,8 @@ void main() {
       'structured JSON',
       () async {
         final tool = EvaluateCommentNecessityTool(tracker);
+        expect(tool.description, isNotEmpty);
+        expect(tool.inputSchema.isNotEmpty, isTrue);
         expect(tool.name, 'evaluate_comment_necessity');
 
         runner.setMockResult(

@@ -48,6 +48,10 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
           total: 10,
           authors: {'Alice': 9, 'Bob': 1}, // 90% Alice
         ),
+        'high_risk_2.dart': ContributionStats(
+          total: 12,
+          authors: {'Alice': 11, 'Bob': 1}, // 90% Alice
+        ),
         'low_risk.dart': ContributionStats(
           total: 20,
           authors: {'Alice': 10, 'Bob': 10}, // 50% Alice
@@ -57,8 +61,14 @@ class MockCodeQualityTrackerForBusFactor implements CodeQualityTracker {
           authors: {'Bob': 2}, // 100% Bob, but < 5 changes
         ),
       },
-      classChurn: {},
-      blockChurn: {},
+      classChurn: {
+        'ClassA': ContributionStats(total: 10, authors: {}),
+        'ClassB': ContributionStats(total: 5, authors: {}),
+      },
+      blockChurn: {
+        'BlockA': ContributionStats(total: 10, authors: {}),
+        'BlockB': ContributionStats(total: 5, authors: {}),
+      },
     );
   }
 
@@ -77,6 +87,8 @@ void main() {
     test('has correct name and input schema', () {
       final tool =
           AnalyzeBusFactorTool(MockCodeQualityTrackerForBusFactor(), rwGit);
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_bus_factor');
       expect(
           (tool.inputSchema['required'] as List).contains('directory'), isTrue);
@@ -93,8 +105,8 @@ void main() {
       expect(result.containsKey('all_files'), isFalse);
 
       final files = result['high_risk_files'] as List;
-      expect(files.length, 1);
-      expect(files[0]['file'], 'high_risk.dart');
+      expect(files.length, 2);
+      expect(files[0]['file'], 'high_risk_2.dart'); // 12 changes vs 10
       expect(files[0]['top_author'], 'Alice');
     });
 
@@ -109,7 +121,7 @@ void main() {
       expect(result.containsKey('all_files'), isTrue);
 
       final files = result['all_files'] as List;
-      expect(files.length, 3); // high_risk, low_risk, ignored
+      expect(files.length, 4); // high_risk, low_risk, ignored
     });
   });
 }

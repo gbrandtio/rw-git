@@ -11,6 +11,8 @@ void main() {
     });
 
     test('has correct name and input schema', () {
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'get_rw_git_documentation');
       expect(tool.description, contains('Retrieve detailed descriptions'));
       expect(tool.inputSchema['type'], 'object');

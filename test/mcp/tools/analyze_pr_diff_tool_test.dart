@@ -88,6 +88,8 @@ void main() {
       final rwGit = _MockRwGit();
       final tool = AnalyzePrDiffTool(tracker, rwGit);
 
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_pr_diff');
       expect(tool.inputSchema['required'],
           containsAll(['directory', 'base', 'head']));

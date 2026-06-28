@@ -10,6 +10,8 @@ void main() {
       final tracker = CodeQualityTracker(runner);
       final tool = DetectSecretsTool(tracker);
 
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'detect_secrets_in_commits');
       expect(tool.description, contains('exposed secrets'));
       expect(tool.inputSchema['required'], contains('directory'));

@@ -47,6 +47,8 @@ void main() {
       final tracker = CodeQualityTracker(runner);
       final tool = AnalyzeDependencyDriftTool(tracker);
 
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_dependency_drift');
       expect(tool.inputSchema['required'], contains('directory'));
     });

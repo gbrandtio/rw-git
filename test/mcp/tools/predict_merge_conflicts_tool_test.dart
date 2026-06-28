@@ -53,6 +53,8 @@ void main() {
       final tracker = CodeQualityTracker(runner);
       final tool = PredictMergeConflictsTool(tracker);
 
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'predict_merge_conflicts');
       expect(
         tool.inputSchema['required'],

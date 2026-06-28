@@ -34,6 +34,8 @@ void main() {
       final tracker = CodeQualityTracker(runner);
       final tool = AuditComplianceTool(tracker);
 
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'audit_compliance');
       expect(tool.inputSchema['required'], contains('directory'));
     });

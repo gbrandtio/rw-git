@@ -171,6 +171,8 @@ void main() {
         MockCodeQualityTracker(),
         rwGit,
       );
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_code_quality');
       expect(
         tool.description,
