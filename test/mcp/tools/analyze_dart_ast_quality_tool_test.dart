@@ -21,6 +21,12 @@ void main() {
       final testFile = File(p.join(tempDir.path, 'test_file.dart'));
       await testFile.writeAsString('void main() {}');
 
+      // Set git config to avoid author identity errors in CI
+      await rwGit.runCommand(
+          tempDir.path, ['config', 'user.email', 'test@example.com']);
+      await rwGit
+          .runCommand(tempDir.path, ['config', 'user.name', 'Test User']);
+
       await rwGit.runCommand(tempDir.path, ['add', 'test_file.dart']);
       await rwGit.runCommand(tempDir.path, ['commit', '-m', 'Initial commit']);
 
