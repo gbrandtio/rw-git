@@ -43,6 +43,7 @@ export 'src/mcp/tools/analyze_file_ownership_tool.dart';
 export 'src/mcp/tools/analyze_dart_ast_quality_tool.dart';
 export 'src/mcp/tools/analyze_architecture_drift_tool.dart';
 export 'src/mcp/tools/analyze_clean_code_tool.dart';
+export 'src/mcp/tools/calculate_universal_lexical_metrics_tool.dart';
 export 'src/models/commit_velocity_dto.dart';
 export 'src/models/dependency_manifest_dto.dart';
 export 'src/models/compliance_report_dto.dart';

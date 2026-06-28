@@ -44,6 +44,7 @@ void main() async {
   registry.registerTool(AnalyzeDartAstQualityTool(rwGit));
   registry.registerTool(AnalyzeArchitectureDriftTool(rwGit));
   registry.registerTool(AnalyzeCleanCodeTool());
+  registry.registerTool(CalculateUniversalLexicalMetricsTool());
 
   registry.registerPrompt(RwGitMcpReportingPrompt());
 
