@@ -25,6 +25,7 @@ class GetRwGitDocumentationTool implements McpTool {
 You are interacting with the RwGit repository via the MCP tools provided in your environment.
 - **Do NOT** attempt to run `rw_git` as a CLI command (e.g., `rw_git --help`). It is not an executable in your shell.
 - **Do NOT** write scripts (e.g., Python) to manually send JSON-RPC requests to the server process.
+- **Do NOT** perform any custom git commands for the analysis. You MUST use only the tools and commands offered by rw-git for your analysis.
 - **Do** invoke the provided MCP tools directly using your environment's native tool execution capabilities.
 
 ## 1. Code Quality Analysis Tools
