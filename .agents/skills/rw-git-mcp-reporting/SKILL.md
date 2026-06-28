@@ -10,8 +10,9 @@ When a user asks you to analyze the repository, assess code quality, evaluate an
 
 ## 1. Environment & Scope Preparation
 Before diving into analysis, you **MUST** understand the context and establish the baseline environment.
-- **Is it a remote or local repo?** If remote and the user just wants quick stats without keeping a local copy, consider `clone_and_get_statistics`. Otherwise, use `clone_repository` or `clone_specific_branch`.
+- **Is it a remote or local repo?** Use `clone_repository` or `clone_specific_branch` to fetch it remotely. If you need to initialize a fresh local repository for analysis from scratch, use `init_repository`.
 - **Local Verification:** If working locally, use `is_git_repository` to ensure you are in a valid Git directory.
+- **Branch Context:** Use `checkout_branch` to switch to the appropriate target branch before running analysis, if needed.
 - **Reference Gathering:** Use `fetch_tags` to get a list of available tags if you need to perform release comparisons.
 - **Internal Docs:** If you ever need to understand how the underlying `rw_git` commands execute or handle errors, run `get_rw_git_documentation`.
 - **Scope Resolution:** Resolve the exact arguments you will need for downstream tools (e.g., `limit`, `since`, `until`, `oldVersion`, `newVersion`, `branchA`, `branchB`).
@@ -27,6 +28,7 @@ Dive into the specific changes, analyzing their impact and how fast the team is 
 - **For Branch/PR Comparisons:** Run `analyze_pr_diff` to get a breakdown of the specific risks introduced in a Pull Request.
 - **For Tag/Release Comparisons:** Run `analyze_release_delta` to understand the structural changes between versions.
 - **Code Quality:** Run `analyze_code_quality` (or `analyze_code_quality_with_authors` if the breakdown of contributors is important) to spot code smells, complex files, and technical debt.
+- **Bug Hotspots:** Run `analyze_bug_hotspots` to identify files that are frequently modified in bug-fix commits, highlighting areas that may need refactoring.
 - **Trend Analysis:** Run `analyze_commit_velocity` to gather time-series trend data, exposing anomalies in commit frequency and tracking team productivity over time.
 - **Deep Inspection:** If you are analyzing Dart code, use `analyze_dart_ast_quality` for AST-level insights into dead code, public signature diffs, and dependency graphs. Use `analyze_clean_code` on individual files to check basic SOLID principles and readability heuristics.
 
