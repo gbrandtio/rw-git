@@ -36,7 +36,6 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 - `branch`: Lists, creates, or deletes branches.
 - `status`: Displays the state of the working directory and the staging area.
 - `pull`: Fetches from and integrates with another repository or a local branch.
-- `push`: Updates remote refs along with associated objects.
 - `diff`: Shows changes between commits, commit and working tree, etc.
 - `merge`: Joins two or more development histories together.
 - `stash`: Stashes the changes in a dirty working directory away.
@@ -76,7 +75,7 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 - `get_stats`: Retrieves Git statistics like insertions and deletions.
 - `get_commits_between`: Lists commits between two tags or branches.
 - `get_contributions_by_author`: Retrieves commit counts grouped by author.
-- `clone_and_get_statistics`: Clones a repository and immediately retrieves its statistics.
+
 
 **Security & Compliance:**
 - `audit_compliance`: Scans commit history for unsigned commits, empty messages, and unrecognized author emails.

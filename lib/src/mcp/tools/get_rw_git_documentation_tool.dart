@@ -51,7 +51,7 @@ The following out-of-the-box Dart facade functions are exposed as individual, st
 - **get_stats**: Retrieves code statistics (insertions, deletions) between two tags.
 - **get_contributions_by_author**: Retrieves the shortlog summary of contributions by each author.
 - **clone_specific_branch**: Clones the repository and immediately checks out a branch.
-- **clone_and_get_statistics**: Clones the repository and then retrieves the statistics between two tags.
+
 
 ## 4. Documentation
 - **get_rw_git_documentation**: Returns this guide.

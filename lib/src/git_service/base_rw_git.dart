@@ -28,24 +28,4 @@ abstract class BaseRwGit implements RwGit {
           streamOutput: streamOutput);
     }, (e) => Failure(e));
   }
-
-  @override
-  Future<Result<ShortStatDto, RwGitException>> cloneAndGetStatistics(
-      String localDirectoryToCloneInto,
-      String repository,
-      String oldTag,
-      String newTag,
-      {bool streamOutput = false}) async {
-    final cloneResult = await clone(localDirectoryToCloneInto, repository,
-        streamOutput: streamOutput);
-
-    return cloneResult.fold((_) {
-      String localCheckoutDirectory = localDirectoryToCloneInto +
-          Platform.pathSeparator +
-          GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
-
-      return stats(localCheckoutDirectory, oldTag, newTag,
-          streamOutput: streamOutput);
-    }, (e) => Failure(e));
-  }
 }

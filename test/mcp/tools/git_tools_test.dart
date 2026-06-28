@@ -107,14 +107,6 @@ class MockRwGit implements RwGit {
           String branchToCheckout,
           {bool streamOutput = false}) async =>
       const Success(true);
-  @override
-  Future<Result<ShortStatDto, RwGitException>> cloneAndGetStatistics(
-          String localDirectoryToCloneInto,
-          String repository,
-          String oldTag,
-          String newTag,
-          {bool streamOutput = false}) async =>
-      const Success(ShortStatDto(1, 2, 3));
 }
 
 void main() {
@@ -187,17 +179,6 @@ void main() {
       'branchToCheckout': 'main'
     });
     expect(result, contains('true'));
-  });
-
-  test('CloneAndGetStatisticsTool', () async {
-    final tool = CloneAndGetStatisticsTool(rwGit);
-    final result = await tool.execute({
-      'localDirectoryToCloneInto': 'testDir',
-      'repository': 'url',
-      'oldTag': 'v1',
-      'newTag': 'v2'
-    });
-    expect(result, contains('1'));
   });
 
   test('GetRwGitDocumentationTool', () async {

@@ -46,12 +46,7 @@ abstract class RwGit {
       String repository,
       String branchToCheckout,
       {bool streamOutput = false});
-  Future<Result<ShortStatDto, RwGitException>> cloneAndGetStatistics(
-      String localDirectoryToCloneInto,
-      String repository,
-      String oldTag,
-      String newTag,
-      {bool streamOutput = false});
+
   Future<Result<List<String>, RwGitException>> branch(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<String, RwGitException>> status(String directory,

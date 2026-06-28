@@ -26,7 +26,7 @@ void main() async {
   registry.registerTool(GetStatsTool(rwGit));
   registry.registerTool(GetContributionsByAuthorTool(rwGit));
   registry.registerTool(CloneSpecificBranchTool(rwGit));
-  registry.registerTool(CloneAndGetStatisticsTool(rwGit));
+
   registry.registerTool(AnalyzeReleaseDeltaTool(rwGit));
   registry.registerTool(AnalyzeBusFactorTool(tracker, rwGit));
   registry.registerTool(EvaluateCommentLlmGenerationTool(tracker));

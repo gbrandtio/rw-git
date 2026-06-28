@@ -25,7 +25,7 @@ export 'src/mcp/tools/get_commits_between_tool.dart';
 export 'src/mcp/tools/get_stats_tool.dart';
 export 'src/mcp/tools/get_contributions_by_author_tool.dart';
 export 'src/mcp/tools/clone_specific_branch_tool.dart';
-export 'src/mcp/tools/clone_and_get_statistics_tool.dart';
+
 export 'src/mcp/tools/analyze_release_delta_tool.dart';
 export 'src/mcp/tools/analyze_bus_factor_tool.dart';
 export 'src/mcp/tools/base_evaluate_comments_tool.dart';

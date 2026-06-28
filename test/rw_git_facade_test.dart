@@ -72,48 +72,6 @@ void main() {
     });
   });
 
-  group('cloneAndGetStatistics', () {
-    test('will create a ShortStatDto that will contain all the available data',
-        () async {
-      String oldTag = "v1.0.4";
-      String newTag = "v1.3.0";
-
-      ShortStatDto shortStatDto = (await rwGit.cloneAndGetStatistics(
-              testDir, repositoryWithTags, oldTag, newTag))
-          .getOrThrow();
-
-      expect(shortStatDto.insertions >= 0, true);
-      expect(shortStatDto.deletions >= 0, true);
-      expect(shortStatDto.numberOfChangedFiles >= 0, true);
-    }, timeout: const Timeout(Duration(minutes: 2)));
-
-    test('will throw RwGitException if clone fails', () async {
-      expect(
-          () async => (await rwGit.cloneAndGetStatistics(
-                  testDir, 'invalid_repository_url_12345', 'v1', 'v2'))
-              .getOrThrow(),
-          throwsA(isA<RwGitException>()));
-    });
-
-    test('will throw RwGitException if stats throws RwGitException', () async {
-      final mockRunner = ProcessRunner.mock() as MockProcessRunner;
-      mockRunner.setMockResult('git', ['clone', repositoryWithTags], 0, '', '');
-      mockRunner.setMockResult(
-          'git',
-          ['diff', '--shortstat', 'v1.0.4', 'invalid_tag'],
-          128,
-          '',
-          'fatal: ambiguous argument');
-
-      final mockGit = RwGit(runner: mockRunner);
-      expect(
-          () async => (await mockGit.cloneAndGetStatistics(
-                  testDir, repositoryWithTags, 'v1.0.4', 'invalid_tag'))
-              .getOrThrow(),
-          throwsA(isA<RwGitException>()));
-    });
-  });
-
   group('runCommand', () {
     test('will successfully execute a generic git command', () async {
       (await rwGit.init(testDir)).getOrThrow();

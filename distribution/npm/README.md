@@ -33,7 +33,7 @@ The MCP can also be used to provide Git harness to your agent, while keeping AI 
 - `get_stats`: Retrieves Git statistics like insertions and deletions.
 - `get_commits_between`: Lists commits between two tags or branches.
 - `get_contributions_by_author`: Retrieves commit counts grouped by author.
-- `clone_and_get_statistics`: Clones a repository and immediately retrieves its statistics.
+
 
 **Security & Compliance:**
 - `audit_compliance`: Scans commit history for unsigned commits, empty messages, and unrecognized author emails.
