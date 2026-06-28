@@ -117,6 +117,7 @@ Before completing any task, you MUST strictly run `dart analyze` to ensure there
 9.  **Formatting (STRICTLY ENFORCED)**: All Dart files must be formatted with an 80-character line limit. You MUST strictly run `dart format --line-length=80 .` before finalizing your changes and completing the task to ensure the CI build passes. Do not skip this step under any circumstances.
 10. **Analysis (STRICTLY ENFORCED)**: You MUST strictly run `dart analyze` before finalizing your changes. All warnings and info messages must be resolved. Do not skip this step under any circumstances.
 11. **Documentation Updates**: It is mandatory to update `README.md` and `CHANGELOG.md` for any feature updates, fixes, or modifications being done to the library or the MCP server.
+12. **Non-Intrusiveness**: The library is designed to provide useful harnesses and must not be intrusive. Do not offer or implement commands that mutate the remote state (like `push`). Do not offer or implement arbitrary command execution (like `execute_command`). The LLM using this library must be restricted to what the library explicitly offers for analysis and local operations, without any other intrusive capabilities available.
 
 ## Testing
 *   **Coverage Requirement (CRITICAL)**: The codebase must maintain 100% test coverage. Any new code or modifications must include unit tests that cover all added or changed lines.

@@ -8,13 +8,23 @@
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 </p>
 
-## Empowering Dart & AI with Git
+## Table of Contents
 
-`rw_git` bridges the gap between your applications, artificial intelligence, and Git repositories. 
+- [About](#about)
+- [Core Git Commands](#core-git-commands)
+- [Model Context Protocol (MCP) Server](#model-context-protocol-mcp-server)
+  - [Available MCP Tools](#available-mcp-tools)
+  - [Available Prompts](#available-prompts)
+  - [Connecting MCP with Agents](#connecting-mcp-with-agents)
+- [Getting started](#getting-started)
+  - [Quick Start](#quick-start)
+- [Additional information](#additional-information)
 
-Whether you are building a Dart backend, a developer tool, or connecting an AI agent like Claude or Cursor to your codebase, `rw_git` provides a secure, high-performance, and deeply integrated Git experience. 
+## About
 
-<a href='https://pub.dev/documentation/rw_git/latest/rw_git/rw_git-library.html'><img src="https://img.shields.io/badge/Check-Documentation-blue?style=for-the-badge&logo=readthedocs" alt="Documentation" /></a><br>
+`rw_git` intends to provide useful Git commands, without allowing intrusive actions (such as `push`ing), as well as the necessary harness that AI agents are looking for.
+
+Whether you are building a Dart backend, a developer tool, or connecting an AI agent to your codebase, `rw_git` provides a secure, high-performance, and deeply integrated Git experience.
 
 ## Core Git Commands
 
@@ -51,7 +61,6 @@ Provides a clean, fluent API (`RwGit` facade) for all standard Git operations wi
 - `clone_repository`: Clones a remote repository.
 - `clone_specific_branch`: Clones a specific branch of a remote repository.
 - `checkout_branch`: Switches branches.
-- `execute_git_command`: Executes raw Git CLI commands (with safety restrictions).
 - `is_git_repository`: Checks if a directory is a valid Git repository.
 - `fetch_tags`: Retrieves all tags from the repository.
 

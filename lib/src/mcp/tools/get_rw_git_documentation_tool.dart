@@ -27,18 +27,15 @@ You are interacting with the RwGit repository via the MCP tools provided in your
 - **Do NOT** write scripts (e.g., Python) to manually send JSON-RPC requests to the server process.
 - **Do** invoke the provided MCP tools directly using your environment's native tool execution capabilities.
 
-## 1. Raw Git Execution Tool
-- **execute_git_command**: Use this to execute raw git commands (e.g., `['log', '-n', '5']`).
-
-## 2. Code Quality Analysis Tools
-These tools return structured JSON metrics to reduce token consumption and improve analysis reliability. They no longer return prescriptive prose prompts.
+## 1. Code Quality Analysis Tools
+These tools return structured JSON metrics.
 - **analyze_code_quality**: Use this to get JSON metrics on tech debt, suspicious commits, and high-churn files. Use `includeCodeDiff: true` to inject actual source code diffs for LLM code-smell analysis.
 - **analyze_code_quality_with_authors**: Similar to the above, but includes author contributions. Also supports `includeCodeDiff: true`.
 - **analyze_release_delta**: Analyzes the difference between two tags to provide a JSON summary of changes, regressions, and code churn.
-- **analyze_bus_factor**: Analyzes the repository to identify files that are heavily reliant on a single author. Returns JSON.
-- **evaluate_comment_llm_generation**: Evaluates code comments based on LLM-generated feedback criteria. Returns structured JSON.
-- **evaluate_comment_quality**: Evaluates the quality and professionalism of code comments. Returns structured JSON.
-- **evaluate_comment_necessity**: Evaluates whether code comments are necessary or redundant. Returns structured JSON.
+- **analyze_bus_factor**: Analyzes the repository to identify files that are heavily reliant on a single author.
+- **evaluate_comment_llm_generation**: Evaluates code comments based on LLM-generated feedback criteria.
+- **evaluate_comment_quality**: Evaluates the quality and professionalism of code comments.
+- **evaluate_comment_necessity**: Evaluates whether code comments are necessary or redundant.
 - **detect_secrets_in_commits**: Scans commit history for exposed secrets, API keys, or credentials. Returns a list of detected secrets with commit hashes and file names.
 
 ## 3. RwGit Facade Tools

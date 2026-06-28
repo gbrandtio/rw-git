@@ -24,10 +24,7 @@ void main() {
 
       expect(result, contains('# RwGit Agent Guide & Documentation'));
       expect(result, contains('**IMPORTANT INSTRUCTIONS FOR AI AGENTS**'));
-      expect(
-          result,
-          contains(
-              '**execute_git_command**: Use this to execute raw git commands'));
+
       expect(result,
           contains('**init_repository**: Initializes a new Git repository.'));
       expect(

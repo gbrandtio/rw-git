@@ -14,7 +14,6 @@ void main() async {
   final tracker = CodeQualityTracker(runner);
 
   final registry = McpRegistry();
-  registry.registerTool(ExecuteGitCommandTool(rwGit));
   registry.registerTool(AnalyzeCodeQualityTool(tracker, rwGit));
   registry.registerTool(AnalyzeCodeQualityWithAuthorsTool(tracker, rwGit));
   registry.registerTool(GetRwGitDocumentationTool());

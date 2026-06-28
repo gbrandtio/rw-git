@@ -65,6 +65,6 @@ Aggregate the outputs from all the invoked tools into a highly structured, unifi
 - Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, etc.) to highlight critical risks, exposed secrets, or severe compliance violations.
 - Do not dump raw JSON. Synthesize the metrics into readable tables and actionable insights.
 
-> **Note on Tool Exclusion**: You do NOT need to use low-level setup tools (like `clone_repository`, `checkout_branch`, `execute_git_command`) as part of this reporting orchestration unless explicitly required to prepare the environment first. Focus strictly on the analytical tools listed above.
+> **Note on Tool Exclusion**: You do NOT need to use low-level setup tools (like `clone_repository`, `checkout_branch`) as part of this reporting orchestration unless explicitly required to prepare the environment first. Focus strictly on the analytical tools listed above.
 ''';
 }

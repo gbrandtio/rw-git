@@ -17,7 +17,6 @@ The MCP can also be used to provide Git harness to your agent, while keeping AI 
 - `clone_repository`: Clones a remote repository.
 - `clone_specific_branch`: Clones a specific branch of a remote repository.
 - `checkout_branch`: Switches branches.
-- `execute_git_command`: Executes raw Git CLI commands (with safety restrictions).
 - `is_git_repository`: Checks if a directory is a valid Git repository.
 - `fetch_tags`: Retrieves all tags from the repository.
 

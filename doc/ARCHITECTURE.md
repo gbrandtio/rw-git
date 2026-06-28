@@ -32,7 +32,7 @@ A specialized subsystem that runs complex heuristics on repositories to flag cod
 
 ### 2.5 MCP Server (`bin/rw_git_mcp.dart`)
 An implementation of the Model Context Protocol (MCP) using a standard I/O JSON-RPC loop.
-- Allows AI Agents to consume `rw_git`'s capabilities dynamically via the `execute_git_command`, `analyze_code_quality`, and `retrieve_commits_for_ai_review` tools.
+- Allows AI Agents to consume `rw_git`'s capabilities dynamically via the `analyze_code_quality` and `retrieve_commits_for_ai_review` tools.
 - Runs as an independent script that binds to standard input and output streams.
 
 ## 3. Error Handling
