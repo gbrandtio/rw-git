@@ -1,6 +1,34 @@
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
+class ThrowingMockRunner implements ProcessRunner {
+  @override
+  Future<ProcessResult> run(String executable, List<String> arguments,
+      {String? workingDirectory, bool streamOutput = false}) async {
+    throw Exception('Unexpected system error');
+  }
+
+  @override
+  Stream<String> runStream(String executable, List<String> arguments,
+      {String? workingDirectory}) {
+    throw Exception('Unexpected stream error');
+  }
+}
+
+class MockNullStdoutRunner implements ProcessRunner {
+  @override
+  Future<ProcessResult> run(String executable, List<String> arguments,
+      {String? workingDirectory, bool streamOutput = false}) async {
+    return ProcessResult(0, 0, null, '');
+  }
+
+  @override
+  Stream<String> runStream(String executable, List<String> arguments,
+      {String? workingDirectory}) {
+    throw Exception('Unexpected stream error');
+  }
+}
+
 void main() {
   group('New Git Commands Tests', () {
     late RwGit rwGit;
@@ -17,6 +45,12 @@ void main() {
       final result =
           (await rwGit.branch('my_dir', extraArgs: ['extra_arg'])).getOrThrow();
       expect(result, ['  main', '* feature-branch', '  dev']);
+    });
+
+    test('branch handles null stdout', () async {
+      final nullGit = RwGit(runner: MockNullStdoutRunner());
+      final result = (await nullGit.branch('my_dir')).getOrThrow();
+      expect(result, []);
     });
 
     test('status returns short status', () async {
@@ -91,6 +125,20 @@ void main() {
         fail('Should throw');
       } catch (e) {
         expect(e, isA<RwGitException>());
+      }
+    });
+
+    test('command handles generic exception', () async {
+      final throwingGit = RwGit(runner: ThrowingMockRunner());
+      final result = await throwingGit.branch('my_dir');
+      expect(result.isSuccess, isFalse);
+      expect(result.isFailure, isTrue);
+      try {
+        result.getOrThrow();
+        fail('Should throw');
+      } catch (e) {
+        expect(e, isA<RwGitException>());
+        expect((e as RwGitException).message, contains('Unexpected error executing git command'));
       }
     });
   });

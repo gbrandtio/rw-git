@@ -51,5 +51,35 @@ void main() {
         throwsA(isA<RwGitException>()),
       );
     });
+
+    test('execute throws ArgumentError on empty directory', () async {
+      expect(
+        () => tool.execute({
+          'directory': '   ',
+          'args': ['status']
+        }),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('execute throws ArgumentError on path traversal', () async {
+      expect(
+        () => tool.execute({
+          'directory': '../dir',
+          'args': ['status']
+        }),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
+
+    test('execute throws ArgumentError on blocked command', () async {
+      expect(
+        () => tool.execute({
+          'directory': '/test/dir',
+          'args': ['push', 'origin', 'main']
+        }),
+        throwsA(isA<ArgumentError>()),
+      );
+    });
   });
 }

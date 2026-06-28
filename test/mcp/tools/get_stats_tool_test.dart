@@ -29,5 +29,11 @@ void main() {
       expect(json['insertions'], 50);
       expect(json['deletions'], 10);
     });
+
+    test('has correct properties', () {
+      expect(tool.name, isNotEmpty);
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema, isNotEmpty);
+    });
   });
 }

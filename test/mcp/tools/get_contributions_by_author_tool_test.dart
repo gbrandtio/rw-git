@@ -28,5 +28,11 @@ void main() {
       expect(contributions[0]['authorName'], 'JohnDoe');
       expect(contributions[0]['numberOfContributions'], 10);
     });
+
+    test('has correct properties', () {
+      expect(tool.name, isNotEmpty);
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema, isNotEmpty);
+    });
   });
 }

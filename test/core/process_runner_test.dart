@@ -116,6 +116,12 @@ void main() {
         throwsA(isA<RwGitException>()),
       );
     });
+
+    test('run with streamOutput writes stderr', () async {
+      final runner = ProcessRunner.defaultRunner();
+      final result = await runner.run('dart', ['--unknown-flag-for-test'], streamOutput: true);
+      expect(result.exitCode, isNonZero);
+    });
   });
 
   group('evaluateProcessResult', () {

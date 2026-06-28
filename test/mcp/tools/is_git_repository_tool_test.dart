@@ -23,5 +23,11 @@ void main() {
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['isGitRepository'], isTrue);
     });
+
+    test('has correct properties', () {
+      expect(tool.name, isNotEmpty);
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema, isNotEmpty);
+    });
   });
 }

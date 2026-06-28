@@ -24,5 +24,11 @@ void main() {
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect((json['tags'] as List).length, 2);
     });
+
+    test('has correct properties', () {
+      expect(tool.name, isNotEmpty);
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema, isNotEmpty);
+    });
   });
 }
