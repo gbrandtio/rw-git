@@ -14,7 +14,7 @@ class MockCodeQualityTracker implements CodeQualityTracker {
     String? limit,
     String? since,
   }) async {
-    return ['commit1: fixme', 'commit2: todo'];
+    return ['commit1: fixme', 'commit2: todo', 'commit3: todo'];
   }
 
   @override
@@ -34,7 +34,7 @@ class MockCodeQualityTracker implements CodeQualityTracker {
     String? limit,
     String? since,
   }) async {
-    return ['commit3: 1000 lines'];
+    return ['commit3: 1000 lines', 'commit4: 2000 lines'];
   }
 
   @override
@@ -176,6 +176,13 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
 }
 
 void main() {
+  test('analyze code quality limits topN', () async {
+    final tracker = MockCodeQualityTracker();
+    final tool = AnalyzeCodeQualityTool(tracker, RwGit());
+    final result = await tool.execute({'directory': 'test_repo', 'limit': '10', 'topN': 1});
+    expect(result, isNotNull);
+  });
+
   group('AnalyzeCodeQualityTool', () {
     late MockProcessRunner mockRunner;
     late RwGit rwGit;

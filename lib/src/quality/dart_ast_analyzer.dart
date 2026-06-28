@@ -47,7 +47,7 @@ class _AstVisitor extends RecursiveAstVisitor<void> {
     final name = node.name.lexeme;
     final params = node.parameters?.toSource() ?? '()';
     final signature = '$retType $name$params';
-    final prefix = _currentClass != null ? '\$_currentClass.' : '';
+    final prefix = _currentClass != null ? '$_currentClass.' : '';
 
     if (name.startsWith('_')) {
       internalMethods.add('$prefix$signature');

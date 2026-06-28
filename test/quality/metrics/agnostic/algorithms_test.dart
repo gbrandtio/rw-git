@@ -74,7 +74,7 @@ void main() {
     });
 
     test('Halstead Complexity', () {
-      final lexer = FsmLexer('int a = 1; int b = 2; int c = a + b;');
+      final lexer = FsmLexer('int a = 1; int b = 2; int c = a + b; class D {}');
       final tokens = lexer.tokenize();
       final algorithm = HalsteadComplexityAlgorithm();
       final result = algorithm.calculate(tokens, profile);
@@ -85,7 +85,7 @@ void main() {
     });
 
     test('Maintainability Index', () {
-      final lexer = FsmLexer('int a = 1;\nint b = 2;\nint c = a + b;');
+      final lexer = FsmLexer('int a = 1;\nint b = 2;\nint c = a + b; class D {}');
       final tokens = lexer.tokenize();
       final algorithm = MaintainabilityIndexAlgorithm();
       final result = algorithm.calculate(tokens, profile);

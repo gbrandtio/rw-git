@@ -3,6 +3,34 @@ import 'package:rw_git/src/quality/metrics/agnostic/lexer/fsm_lexer.dart';
 import 'package:rw_git/src/quality/metrics/agnostic/lexer/token.dart';
 
 void main() {
+  group('FsmLexer coverage additions', () {
+    test('handles unknown chars', () {
+      final lexer = FsmLexer('@');
+      final tokens = lexer.tokenize();
+      expect(tokens[0].type, TokenType.unknown);
+    });
+    test('handles HTML comments', () {
+      final lexer = FsmLexer('<!-- comment --> int x;');
+      final tokens = lexer.tokenize();
+      expect(tokens[0].lexeme, 'int');
+    });
+    test('handles end of file comment hash', () {
+      final lexer = FsmLexer('x #');
+      final tokens = lexer.tokenize();
+      expect(tokens[0].lexeme, 'x');
+    });
+    test('handles escape in string', () {
+      final lexer = FsmLexer(r'"hello \" world" x');
+      final tokens = lexer.tokenize();
+      expect(tokens[0].lexeme, 'x');
+    });
+    test('handles single line comment hash', () {
+      final lexer = FsmLexer('# comment \n x');
+      final tokens = lexer.tokenize();
+      expect(tokens.length, greaterThan(0));
+    });
+  });
+
   group('FsmLexer', () {
     test('Tokenizes basic identifiers and punctuation', () {
       final lexer = FsmLexer('void main() { }');
