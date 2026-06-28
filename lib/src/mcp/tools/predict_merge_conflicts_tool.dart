@@ -54,6 +54,8 @@ class PredictMergeConflictsTool implements McpTool {
     );
 
     final conflicting = riskData['conflicting_files'] ?? <String>[];
+    final textualConflicts =
+        riskData['textual_conflicting_files'] ?? <String>[];
     final onlyA = riskData['files_only_on_a'] ?? <String>[];
     final onlyB = riskData['files_only_on_b'] ?? <String>[];
     final mergeBase = riskData['merge_base']?.firstOrNull ?? '';
@@ -73,8 +75,10 @@ class PredictMergeConflictsTool implements McpTool {
     return jsonEncode({
       'merge_base': mergeBase,
       'risk_level': riskLevel,
-      'conflicting_files_count': conflicting.length,
-      'conflicting_files': conflicting,
+      'logical_conflicting_files_count': conflicting.length,
+      'logical_conflicting_files': conflicting,
+      'textual_conflicting_files_count': textualConflicts.length,
+      'textual_conflicting_files': textualConflicts,
       'files_only_on_a': onlyA,
       'files_only_on_b': onlyB,
     });

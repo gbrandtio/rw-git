@@ -37,6 +37,16 @@ class _MockRwGit implements RwGit {
     return const Success('');
   }
 
+    Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {},
+      methodChurn: {},
+      architectureDistribution: {},
+    );
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
@@ -49,6 +59,7 @@ class _MockTracker implements CodeQualityTracker {
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     return const ChurnMetricsWithAuthorsDto(
       totalCommits: 50,
@@ -64,6 +75,17 @@ class _MockTracker implements CodeQualityTracker {
       },
       classChurn: {},
       blockChurn: {},
+    );
+  }
+
+  @override
+    Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {},
+      methodChurn: {},
+      architectureDistribution: {},
     );
   }
 
@@ -109,7 +131,7 @@ lib/utils.dart @alice
       final utilsFile = files.firstWhere(
         (f) => f['file'] == 'lib/utils.dart',
       );
-      expect(utilsFile['ownership_drift'], isTrue);
+      expect(utilsFile['codeowners_drift'], isTrue);
     });
 
     test('handles missing CODEOWNERS', () async {

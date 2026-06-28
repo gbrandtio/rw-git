@@ -97,6 +97,15 @@ class AuditComplianceTool implements McpTool {
                 'message': v.message,
               })
           .toList(),
+      'non_conventional_commits': report.nonConventionalCommits
+          .map((v) => {
+                'hash': v.hash,
+                'author': v.author,
+                'email': v.email,
+                'date': v.date,
+                'message': v.message,
+              })
+          .toList(),
     });
   }
 }

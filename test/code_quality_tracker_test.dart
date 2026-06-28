@@ -272,11 +272,14 @@ e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add complex feature
       final tracker = CodeQualityTracker(runner);
 
       final result = await tracker.extractChangedComments('fake_dir');
-      expect(result, contains('Commit: e2a4b3c - John Doe'));
-      expect(result, contains('File: lib/feature.dart'));
-      expect(result, contains('+  // TODO: Refactor this later'));
-      expect(result, contains('+    /// This is an LLM generated doc comment'));
-      expect(result, contains('class Feature {'));
+      expect(result.length, 1);
+      final item = result.first;
+      expect(item['commit'], contains('e2a4b3c - John Doe'));
+      expect(item['file'], 'lib/feature.dart');
+      expect(item['diff_block'], contains('+  // TODO: Refactor this later'));
+      expect(item['diff_block'],
+          contains('+    /// This is an LLM generated doc comment'));
+      expect(item['diff_block'], contains('class Feature {'));
     });
 
     test('extractChangedComments passes limit parameter correctly', () async {

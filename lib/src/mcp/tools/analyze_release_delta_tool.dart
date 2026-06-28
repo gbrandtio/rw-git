@@ -7,8 +7,9 @@ import '../../../rw_git.dart';
 
 class AnalyzeReleaseDeltaTool implements McpTool {
   final RwGit rwGit;
+  final CodeQualityTracker tracker;
 
-  AnalyzeReleaseDeltaTool(this.rwGit);
+  AnalyzeReleaseDeltaTool(this.rwGit, this.tracker);
 
   @override
   String get name => 'analyze_release_delta';
@@ -62,9 +63,17 @@ class AnalyzeReleaseDeltaTool implements McpTool {
             .runCommand(localDir, ['diff', '--numstat', firstTag, secondTag]))
         .getOrThrow();
 
+    // 3. Get Bug Hotspots and Advanced Metrics (Blast Radius) for context
+    final hotspots = await tracker.calculateBugHotspots(localDir, limit: '500');
+    final advanced =
+        await tracker.calculateAdvancedMetrics(localDir, limit: '500');
+
+    final hotspotFiles = hotspots.fileHotspots.keys.toSet();
+    final coChangeMatrix = advanced.coChangeMatrix;
+
     // Offload parsing to an Isolate
-    final resultMap = await Isolate.run(
-        () => _parseReleaseDelta(logRaw, numstatRaw, detailed));
+    final resultMap = await Isolate.run(() => _parseReleaseDelta(
+        logRaw, numstatRaw, detailed, hotspotFiles, coChangeMatrix));
 
     return jsonEncode(resultMap);
   }
@@ -75,7 +84,11 @@ class AnalyzeReleaseDeltaTool implements McpTool {
 // -----------------------------------------------------------------------------
 
 Map<String, dynamic> _parseReleaseDelta(
-    String logRaw, String numstatRaw, bool detailed) {
+    String logRaw,
+    String numstatRaw,
+    bool detailed,
+    Set<String> hotspotFiles,
+    Map<String, Map<String, int>> coChangeMatrix) {
   int totalCommits = 0;
   final Map<String, int> authors = {};
   final List<String> rawCommits = [];
@@ -115,15 +128,18 @@ Map<String, dynamic> _parseReleaseDelta(
   fileStats.sort((a, b) => b.totalChanges.compareTo(a.totalChanges));
 
   // Top 10 modified files
-  final topModifiedFiles = fileStats
-      .take(10)
-      .map((fs) => {
-            'file': fs.fileName,
-            'added': fs.added,
-            'removed': fs.removed,
-            'totalChanges': fs.totalChanges
-          })
-      .toList();
+  final topModifiedFiles = fileStats.take(10).map((fs) {
+    final isHotspot = hotspotFiles.contains(fs.fileName);
+    final blastRadius = coChangeMatrix[fs.fileName]?.keys.toList() ?? [];
+    return {
+      'file': fs.fileName,
+      'added': fs.added,
+      'removed': fs.removed,
+      'totalChanges': fs.totalChanges,
+      'is_bug_hotspot': isHotspot,
+      'blast_radius_files': blastRadius.take(3).toList(),
+    };
+  }).toList();
 
   final Map<String, dynamic> result = {
     'total_commits': totalCommits,

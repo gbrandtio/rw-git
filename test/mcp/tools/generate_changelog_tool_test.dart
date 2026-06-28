@@ -20,6 +20,19 @@ class _MockRwGit implements RwGit {
     List<String> args, {
     bool streamOutput = false,
   }) async {
+    if (args.contains('show')) {
+      return Success('file1.dart\nfile2.dart');
+    }
+    if (args.contains('rev-parse')) {
+      return Success('parent_hash');
+    }
+    if (args.contains('diff')) {
+      return Success('--- a/file1.dart\n@@ -10,2 +10,2 @@\n- old\n+ new');
+    }
+    if (args.contains('blame')) {
+      return Success(
+          '00000000 (Alice 2024-01-01) old\n12345678 (Bob 2024-01-02) new');
+    }
     return Success(logOutput);
   }
 

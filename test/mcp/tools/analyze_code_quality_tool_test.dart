@@ -12,16 +12,18 @@ class MockCodeQualityTracker implements CodeQualityTracker {
     String repository, {
     List<String> keywords = const [],
     String? limit,
+    String? since,
   }) async {
     return ['commit1: fixme', 'commit2: todo'];
   }
 
   @override
-  Future<String> extractChangedComments(
+  Future<List<Map<String, dynamic>>> extractChangedComments(
     String directory, {
     String? limit,
+    String? since,
   }) async {
-    return '';
+    return [];
   }
 
   @override
@@ -30,6 +32,7 @@ class MockCodeQualityTracker implements CodeQualityTracker {
     int fileThreshold = 20,
     int lineThreshold = 500,
     String? limit,
+    String? since,
   }) async {
     return ['commit3: 1000 lines'];
   }
@@ -47,6 +50,7 @@ class MockCodeQualityTracker implements CodeQualityTracker {
   Future<ChurnMetricsDto> calculateChurn(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     return const ChurnMetricsDto(
       totalCommits: 100,
@@ -68,8 +72,21 @@ class MockCodeQualityTracker implements CodeQualityTracker {
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     throw UnimplementedError();
+  }
+
+  @override
+  @override
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {},
+      methodChurn: {},
+      architectureDistribution: {},
+    );
   }
 
   @override
@@ -85,16 +102,18 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
     String repository, {
     List<String> keywords = const [],
     String? limit,
+    String? since,
   }) async {
     return [];
   }
 
   @override
-  Future<String> extractChangedComments(
+  Future<List<Map<String, dynamic>>> extractChangedComments(
     String directory, {
     String? limit,
+    String? since,
   }) async {
-    return '';
+    return [];
   }
 
   @override
@@ -103,6 +122,7 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
     int fileThreshold = 20,
     int lineThreshold = 500,
     String? limit,
+    String? since,
   }) async {
     return [];
   }
@@ -120,6 +140,7 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
   Future<ChurnMetricsDto> calculateChurn(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     return const ChurnMetricsDto(
       totalCommits: 0,
@@ -133,8 +154,21 @@ class MockEmptyCodeQualityTracker implements CodeQualityTracker {
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
     String repository, {
     String? limit,
+    String? since,
   }) async {
     throw UnimplementedError();
+  }
+
+  @override
+  @override
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
+      {String? limit}) async {
+    return AdvancedCodeQualityDto(
+      fileComplexity: {},
+      coChangeMatrix: {},
+      methodChurn: {},
+      architectureDistribution: {},
+    );
   }
 
   @override

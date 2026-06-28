@@ -61,9 +61,12 @@ The following out-of-the-box Dart facade functions are exposed as individual, st
 - **predict_merge_conflicts**: Identifies files modified on both branches since their merge base to predict merge conflicts before attempting a merge.
 - **analyze_commit_velocity**: Computes commit velocity bucketed by day/week/month. Returns time-series data with per-author breakdown, trend analysis (accelerating/decelerating/stable), and anomaly detection.
 - **analyze_dependency_drift**: Parses dependency manifests (pubspec.yaml, package.json, requirements.txt, go.mod, Cargo.toml, Gemfile) for pinned vs floating version analysis and lock file presence.
-- **generate_changelog**: Generates a structured changelog between two tags/commits using Conventional Commits conventions (feat/fix/BREAKING CHANGE). Falls back gracefully.
-- **audit_compliance**: Scans commit history for unsigned commits, empty messages, and unrecognized author emails. Supply `allowedEmails` to flag unknown contributors.
+- **generate_changelog**: Generates a structured changelog between two tags/commits using Conventional Commits conventions (feat/fix/BREAKING CHANGE). Also performs structural impact analysis using SZZ algorithm to link fixes to bug-introducing commits.
+- **audit_compliance**: Scans commit history for unsigned commits, empty messages, PR size violations, and unrecognized author emails. Supply `allowedEmails` to flag unknown contributors.
 - **analyze_file_ownership**: Cross-references CODEOWNERS with git blame history to detect ownership drift and unowned files.
+- **analyze_dart_ast_quality**: Performs deep AST-level analysis of Dart files. Returns a dependency graph, semantic signature diff, and dead code audit for the touched files. 
+- **analyze_architecture_drift**: Analyzes git history to detect architectural drift by identifying commits that modify multiple independent architectural layers simultaneously.
+- **analyze_clean_code**: Language-agnostic tool to analyze basic clean code heuristics of a specific file. Detects excessive length, deep nesting, and long lines.
 ''';
   }
 }

@@ -44,7 +44,7 @@ class AnalyzeFileOwnershipTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments['directory'] as String;
-    final limit = arguments['limit']?.toString() ?? '100';
+    // We ignore the limit argument to properly analyze time periods for drift.
 
     // 1. Try to read CODEOWNERS from common locations
     String codeownersContent = '';
@@ -69,23 +69,33 @@ class AnalyzeFileOwnershipTool implements McpTool {
       }
     }
 
-    // 2. Get churn data with authors
-    final churn = await tracker.calculateChurnWithAuthors(
+    // 2. Get churn data with authors for 1 year and 90 days
+    final churn1Year = await tracker.calculateChurnWithAuthors(
       directory,
-      limit: limit,
+      since: '1.year.ago',
+    );
+    final churn90Days = await tracker.calculateChurnWithAuthors(
+      directory,
+      since: '90.days.ago',
     );
 
     // 3. Parse CODEOWNERS and cross-reference
-    final churnMap = <String, Map<String, int>>{};
-    for (final entry in churn.fileChurn.entries) {
-      churnMap[entry.key] = entry.value.authors;
+    final churnMap1Year = <String, Map<String, int>>{};
+    for (final entry in churn1Year.fileChurn.entries) {
+      churnMap1Year[entry.key] = entry.value.authors;
+    }
+
+    final churnMap90Days = <String, Map<String, int>>{};
+    for (final entry in churn90Days.fileChurn.entries) {
+      churnMap90Days[entry.key] = entry.value.authors;
     }
 
     final result = await Isolate.run(
       () => _analyzeOwnership(
         codeownersContent,
         codeownersFound,
-        churnMap,
+        churnMap1Year,
+        churnMap90Days,
       ),
     );
 
@@ -100,7 +110,8 @@ class AnalyzeFileOwnershipTool implements McpTool {
 Map<String, dynamic> _analyzeOwnership(
   String codeownersContent,
   bool codeownersFound,
-  Map<String, Map<String, int>> churnMap,
+  Map<String, Map<String, int>> churnMap1Year,
+  Map<String, Map<String, int>> churnMap90Days,
 ) {
   // Parse CODEOWNERS rules
   final rules = <_OwnerRule>[];
@@ -123,41 +134,47 @@ Map<String, dynamic> _analyzeOwnership(
   final unownedFiles = <String>[];
   int driftCount = 0;
 
-  for (final entry in churnMap.entries) {
+  for (final entry in churnMap1Year.entries) {
     final fileName = entry.key;
-    final authors = entry.value;
+    final authors1Year = entry.value;
+    final authors90Days = churnMap90Days[fileName] ?? {};
 
     // Find declared owners for this file
     final declaredOwners = _findOwners(fileName, rules);
 
-    // Find actual top contributor
-    String topContributor = '';
-    int topChanges = 0;
-    for (final authorEntry in authors.entries) {
-      if (authorEntry.value > topChanges) {
-        topChanges = authorEntry.value;
-        topContributor = authorEntry.key;
-      }
-    }
+    // Find actual top contributor (1 year)
+    String topContributor1Year = _getTopContributor(authors1Year);
+    // Find actual top contributor (90 days)
+    String topContributor90Days = _getTopContributor(authors90Days);
 
-    final totalChanges = authors.values.fold<int>(0, (s, v) => s + v);
+    final totalChanges1Year = authors1Year.values.fold<int>(0, (s, v) => s + v);
+    final totalChanges90Days =
+        authors90Days.values.fold<int>(0, (s, v) => s + v);
 
-    // Detect ownership drift
-    bool hasDrift = false;
-    if (declaredOwners.isNotEmpty && topContributor.isNotEmpty) {
+    // Detect ownership drift against codeowners
+    bool hasCodeownersDrift = false;
+    if (declaredOwners.isNotEmpty && topContributor1Year.isNotEmpty) {
       // Check if top contributor matches any owner
       // Owners can be @username or email format
       final ownerMatches = declaredOwners.any(
         (owner) =>
-            owner.contains(topContributor) ||
-            topContributor.contains(
+            owner.contains(topContributor1Year) ||
+            topContributor1Year.contains(
               owner.replaceAll('@', ''),
             ),
       );
-      hasDrift = !ownerMatches;
+      hasCodeownersDrift = !ownerMatches;
     }
 
-    if (hasDrift) {
+    // Detect actual ownership drift (1 year vs 90 days)
+    bool hasRecentDrift = false;
+    if (topContributor1Year.isNotEmpty &&
+        topContributor90Days.isNotEmpty &&
+        topContributor1Year != topContributor90Days) {
+      hasRecentDrift = true;
+    }
+
+    if (hasCodeownersDrift || hasRecentDrift) {
       driftCount++;
     }
 
@@ -168,15 +185,19 @@ Map<String, dynamic> _analyzeOwnership(
     files.add({
       'file': fileName,
       'declared_owners': declaredOwners,
-      'actual_top_contributor': topContributor,
-      'total_changes': totalChanges,
-      'ownership_drift': hasDrift,
+      'top_contributor_1_year': topContributor1Year,
+      'top_contributor_90_days': topContributor90Days,
+      'total_changes_1_year': totalChanges1Year,
+      'total_changes_90_days': totalChanges90Days,
+      'codeowners_drift': hasCodeownersDrift,
+      'recent_drift': hasRecentDrift,
     });
   }
 
   // Sort by total changes descending
   files.sort(
-    (a, b) => (b['total_changes'] as int).compareTo(a['total_changes'] as int),
+    (a, b) => (b['total_changes_1_year'] as int)
+        .compareTo(a['total_changes_1_year'] as int),
   );
 
   return {
@@ -186,6 +207,18 @@ Map<String, dynamic> _analyzeOwnership(
     'unowned_files': unownedFiles,
     'files': files,
   };
+}
+
+String _getTopContributor(Map<String, int> authors) {
+  String topContributor = '';
+  int topChanges = 0;
+  for (final authorEntry in authors.entries) {
+    if (authorEntry.value > topChanges) {
+      topChanges = authorEntry.value;
+      topContributor = authorEntry.key;
+    }
+  }
+  return topContributor;
 }
 
 List<String> _findOwners(String filePath, List<_OwnerRule> rules) {

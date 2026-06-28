@@ -12,23 +12,21 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
 
   @override
   String get description => 'Analyzes commit history to surface architectural '
-      'bottlenecks and technical debt. Returns structured '
-      'JSON containing suspicious commits, mega-commits '
-      '(>20 files or >500 lines), and code churn metrics '
-      '(high-churn files, classes, blocks). Set '
-      '`includeCommitLog: true` for a compact commit log. '
-      'For a complete guide, invoke the '
-      'get_rw_git_documentation tool.';
+      'bottlenecks and technical debt. Returns structured JSON containing '
+      'advanced heuristics: Co-Change Matrix (SRP / Blast Radius), '
+      'Method Churn (OCP violations), Architecture Drift (commit distribution), '
+      'file complexity, suspicious commits, and mega-commits. '
+      'Set `includeCommitLog: true` for a compact commit log. '
+      'For a complete guide, invoke the get_rw_git_documentation tool.';
 
   @override
   Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff) {
     final hints = [
-      'Evaluate commit message quality against the '
-          'change size shown in the metrics.',
-      'Identify refactoring opportunities from '
-          'high-churn files (potential SRP violations).',
-      'Flag commits with vague messages relative to '
-          'their change magnitude.',
+      'Use the co_change_matrix to detect Single Responsibility Principle (SRP) violations. If a file frequently co-changes across multiple unrelated domains or features, it acts as a God Class.',
+      'Use method_churn to detect Open/Closed Principle (OCP) violations. Methods modified in almost every branch violate OCP.',
+      'Use the co_change_matrix to predict Blast Radius. If a PR modifies file A, check if file A historically co-changes with file B. If B is missing from the PR, flag it as a potential omission.',
+      'Use architecture_distribution to track Architecture Drift. If recent commits heavily skew the historical distribution of commits across top-level directories, flag a potential architectural boundary violation.',
+      'Use file_complexity to identify technical debt based on control flow keyword density.',
     ];
     if (includeCodeDiff) {
       hints.add(

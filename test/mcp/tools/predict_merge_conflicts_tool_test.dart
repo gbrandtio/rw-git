@@ -79,7 +79,7 @@ void main() {
 
       final parsed = jsonDecode(result) as Map<String, dynamic>;
       expect(parsed['merge_base'], 'abc123');
-      expect(parsed['conflicting_files'], contains('shared.dart'));
+      expect(parsed['logical_conflicting_files'], contains('shared.dart'));
       expect(parsed['files_only_on_a'], contains('only_a.dart'));
       expect(parsed['files_only_on_b'], contains('only_b.dart'));
     });
@@ -101,7 +101,7 @@ void main() {
 
       final parsed = jsonDecode(result) as Map<String, dynamic>;
       expect(parsed['risk_level'], 'none');
-      expect(parsed['conflicting_files_count'], 0);
+      expect(parsed['logical_conflicting_files_count'], 0);
     });
   });
 }
