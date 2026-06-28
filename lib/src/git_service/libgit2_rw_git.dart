@@ -1,4 +1,4 @@
-import 'package:libgit2dart/libgit2dart.dart';
+import 'package:git2dart/git2dart.dart';
 import '../../rw_git.dart';
 import '../core/result.dart';
 import 'base_rw_git.dart';
