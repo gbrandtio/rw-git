@@ -24,6 +24,9 @@ doc/api/
 *.js.deps
 *.js.map
 
+# Allow node.js files in npm distribution
+!distribution/npm/**/*.js
+
 .flutter-plugins
 .flutter-plugins-dependencies
 

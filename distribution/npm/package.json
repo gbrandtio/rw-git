@@ -4,10 +4,11 @@
   "description": "Model Context Protocol (MCP) server for rw-git",
   "main": "index.js",
   "scripts": {
+    "prepack": "node -e \"const fs = require('fs'); fs.cpSync('../../.agents/skills', './skills', {recursive: true});\"",
     "postinstall": "node install.js"
   },
   "bin": {
-    "rw-git-mcp": "bin/rw-git-mcp"
+    "rw-git-mcp": "bin/cli.js"
   },
   "repository": {
     "type": "git",
