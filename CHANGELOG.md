@@ -5,6 +5,15 @@
 - **FEAT (MCP):** Added average time to fix a bug / time taken to fix a bug for both bug-hotspots and bugs-per-developer tools.
 - **FEAT (SKILL):** Added specialized skills for different aspects of reporting to cover a variety of stakeholders needs.
 - **FEAT (Quality):** Removed duplicate SKILL and README files from root repo and distribution/npm. These are now packaged for npm with a pre-package step.
+- **REFACTOR (MCP):** Updated the `get_rw_git_documentation` tool to dynamically generate its markdown list of available tools from the `McpRegistry`, eliminating duplicate documentation across the codebase.
+- **FIX (MCP):** Implemented safe argument extraction (`getStringArgument`, `getOptionalStringArgument`) for all MCP tools to provide clear, actionable error messages to LLMs when required arguments are missing or malformed, instead of crashing with a cryptic Dart type cast error (`type 'Null' is not a subtype of type 'String' in type cast`).
+- **FEAT (MCP):** Implemented `McpToolFileOffloadDecorator` to automatically offload heavy analytical tool JSON responses to the local filesystem by default, preventing LLM context window overflow.
+- **FEAT (MCP):** Added `output_file` and `return_full_json` arguments to all verbose analysis tools to allow LLMs to control context ingestion and orchestration paths.
+- **FEAT (MCP):**: Implemented 4 new Mining Software Repositories (MSR) algorithms with corresponding MCP tools:
+    - **Analyze Logical Coupling**: Detects files that frequently change together to identify architectural decay.
+    - **Analyze Bus Factor**: Calculates the project's Truck Factor to highlight knowledge concentration risks.
+    - **Analyze Code Volatility**: Predicts defect-prone files based on historical code churn and author count.
+    - **Analyze Refactoring**: Detects structural refactorings and code simplifications approximating AST differencing.
 
 # 3.0.5
 - **FIX (Quality):** Fixed an issue where the secret scanner (`detect_secrets_in_commits`) produced false positives for integrity hashes in lockfiles (like `package-lock.json`), generic placeholder variables in test files, and CI workflow variables. The scanner now uses improved context-aware risk scoring to exclude lockfiles, broadens test exclusions, and filters out common placeholder patterns.

@@ -26,6 +26,9 @@ Follow these steps to conduct a technical deep-dive.
 - **Bug Hotspots**: Run `analyze_bug_hotspots` to see where bugs cluster via SZZ.
 - **Universal Metrics**: Run `calculate_universal_lexical_metrics` on critical files identified by the above steps.
 - **Clean Code Heuristics**: Run `analyze_clean_code` on the worst-offending files.
+- **Logical Coupling**: Run `analyze_logical_coupling` to detect implicitly coupled files.
+- **Code Volatility**: Run `analyze_code_volatility` to predict defect-prone files based on churn and unique authors.
+- **Refactoring**: Run `analyze_refactoring` to measure technical debt reduction.
 - **Dart Specific**: If this is a Dart repository, heavily utilize `analyze_dart_ast_quality`.
 </step>
 

@@ -23,7 +23,7 @@ void main() async {
       McpToolFileOffloadDecorator(AnalyzeBugHotspotsTool(tracker)));
   registry.registerTool(
       McpToolFileOffloadDecorator(FindBugsByDeveloperTool(tracker)));
-  registry.registerTool(GetRwGitDocumentationTool());
+  registry.registerTool(GetRwGitDocumentationTool(registry));
   registry.registerTool(InitRepositoryTool(rwGit));
   registry.registerTool(IsGitRepositoryTool(rwGit));
   registry.registerTool(CloneRepositoryTool(rwGit));
@@ -40,6 +40,12 @@ void main() async {
       McpToolFileOffloadDecorator(AnalyzeReleaseDeltaTool(rwGit, tracker)));
   registry.registerTool(
       McpToolFileOffloadDecorator(AnalyzeBusFactorTool(tracker, rwGit)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeLogicalCouplingTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeCodeVolatilityTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeRefactoringTool(tracker)));
   registry.registerTool(
       McpToolFileOffloadDecorator(EvaluateCommentLlmGenerationTool(tracker)));
   registry.registerTool(

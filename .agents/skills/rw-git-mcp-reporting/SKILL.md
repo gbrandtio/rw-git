@@ -37,7 +37,7 @@ Follow these steps strictly in order for a high-level audit. Do not skip any pha
 
 <step id="3" name="Architecture & Ecosystem">
 - **Knowledge Silos**: Run `analyze_bus_factor` to see if the project relies heavily on one individual.
-- **Architecture Integrity**: Run `analyze_architecture_drift`.
+- **Architecture Integrity**: Run `analyze_architecture_drift` and `analyze_logical_coupling`.
 - **Supply Chain Risks**: Run `analyze_dependency_drift`.
 - **Changelog**: Use `generate_changelog` to summarize recent progress if appropriate.
 </step>

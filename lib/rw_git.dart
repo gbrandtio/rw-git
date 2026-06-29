@@ -39,6 +39,9 @@ export 'src/mcp/tools/analyze_bug_hotspots_tool.dart';
 
 export 'src/mcp/tools/analyze_release_delta_tool.dart';
 export 'src/mcp/tools/analyze_bus_factor_tool.dart';
+export 'src/mcp/tools/analyze_logical_coupling_tool.dart';
+export 'src/mcp/tools/analyze_code_volatility_tool.dart';
+export 'src/mcp/tools/analyze_refactoring_tool.dart';
 export 'src/mcp/tools/base_evaluate_comments_tool.dart';
 export 'src/mcp/tools/evaluate_comment_llm_generation_tool.dart';
 export 'src/mcp/tools/evaluate_comment_quality_tool.dart';
@@ -59,3 +62,7 @@ export 'src/models/dependency_manifest_dto.dart';
 export 'src/models/compliance_report_dto.dart';
 export 'src/models/advanced_code_quality_dto.dart';
 export 'src/models/bug_hotspot_dto.dart';
+export 'src/models/logical_coupling_dto.dart';
+export 'src/models/bus_factor_dto.dart';
+export 'src/models/code_volatility_dto.dart';
+export 'src/models/refactoring_dto.dart';

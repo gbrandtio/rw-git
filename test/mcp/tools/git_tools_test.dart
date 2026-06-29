@@ -196,7 +196,7 @@ void main() {
   });
 
   test('GetRwGitDocumentationTool', () async {
-    final tool = GetRwGitDocumentationTool();
+    final tool = GetRwGitDocumentationTool(McpRegistry());
     final result = await tool.execute({});
     expect(result, isNotEmpty);
   });
