@@ -1,6 +1,6 @@
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/mcp/tools/detect_secrets_tool.dart';
-import 'package:rw_git/src/mcp/tools/find_bugs_by_developer_tool.dart';
+import 'package:rw_git/src/mcp/tools/security/detect_secrets_tool.dart';
+import 'package:rw_git/src/mcp/tools/bugs/find_bugs_by_developer_tool.dart';
 import 'package:rw_git/src/mcp/prompts/rw_git_mcp_reporting_prompt.dart';
 
 /// ----------------------------------------------------------------------------

@@ -52,10 +52,14 @@ given repository.
 - `analyze_code_quality_with_authors`: Analyzes code quality metrics along with
   author contributions.
 - `analyze_bug_hotspots`: Calculates bug hotspots using the SZZ algorithm.
-- `analyze_bus_factor`: Calculates the Bus Factor (Truck Factor), indicating project knowledge concentration risks.
-- `analyze_logical_coupling`: Detects implicitly coupled files to highlight architectural decay and Shotgun Surgery.
-- `analyze_code_volatility`: Predicts defect-prone files based on historical code churn and unique author count.
-- `analyze_refactoring`: Detects structural refactorings and code simplifications to track technical debt reduction.
+- `analyze_bus_factor`: Calculates the Bus Factor (Truck Factor), indicating
+  project knowledge concentration risks.
+- `analyze_logical_coupling`: Detects implicitly coupled files to highlight
+  architectural decay and Shotgun Surgery.
+- `analyze_code_volatility`: Predicts defect-prone files based on historical
+  code churn and unique author count.
+- `analyze_refactoring`: Detects structural refactorings and code
+  simplifications to track technical debt reduction.
 - `analyze_file_ownership`: Cross-references CODEOWNERS with git blame history
   for ownership drift.
 - `analyze_pr_diff`: Analyzes PR diffs for risk signals like high churn and
