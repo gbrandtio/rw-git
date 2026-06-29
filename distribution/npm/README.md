@@ -2,11 +2,11 @@
 
 **Model Context Protocol (MCP) server for rw-git**
 
-This package provides an embedded Model Context Protocol (MCP) server that allows AI agents and IDEs (like Claude Desktop, Cursor, and Antigravity) to interact directly with your git repositories. It communicates over standard I/O using JSON-RPC 2.0.
+This package provides an embedded Model Context Protocol (MCP) server that allows AI agents and IDEs to interact directly with your git repositories. It communicates over standard I/O using JSON-RPC 2.0.
 
-`rw-git-mcp` provides a comprehensive suite of tools for AI agents to analyze and manipulate your repository, including core git commands (init, clone, checkout), code quality metrics, dependency drift analysis, compliance auditing, and LLM-assisted code review evaluations. All tools return structured JSON payloads derived from strongly-typed domain models, enabling agents to parse and reason about Git data deterministically without relying on unstructured string parsing.
+`rw-git-mcp` provides a comprehensive suite of tools for AI agents to analyze your repository, including core git commands, code quality metrics, dependency drift analysis, compliance auditing, and LLM-assisted code review evaluations. All tools return structured JSON payloads derived from strongly-typed domain models, enabling agents to parse and reason about Git data deterministically.
 
-The MCP can also be used to provide Git harness to your agent, while keeping AI tokens to a minimum. It can be installed with bundled AI agent skills that offer structured workflows and best practices for repository analysis.
+The MCP can be used to provide Git harness to your agent, while keeping AI tokens to a minimum. It can be installed with bundled AI agent skills that offer structured workflows and best practices for repository analysis.
 
 ## Available MCP Tools
 

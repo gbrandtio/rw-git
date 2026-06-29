@@ -22,9 +22,11 @@
 
 ## About
 
-`rw_git` intends to provide useful Git commands, without allowing intrusive actions (such as `push`ing), as well as the necessary harness that AI agents are looking for.
-The library and MCP server tools that it offers, aim to provide out-of-the-box metrics, information and data that can contribute significantly in structured harness that LLMs / AI Agents need in order to perform deep analyses and create reports based on git (or use the harness as part of a bigger picture).
+`rw_git` intends to provide useful Git commands and Git harness that AI agents are looking for. 
 
+The library and MCP server tools that it offers, provide out-of-the-box metrics, information and data that can contribute significantly in structured harness that LLMs / AI Agents need in order to perform deep analyses and create reports based on git (or use the harness as part of a bigger picture).
+
+All these while keeping the token consumption to a *minimum*.
 
 ## Model Context Protocol (MCP) Server
 
