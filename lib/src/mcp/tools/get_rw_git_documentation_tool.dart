@@ -32,6 +32,7 @@ You are interacting with the RwGit repository via the MCP tools provided in your
 These tools return structured JSON metrics.
 - **analyze_code_quality**: Use this to get JSON metrics on tech debt, suspicious commits, and high-churn files. Use `includeCodeDiff: true` to inject actual source code diffs for LLM code-smell analysis.
 - **analyze_code_quality_with_authors**: Similar to the above, but includes author contributions. Also supports `includeCodeDiff: true`.
+- **analyze_bug_hotspots**: Identifies files that are frequently modified in bug-fix commits, highlighting areas that may need refactoring.
 - **analyze_release_delta**: Analyzes the difference between two tags to provide a JSON summary of changes, regressions, and code churn.
 - **analyze_bus_factor**: Analyzes the repository to identify files that are heavily reliant on a single author.
 - **evaluate_comment_llm_generation**: Evaluates code comments based on LLM-generated feedback criteria.
@@ -67,6 +68,7 @@ The following out-of-the-box Dart facade functions are exposed as individual MCP
 - **analyze_dart_ast_quality**: Performs deep AST-level analysis of Dart files. Returns a dependency graph, semantic signature diff, and dead code audit for the touched files. 
 - **analyze_architecture_drift**: Analyzes git history to detect architectural drift by identifying commits that modify multiple independent architectural layers simultaneously.
 - **analyze_clean_code**: Language-agnostic tool to analyze basic clean code heuristics of a specific file. Detects excessive length, deep nesting, and long lines.
+- **calculate_universal_lexical_metrics**: Calculates language-agnostic code quality metrics (Cyclomatic, Halstead, Cognitive, Maintainability Index) for any text-based source file using a fast Lexical FSM.
 ''';
   }
 }
