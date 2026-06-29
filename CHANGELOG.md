@@ -1,3 +1,7 @@
+# 3.0.5
+- **FIX (Quality):** Fixed an issue where the secret scanner (`detect_secrets_in_commits`) produced false positives for integrity hashes in lockfiles (like `package-lock.json`), generic placeholder variables in test files, and CI workflow variables. The scanner now uses improved context-aware risk scoring to exclude lockfiles, broadens test exclusions, and filters out common placeholder patterns.
+- **FIX (SKILL):** Overhauled the reporting SKILL to guide LLMs efficiently, especially small/less capable ones which drift easily.
+
 # 3.0.4
 - **FEAT (MCP)**: Because many small LLMs completely ignore the file offloading, made the behaviour default and mandatory. This approach saves tokens and increases efficiency.
 
