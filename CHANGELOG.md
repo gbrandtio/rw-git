@@ -1,3 +1,17 @@
+## 2.0.2
+- **FEAT (MCP):** Added AST & architecture analysis tools and metrics (`analyze_dart_ast_quality`, `analyze_architecture_drift`, `analyze_clean_code`).
+- **FEAT (MCP):** Added `calculate_universal_lexical_metrics` tool to compute language-agnostic code quality metrics (Cyclomatic, Halstead, Cognitive, Maintainability Index) using a fast zero-allocation FSM Lexer.
+- **BREAKING (Core & MCP):** Completely removed `cloneAndGetStatistics` method from `RwGit` facade and its corresponding MCP tool (`clone_and_get_statistics`) as this functionality is fully covered by the core `clone` and `stats` methods.
+- **DOCS:** Added explicit documentation restricting LLMs from running intrusive custom commands (e.g., `git push`).
+- **CHORE:** Improved and expanded the report orchestration MCP skill with new tools.
+- **CHORE:** Added comprehensive tests to achieve 100% test coverage.
+
+## 2.0.1
+- **FEAT (MCP):** Added native support for MCP Resources and Prompts protocol capabilities.
+- **DOCS:** Added comprehensive agent skills for installing the `rw-git` MCP server and for orchestrating comprehensive repository reports.
+- **CHORE (Core):** Removed `git2dart` FFI integration and reverted to process-based executions with latest path dependency.
+- **CHORE:** Fixed NPM package configuration, README, and GitHub Actions release workflows (`release_mcp.yml`).
+
 ## 2.0.0
 - **FEAT (MCP):** Added `analyze_pr_diff` tool to analyze PR diffs for risk signals by combining churn history, bus factor, and secret detection into per-file composite risk scores.
 - **FEAT (MCP):** Added `predict_merge_conflicts` tool to identify files modified on both branches since their merge base, predicting potential merge conflicts before a merge attempt.
@@ -6,9 +20,7 @@
 - **FEAT (MCP):** Added `generate_changelog` tool to generate structured changelogs using Conventional Commits conventions (feat/fix/BREAKING CHANGE).
 - **FEAT (MCP):** Added `audit_compliance` tool to scan commit history for unsigned commits, empty messages, and unrecognized author emails.
 - **FEAT (MCP):** Added `analyze_file_ownership` tool to cross-reference CODEOWNERS with git blame history for ownership drift detection.
-- **FEAT (MCP):** Added `calculate_universal_lexical_metrics` tool to compute language-agnostic code quality metrics (Cyclomatic, Halstead, Cognitive, Maintainability Index) using a fast zero-allocation FSM Lexer.
 - **FEAT (Core):** Added `findConflictRiskFiles`, `calculateCommitVelocity`, `parseDependencyManifests`, `scanComplianceIssues` methods to `CodeQualityTracker`.
-- **BREAKING (Core & MCP):** Completely removed `cloneAndGetStatistics` method from `RwGit` facade and its corresponding MCP tool (`clone_and_get_statistics`) as this functionality is fully covered by the core `clone` and `stats` methods.
 - **FEAT (MCP):** Added `detect_secrets_in_commits` tool to scan commit history for exposed secrets using Isolates.
 - **FEAT (MCP):** Added an optional `includeCodeDiff` boolean parameter to the code quality tools to provide actual git diffs for LLM code smell analysis, replacing the previous hardcoded hallucination-prone prompt.
 - **BREAKING (MCP):** `analyze_code_quality`, `analyze_code_quality_with_authors`, and all `evaluate_comment_*` tools now return structured JSON instead of prescriptive prose prompts. This aligns them with the `analyze_release_delta` and `analyze_bus_factor` output conventions and significantly reduces token consumption.
@@ -26,7 +38,6 @@
 - **PERF (Quality):** Optimized `CodeQualityTracker.calculateChurn` and `calculateChurnWithAuthors` to stream `git log` output asynchronously, eliminating Out of Memory crashes on massive repositories.
 - **FIX (Quality):** Fixed a bug in `RwGitParser.parseGitShortLogStdout` where multi-word author names were incorrectly truncated.
 - **CHORE:** Removed `dynamic` typing entirely from the codebase, updated `lints` to `^5.0.0`, and strictly enforced `dart analyze --fatal-infos`.
-- **MCP:** Added native support for MCP Resources and Prompts protocol capabilities.
 
 - Architecture: `RwGit` is now an abstract factory interface, preparing the core library for non-CLI Git operations.
 - Architecture: Added `CliRwGit` to encapsulate existing `Process.run` functionality, ensuring no breaking changes to default behavior.
