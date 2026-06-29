@@ -22,50 +22,87 @@
 
 ## About
 
-`rw_git` intends to provide useful Git commands and Git harness that AI agents are looking for. 
+`rw_git` intends to provide useful Git commands and Git harness that AI agents
+are looking for.
 
-The library and MCP server tools that it offers, provide out-of-the-box metrics, information and data that can contribute significantly in structured harness that LLMs / AI Agents need in order to perform deep analyses and create reports based on git (or use the harness as part of a bigger picture).
+The library and MCP server tools that it offers, provide out-of-the-box metrics,
+information and data that can contribute significantly in structured harness
+that LLMs / AI Agents need in order to perform deep analyses and create reports
+based on git (or use the harness as part of a bigger picture).
 
-All these while keeping the token consumption *at a minimum*.
+All these while keeping the token consumption _at a minimum_.
 
 ## Model Context Protocol (MCP) Server
 
-`rw_git` ships with an embedded Model Context Protocol (MCP) server that allows AI agents and IDEs to interact directly with your git repositories. It communicates over standard I/O using JSON-RPC 2.0. The MCP can also be installed with bundled AI agent skills that provide structured workflows and detailed instructions for repository analysis.
+`rw_git` ships with an embedded Model Context Protocol (MCP) server that allows
+AI agents and IDEs to interact directly with your git repositories. It
+communicates over standard I/O using JSON-RPC 2.0. The MCP can also be installed
+with bundled AI agent skills that provide structured workflows and detailed
+instructions for repository analysis.
 
 ### Available MCP Tools
 
-`rw_git` provides a comprehensive suite of tools for AI agents to analyze the given repository.
+`rw_git` provides a comprehensive suite of tools for AI agents to analyze the
+given repository.
 
-**Analysis & Metrics:**
-- `analyze_code_quality`: Analyzes recent commits to identify code smells and technical debt.
-- `analyze_code_quality_with_authors`: Analyzes code quality metrics along with author contributions.
+**Dev Metrics:**
+
+- `analyze_code_quality`: Analyzes recent commits to identify code smells and
+  technical debt.
+- `analyze_code_quality_with_authors`: Analyzes code quality metrics along with
+  author contributions.
 - `analyze_bug_hotspots`: Calculates bug hotspots using the SZZ algorithm.
-- `find_bugs_by_developer`: Finds bugs introduced by a specific developer using the SZZ algorithm.
-- `analyze_bus_factor`: Calculates the "bus factor" by analyzing file ownership and contribution concentration.
-- `analyze_commit_velocity`: Computes time-series commit velocity to track team productivity trends.
-- `analyze_dependency_drift`: Parses dependency manifests for supply chain risk analysis.
-- `analyze_file_ownership`: Cross-references CODEOWNERS with git blame history for ownership drift.
-- `analyze_pr_diff`: Analyzes PR diffs for risk signals like high churn and exposed secrets.
-- `analyze_release_delta`: Analyzes the changes and impact between two release tags.
-- `predict_merge_conflicts`: Identifies files modified on both branches to predict merge conflicts.
+- `analyze_bus_factor`: Calculates the "bus factor" by analyzing file ownership
+  and contribution concentration.
+- `analyze_file_ownership`: Cross-references CODEOWNERS with git blame history
+  for ownership drift.
+- `analyze_pr_diff`: Analyzes PR diffs for risk signals like high churn and
+  exposed secrets.
+- `predict_merge_conflicts`: Identifies files modified on both branches to
+  predict merge conflicts.
 - `analyze_dart_ast_quality`: Performs deep AST-level analysis of Dart files.
-- `analyze_architecture_drift`: Analyzes git history to detect architectural drift by identifying commits that modify multiple layers.
-- `analyze_clean_code`: Language-agnostic tool to analyze basic clean code heuristics.
-- `calculate_universal_lexical_metrics`: Calculates language-agnostic code quality metrics (Cyclomatic, Halstead, Cognitive, Maintainability Index) for any source file.
+- `analyze_architecture_drift`: Analyzes git history to detect architectural
+  drift by identifying commits that modify multiple layers.
+- `analyze_clean_code`: Language-agnostic tool to analyze basic clean code
+  heuristics.
+- `calculate_universal_lexical_metrics`: Calculates language-agnostic code
+  quality metrics (Cyclomatic, Halstead, Cognitive, Maintainability Index) for
+  any source file.
+
+**Project Management Metrics:**
+
+- `find_bugs_by_developer`: Finds bugs introduced by a specific developer using
+  the SZZ algorithm.
+- `analyze_commit_velocity`: Computes time-series commit velocity to track team
+  productivity trends.
+- `analyze_release_delta`: Analyzes the changes and impact between two release
+  tags.
 - `get_stats`: Retrieves Git statistics like insertions and deletions.
 - `get_commits_between`: Lists commits between two tags or branches.
 - `get_contributions_by_author`: Retrieves commit counts grouped by author.
+- `generate_changelog`: Generates a high-level changelog summarizing the recent
+  progress of the repository.
 
 **Security & Compliance:**
-- `audit_compliance`: Scans commit history for unsigned commits, empty messages, and unrecognized author emails.
-- `detect_secrets_in_commits`: Scans commit history for exposed secrets or credentials.
+
+- `audit_compliance`: Scans commit history for unsigned commits, empty messages,
+  and unrecognized author emails.
+- `detect_secrets_in_commits`: Scans commit history for exposed secrets or
+  credentials.
+- `analyze_dependency_drift`: Parses dependency manifests for supply chain risk
+  analysis.
 
 **Code Review AI Agents:**
-- `evaluate_comment_llm_generation`: Detects if code comments were likely generated by an LLM.
-- `evaluate_comment_necessity`: Evaluates if comments are redundant or if the code could be self-documenting.
-- `evaluate_comment_quality`: Analyzes the quality and usefulness of newly added comments.
+
+- `evaluate_comment_llm_generation`: Detects if code comments were likely
+  generated by an LLM.
+- `evaluate_comment_necessity`: Evaluates if comments are redundant or if the
+  code could be self-documenting.
+- `evaluate_comment_quality`: Analyzes the quality and usefulness of newly added
+  comments.
 
 **Repository Operations:**
+
 - `init_repository`: Initializes a new Git repository.
 - `clone_repository`: Clones a remote repository.
 - `clone_specific_branch`: Clones a specific branch of a remote repository.
@@ -75,46 +112,61 @@ All these while keeping the token consumption *at a minimum*.
 
 ### Available Prompts
 
-The server natively exposes MCP Prompts that provide AI agents with detailed instructions and workflows on how to effectively use the repository tools:
+The server natively exposes MCP Prompts that provide AI agents with detailed
+instructions and workflows on how to effectively use the repository tools:
 
-- `rw-git-mcp-reporting`: A comprehensive, step-by-step workflow instructing the AI on how to orchestrate the analysis tools to generate thorough repository reports, code quality assessments, and risk analysis.
+- `rw-git-mcp-reporting`: A comprehensive, step-by-step workflow instructing the
+  AI on how to orchestrate the analysis tools to generate thorough repository
+  reports, code quality assessments, and risk analysis.
 
-You can review the available skills under `.agents/skills` or in the repository directly.
+You can review the available skills under `.agents/skills` or in the repository
+directly.
 
 ### Installing Agent Skills
 
-To install the bundled AI agent skills directly into your local workspace, you can use `npx`:
+To install the bundled AI agent skills directly into your local workspace, you
+can use `npx`:
+
 ```bash
 npx @gbrandtio/rw-git-mcp install-skills
 ```
 
-Alternatively, if you have installed the package globally via `npm install -g`, you can simply run:
+Alternatively, if you have installed the package globally via `npm install -g`,
+you can simply run:
+
 ```bash
 rw-git-mcp install-skills
 ```
 
-This will extract the skills to `./.agents/skills/rw-git-mcp/` in your current directory, making them available for your local agents.
+This will extract the skills to `./.agents/skills/rw-git-mcp/` in your current
+directory, making them available for your local agents.
 
 ### Connecting MCP with Agents
 
-To use the MCP server, you can choose from several installation methods depending on your environment.
+To use the MCP server, you can choose from several installation methods
+depending on your environment.
 
-**NPM / NPX (Recommended for Claude/Cursor/AGY)**
-The easiest way is to run the server via `npx` (requires Node.js):
+**NPM / NPX (Recommended for Claude/Cursor/AGY)** The easiest way is to run the
+server via `npx` (requires Node.js):
+
 ```bash
 npx -y @gbrandtio/rw-git-mcp
 ```
 
 **Dart SDK (For Dart/Flutter developers)**
+
 ```bash
 dart pub global activate rw_git
 ```
 
-**Pre-compiled Binaries**
-You can also download standalone native executables for Windows, macOS (Intel/Apple Silicon), and Linux from the [GitHub Releases](https://github.com/gbrandtio/rw-git/releases) page.
+**Pre-compiled Binaries** You can also download standalone native executables
+for Windows, macOS (Intel/Apple Silicon), and Linux from the
+[GitHub Releases](https://github.com/gbrandtio/rw-git/releases) page.
 
 #### Claude Desktop
+
 Add this to your `claude_desktop_config.json`:
+
 ```json
 {
   "mcpServers": {
@@ -127,7 +179,9 @@ Add this to your `claude_desktop_config.json`:
 ```
 
 #### Cursor
+
 In Cursor's `mcp.json` or `.cursor/mcp.json`:
+
 ```json
 {
   "mcpServers": {
@@ -140,7 +194,9 @@ In Cursor's `mcp.json` or `.cursor/mcp.json`:
 ```
 
 #### Antigravity (AGY CLI / Web IDE)
+
 Add this to your MCP configuration block:
+
 ```json
 {
   "mcpServers": {
@@ -152,11 +208,16 @@ Add this to your MCP configuration block:
 }
 ```
 
-*(Note: If you installed via Dart global activate, or downloaded the binaries, replace `npx` and its `args` with the absolute path to the executable, e.g., `["/path/to/rw_git_mcp"]`).*
+_(Note: If you installed via Dart global activate, or downloaded the binaries,
+replace `npx` and its `args` with the absolute path to the executable, e.g.,
+`["/path/to/rw_git_mcp"]`)._
 
 ## Core Git Commands
 
-Provides a clean, fluent API for all standard Git operations with robust, type-safe error handling. All Git commands return strongly-typed domain models (e.g., `GitCommit`, `GitStatus`, `GitDiff`) wrapped in a `Result` pattern for predictable error propagation.
+Provides a clean, fluent API for all standard Git operations with robust,
+type-safe error handling. All Git commands return strongly-typed domain models
+(e.g., `GitCommit`, `GitStatus`, `GitDiff`) wrapped in a `Result` pattern for
+predictable error propagation.
 
 - `init`: Initializes a new Git repository.
 - `clone`: Clones a remote repository to a local directory.
@@ -171,13 +232,15 @@ Provides a clean, fluent API for all standard Git operations with robust, type-s
 - `show`: Shows various types of objects (commits, trees, tags).
 - `fetchTags`: Fetches all tags from the remote repository.
 - `getCommitsBetween`: Retrieves a list of commits between two tags or branches.
-- `stats`: Retrieves code-change statistics (insertions, deletions, files changed) between two points.
+- `stats`: Retrieves code-change statistics (insertions, deletions, files
+  changed) between two points.
 
 ---
 
 ## Getting started
 
 Add the package to your `pubspec.yaml`:
+
 ```yaml
 dependencies:
   rw_git: ^2.0.0
@@ -204,8 +267,10 @@ void main() async {
 }
 ```
 
-For comprehensive API details, please check our [official documentation](https://pub.dev/documentation/rw_git/latest/).
+For comprehensive API details, please check our
+[official documentation](https://pub.dev/documentation/rw_git/latest/).
 
 ## Additional information
 
-Please file any issues on the [github issue tracker](https://github.com/gbrandtio/rw-git/issues).
+Please file any issues on the
+[github issue tracker](https://github.com/gbrandtio/rw-git/issues).

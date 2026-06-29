@@ -1,5 +1,8 @@
 # 3.0.6
 - **FEAT (MCP):** Added `find_bugs_by_developer` tool to track bugs introduced by specific developers using a sophisticated SZZ algorithm. Extracted SZZ logic into a reusable `SzzAlgorithm` core class.
+- **FEAT (MCP):** Added average time to fix a bug / time taken to fix a bug for both bug-hotspots and bugs-per-developer tools.
+- **FEAT (SKILL):** Added specialized skills for different aspects of reporting to cover a variety of stakeholders needs.
+- **FEAT (Quality):** Removed duplicate SKILL and README files from root repo and distribution/npm. These are now packaged for npm with a pre-package step.
 
 # 3.0.5
 - **FIX (Quality):** Fixed an issue where the secret scanner (`detect_secrets_in_commits`) produced false positives for integrity hashes in lockfiles (like `package-lock.json`), generic placeholder variables in test files, and CI workflow variables. The scanner now uses improved context-aware risk scoring to exclude lockfiles, broadens test exclusions, and filters out common placeholder patterns.

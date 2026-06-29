@@ -4,7 +4,7 @@
   "description": "Model Context Protocol (MCP) server for rw-git",
   "main": "index.js",
   "scripts": {
-    "prepack": "node -e \"const fs = require('fs'); fs.cpSync('../../.agents/skills', './skills', {recursive: true});\"",
+    "prepack": "node -e \"const fs = require('fs'); fs.cpSync('../../.agents/skills', './skills', {recursive: true}); fs.copyFileSync('../../README.md', './README.md');\"",
     "postinstall": "node install.js"
   },
   "bin": {
