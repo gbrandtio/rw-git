@@ -39,6 +39,9 @@ All these while keeping the token consumption to a *minimum*.
 ⚠️ **CRITICAL: Commit Limit (limit argument)**
 For code quality and analysis tools, the default commit analysis limit is 500 commits (`limit = 500`). This is a conservative default for safety and predictability. If your analysis requires a broader historical scope or a tighter window, AI Agents **must explicitly override the `limit` argument**.
 
+⚠️ **CRITICAL: Context Offloading (Preventing Overflow)**
+To prevent your context window from overflowing, all verbose analytical tools will offload their massive JSON responses to the local filesystem by default (e.g., `.rw_git/reports/...`) and return only a lightweight summary. You can specify a custom `output_file` path (must be within the repository) for better organization. If you absolutely need to ingest the raw JSON into your chat context, you must explicitly pass `return_full_json: true`.
+
 **Repository Operations:**
 - `init_repository`: Initializes a new Git repository.
 - `clone_repository`: Clones a remote repository.

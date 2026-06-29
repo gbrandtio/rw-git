@@ -22,6 +22,7 @@ export 'src/quality/code_quality_tracker.dart';
 export 'src/mcp/mcp_server.dart';
 export 'src/mcp/mcp_registry.dart';
 export 'src/mcp/mcp_tool.dart';
+export 'src/mcp/mcp_tool_file_offload_decorator.dart';
 export 'src/mcp/tools/analyze_code_quality_tool.dart';
 export 'src/mcp/tools/analyze_code_quality_with_authors_tool.dart';
 export 'src/mcp/tools/get_rw_git_documentation_tool.dart';

@@ -32,6 +32,9 @@ You are interacting with the RwGit repository via the MCP tools provided in your
 ⚠️ **CRITICAL: Commit Limit (limit argument)**
 The default commit analysis limit is 500 commits (`limit = 500`). This is a conservative default for safety and predictability. If your analysis requires a broader historical scope (e.g., analyzing a massive repository's full lifetime) or a tighter, faster analysis window (e.g., checking only the last 10 commits), you **MUST explicitly override the `limit` argument** with the appropriate number of commits.
 
+⚠️ **CRITICAL: Context Offloading (Preventing Overflow)**
+To prevent your context window from overflowing, all verbose analytical tools will offload their massive JSON responses to the local filesystem by default (e.g., `.rw_git/reports/...`) and return only a lightweight summary. You can specify a custom `output_file` path (must be within the repository) for better organization. If you absolutely need to ingest the raw JSON into your chat context, you must explicitly pass `return_full_json: true`.
+
 These tools return structured JSON metrics.
 - **analyze_code_quality**: Use this to get JSON metrics on tech debt, suspicious commits, and high-churn files. Use `includeCodeDiff: true` to inject actual source code diffs for LLM code-smell analysis.
 - **analyze_code_quality_with_authors**: Similar to the above, but includes author contributions. Also supports `includeCodeDiff: true`.

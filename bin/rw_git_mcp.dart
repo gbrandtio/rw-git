@@ -14,37 +14,57 @@ void main() async {
   final tracker = CodeQualityTracker(runner);
 
   final registry = McpRegistry();
-  registry.registerTool(AnalyzeCodeQualityTool(tracker, rwGit));
-  registry.registerTool(AnalyzeCodeQualityWithAuthorsTool(tracker, rwGit));
-  registry.registerTool(AnalyzeBugHotspotsTool(tracker));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeCodeQualityTool(tracker, rwGit)));
+  registry.registerTool(McpToolFileOffloadDecorator(
+      AnalyzeCodeQualityWithAuthorsTool(tracker, rwGit)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeBugHotspotsTool(tracker)));
   registry.registerTool(GetRwGitDocumentationTool());
   registry.registerTool(InitRepositoryTool(rwGit));
   registry.registerTool(IsGitRepositoryTool(rwGit));
   registry.registerTool(CloneRepositoryTool(rwGit));
   registry.registerTool(CheckoutBranchTool(rwGit));
   registry.registerTool(FetchTagsTool(rwGit));
-  registry.registerTool(GetCommitsBetweenTool(rwGit));
+  registry
+      .registerTool(McpToolFileOffloadDecorator(GetCommitsBetweenTool(rwGit)));
   registry.registerTool(GetStatsTool(rwGit));
   registry.registerTool(GetContributionsByAuthorTool(rwGit));
   registry.registerTool(CloneSpecificBranchTool(rwGit));
 
-  registry.registerTool(AnalyzeReleaseDeltaTool(rwGit, tracker));
-  registry.registerTool(AnalyzeBusFactorTool(tracker, rwGit));
-  registry.registerTool(EvaluateCommentLlmGenerationTool(tracker));
-  registry.registerTool(EvaluateCommentQualityTool(tracker));
-  registry.registerTool(EvaluateCommentNecessityTool(tracker));
-  registry.registerTool(DetectSecretsTool(tracker));
-  registry.registerTool(AnalyzePrDiffTool(tracker, rwGit));
-  registry.registerTool(PredictMergeConflictsTool(tracker));
-  registry.registerTool(AnalyzeCommitVelocityTool(tracker));
-  registry.registerTool(AnalyzeDependencyDriftTool(tracker));
-  registry.registerTool(GenerateChangelogTool(rwGit));
-  registry.registerTool(AuditComplianceTool(tracker));
-  registry.registerTool(AnalyzeFileOwnershipTool(tracker, rwGit));
-  registry.registerTool(AnalyzeDartAstQualityTool(rwGit));
-  registry.registerTool(AnalyzeArchitectureDriftTool(rwGit));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeReleaseDeltaTool(rwGit, tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeBusFactorTool(tracker, rwGit)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(EvaluateCommentLlmGenerationTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(EvaluateCommentQualityTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(EvaluateCommentNecessityTool(tracker)));
+  registry
+      .registerTool(McpToolFileOffloadDecorator(DetectSecretsTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzePrDiffTool(tracker, rwGit)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(PredictMergeConflictsTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeCommitVelocityTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeDependencyDriftTool(tracker)));
+  registry
+      .registerTool(McpToolFileOffloadDecorator(GenerateChangelogTool(rwGit)));
+  registry
+      .registerTool(McpToolFileOffloadDecorator(AuditComplianceTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeFileOwnershipTool(tracker, rwGit)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeDartAstQualityTool(rwGit)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(AnalyzeArchitectureDriftTool(rwGit)));
   registry.registerTool(AnalyzeCleanCodeTool());
-  registry.registerTool(CalculateUniversalLexicalMetricsTool());
+  registry.registerTool(
+      McpToolFileOffloadDecorator(CalculateUniversalLexicalMetricsTool()));
 
   registry.registerPrompt(RwGitMcpReportingPrompt());
 
