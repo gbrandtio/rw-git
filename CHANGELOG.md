@@ -1,3 +1,7 @@
+## 3.0.3
+- **FIX (MCP):** Fixed issue with small LLMs hallucinating tool calls and not reading the offloaded JSON results.
+- **CHORE (Agent Skills):** Updated agent skills to provide more comprehensive documentation and guidance.
+
 ## 3.0.2
 - **FIX (MCP):** Implemented safe argument extraction (`getStringArgument`, `getOptionalStringArgument`) for all MCP tools to provide clear, actionable error messages to LLMs when required arguments are missing or malformed, instead of crashing with a cryptic Dart type cast error (`type 'Null' is not a subtype of type 'String' in type cast`).
 - **FEAT (MCP):** Implemented `McpToolFileOffloadDecorator` to automatically offload heavy analytical tool JSON responses to the local filesystem by default, preventing LLM context window overflow.
