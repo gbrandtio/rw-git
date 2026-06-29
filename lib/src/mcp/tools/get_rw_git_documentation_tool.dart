@@ -39,6 +39,7 @@ These tools return structured JSON metrics.
 - **analyze_code_quality**: Use this to get JSON metrics on tech debt, suspicious commits, and high-churn files. Use `includeCodeDiff: true` to inject actual source code diffs for LLM code-smell analysis.
 - **analyze_code_quality_with_authors**: Similar to the above, but includes author contributions. Also supports `includeCodeDiff: true`.
 - **analyze_bug_hotspots**: Identifies files that are frequently modified in bug-fix commits, highlighting areas that may need refactoring.
+- **find_bugs_by_developer**: Finds bugs introduced by a specific developer using a sophisticated SZZ algorithm. Returns the introducing commit alongside the fixing commits.
 - **analyze_release_delta**: Analyzes the difference between two tags to provide a JSON summary of changes, regressions, and code churn.
 - **analyze_bus_factor**: Analyzes the repository to identify files that are heavily reliant on a single author.
 - **evaluate_comment_llm_generation**: Evaluates code comments based on LLM-generated feedback criteria.

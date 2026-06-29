@@ -8,6 +8,9 @@ import '../models/churn_metrics_with_authors_dto.dart';
 import '../models/commit_velocity_dto.dart';
 import '../models/compliance_report_dto.dart';
 import '../models/dependency_manifest_dto.dart';
+import '../models/bug_introduction_dto.dart';
+import '../models/git/git_commit.dart';
+import 'szz_algorithm.dart';
 
 /// ----------------------------------------------------------------------------
 /// code_quality_tracker.dart
@@ -538,103 +541,103 @@ class CodeQualityTracker {
   /// 3. Uses `git blame` to find the original author/commit that introduced the bug.
   Future<BugHotspotDto> calculateBugHotspots(String directory,
       {String? limit}) async {
-    final args = [
-      'log',
-      '--grep=fix\\|bug\\|patch\\|issue',
-      '-i',
-      '--no-merges',
-      '--format=format:%H'
-    ];
-    if (limit != null) {
-      args.insert(1, '-n');
-      args.insert(2, limit);
-    }
-
-    final res = await runner.run('git', args, workingDirectory: directory);
-    evaluateProcessResult(res);
-
-    final fixCommits = (res.stdout?.toString() ?? '')
-        .split('\n')
-        .map((c) => c.trim())
-        .where((c) => c.isNotEmpty)
-        .toList();
+    final szz = SzzAlgorithm(runner);
+    final matches = await szz.execute(directory, limit: limit);
 
     final fileHotspots = <String, int>{};
     final authorHotspots = <String, int>{};
 
-    for (final commit in fixCommits) {
-      // Get parent of fix commit
-      final parentRes = await runner.run('git', ['rev-parse', '$commit^'],
-          workingDirectory: directory);
-      if (parentRes.exitCode != 0) continue;
-      final parent = parentRes.stdout?.toString().trim() ?? '';
-      if (parent.isEmpty) continue;
-
-      // Get diff of fix commit
-      final diffRes = await runner.run('git', ['diff', parent, commit],
-          workingDirectory: directory);
-      if (diffRes.exitCode != 0) continue;
-      final diffOutput = (diffRes.stdout?.toString() ?? '').split('\n');
-
-      String currentFile = '';
-      for (final line in diffOutput) {
-        if (line.startsWith('--- a/')) {
-          currentFile = line.substring(6).trim();
-        } else if (line.startsWith('@@ ') &&
-            currentFile.isNotEmpty &&
-            currentFile != '/dev/null') {
-          final parts = line.split(' ');
-          if (parts.length > 1) {
-            final minusPart = parts[1]; // -start,count
-            if (minusPart.startsWith('-')) {
-              final minusParts = minusPart.substring(1).split(',');
-              final start = int.tryParse(minusParts[0]) ?? 0;
-              final count = minusParts.length > 1
-                  ? (int.tryParse(minusParts[1]) ?? 1)
-                  : 1;
-
-              if (count > 0 && start > 0) {
-                final end = start + count - 1;
-                final blameRes = await runner.run(
-                    'git',
-                    [
-                      'blame',
-                      '-e',
-                      '-L',
-                      '$start,$end',
-                      parent,
-                      '--',
-                      currentFile
-                    ],
-                    workingDirectory: directory);
-                if (blameRes.exitCode == 0) {
-                  final blameLines = (blameRes.stdout?.toString() ?? '')
-                      .split('\n')
-                      .where((l) => l.trim().isNotEmpty);
-                  for (final bLine in blameLines) {
-                    final match = RegExp(r'^([a-f0-9]+)\s+\(\<([^>]+)\>')
-                        .firstMatch(bLine);
-                    if (match != null) {
-                      final author = match.group(2)!.trim();
-                      fileHotspots[currentFile] =
-                          (fileHotspots[currentFile] ?? 0) + 1;
-                      authorHotspots[author] =
-                          (authorHotspots[author] ?? 0) + 1;
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+    for (final match in matches) {
+      fileHotspots[match.filePath] = (fileHotspots[match.filePath] ?? 0) + 1;
+      authorHotspots[match.introducingAuthor] =
+          (authorHotspots[match.introducingAuthor] ?? 0) + 1;
     }
+
+    // We don't have the exact fixCommits length easily here,
+    // but we can estimate it or just leave it as unique fixing commits.
+    final fixCommits = matches.map((m) => m.fixingCommitHash).toSet();
 
     return BugHotspotDto(
       fileHotspots: fileHotspots,
       authorHotspots: authorHotspots,
       totalFixCommitsAnalyzed: fixCommits.length,
     );
+  }
+
+  /// Uses the SZZ Algorithm to find specific bugs introduced by a developer.
+  /// Returns a detailed DTO containing the introducing commit and the subsequent fix commits.
+  Future<List<BugIntroductionDto>> findBugsByDeveloper(
+    String directory,
+    String authorName, {
+    String? limit,
+    String? positiveRegex,
+    String? negativeRegex,
+  }) async {
+    final szz = SzzAlgorithm(runner);
+    final matches = await szz.execute(
+      directory,
+      limit: limit,
+      positiveRegex: positiveRegex,
+      negativeRegex: negativeRegex,
+    );
+
+    final authorLower = authorName.toLowerCase();
+
+    // Group by introducing commit
+    final Map<String, List<String>> introToFixes = {};
+    for (final match in matches) {
+      if (match.introducingAuthor.toLowerCase().contains(authorLower)) {
+        introToFixes.putIfAbsent(match.introducingCommitHash, () => []);
+        if (!introToFixes[match.introducingCommitHash]!
+            .contains(match.fixingCommitHash)) {
+          introToFixes[match.introducingCommitHash]!
+              .add(match.fixingCommitHash);
+        }
+      }
+    }
+
+    if (introToFixes.isEmpty) return [];
+
+    final result = <BugIntroductionDto>[];
+
+    // Helper to fetch full commit details
+    Future<GitCommit?> fetchCommit(String hash) async {
+      final res = await runner.run('git',
+          ['log', '-1', '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s', hash],
+          workingDirectory: directory);
+      if (res.exitCode != 0) return null;
+      final out = res.stdout?.toString().trim() ?? '';
+      if (out.isEmpty) return null;
+      final parts = out.split('\t');
+      if (parts.length >= 5) {
+        return GitCommit(
+          hash: parts[0],
+          authorName: parts[1],
+          authorEmail: parts[2],
+          date: parts[3],
+          message: parts.sublist(4).join('\t'),
+        );
+      }
+      return null;
+    }
+
+    for (final entry in introToFixes.entries) {
+      final introCommit = await fetchCommit(entry.key);
+      if (introCommit == null) continue;
+
+      final fixCommits = <GitCommit>[];
+      for (final fixHash in entry.value) {
+        final f = await fetchCommit(fixHash);
+        if (f != null) fixCommits.add(f);
+      }
+
+      result.add(BugIntroductionDto(
+        introducingCommit: introCommit,
+        fixingCommits: fixCommits,
+      ));
+    }
+
+    return result;
   }
 }
 

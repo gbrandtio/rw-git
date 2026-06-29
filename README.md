@@ -26,7 +26,7 @@
 
 The library and MCP server tools that it offers, provide out-of-the-box metrics, information and data that can contribute significantly in structured harness that LLMs / AI Agents need in order to perform deep analyses and create reports based on git (or use the harness as part of a bigger picture).
 
-All these while keeping the token consumption to a *minimum*.
+All these while keeping the token consumption *at a minimum*.
 
 ## Model Context Protocol (MCP) Server
 
@@ -39,6 +39,8 @@ All these while keeping the token consumption to a *minimum*.
 **Analysis & Metrics:**
 - `analyze_code_quality`: Analyzes recent commits to identify code smells and technical debt.
 - `analyze_code_quality_with_authors`: Analyzes code quality metrics along with author contributions.
+- `analyze_bug_hotspots`: Calculates bug hotspots using the SZZ algorithm.
+- `find_bugs_by_developer`: Finds bugs introduced by a specific developer using the SZZ algorithm.
 - `analyze_bus_factor`: Calculates the "bus factor" by analyzing file ownership and contribution concentration.
 - `analyze_commit_velocity`: Computes time-series commit velocity to track team productivity trends.
 - `analyze_dependency_drift`: Parses dependency manifests for supply chain risk analysis.

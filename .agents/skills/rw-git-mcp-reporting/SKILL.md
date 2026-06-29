@@ -28,7 +28,7 @@ Follow these steps strictly in order. Do not skip any phase.
 <step id="2" name="Deep Code Quality & Velocity">
 - **Contextual Tools**: Use `analyze_pr_diff` for PRs or `analyze_release_delta` for tags/releases.
 - **Quality & Debt**: Run `analyze_code_quality`. If authors are required, use `analyze_code_quality_with_authors`.
-- **Quality & Debt**: Run `analyze_bug_hotspots`.
+- **Quality & Debt**: Run `analyze_bug_hotspots`. To find bugs introduced by a specific developer, use `find_bugs_by_developer`.
 - **Velocity**: Run `analyze_commit_velocity`.
 - **Deep Inspection**: 
   - For Dart code: use `analyze_dart_ast_quality`.

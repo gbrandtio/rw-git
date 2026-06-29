@@ -1,5 +1,6 @@
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/mcp/tools/detect_secrets_tool.dart';
+import 'package:rw_git/src/mcp/tools/find_bugs_by_developer_tool.dart';
 import 'package:rw_git/src/mcp/prompts/rw_git_mcp_reporting_prompt.dart';
 
 /// ----------------------------------------------------------------------------
@@ -20,6 +21,8 @@ void main() async {
       AnalyzeCodeQualityWithAuthorsTool(tracker, rwGit)));
   registry.registerTool(
       McpToolFileOffloadDecorator(AnalyzeBugHotspotsTool(tracker)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(FindBugsByDeveloperTool(tracker)));
   registry.registerTool(GetRwGitDocumentationTool());
   registry.registerTool(InitRepositoryTool(rwGit));
   registry.registerTool(IsGitRepositoryTool(rwGit));

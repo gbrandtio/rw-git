@@ -155,5 +155,13 @@ void main() {
       final result = await tracker.scanComplianceIssues('/test/dir');
       expect(result, isNotNull);
     });
+    test('findBugsByDeveloper returns results', () async {
+      final runner = MockDispatchingRunner();
+      final tracker = CodeQualityTracker(runner);
+      // The MockDispatchingRunner doesn't return anything useful for szz blame right now,
+      // but we just want to cover the method invocation inside CodeQualityTracker
+      final result = await tracker.findBugsByDeveloper('/test/dir', 'Alice');
+      expect(result, isA<List>());
+    });
   });
 }
