@@ -34,7 +34,7 @@ All these while keeping the token consumption to a *minimum*.
 
 ### Available MCP Tools
 
-`rw_git` provides a comprehensive suite of tools for AI agents to analyze and manipulate your repository:
+`rw_git` provides a comprehensive suite of tools for AI agents to analyze your repository:
 
 **Repository Operations:**
 - `init_repository`: Initializes a new Git repository.

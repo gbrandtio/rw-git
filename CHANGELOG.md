@@ -1,3 +1,7 @@
+## 3.0.1
+- **FIX (MCP/NPM):** Resolved an issue where `npx @gbrandtio/rw-git-mcp` would fail with an `ENOEXEC` error. The npm package's `install.js` script now correctly handles non-200 HTTP responses and expects the raw, uncompressed binary executable to be available on GitHub Releases.
+- **CHORE (Distribution):** Updated the GitHub Actions release workflow (`release_mcp.yml`) to upload the raw uncompressed executables in addition to the `.tar.gz` and `.zip` archives.
+
 ## 3.0.0
 - **BREAKING (Core):** All major Git commands (`branch`, `status`, `diff`, `blame`, `show`, `getCommitsBetween`, `stats`) now return strongly-typed model classes (`GitBranch`, `GitStatus`, `GitDiff`, `GitBlame`, `GitCommit`, etc.) instead of raw Strings or `List<String>`.
 - **BREAKING (MCP):** The MCP server now returns structured JSON representations of these Git domain models, enabling LLMs to deterministically parse and reason about Git repository state.

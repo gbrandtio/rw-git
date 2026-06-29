@@ -32,17 +32,24 @@ const destPath = path.join(binDir, platform === 'win32' ? 'rw-git-mcp-bin.exe' :
 console.log(`Downloading ${url} ...`);
 
 https.get(url, (res) => {
-  if (res.statusCode === 302 || res.statusCode === 301) {
-    https.get(res.headers.location, (redirectRes) => {
-      saveFile(redirectRes);
-    });
-  } else {
-    saveFile(res);
-  }
+  handleResponse(res);
 }).on('error', (err) => {
   console.error('Download failed:', err);
   process.exit(1);
 });
+
+function handleResponse(res) {
+  if (res.statusCode === 302 || res.statusCode === 301) {
+    https.get(res.headers.location, (redirectRes) => {
+      handleResponse(redirectRes);
+    });
+  } else if (res.statusCode === 200) {
+    saveFile(res);
+  } else {
+    console.error(`Download failed with status code: ${res.statusCode}`);
+    process.exit(1);
+  }
+}
 
 function saveFile(res) {
   const fileStream = fs.createWriteStream(destPath);

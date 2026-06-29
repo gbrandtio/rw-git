@@ -41,11 +41,13 @@ jobs:
         if: runner.os != 'Windows'
         run: |
           cd build_out/bundle && tar -czvf ../../${{ matrix.artifact_name }}.tar.gz *
+          cp bin/rw_git_mcp ../../${{ matrix.artifact_name }}
           
       - name: Archive Release Bundle (Windows)
         if: runner.os == 'Windows'
         run: |
           Compress-Archive -Path build_out/bundle/* -DestinationPath ${{ matrix.artifact_name }}.zip
+          Copy-Item build_out/bundle/bin/rw_git_mcp.exe -Destination ${{ matrix.artifact_name }}
           
       - name: Upload Release Asset
         uses: softprops/action-gh-release@v2
@@ -54,3 +56,4 @@ jobs:
           files: |
             ${{ matrix.artifact_name }}.tar.gz
             ${{ matrix.artifact_name }}.zip
+            ${{ matrix.artifact_name }}
