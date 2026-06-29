@@ -1,6 +1,6 @@
 {
   "name": "@gbrandtio/rw-git-mcp",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Model Context Protocol (MCP) server for rw-git",
   "main": "index.js",
   "scripts": {
