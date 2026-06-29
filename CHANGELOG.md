@@ -1,4 +1,6 @@
 # 3.0.6
+- **TEST (Quality):** Added `documentation_formatting_test.dart` to enforce 80 column wrapping for the README file.
+- **DOCS:** Formatted `README.md` and `.agents/skills/**/SKILL.md` to adhere strictly to the 80 column wrap limit.
 - **FEAT (MCP):** Added `find_bugs_by_developer` tool to track bugs introduced by specific developers using a sophisticated SZZ algorithm. Extracted SZZ logic into a reusable `SzzAlgorithm` core class.
 - **FEAT (MCP):** Added average time to fix a bug / time taken to fix a bug for both bug-hotspots and bugs-per-developer tools.
 - **FEAT (SKILL):** Added specialized skills for different aspects of reporting to cover a variety of stakeholders needs.
