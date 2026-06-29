@@ -11,11 +11,11 @@
 ## Table of Contents
 
 - [About](#about)
-- [Core Git Commands](#core-git-commands)
 - [Model Context Protocol (MCP) Server](#model-context-protocol-mcp-server)
   - [Available MCP Tools](#available-mcp-tools)
   - [Available Prompts](#available-prompts)
   - [Connecting MCP with Agents](#connecting-mcp-with-agents)
+- [Core Git Commands](#core-git-commands)
 - [Getting started](#getting-started)
   - [Quick Start](#quick-start)
 - [Additional information](#additional-information)
@@ -23,27 +23,7 @@
 ## About
 
 `rw_git` intends to provide useful Git commands, without allowing intrusive actions (such as `push`ing), as well as the necessary harness that AI agents are looking for.
-
-Whether you are building a Dart backend, a developer tool, or connecting an AI agent to your codebase, `rw_git` provides a secure, high-performance, and deeply integrated Git experience.
-
-## Core Git Commands
-
-Provides a clean, fluent API (`RwGit` facade) for all standard Git operations with robust, type-safe error handling. All Git commands return strongly-typed domain models (e.g., `GitCommit`, `GitStatus`, `GitDiff`) wrapped in a `Result` pattern for predictable error propagation.
-
-- `init`: Initializes a new Git repository.
-- `clone`: Clones a remote repository to a local directory.
-- `checkout`: Switches branches or restores working tree files.
-- `branch`: Lists, creates, or deletes branches.
-- `status`: Displays the state of the working directory and the staging area.
-- `pull`: Fetches from and integrates with another repository or a local branch.
-- `diff`: Shows changes between commits, commit and working tree, etc.
-- `merge`: Joins two or more development histories together.
-- `stash`: Stashes the changes in a dirty working directory away.
-- `blame`: Shows what revision and author last modified each line of a file.
-- `show`: Shows various types of objects (commits, trees, tags).
-- `fetchTags`: Fetches all tags from the remote repository.
-- `getCommitsBetween`: Retrieves a list of commits between two tags or branches.
-- `stats`: Retrieves code-change statistics (insertions, deletions, files changed) between two points.
+The library and MCP server tools that it offers, aim to provide out-of-the-box metrics, information and data that can contribute significantly in structured harness that LLMs / AI Agents need in order to perform deep analyses and create reports based on git (or use the harness as part of a bigger picture).
 
 
 ## Model Context Protocol (MCP) Server
@@ -170,6 +150,25 @@ Add this to your MCP configuration block:
 ```
 
 *(Note: If you installed via Dart global activate, or downloaded the binaries, replace `npx` and its `args` with the absolute path to the executable, e.g., `["/path/to/rw_git_mcp"]`).*
+
+## Core Git Commands
+
+Provides a clean, fluent API for all standard Git operations with robust, type-safe error handling. All Git commands return strongly-typed domain models (e.g., `GitCommit`, `GitStatus`, `GitDiff`) wrapped in a `Result` pattern for predictable error propagation.
+
+- `init`: Initializes a new Git repository.
+- `clone`: Clones a remote repository to a local directory.
+- `checkout`: Switches branches or restores working tree files.
+- `branch`: Lists, creates, or deletes branches.
+- `status`: Displays the state of the working directory and the staging area.
+- `pull`: Fetches from and integrates with another repository or a local branch.
+- `diff`: Shows changes between commits, commit and working tree, etc.
+- `merge`: Joins two or more development histories together.
+- `stash`: Stashes the changes in a dirty working directory away.
+- `blame`: Shows what revision and author last modified each line of a file.
+- `show`: Shows various types of objects (commits, trees, tags).
+- `fetchTags`: Fetches all tags from the remote repository.
+- `getCommitsBetween`: Retrieves a list of commits between two tags or branches.
+- `stats`: Retrieves code-change statistics (insertions, deletions, files changed) between two points.
 
 ---
 
