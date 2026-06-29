@@ -69,3 +69,7 @@ To proactively verify that the server works on their machine, you can run a quic
 echo '{"jsonrpc": "2.0", "id": 1, "method": "prompts/list"}' | npx -y @gbrandtio/rw-git-mcp
 ```
 If the command outputs a valid JSON-RPC response containing a prompt named `rw-git-mcp-reporting`, the installation is successful!
+
+## 5. Important Agent Context
+
+When using `rw_git` tools, especially code quality tools, be aware that the **default commit analysis limit is 500**. If the analysis requires more history, you must explicitly pass a larger `limit` argument to the tools.
