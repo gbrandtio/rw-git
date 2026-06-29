@@ -19,7 +19,7 @@ void main() {
 
     test('execute returns tags', () async {
       final result = await tool.execute({
-        'localCheckoutDirectory': 'test_dir',
+        'directory': 'test_dir',
       });
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect((json['tags'] as List).length, 2);

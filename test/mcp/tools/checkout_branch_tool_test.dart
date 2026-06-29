@@ -19,8 +19,8 @@ void main() {
     });
 
     test('execute returns success', () async {
-      final result = await tool.execute(
-          {'localCheckoutDirectory': 'test_dir', 'branchToCheckout': 'main'});
+      final result = await tool
+          .execute({'directory': 'test_dir', 'branchToCheckout': 'main'});
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);
     });

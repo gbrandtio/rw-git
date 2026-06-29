@@ -23,11 +23,8 @@ void main() {
     });
 
     test('execute returns commits', () async {
-      final result = await tool.execute({
-        'localCheckoutDirectory': 'test_dir',
-        'firstTag': 'v1',
-        'secondTag': 'v2'
-      });
+      final result = await tool.execute(
+          {'directory': 'test_dir', 'firstTag': 'v1', 'secondTag': 'v2'});
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect((json['commits'] as List).length, 2);
     });

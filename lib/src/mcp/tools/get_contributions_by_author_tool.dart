@@ -22,17 +22,17 @@ class GetContributionsByAuthorTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'localCheckoutDirectory': {
+          'directory': {
             'type': 'string',
             'description': 'The local directory containing the git repository.'
           }
         },
-        'required': ['localCheckoutDirectory']
+        'required': ['directory']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final localDir = arguments.getStringArgument('directory');
     final contributions =
         (await rwGit.contributionsByAuthor(localDir)).getOrThrow();
     return jsonEncode({

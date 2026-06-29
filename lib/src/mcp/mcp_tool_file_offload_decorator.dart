@@ -21,14 +21,13 @@ class McpToolFileOffloadDecorator implements McpTool {
   @override
   String get description {
     return '${_inner.description}\n\n'
-        '**CONTEXT OFFLOADING (MANDATORY DEFAULT)**: By default, the full JSON '
+        '**CONTEXT OFFLOADING (MANDATORY DEFAULT)**: The full JSON '
         'response of this tool is written to a file on disk rather than returned '
         'in the chat, to prevent context window overflow. You will receive a '
         'summary and the file path. **CRITICAL: You MUST use your file reading '
         'tools to read this offloaded file to extract the metrics and construct a '
         'meaningful report.** You can optionally specify the exact `output_file` '
-        'path (must be within the repository). If you absolutely need the raw '
-        'JSON returned in the chat immediately, set `return_full_json: true`.';
+        'path (must be within the repository).';
   }
 
   @override
@@ -48,29 +47,24 @@ class McpToolFileOffloadDecorator implements McpTool {
           'MUST reside within the target repository directory.',
     };
 
-    properties['return_full_json'] = {
-      'type': 'boolean',
-      'description': 'Optional. Set to true to opt out of file offloading '
-          'and receive the raw JSON in the chat response. (Default: false)',
-    };
-
     schema['properties'] = properties;
     return schema;
   }
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final returnFullJson = arguments['return_full_json'] as bool? ?? false;
+    // Extract base directory if available.
+    String? directory = arguments.getOptionalStringArgument('directory');
 
-    // Extract base directory if available. Many tools require 'directory'.
-    final directory = arguments.getOptionalStringArgument('directory');
+    if (directory == null) {
+      final filePath = arguments.getOptionalStringArgument('file_path');
+      if (filePath != null) {
+        directory = p.dirname(filePath);
+      }
+    }
 
     // Execute the inner tool to get the raw JSON
     final rawOutput = await _inner.execute(arguments);
-
-    if (returnFullJson) {
-      return rawOutput;
-    }
 
     // If the output is an error or already a tiny summary, maybe we shouldn't write it to file?
     try {

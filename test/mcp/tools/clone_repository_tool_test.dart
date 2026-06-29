@@ -19,10 +19,8 @@ void main() {
     });
 
     test('execute returns success', () async {
-      final result = await tool.execute({
-        'localDirectoryToCloneInto': 'test_dir',
-        'repository': 'https://github.com/repo'
-      });
+      final result = await tool.execute(
+          {'directory': 'test_dir', 'repository': 'https://github.com/repo'});
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);
     });

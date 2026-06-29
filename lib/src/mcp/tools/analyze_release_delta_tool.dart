@@ -27,7 +27,7 @@ class AnalyzeReleaseDeltaTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'localCheckoutDirectory': {
+          'directory': {
             'type': 'string',
             'description': 'The local directory containing the git repository.'
           },
@@ -45,12 +45,12 @@ class AnalyzeReleaseDeltaTool implements McpTool {
                 'If true, includes the full list of commits in the response. Defaults to false.'
           }
         },
-        'required': ['localCheckoutDirectory', 'firstTag', 'secondTag']
+        'required': ['directory', 'firstTag', 'secondTag']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final localDir = arguments.getStringArgument('directory');
     final firstTag = arguments.getStringArgument('firstTag');
     final secondTag = arguments.getStringArgument('secondTag');
     final detailed = arguments['detailed'] as bool? ?? false;

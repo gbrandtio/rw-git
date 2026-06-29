@@ -23,17 +23,17 @@ class IsGitRepositoryTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'directoryToCheck': {
+          'directory': {
             'type': 'string',
             'description': 'The directory to check.'
           }
         },
-        'required': ['directoryToCheck']
+        'required': ['directory']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final dir = arguments.getStringArgument('directoryToCheck');
+    final dir = arguments.getStringArgument('directory');
     final result = (await rwGit.isGitRepository(dir)).getOrThrow();
 
     if (!result) {

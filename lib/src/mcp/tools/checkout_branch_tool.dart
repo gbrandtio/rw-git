@@ -22,7 +22,7 @@ class CheckoutBranchTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'localCheckoutDirectory': {
+          'directory': {
             'type': 'string',
             'description': 'The local directory containing the git repository.'
           },
@@ -31,12 +31,12 @@ class CheckoutBranchTool implements McpTool {
             'description': 'The name of the branch to checkout.'
           }
         },
-        'required': ['localCheckoutDirectory', 'branchToCheckout']
+        'required': ['directory', 'branchToCheckout']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final localDir = arguments.getStringArgument('directory');
     final branch = arguments.getStringArgument('branchToCheckout');
     final result = (await rwGit.checkout(localDir, branch)).getOrThrow();
     return jsonEncode({'success': result});

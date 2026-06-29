@@ -23,7 +23,7 @@ class GetStatsTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'localCheckoutDirectory': {
+          'directory': {
             'type': 'string',
             'description': 'The local directory containing the git repository.'
           },
@@ -36,12 +36,12 @@ class GetStatsTool implements McpTool {
             'description': 'The newer tag or commit hash.'
           }
         },
-        'required': ['localCheckoutDirectory', 'oldTag', 'newTag']
+        'required': ['directory', 'oldTag', 'newTag']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final localDir = arguments.getStringArgument('directory');
     final oldTag = arguments.getStringArgument('oldTag');
     final newTag = arguments.getStringArgument('newTag');
     final stats = (await rwGit.stats(localDir, oldTag, newTag)).getOrThrow();

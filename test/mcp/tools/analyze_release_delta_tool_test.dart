@@ -48,7 +48,7 @@ void main() {
       expect(tool.inputSchema.isNotEmpty, isTrue);
       expect(tool.name, 'analyze_release_delta');
       expect(tool.inputSchema['required'],
-          containsAll(['localCheckoutDirectory', 'firstTag', 'secondTag']));
+          containsAll(['directory', 'firstTag', 'secondTag']));
     });
 
     test('execute aggregates data correctly', () async {
@@ -71,7 +71,7 @@ void main() {
       final tool = AnalyzeReleaseDeltaTool(
           rwGit, MockCodeQualityTrackerForReleaseDelta());
       final resultRaw = await tool.execute({
-        'localCheckoutDirectory': '/test/dir',
+        'directory': '/test/dir',
         'firstTag': 'v1',
         'secondTag': 'v2',
       });
@@ -110,7 +110,7 @@ void main() {
       final tool = AnalyzeReleaseDeltaTool(
           rwGit, MockCodeQualityTrackerForReleaseDelta());
       final resultRaw = await tool.execute({
-        'localCheckoutDirectory': '/test/dir',
+        'directory': '/test/dir',
         'firstTag': 'v1',
         'secondTag': 'v2',
         'detailed': true,

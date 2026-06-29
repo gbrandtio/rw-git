@@ -28,8 +28,9 @@ void main() async {
   registry.registerTool(FetchTagsTool(rwGit));
   registry
       .registerTool(McpToolFileOffloadDecorator(GetCommitsBetweenTool(rwGit)));
-  registry.registerTool(GetStatsTool(rwGit));
-  registry.registerTool(GetContributionsByAuthorTool(rwGit));
+  registry.registerTool(McpToolFileOffloadDecorator(GetStatsTool(rwGit)));
+  registry.registerTool(
+      McpToolFileOffloadDecorator(GetContributionsByAuthorTool(rwGit)));
   registry.registerTool(CloneSpecificBranchTool(rwGit));
 
   registry.registerTool(
@@ -62,7 +63,7 @@ void main() async {
       McpToolFileOffloadDecorator(AnalyzeDartAstQualityTool(rwGit)));
   registry.registerTool(
       McpToolFileOffloadDecorator(AnalyzeArchitectureDriftTool(rwGit)));
-  registry.registerTool(AnalyzeCleanCodeTool());
+  registry.registerTool(McpToolFileOffloadDecorator(AnalyzeCleanCodeTool()));
   registry.registerTool(
       McpToolFileOffloadDecorator(CalculateUniversalLexicalMetricsTool()));
 

@@ -22,17 +22,17 @@ class InitRepositoryTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'directoryToInit': {
+          'directory': {
             'type': 'string',
             'description': 'The directory to initialize the git repository in.'
           }
         },
-        'required': ['directoryToInit']
+        'required': ['directory']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final dir = arguments.getStringArgument('directoryToInit');
+    final dir = arguments.getStringArgument('directory');
     final result = (await rwGit.init(dir)).getOrThrow();
     return jsonEncode({'success': result});
   }

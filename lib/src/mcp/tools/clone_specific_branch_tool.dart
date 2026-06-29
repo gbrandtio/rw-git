@@ -22,7 +22,7 @@ class CloneSpecificBranchTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'localDirectoryToCloneInto': {
+          'directory': {
             'type': 'string',
             'description': 'The local directory to clone the repository into.'
           },
@@ -35,16 +35,12 @@ class CloneSpecificBranchTool implements McpTool {
             'description': 'The name of the branch to checkout.'
           }
         },
-        'required': [
-          'localDirectoryToCloneInto',
-          'repository',
-          'branchToCheckout'
-        ]
+        'required': ['directory', 'repository', 'branchToCheckout']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments.getStringArgument('localDirectoryToCloneInto');
+    final localDir = arguments.getStringArgument('directory');
     final repoUrl = arguments.getStringArgument('repository');
     final branch = arguments.getStringArgument('branchToCheckout');
     final result = (await rwGit.cloneSpecificBranch(localDir, repoUrl, branch))

@@ -21,11 +21,8 @@ void main() {
     });
 
     test('execute returns stats', () async {
-      final result = await tool.execute({
-        'localCheckoutDirectory': 'test_dir',
-        'oldTag': 'v1',
-        'newTag': 'v2'
-      });
+      final result = await tool
+          .execute({'directory': 'test_dir', 'oldTag': 'v1', 'newTag': 'v2'});
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['numberOfChangedFiles'], 3);
       expect(json['insertions'], 50);

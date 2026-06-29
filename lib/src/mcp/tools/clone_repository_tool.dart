@@ -22,7 +22,7 @@ class CloneRepositoryTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'localDirectoryToCloneInto': {
+          'directory': {
             'type': 'string',
             'description': 'The local directory to clone the repository into.'
           },
@@ -31,12 +31,12 @@ class CloneRepositoryTool implements McpTool {
             'description': 'The remote repository URL.'
           }
         },
-        'required': ['localDirectoryToCloneInto', 'repository']
+        'required': ['directory', 'repository']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments.getStringArgument('localDirectoryToCloneInto');
+    final localDir = arguments.getStringArgument('directory');
     final repoUrl = arguments.getStringArgument('repository');
     final result = (await rwGit.clone(localDir, repoUrl)).getOrThrow();
     return jsonEncode({'success': result});

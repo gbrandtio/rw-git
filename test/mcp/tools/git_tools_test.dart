@@ -135,63 +135,60 @@ void main() {
 
   test('InitRepositoryTool', () async {
     final tool = InitRepositoryTool(rwGit);
-    final result = await tool.execute({'directoryToInit': 'testDir'});
+    final result = await tool.execute({'directory': 'testDir'});
     expect(result, contains('true'));
   });
 
   test('IsGitRepositoryTool', () async {
     final tool = IsGitRepositoryTool(rwGit);
-    final result = await tool.execute({'directoryToCheck': 'testDir'});
+    final result = await tool.execute({'directory': 'testDir'});
     expect(result, contains('true'));
   });
 
   test('CloneRepositoryTool', () async {
     final tool = CloneRepositoryTool(rwGit);
-    final result = await tool
-        .execute({'localDirectoryToCloneInto': 'testDir', 'repository': 'url'});
+    final result =
+        await tool.execute({'directory': 'testDir', 'repository': 'url'});
     expect(result, contains('true'));
   });
 
   test('CheckoutBranchTool', () async {
     final tool = CheckoutBranchTool(rwGit);
-    final result = await tool.execute(
-        {'localCheckoutDirectory': 'testDir', 'branchToCheckout': 'main'});
+    final result = await tool
+        .execute({'directory': 'testDir', 'branchToCheckout': 'main'});
     expect(result, contains('true'));
   });
 
   test('FetchTagsTool', () async {
     final tool = FetchTagsTool(rwGit);
-    final result = await tool.execute({'localCheckoutDirectory': 'testDir'});
+    final result = await tool.execute({'directory': 'testDir'});
     expect(result, contains('v1.0.0'));
   });
 
   test('GetCommitsBetweenTool', () async {
     final tool = GetCommitsBetweenTool(rwGit);
-    final result = await tool.execute({
-      'localCheckoutDirectory': 'testDir',
-      'firstTag': 'v1',
-      'secondTag': 'v2'
-    });
+    final result = await tool
+        .execute({'directory': 'testDir', 'firstTag': 'v1', 'secondTag': 'v2'});
     expect(result, contains('commit1'));
   });
 
   test('GetStatsTool', () async {
     final tool = GetStatsTool(rwGit);
-    final result = await tool.execute(
-        {'localCheckoutDirectory': 'testDir', 'oldTag': 'v1', 'newTag': 'v2'});
+    final result = await tool
+        .execute({'directory': 'testDir', 'oldTag': 'v1', 'newTag': 'v2'});
     expect(result, contains('1'));
   });
 
   test('GetContributionsByAuthorTool', () async {
     final tool = GetContributionsByAuthorTool(rwGit);
-    final result = await tool.execute({'localCheckoutDirectory': 'testDir'});
+    final result = await tool.execute({'directory': 'testDir'});
     expect(result, contains('Author'));
   });
 
   test('CloneSpecificBranchTool', () async {
     final tool = CloneSpecificBranchTool(rwGit);
     final result = await tool.execute({
-      'localDirectoryToCloneInto': 'testDir',
+      'directory': 'testDir',
       'repository': 'url',
       'branchToCheckout': 'main'
     });

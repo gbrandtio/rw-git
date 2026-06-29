@@ -19,7 +19,7 @@ void main() {
     });
 
     test('execute returns success', () async {
-      final result = await tool.execute({'directoryToInit': 'test_dir'});
+      final result = await tool.execute({'directory': 'test_dir'});
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);
     });

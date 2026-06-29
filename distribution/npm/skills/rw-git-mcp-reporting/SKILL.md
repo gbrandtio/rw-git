@@ -17,7 +17,7 @@ Before diving into analysis, you **MUST** understand the context and establish t
 - **Internal Docs:** If you ever need to understand how the underlying `rw_git` commands execute or handle errors, run `get_rw_git_documentation`.
 - **Scope Resolution:** Resolve the exact arguments you will need for downstream tools (e.g., `limit`, `since`, `until`, `oldVersion`, `newVersion`, `branchA`, `branchB`).
   - ⚠️ **CRITICAL (Commit Limit):** The default limit for code quality analysis tools is **500 commits**. This is a conservative baseline. If your analysis scope requires more (or less) history, you **MUST explicitly override the `limit` argument**.
-  - ⚠️ **CRITICAL (Context Offloading)**: By default, ALL verbose analytical tools will offload their massive JSON responses to the local filesystem (e.g. `.rw_git/reports/...`) to prevent your context window from overflowing. You will only receive a lightweight summary and the file path. You can optionally specify the exact `output_file` path (must be within the repository) for better organization. If you absolutely need to ingest the raw JSON into your chat context, you must explicitly pass `return_full_json: true`.
+  - ⚠️ **CRITICAL (Context Offloading)**: ALL verbose analytical tools will offload their massive JSON responses to the local filesystem (e.g. `.rw_git/reports/...`) to prevent your context window from overflowing. You will only receive a lightweight summary and the file path. You can optionally specify the exact `output_file` path (must be within the repository) for better organization.
 
 ## 2. General Statistics & Contributor Activity
 Start by building a foundational understanding of the codebase's size, scope, and primary drivers.
@@ -56,6 +56,7 @@ If the user's request involves summarizing changes between releases or wrapping 
 
 ## 8. Synthesis & Formatting
 Aggregate the outputs from all the invoked tools into a highly structured, unified Markdown artifact. 
+- **Analyze Offloaded Data (CRITICAL):** Because the tools offload their detailed JSON responses to the filesystem, you MUST actively analyze these files to extract business value. Do not just regurgitate that the analysis was completed or that files were offloaded. You must read the offloaded JSON files (e.g., using file reading tools, or by writing and executing a short script to parse and aggregate the top issues) to extract concrete metrics, problematic file paths, and specific findings to include in your final report.
 - Present the information with a clear executive summary followed by detailed sections.
 - Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, `> [!CAUTION]`) to highlight critical risks, exposed secrets, severe compliance violations, or likely merge conflicts.
 - **Leverage Structured Data:** The underlying `rw_git` tools return highly structured Git models (e.g., `GitCommit`, `GitDiff`, `GitStatus`, `GitTag`, `RwGitStats`) making the outputs strongly typed and predictable. Leverage these rich structures to confidently generate tables, summaries, and charts without brittle string parsing.

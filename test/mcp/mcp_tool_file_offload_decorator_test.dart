@@ -48,27 +48,16 @@ void main() {
   });
 
   group('McpToolFileOffloadDecorator', () {
-    test('modifies inputSchema to include output_file and return_full_json',
-        () {
+    test('modifies inputSchema to include output_file', () {
       final schema = decorator.inputSchema;
       final properties = schema['properties'] as Map<String, dynamic>;
 
       expect(properties.containsKey('output_file'), isTrue);
-      expect(properties.containsKey('return_full_json'), isTrue);
     });
 
     test('modifies description to include offloading hint', () {
       final desc = decorator.description;
       expect(desc, contains('CONTEXT OFFLOADING'));
-    });
-
-    test('returns full JSON if return_full_json is true', () async {
-      final result = await decorator.execute({
-        'directory': tempDir.path,
-        'return_full_json': true,
-      });
-
-      expect(result, contains('massive JSON payload'));
     });
 
     test('writes to auto-generated file by default and returns summary',

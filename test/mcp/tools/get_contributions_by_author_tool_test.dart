@@ -20,7 +20,7 @@ void main() {
 
     test('execute returns contributions', () async {
       final result = await tool.execute({
-        'localCheckoutDirectory': 'test_dir',
+        'directory': 'test_dir',
       });
       final json = jsonDecode(result) as Map<String, dynamic>;
       final contributions = json['contributions'] as List;

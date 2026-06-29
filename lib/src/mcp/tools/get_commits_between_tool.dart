@@ -22,7 +22,7 @@ class GetCommitsBetweenTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
-          'localCheckoutDirectory': {
+          'directory': {
             'type': 'string',
             'description': 'The local directory containing the git repository.'
           },
@@ -35,12 +35,12 @@ class GetCommitsBetweenTool implements McpTool {
             'description': 'The newer tag or commit hash.'
           }
         },
-        'required': ['localCheckoutDirectory', 'firstTag', 'secondTag']
+        'required': ['directory', 'firstTag', 'secondTag']
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final localDir = arguments.getStringArgument('directory');
     final firstTag = arguments.getStringArgument('firstTag');
     final secondTag = arguments.getStringArgument('secondTag');
     final commits =

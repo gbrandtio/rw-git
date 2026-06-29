@@ -22,7 +22,7 @@ void main() {
 
     test('execute returns success', () async {
       final result = await tool.execute({
-        'localDirectoryToCloneInto': 'test_dir',
+        'directory': 'test_dir',
         'repository': 'https://github.com/repo',
         'branchToCheckout': 'main'
       });
