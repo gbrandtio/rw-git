@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../rw_git.dart';
+import '../../constants.dart';
 
 /// analyze_pr_diff_tool.dart
 /// Analyzes a PR diff for risk signals by combining
@@ -71,7 +72,7 @@ class AnalyzePrDiffTool implements McpTool {
     // 2. Get churn data for risk scoring
     final churn = await tracker.calculateChurnWithAuthors(
       directory,
-      limit: '200',
+      limit: defaultCommitLimit,
     );
 
     // 3. Scan for secrets in the PR range

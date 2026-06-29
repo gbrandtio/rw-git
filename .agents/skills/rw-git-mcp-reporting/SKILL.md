@@ -16,6 +16,7 @@ Before diving into analysis, you **MUST** understand the context and establish t
 - **Reference Gathering:** Use `fetch_tags` to get a list of available tags if you need to perform release comparisons.
 - **Internal Docs:** If you ever need to understand how the underlying `rw_git` commands execute or handle errors, run `get_rw_git_documentation`.
 - **Scope Resolution:** Resolve the exact arguments you will need for downstream tools (e.g., `limit`, `since`, `until`, `oldVersion`, `newVersion`, `branchA`, `branchB`).
+  - ⚠️ **CRITICAL (Commit Limit):** The default limit for code quality analysis tools is **500 commits**. This is a conservative baseline. If your analysis scope requires more (or less) history, you **MUST explicitly override the `limit` argument**.
 
 ## 2. General Statistics & Contributor Activity
 Start by building a foundational understanding of the codebase's size, scope, and primary drivers.

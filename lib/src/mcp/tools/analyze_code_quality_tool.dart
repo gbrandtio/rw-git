@@ -1,4 +1,5 @@
 import 'base_analyze_code_quality_tool.dart';
+import '../../constants.dart';
 
 /// analyze_code_quality_tool.dart
 /// Analyzes a git repository for suspicious or massive
@@ -59,7 +60,7 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
         .toList()
       ..sort((a, b) => b.value.compareTo(a.value));
 
-    final effectiveTopN = topN ?? 5;
+    final effectiveTopN = topN ?? defaultTopN;
 
     if (highChurnFiles.length > effectiveTopN) {
       highChurnFiles = highChurnFiles.take(effectiveTopN).toList();

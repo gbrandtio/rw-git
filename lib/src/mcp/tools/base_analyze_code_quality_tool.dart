@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../../constants.dart';
 
 /// base_analyze_code_quality_tool.dart
 /// Abstract base class for code quality analysis tools
@@ -25,7 +26,8 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
           },
           'limit': {
             'type': 'number',
-            'description': 'Number of commits to analyze (default: 10).'
+            'description':
+                'Number of commits to analyze (default: $defaultCommitLimit).'
           },
           'includeCommitLog': {
             'type': 'boolean',
@@ -54,7 +56,7 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
     Map<String, dynamic> arguments,
   ) async {
     final directory = arguments['directory'] as String;
-    final limit = arguments['limit']?.toString() ?? '10';
+    final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final includeCommitLog = arguments['includeCommitLog'] as bool? ?? false;
     final includeCodeDiff = arguments['includeCodeDiff'] as bool? ?? false;
     final topN = arguments['topN'] as int?;

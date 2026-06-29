@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../../constants.dart';
 
 /// analyze_bus_factor_tool.dart
 /// Analyzes the bus-factor risk and knowledge silos within a git repository.
@@ -31,7 +32,8 @@ class AnalyzeBusFactorTool implements McpTool {
           },
           'limit': {
             'type': 'number',
-            'description': 'Number of commits to analyze (default: 100).'
+            'description':
+                'Number of commits to analyze (default: $defaultCommitLimit).'
           },
           'detailed': {
             'type': 'boolean',
@@ -45,7 +47,7 @@ class AnalyzeBusFactorTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments['directory'] as String;
-    final limit = arguments['limit']?.toString() ?? '100';
+    final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final detailed = arguments['detailed'] as bool? ?? false;
 
     final churn =

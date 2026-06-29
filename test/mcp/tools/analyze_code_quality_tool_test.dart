@@ -193,7 +193,7 @@ void main() {
       rwGit = RwGit(runner: mockRunner);
       mockRunner.setMockResult(
         'git',
-        ['log', '-n', '10', '--shortstat', '--format=%H %s'],
+        ['log', '-n', '500', '--shortstat', '--format=%H %s'],
         0,
         'abc123 mocked commit\n'
             ' 3 files changed, 50 insertions(+)',
@@ -201,7 +201,7 @@ void main() {
       );
       mockRunner.setMockResult(
         'git',
-        ['log', '-n', '10', '-p'],
+        ['log', '-n', '500', '-p'],
         0,
         'mocked code diff output',
         '',

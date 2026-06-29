@@ -34,7 +34,10 @@ All these while keeping the token consumption to a *minimum*.
 
 ### Available MCP Tools
 
-`rw_git` provides a comprehensive suite of tools for AI agents to analyze your repository:
+`rw_git` provides a comprehensive suite of tools for AI agents to analyze your repository.
+
+⚠️ **CRITICAL: Commit Limit (limit argument)**
+For code quality and analysis tools, the default commit analysis limit is 500 commits (`limit = 500`). This is a conservative default for safety and predictability. If your analysis requires a broader historical scope or a tighter window, AI Agents **must explicitly override the `limit` argument**.
 
 **Repository Operations:**
 - `init_repository`: Initializes a new Git repository.

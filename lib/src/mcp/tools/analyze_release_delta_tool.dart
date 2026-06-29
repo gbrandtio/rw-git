@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../rw_git.dart';
+import '../../constants.dart';
 
 /// analyze_release_delta_tool.dart
 /// Analyzes the release delta and velocity between two stable tags.
@@ -64,9 +65,10 @@ class AnalyzeReleaseDeltaTool implements McpTool {
         .getOrThrow();
 
     // 3. Get Bug Hotspots and Advanced Metrics (Blast Radius) for context
-    final hotspots = await tracker.calculateBugHotspots(localDir, limit: '500');
-    final advanced =
-        await tracker.calculateAdvancedMetrics(localDir, limit: '500');
+    final hotspots =
+        await tracker.calculateBugHotspots(localDir, limit: defaultCommitLimit);
+    final advanced = await tracker.calculateAdvancedMetrics(localDir,
+        limit: defaultCommitLimit);
 
     final hotspotFiles = hotspots.fileHotspots.keys.toSet();
     final coChangeMatrix = advanced.coChangeMatrix;

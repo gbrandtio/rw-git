@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../../constants.dart';
 
 /// analyze_bug_hotspots_tool.dart
 /// Implements the SZZ Algorithm to identify files and authors
@@ -30,7 +31,7 @@ class AnalyzeBugHotspotsTool implements McpTool {
           'limit': {
             'type': 'number',
             'description':
-                'Maximum number of recent commits to scan for bug fixes (default: 500).',
+                'Maximum number of recent commits to scan for bug fixes (default: $defaultCommitLimit).',
           }
         },
         'required': ['directory'],
@@ -39,7 +40,7 @@ class AnalyzeBugHotspotsTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments['directory'] as String;
-    final limit = arguments['limit']?.toString() ?? '500';
+    final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
 
     final hotspots =
         await tracker.calculateBugHotspots(directory, limit: limit);

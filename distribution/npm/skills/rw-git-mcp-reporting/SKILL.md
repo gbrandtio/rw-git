@@ -30,7 +30,7 @@ Dive into the specific changes, analyzing their impact and how fast the team is 
 - **Code Quality:** Run `analyze_code_quality` (or `analyze_code_quality_with_authors` if the breakdown of contributors is important) to spot code smells, complex files, and technical debt.
 - **Bug Hotspots:** Run `analyze_bug_hotspots` to identify files that are frequently modified in bug-fix commits, highlighting areas that may need refactoring.
 - **Trend Analysis:** Run `analyze_commit_velocity` to gather time-series trend data, exposing anomalies in commit frequency and tracking team productivity over time.
-- **Deep Inspection:** If you are analyzing Dart code, use `analyze_dart_ast_quality` for AST-level insights into dead code, public signature diffs, and dependency graphs. Use `analyze_clean_code` on individual files to check basic SOLID principles and readability heuristics.
+- **Deep Inspection:** If you are analyzing Dart code, use `analyze_dart_ast_quality` for AST-level insights into dead code, public signature diffs, and dependency graphs. Use `analyze_clean_code` on individual files to check basic SOLID principles and readability heuristics. Use `calculate_universal_lexical_metrics` for fast, language-agnostic lexical complexity metrics (Cyclomatic, Halstead, Cognitive) on any text-based source file.
 
 ## 4. Security & Compliance Check
 Ensure the code being analyzed meets security policies and project compliance standards. This step is critical for CI/CD environments.
@@ -56,5 +56,6 @@ If the user's request involves summarizing changes between releases or wrapping 
 Aggregate the outputs from all the invoked tools into a highly structured, unified Markdown artifact. 
 - Present the information with a clear executive summary followed by detailed sections.
 - Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, `> [!CAUTION]`) to highlight critical risks, exposed secrets, severe compliance violations, or likely merge conflicts.
+- **Leverage Structured Data:** The underlying `rw_git` tools return highly structured Git models (e.g., `GitCommit`, `GitDiff`, `GitStatus`, `GitTag`, `RwGitStats`) making the outputs strongly typed and predictable. Leverage these rich structures to confidently generate tables, summaries, and charts without brittle string parsing.
 - **Do not dump raw JSON.** Synthesize the metrics into readable tables, lists, and actionable insights. Use mermaid diagrams if it helps visualize complex relationships like contributor ownership.
 - Point the user directly to the most critical files requiring attention based on the analysis.

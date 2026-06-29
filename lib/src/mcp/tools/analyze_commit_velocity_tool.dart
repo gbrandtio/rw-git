@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../../constants.dart';
 
 /// analyze_commit_velocity_tool.dart
 /// Computes time-series commit velocity with trend
@@ -56,7 +57,7 @@ class AnalyzeCommitVelocityTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments['directory'] as String;
-    final limit = arguments['limit']?.toString();
+    final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final since = arguments['since'] as String?;
     final until = arguments['until'] as String?;
     final granularity = arguments['granularity'] as String? ?? 'week';

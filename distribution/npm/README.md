@@ -10,7 +10,10 @@ The MCP can be used to provide Git harness to your agent, while keeping AI token
 
 ## Available MCP Tools
 
-`rw-git-mcp` provides a comprehensive suite of tools for AI agents to analyze and manipulate your repository:
+`rw-git-mcp` provides a comprehensive suite of tools for AI agents to analyze and manipulate your repository.
+
+⚠️ **CRITICAL: Commit Limit (limit argument)**
+For code quality and analysis tools, the default commit analysis limit is 500 commits (`limit = 500`). This is a conservative default for safety and predictability. If your analysis requires a broader historical scope or a tighter window, AI Agents **must explicitly override the `limit` argument**.
 
 **Repository Operations:**
 - `init_repository`: Initializes a new Git repository.

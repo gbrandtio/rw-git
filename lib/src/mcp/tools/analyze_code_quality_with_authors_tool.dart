@@ -1,4 +1,5 @@
 import 'base_analyze_code_quality_tool.dart';
+import '../../constants.dart';
 
 /// analyze_code_quality_with_authors_tool.dart
 /// Analyzes a git repository for suspicious or massive
@@ -70,7 +71,7 @@ class AnalyzeCodeQualityWithAuthorsTool extends BaseAnalyzeCodeQualityTool {
         (a, b) => b.value.total.compareTo(a.value.total),
       );
 
-    final effectiveTopN = topN ?? 5;
+    final effectiveTopN = topN ?? defaultTopN;
 
     if (highChurnFiles.length > effectiveTopN) {
       highChurnFiles = highChurnFiles.take(effectiveTopN).toList();

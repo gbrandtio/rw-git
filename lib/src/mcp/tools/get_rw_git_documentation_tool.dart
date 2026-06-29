@@ -29,6 +29,9 @@ You are interacting with the RwGit repository via the MCP tools provided in your
 - **Do** invoke the provided MCP tools directly using your environment's native tool execution capabilities.
 
 ## 1. Code Quality Analysis Tools
+⚠️ **CRITICAL: Commit Limit (limit argument)**
+The default commit analysis limit is 500 commits (`limit = 500`). This is a conservative default for safety and predictability. If your analysis requires a broader historical scope (e.g., analyzing a massive repository's full lifetime) or a tighter, faster analysis window (e.g., checking only the last 10 commits), you **MUST explicitly override the `limit` argument** with the appropriate number of commits.
+
 These tools return structured JSON metrics.
 - **analyze_code_quality**: Use this to get JSON metrics on tech debt, suspicious commits, and high-churn files. Use `includeCodeDiff: true` to inject actual source code diffs for LLM code-smell analysis.
 - **analyze_code_quality_with_authors**: Similar to the above, but includes author contributions. Also supports `includeCodeDiff: true`.

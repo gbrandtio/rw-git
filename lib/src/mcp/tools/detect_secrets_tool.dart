@@ -1,5 +1,6 @@
 import '../../quality/code_quality_tracker.dart';
 import '../mcp_tool.dart';
+import '../../constants.dart';
 
 /// detect_secrets_tool.dart
 /// Scans commit history for exposed secrets, API keys, or credentials.
@@ -28,9 +29,8 @@ class DetectSecretsTool implements McpTool {
           },
           'limit': {
             'type': 'string',
-            'description':
-                'Optional. The number of commits to scan (e.g. "10"). '
-                    'If omitted, scans the entire history of the given branch.',
+            'description': 'Optional. The number of commits to scan (e.g. "10"). '
+                'Defaults to $defaultCommitLimit. If omitted, scans up to the limit of the given branch.',
           },
           'branch': {
             'type': 'string',
@@ -49,7 +49,7 @@ class DetectSecretsTool implements McpTool {
           'The "directory" argument is required and must be a string.');
     }
 
-    final limit = arguments['limit']?.toString();
+    final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final branch = arguments['branch']?.toString();
 
     final secrets =

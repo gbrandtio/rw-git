@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../../constants.dart';
 
 /// base_evaluate_comments_tool.dart
 /// Abstract base class for tools that evaluate comments
@@ -21,7 +22,7 @@ abstract class BaseEvaluateCommentsTool implements McpTool {
           'limit': {
             'type': 'number',
             'description': 'Number of commits to retrieve for '
-                'comment evaluation (default: 10).'
+                'comment evaluation (default: $defaultCommitLimit).'
           }
         },
         'required': ['directory']
@@ -32,7 +33,7 @@ abstract class BaseEvaluateCommentsTool implements McpTool {
     Map<String, dynamic> arguments,
   ) async {
     final directory = arguments['directory'] as String;
-    final limit = arguments['limit']?.toString() ?? '10';
+    final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
 
     final changedComments = await tracker.extractChangedComments(
       directory,

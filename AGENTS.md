@@ -118,6 +118,8 @@ Before completing any task, you MUST strictly run `dart analyze` to ensure there
 10. **Analysis (STRICTLY ENFORCED)**: You MUST strictly run `dart analyze` before finalizing your changes. All warnings and info messages must be resolved. Do not skip this step under any circumstances.
 11. **Documentation Updates**: It is mandatory to update `README.md` and `CHANGELOG.md` for any feature updates, fixes, or modifications being done to the library or the MCP server.
 12. **Non-Intrusiveness**: The library is designed to provide useful harnesses and must not be intrusive. Do not offer or implement commands that mutate the remote state (like `push`). Do not offer or implement arbitrary command execution (like `execute_command`). The LLM using this library must be restricted to what the library explicitly offers for analysis and local operations, without any other intrusive capabilities available.
+13. **Constants and Defaults**: All constants, default values, and magic numbers must be extracted and centralized in `lib/src/constants.dart`.
+14. **Mandatory Documentation Updates for Defaults**: Whenever a default limit, capability, or constant changes, it is absolutely mandatory to update `README.md`, `distribution/npm/README.md`, the reporting skill (`rw-git-mcp-reporting/SKILL.md`), the installation skill (`rw-git-mcp-installation/SKILL.md`), and the `get_rw_git_documentation` tool.
 
 ## Testing
 *   **Coverage Requirement (CRITICAL)**: The codebase must maintain 100% test coverage. Any new code or modifications must include unit tests that cover all added or changed lines.
