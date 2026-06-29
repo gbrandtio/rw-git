@@ -24,7 +24,7 @@ class SzzAlgorithm {
       '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
       '-i',
       '--no-merges',
-      '--format=format:%H%x09%s'
+      '--format=format:%H%x09%aI%x09%s'
     ];
 
     if (limit != null) {
@@ -39,7 +39,7 @@ class SzzAlgorithm {
     if (rawOutput.isEmpty) return [];
 
     final lines = rawOutput.split('\n');
-    final fixCommits = <String>[];
+    final fixCommits = <_FixCommitInfo>[];
 
     final posRegex = positiveRegex != null
         ? RegExp(positiveRegex, caseSensitive: false)
@@ -60,19 +60,26 @@ class SzzAlgorithm {
 
     for (final line in lines) {
       final parts = line.split('\t');
-      if (parts.length >= 2) {
+      if (parts.length >= 3) {
         final hash = parts[0].trim();
-        final subject = parts.sublist(1).join('\t').trim();
+        final dateStr = parts[1].trim();
+        final subject = parts.sublist(2).join('\t').trim();
 
         if (rPos.hasMatch(subject) && !rNeg.hasMatch(subject)) {
-          fixCommits.add(hash);
+          final fixDate = DateTime.tryParse(dateStr);
+          if (fixDate != null) {
+            fixCommits.add(_FixCommitInfo(hash, fixDate));
+          }
         }
       }
     }
 
     final matches = <SzzMatch>[];
 
-    for (final commit in fixCommits) {
+    for (final fixInfo in fixCommits) {
+      final commit = fixInfo.hash;
+      final fixDate = fixInfo.date;
+
       // Get parent of fix commit
       final parentRes = await runner.run('git', ['rev-parse', '$commit^'],
           workingDirectory: directory);
@@ -109,6 +116,7 @@ class SzzAlgorithm {
                     'git',
                     [
                       'blame',
+                      '--date=iso-strict',
                       '-l', // long hash
                       '-w', // ignore whitespace
                       '-C', '-C', '-M', // detect moves and copies
@@ -135,19 +143,26 @@ class SzzAlgorithm {
                       // parse author depending on format, blame sometimes outputs (<email> or (Author Name Date)
                       // wait, let's use standard blame -l output:
                       // hash (Author Name 2023-01-01 12:00:00 +0000 1) line content
-                      // a simpler regex: ^([a-f0-9]{40})\s+\((.*?)\s+\d{4}-
-                      final authorMatch =
-                          RegExp(r'^([a-f0-9]{40})\s+\((.*?)\s+\d{4}-')
-                              .firstMatch(bLine);
+                      // a simpler regex: ^([a-f0-9]{40})\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+
+                      final authorMatch = RegExp(
+                              r'^([a-f0-9]{40})\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+')
+                          .firstMatch(bLine);
                       if (authorMatch != null) {
                         final introHash = authorMatch.group(1)!;
                         final author = authorMatch.group(2)!.trim();
-                        matches.add(SzzMatch(
-                          introducingCommitHash: introHash,
-                          introducingAuthor: author,
-                          fixingCommitHash: commit,
-                          filePath: currentFile,
-                        ));
+                        final dateStr = authorMatch.group(3)!;
+                        final introDate = DateTime.tryParse(dateStr);
+
+                        if (introDate != null) {
+                          matches.add(SzzMatch(
+                            introducingCommitHash: introHash,
+                            introducingDate: introDate,
+                            introducingAuthor: author,
+                            fixingCommitHash: commit,
+                            fixingDate: fixDate,
+                            filePath: currentFile,
+                          ));
+                        }
                       }
                     }
                   }
@@ -163,16 +178,27 @@ class SzzAlgorithm {
   }
 }
 
+class _FixCommitInfo {
+  final String hash;
+  final DateTime date;
+
+  _FixCommitInfo(this.hash, this.date);
+}
+
 class SzzMatch {
   final String introducingCommitHash;
+  final DateTime introducingDate;
   final String introducingAuthor;
   final String fixingCommitHash;
+  final DateTime fixingDate;
   final String filePath;
 
   SzzMatch({
     required this.introducingCommitHash,
+    required this.introducingDate,
     required this.introducingAuthor,
     required this.fixingCommitHash,
+    required this.fixingDate,
     required this.filePath,
   });
 }

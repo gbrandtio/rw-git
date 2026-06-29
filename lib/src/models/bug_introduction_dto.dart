@@ -9,14 +9,17 @@ import 'package:rw_git/src/models/git/git_commit.dart';
 class BugIntroductionDto {
   final GitCommit introducingCommit;
   final List<GitCommit> fixingCommits;
+  final double timeTakenToFixInHours;
 
   const BugIntroductionDto({
     required this.introducingCommit,
     required this.fixingCommits,
+    required this.timeTakenToFixInHours,
   });
 
   Map<String, dynamic> toJson() => {
         'introducingCommit': introducingCommit.toJson(),
         'fixingCommits': fixingCommits.map((e) => e.toJson()).toList(),
+        'timeTakenToFixInHours': timeTakenToFixInHours,
       };
 }

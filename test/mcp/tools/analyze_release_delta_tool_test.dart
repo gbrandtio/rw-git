@@ -11,6 +11,9 @@ class MockCodeQualityTrackerForReleaseDelta implements CodeQualityTracker {
       fileHotspots: {'file1.dart': 5},
       authorHotspots: {'Alice': 2},
       totalFixCommitsAnalyzed: 2,
+      globalAverageTimeToFixInHours: 0.0,
+      fileAverageTimeToFixInHours: {},
+      authorAverageTimeToFixInHours: {},
     );
   }
 

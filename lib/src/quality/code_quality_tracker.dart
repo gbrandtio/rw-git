@@ -546,12 +546,37 @@ class CodeQualityTracker {
 
     final fileHotspots = <String, int>{};
     final authorHotspots = <String, int>{};
+    final fileTimeSum = <String, double>{};
+    final authorTimeSum = <String, double>{};
+    double globalTimeSum = 0.0;
 
     for (final match in matches) {
-      fileHotspots[match.filePath] = (fileHotspots[match.filePath] ?? 0) + 1;
-      authorHotspots[match.introducingAuthor] =
-          (authorHotspots[match.introducingAuthor] ?? 0) + 1;
+      final file = match.filePath;
+      final author = match.introducingAuthor;
+
+      final diff = match.fixingDate.difference(match.introducingDate);
+      final hours = diff.inHours.toDouble();
+
+      fileHotspots[file] = (fileHotspots[file] ?? 0) + 1;
+      authorHotspots[author] = (authorHotspots[author] ?? 0) + 1;
+
+      fileTimeSum[file] = (fileTimeSum[file] ?? 0.0) + hours;
+      authorTimeSum[author] = (authorTimeSum[author] ?? 0.0) + hours;
+      globalTimeSum += hours;
     }
+
+    final fileAverageTime = <String, double>{};
+    for (final entry in fileHotspots.entries) {
+      fileAverageTime[entry.key] = fileTimeSum[entry.key]! / entry.value;
+    }
+
+    final authorAverageTime = <String, double>{};
+    for (final entry in authorHotspots.entries) {
+      authorAverageTime[entry.key] = authorTimeSum[entry.key]! / entry.value;
+    }
+
+    final globalAverageTime =
+        matches.isEmpty ? 0.0 : globalTimeSum / matches.length;
 
     // We don't have the exact fixCommits length easily here,
     // but we can estimate it or just leave it as unique fixing commits.
@@ -561,6 +586,9 @@ class CodeQualityTracker {
       fileHotspots: fileHotspots,
       authorHotspots: authorHotspots,
       totalFixCommitsAnalyzed: fixCommits.length,
+      globalAverageTimeToFixInHours: globalAverageTime,
+      fileAverageTimeToFixInHours: fileAverageTime,
+      authorAverageTimeToFixInHours: authorAverageTime,
     );
   }
 
@@ -631,9 +659,31 @@ class CodeQualityTracker {
         if (f != null) fixCommits.add(f);
       }
 
+      double timeTaken = 0.0;
+      if (fixCommits.isNotEmpty) {
+        final introDate = DateTime.tryParse(introCommit.date);
+
+        // Find the earliest fix commit date
+        DateTime? earliestFixDate;
+        for (final fix in fixCommits) {
+          final d = DateTime.tryParse(fix.date);
+          if (d != null) {
+            if (earliestFixDate == null || d.isBefore(earliestFixDate)) {
+              earliestFixDate = d;
+            }
+          }
+        }
+
+        if (introDate != null && earliestFixDate != null) {
+          final diff = earliestFixDate.difference(introDate);
+          timeTaken = diff.inHours.toDouble();
+        }
+      }
+
       result.add(BugIntroductionDto(
         introducingCommit: introCommit,
         fixingCommits: fixCommits,
+        timeTakenToFixInHours: timeTaken,
       ));
     }
 

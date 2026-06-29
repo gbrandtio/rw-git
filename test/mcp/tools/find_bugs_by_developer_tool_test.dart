@@ -72,9 +72,9 @@ void main() {
             '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
             '-i',
             '--no-merges',
-            '--format=format:%H%x09%s'
+            '--format=format:%H%x09%aI%x09%s'
           ],
-          '0123456789abcdef0123456789abcdef01234567\tfix: fixed a critical bug\n');
+          '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
 
       mockRunner.mockResult(
           'git',
@@ -116,6 +116,7 @@ void main() {
           'git',
           [
             'blame',
+            '--date=iso-strict',
             '-l',
             '-w',
             '-C',
@@ -127,7 +128,7 @@ void main() {
             '--',
             'test_file.dart'
           ],
-          'fedcba9876543210fedcba9876543210fedcba98 (Target Author 2023-01-01 12:00:00 +0000 5) deleted_line_1\n');
+          'fedcba9876543210fedcba9876543210fedcba98 (Target Author 2023-01-01T12:00:00+00:00 5) deleted_line_1\n');
 
       mockRunner.mockResult(
           'git',
@@ -164,6 +165,9 @@ void main() {
       expect(fixingCommits.length, 1);
       final fixingCommit = fixingCommits[0] as Map<String, dynamic>;
       expect(fixingCommit['hash'], '0123456789abcdef0123456789abcdef01234567');
+
+      // 2023-01-02T12:00:00Z vs 2023-01-01T12:00:00Z -> 24 hours
+      expect(bug['timeTakenToFixInHours'], 24.0);
     });
   });
 }

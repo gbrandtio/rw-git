@@ -54,13 +54,25 @@ class AnalyzeBugHotspotsTool implements McpTool {
 
     return jsonEncode({
       'total_fix_commits_analyzed': hotspots.totalFixCommitsAnalyzed,
+      'global_average_time_to_fix_in_hours':
+          hotspots.globalAverageTimeToFixInHours,
       'top_bug_hotspot_files': sortedFiles
           .take(15)
-          .map((e) => {'file': e.key, 'bug_introductions': e.value})
+          .map((e) => {
+                'file': e.key,
+                'bug_introductions': e.value,
+                'average_time_to_fix_in_hours':
+                    hotspots.fileAverageTimeToFixInHours[e.key] ?? 0.0,
+              })
           .toList(),
       'top_bug_hotspot_authors': sortedAuthors
           .take(10)
-          .map((e) => {'author': e.key, 'bug_introductions': e.value})
+          .map((e) => {
+                'author': e.key,
+                'bug_introductions': e.value,
+                'average_time_to_fix_in_hours':
+                    hotspots.authorAverageTimeToFixInHours[e.key] ?? 0.0,
+              })
           .toList(),
       'analysis_hints': [
         'If a PR modifies a file listed in top_bug_hotspot_files, apply extreme scrutiny, as this file is historically fragile.',
