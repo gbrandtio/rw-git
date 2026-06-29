@@ -26,7 +26,7 @@ void main() {
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> tags =
+      List<GitTag> tags =
           (await rwGit.fetchTags(clonedFiles[0].uri.path)).getOrThrow();
       bool isTagsMoreThanOne = tags.length > 1;
 
@@ -36,7 +36,7 @@ void main() {
 
   test('will return an empty list if the repository does not exist', () async {
     (await rwGit.init(testDir)).getOrThrow();
-    List<String> tags = (await rwGit.fetchTags(testDir)).getOrThrow();
+    List<GitTag> tags = (await rwGit.fetchTags(testDir)).getOrThrow();
     expect(tags.isEmpty, true);
   });
 }

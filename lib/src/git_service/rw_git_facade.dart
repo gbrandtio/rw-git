@@ -29,10 +29,10 @@ abstract class RwGit {
   Future<Result<bool, RwGitException>> checkout(
       String localCheckoutDirectory, String branchToCheckout,
       {bool streamOutput = false});
-  Future<Result<List<String>, RwGitException>> fetchTags(
+  Future<Result<List<GitTag>, RwGitException>> fetchTags(
       String localCheckoutDirectory,
       {bool streamOutput = false});
-  Future<Result<List<String>, RwGitException>> getCommitsBetween(
+  Future<Result<List<GitCommit>, RwGitException>> getCommitsBetween(
       String localCheckoutDirectory, String firstTag, String secondTag,
       {bool streamOutput = false});
   Future<Result<ShortStatDto, RwGitException>> stats(
@@ -47,23 +47,23 @@ abstract class RwGit {
       String branchToCheckout,
       {bool streamOutput = false});
 
-  Future<Result<List<String>, RwGitException>> branch(String directory,
+  Future<Result<List<GitBranch>, RwGitException>> branch(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
-  Future<Result<String, RwGitException>> status(String directory,
+  Future<Result<GitStatus, RwGitException>> status(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<bool, RwGitException>> pull(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<bool, RwGitException>> push(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
-  Future<Result<String, RwGitException>> diff(String directory,
+  Future<Result<GitDiff, RwGitException>> diff(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<bool, RwGitException>> merge(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<bool, RwGitException>> stash(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
-  Future<Result<String, RwGitException>> blame(String directory,
+  Future<Result<GitBlame, RwGitException>> blame(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
-  Future<Result<String, RwGitException>> show(String directory,
+  Future<Result<GitCommit, RwGitException>> show(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
 
   Future<Result<String, RwGitException>> runCommand(

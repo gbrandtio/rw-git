@@ -27,10 +27,10 @@ void main() {
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> tags =
+      List<GitTag> tags =
           (await rwGit.fetchTags(clonedFiles[0].uri.path)).getOrThrow();
       ShortStatDto shortStatDto = (await rwGit.stats(clonedFiles[0].uri.path,
-              tags[tags.length - 2], tags[tags.length - 1]))
+              tags[tags.length - 2].name, tags[tags.length - 1].name))
           .getOrThrow();
 
       expect(shortStatDto.numberOfChangedFiles >= 0, true);

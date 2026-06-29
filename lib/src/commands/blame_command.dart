@@ -1,15 +1,22 @@
+import 'dart:isolate';
 import '../core/git_command.dart';
 import '../core/process_runner.dart';
+import '../models/git/git_blame.dart';
+import '../git_service/parsers/rw_git_parser.dart';
 
-class BlameCommand extends GitCommand<String> {
+class BlameCommand extends GitCommand<GitBlame> {
   BlameCommand(super.runner);
 
   @override
-  Future<String> run(String directory,
+  Future<GitBlame> run(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) async {
     final result = await runner.run('git', ['blame', ...extraArgs],
         workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
-    return result.stdout?.toString() ?? '';
+    final stdout = result.stdout?.toString() ?? '';
+    if (stdout.length > 10000) {
+      return await Isolate.run(() => RwGitParser.parseBlame(stdout));
+    }
+    return RwGitParser.parseBlame(stdout);
   }
 }

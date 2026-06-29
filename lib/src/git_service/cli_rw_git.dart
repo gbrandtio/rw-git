@@ -57,7 +57,7 @@ class CliRwGit extends BaseRwGit {
   }
 
   @override
-  Future<Result<List<String>, RwGitException>> fetchTags(
+  Future<Result<List<GitTag>, RwGitException>> fetchTags(
       String localCheckoutDirectory,
       {bool streamOutput = false}) {
     return FetchTagsCommand(runner)
@@ -65,7 +65,7 @@ class CliRwGit extends BaseRwGit {
   }
 
   @override
-  Future<Result<List<String>, RwGitException>> getCommitsBetween(
+  Future<Result<List<GitCommit>, RwGitException>> getCommitsBetween(
       String localCheckoutDirectory, String firstTag, String secondTag,
       {bool streamOutput = false}) {
     return GetCommitsCommand(runner, firstTag: firstTag, secondTag: secondTag)
@@ -89,14 +89,14 @@ class CliRwGit extends BaseRwGit {
   }
 
   @override
-  Future<Result<List<String>, RwGitException>> branch(String directory,
+  Future<Result<List<GitBranch>, RwGitException>> branch(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) {
     return BranchCommand(runner)
         .execute(directory, extraArgs: extraArgs, streamOutput: streamOutput);
   }
 
   @override
-  Future<Result<String, RwGitException>> status(String directory,
+  Future<Result<GitStatus, RwGitException>> status(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) {
     return StatusCommand(runner)
         .execute(directory, extraArgs: extraArgs, streamOutput: streamOutput);
@@ -117,7 +117,7 @@ class CliRwGit extends BaseRwGit {
   }
 
   @override
-  Future<Result<String, RwGitException>> diff(String directory,
+  Future<Result<GitDiff, RwGitException>> diff(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) {
     return DiffCommand(runner)
         .execute(directory, extraArgs: extraArgs, streamOutput: streamOutput);
@@ -138,14 +138,14 @@ class CliRwGit extends BaseRwGit {
   }
 
   @override
-  Future<Result<String, RwGitException>> blame(String directory,
+  Future<Result<GitBlame, RwGitException>> blame(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) {
     return BlameCommand(runner)
         .execute(directory, extraArgs: extraArgs, streamOutput: streamOutput);
   }
 
   @override
-  Future<Result<String, RwGitException>> show(String directory,
+  Future<Result<GitCommit, RwGitException>> show(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) {
     return ShowCommand(runner)
         .execute(directory, extraArgs: extraArgs, streamOutput: streamOutput);

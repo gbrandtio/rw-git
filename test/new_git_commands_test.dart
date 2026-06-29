@@ -45,7 +45,9 @@ void main() {
           '  main\n* feature-branch\n  dev', '');
       final result =
           (await rwGit.branch('my_dir', extraArgs: ['extra_arg'])).getOrThrow();
-      expect(result, ['  main', '* feature-branch', '  dev']);
+      expect(result.length, 3);
+      expect(result[1].name, 'feature-branch');
+      expect(result[1].isCurrent, true);
     });
 
     test('branch handles null stdout', () async {
@@ -55,10 +57,11 @@ void main() {
     });
 
     test('status returns short status', () async {
-      mockRunner.setMockResult(
-          'git', ['status', '--short'], 0, ' M file.txt\n?? new_file.txt', '');
+      mockRunner.setMockResult('git', ['status', '--porcelain'], 0,
+          ' M file.txt\n?? new_file.txt', '');
       final result = (await rwGit.status('my_dir')).getOrThrow();
-      expect(result, ' M file.txt\n?? new_file.txt');
+      expect(result.unstagedChanges.length, 1);
+      expect(result.untrackedFiles.length, 1);
     });
 
     test('pull returns true on success', () async {
@@ -78,11 +81,15 @@ void main() {
     });
 
     test('diff returns diff string', () async {
-      mockRunner.setMockResult('git', ['diff', 'file.txt'], 0,
-          'diff --git a/file.txt b/file.txt', '');
+      mockRunner.setMockResult(
+          'git',
+          ['diff', 'file.txt'],
+          0,
+          'diff --git a/file.txt b/file.txt\n--- a/file.txt\n+++ b/file.txt\n@@ -1 +1 @@\n-old\n+new',
+          '');
       final result =
           (await rwGit.diff('my_dir', extraArgs: ['file.txt'])).getOrThrow();
-      expect(result, 'diff --git a/file.txt b/file.txt');
+      expect(result.files.length, 1);
     });
 
     test('merge returns true on success', () async {
@@ -105,18 +112,22 @@ void main() {
 
     test('blame returns blame string', () async {
       mockRunner.setMockResult('git', ['blame', 'file.txt'], 0,
-          '1234abcd (Author 2021-01-01 1) content', '');
+          '1234abcd (Author 2021-01-01 00:00:00 +0000 1) content', '');
       final result =
           (await rwGit.blame('my_dir', extraArgs: ['file.txt'])).getOrThrow();
-      expect(result, '1234abcd (Author 2021-01-01 1) content');
+      expect(result.lines.length, 1);
     });
 
     test('show returns show string', () async {
       mockRunner.setMockResult(
-          'git', ['show', 'HEAD'], 0, 'commit 1234abcd\nAuthor: test', '');
+          'git',
+          ['show', '-s', '--format=%H|%an|%ae|%aI|%s', 'HEAD'],
+          0,
+          '1234abcd|test|email|date|msg',
+          '');
       final result =
           (await rwGit.show('my_dir', extraArgs: ['HEAD'])).getOrThrow();
-      expect(result, 'commit 1234abcd\nAuthor: test');
+      expect(result.hash, '1234abcd');
     });
 
     test('branch handles failure', () async {

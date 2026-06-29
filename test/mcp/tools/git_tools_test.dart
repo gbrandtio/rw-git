@@ -29,15 +29,28 @@ class MockRwGit implements RwGit {
           {bool streamOutput = false}) async =>
       const Success(true);
   @override
-  Future<Result<List<String>, RwGitException>> fetchTags(
+  Future<Result<List<GitTag>, RwGitException>> fetchTags(
           String localCheckoutDirectory,
           {bool streamOutput = false}) async =>
-      const Success(['v1.0.0']);
+      const Success([GitTag(name: 'v1.0.0')]);
   @override
-  Future<Result<List<String>, RwGitException>> getCommitsBetween(
+  Future<Result<List<GitCommit>, RwGitException>> getCommitsBetween(
           String localCheckoutDirectory, String firstTag, String secondTag,
           {bool streamOutput = false}) async =>
-      const Success(['commit1', 'commit2']);
+      const Success([
+        GitCommit(
+            hash: 'hash1',
+            authorName: 'A',
+            authorEmail: 'B',
+            date: 'C',
+            message: 'commit1'),
+        GitCommit(
+            hash: 'hash2',
+            authorName: 'A',
+            authorEmail: 'B',
+            date: 'C',
+            message: 'commit2')
+      ]);
   @override
   Future<Result<ShortStatDto, RwGitException>> stats(
           String localCheckoutDirectory, String oldTag, String newTag,
@@ -49,16 +62,15 @@ class MockRwGit implements RwGit {
           {bool streamOutput = false}) async =>
       const Success([ShortLogDto(10, 'Author')]);
   @override
-  @override
-  Future<Result<List<String>, RwGitException>> branch(String directory,
+  Future<Result<List<GitBranch>, RwGitException>> branch(String directory,
           {List<String> extraArgs = const [],
           bool streamOutput = false}) async =>
       const Success([]);
   @override
-  Future<Result<String, RwGitException>> status(String directory,
+  Future<Result<GitStatus, RwGitException>> status(String directory,
           {List<String> extraArgs = const [],
           bool streamOutput = false}) async =>
-      const Success('');
+      const Success(GitStatus());
   @override
   Future<Result<bool, RwGitException>> pull(String directory,
           {List<String> extraArgs = const [],
@@ -70,10 +82,10 @@ class MockRwGit implements RwGit {
           bool streamOutput = false}) async =>
       const Success(true);
   @override
-  Future<Result<String, RwGitException>> diff(String directory,
+  Future<Result<GitDiff, RwGitException>> diff(String directory,
           {List<String> extraArgs = const [],
           bool streamOutput = false}) async =>
-      const Success('');
+      const Success(GitDiff());
   @override
   Future<Result<bool, RwGitException>> merge(String directory,
           {List<String> extraArgs = const [],
@@ -85,15 +97,20 @@ class MockRwGit implements RwGit {
           bool streamOutput = false}) async =>
       const Success(true);
   @override
-  Future<Result<String, RwGitException>> blame(String directory,
+  Future<Result<GitBlame, RwGitException>> blame(String directory,
           {List<String> extraArgs = const [],
           bool streamOutput = false}) async =>
-      const Success('');
+      const Success(GitBlame());
   @override
-  Future<Result<String, RwGitException>> show(String directory,
+  Future<Result<GitCommit, RwGitException>> show(String directory,
           {List<String> extraArgs = const [],
           bool streamOutput = false}) async =>
-      const Success('');
+      const Success(GitCommit(
+          hash: 'h',
+          authorName: 'n',
+          authorEmail: 'e',
+          date: 'd',
+          message: 'm'));
 
   @override
   Future<Result<String, RwGitException>> runCommand(

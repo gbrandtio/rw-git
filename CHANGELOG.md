@@ -1,3 +1,9 @@
+## 3.0.0
+- **BREAKING (Core):** All major Git commands (`branch`, `status`, `diff`, `blame`, `show`, `getCommitsBetween`, `stats`) now return strongly-typed model classes (`GitBranch`, `GitStatus`, `GitDiff`, `GitBlame`, `GitCommit`, etc.) instead of raw Strings or `List<String>`.
+- **BREAKING (MCP):** The MCP server now returns structured JSON representations of these Git domain models, enabling LLMs to deterministically parse and reason about Git repository state.
+- **PERF (Core):** Migrated internal Git parsing logic to use `Isolate.run()` for large CLI outputs (over 10,000 characters), significantly reducing main-thread blocking in heavy Git operations.
+- **FEAT (Core):** Added new models (`GitCommit`, `GitTag`, `GitBranch`, `GitStatus`, `GitFileChange`, `GitDiff`, `GitFileDiff`, `GitBlame`, `GitBlameLine`) under `lib/src/models/git/` to provide a robust object-oriented representation of Git objects.
+
 ## 2.0.2
 - **FEAT (MCP):** Added AST & architecture analysis tools and metrics (`analyze_dart_ast_quality`, `analyze_architecture_drift`, `analyze_clean_code`).
 - **FEAT (MCP):** Added `calculate_universal_lexical_metrics` tool to compute language-agnostic code quality metrics (Cyclomatic, Halstead, Cognitive, Maintainability Index) using a fast zero-allocation FSM Lexer.

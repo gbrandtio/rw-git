@@ -40,7 +40,7 @@ These tools return structured JSON metrics.
 - **detect_secrets_in_commits**: Scans commit history for exposed secrets, API keys, or credentials. Returns a list of detected secrets with commit hashes and file names.
 
 ## 3. RwGit Facade Tools
-The following out-of-the-box Dart facade functions are exposed as individual, strongly-typed MCP tools for your convenience:
+The following out-of-the-box Dart facade functions are exposed as individual MCP tools. They all return structured JSON payloads representing strongly-typed domain models (e.g., `GitCommit`, `GitStatus`, `GitDiff`):
 
 - **init_repository**: Initializes a new Git repository.
 - **is_git_repository**: Checks if a directory is a valid Git repository.

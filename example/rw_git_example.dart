@@ -26,12 +26,12 @@ void main() async {
   print("Repository cloned successfully!\n");
 
   // 2. Retrieve the tags of the repository
-  List<String> tags =
+  List<GitTag> tags =
       (await rwGit.fetchTags(localDirectoryToCloneInto)).getOrThrow();
   print("Number of tags: ${tags.length}\n");
 
   // 3. Get the commits between two tags
-  List<String> listOfCommitsBetweenTwoTags =
+  List<GitCommit> listOfCommitsBetweenTwoTags =
       (await rwGit.getCommitsBetween(localDirectoryToCloneInto, oldTag, newTag))
           .getOrThrow();
   print(

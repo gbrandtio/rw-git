@@ -44,7 +44,8 @@ void main() {
       // 3. Status
       final statusResult = await rwGit.status(testDir);
       expect(statusResult.isSuccess, isTrue);
-      expect(statusResult.getOrThrow(), contains('A  test_file.txt'));
+      expect(statusResult.getOrThrow().stagedChanges.map((e) => e.path),
+          contains('test_file.txt'));
 
       // 4. Commit (using runCommand)
       final commitResult =
@@ -81,7 +82,7 @@ void main() {
       // 9. Log (Show)
       final showResult = await rwGit.show(testDir);
       expect(showResult.isSuccess, isTrue);
-      expect(showResult.getOrThrow(), contains('Feature commit'));
+      expect(showResult.getOrThrow().message, contains('Feature commit'));
     });
   });
 }

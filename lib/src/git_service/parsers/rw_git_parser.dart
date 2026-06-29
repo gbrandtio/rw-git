@@ -1,6 +1,15 @@
 import 'dart:convert';
 import 'package:rw_git/src/models/short_log_dto.dart';
 import 'package:rw_git/src/models/short_stat_dto.dart';
+import 'package:rw_git/src/models/git/git_branch.dart';
+import 'package:rw_git/src/models/git/git_commit.dart';
+import 'package:rw_git/src/models/git/git_status.dart';
+import 'package:rw_git/src/models/git/git_file_change.dart';
+import 'package:rw_git/src/models/git/git_diff.dart';
+import 'package:rw_git/src/models/git/git_file_diff.dart';
+import 'package:rw_git/src/models/git/git_blame.dart';
+import 'package:rw_git/src/models/git/git_blame_line.dart';
+import 'package:rw_git/src/models/git/git_tag.dart';
 
 /// ----------------------------------------------------------------------------
 /// rw_git_parser.dart
@@ -81,5 +90,161 @@ class RwGitParser {
     }
 
     return ShortLogDto(numberOfContributions, authorName);
+  }
+
+  /// Parses the stdout of git branch.
+  static List<GitBranch> parseBranches(String stdout) {
+    final lines = parseGitStdoutBasedOnNewLine(stdout);
+    return lines.map((line) {
+      final isCurrent = line.startsWith('*');
+      final name = line.replaceFirst(RegExp(r'^[\*\s]+'), '').trim();
+      return GitBranch(name: name, isCurrent: isCurrent);
+    }).toList();
+  }
+
+  /// Parses the stdout of git tag.
+  static List<GitTag> parseTags(String stdout) {
+    final lines = parseGitStdoutBasedOnNewLine(stdout);
+    return lines.map((line) => GitTag(name: line.trim())).toList();
+  }
+
+  /// Parses the stdout of git status --porcelain.
+  static GitStatus parseStatus(String stdout) {
+    final lines = parseGitStdoutBasedOnNewLine(stdout);
+    final staged = <GitFileChange>[];
+    final unstaged = <GitFileChange>[];
+    final untracked = <String>[];
+
+    GitFileStatus mapStatus(String code) {
+      switch (code) {
+        case 'A':
+          return GitFileStatus.added;
+        case 'M':
+          return GitFileStatus.modified;
+        case 'D':
+          return GitFileStatus.deleted;
+        case 'R':
+          return GitFileStatus.renamed;
+        case 'C':
+          return GitFileStatus.copied;
+        case '?':
+          return GitFileStatus.untracked;
+        default:
+          return GitFileStatus.unknown;
+      }
+    }
+
+    for (final line in lines) {
+      if (line.length < 3) continue;
+      final x = line[0];
+      final y = line[1];
+      final path = line.substring(3).trim();
+
+      if (x == '?' && y == '?') {
+        untracked.add(path);
+      } else {
+        if (x != ' ' && x != '?') {
+          staged.add(GitFileChange(path: path, status: mapStatus(x)));
+        }
+        if (y != ' ' && y != '?') {
+          unstaged.add(GitFileChange(path: path, status: mapStatus(y)));
+        }
+      }
+    }
+    return GitStatus(
+      stagedChanges: staged,
+      unstagedChanges: unstaged,
+      untrackedFiles: untracked,
+    );
+  }
+
+  /// Parses the stdout of git log with custom format %H|%an|%ae|%aI|%s
+  static List<GitCommit> parseCommits(String stdout) {
+    final lines = parseGitStdoutBasedOnNewLine(stdout);
+    final commits = <GitCommit>[];
+    for (final line in lines) {
+      final parts = line.split('|');
+      if (parts.length >= 5) {
+        commits.add(GitCommit(
+          hash: parts[0],
+          authorName: parts[1],
+          authorEmail: parts[2],
+          date: parts[3],
+          message: parts.sublist(4).join('|'),
+        ));
+      }
+    }
+    return commits;
+  }
+
+  /// Parses the stdout of git diff.
+  static GitDiff parseDiff(String stdout) {
+    final files = <GitFileDiff>[];
+    final fileChunks = stdout.split(RegExp(r'^diff --git ', multiLine: true));
+
+    for (final chunk in fileChunks) {
+      if (chunk.trim().isEmpty) continue;
+
+      final lines = chunk.split('\n');
+      if (lines.isEmpty) continue;
+
+      final pathParts = lines[0].split(' ');
+      final path =
+          pathParts.isNotEmpty ? pathParts.last.replaceFirst('b/', '') : '';
+
+      int additions = 0;
+      int deletions = 0;
+
+      for (final line in lines) {
+        if (line.startsWith('+') && !line.startsWith('+++')) {
+          additions++;
+        } else if (line.startsWith('-') && !line.startsWith('---')) {
+          deletions++;
+        }
+      }
+
+      files.add(GitFileDiff(
+        path: path,
+        additions: additions,
+        deletions: deletions,
+        contentDiff: 'diff --git $chunk',
+      ));
+    }
+
+    return GitDiff(files: files);
+  }
+
+  /// Parses the stdout of standard git blame.
+  static GitBlame parseBlame(String stdout) {
+    final lines = parseGitStdoutBasedOnNewLine(stdout);
+    final blameLines = <GitBlameLine>[];
+
+    // Example: 93f2f810 (Ioannis 2026-06-29 00:00:00 +0400 1) content
+    final regex = RegExp(
+        r'^([a-f0-9\^]+)\s+\((.+?)\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+[+-]\d{4})\s+(\d+)\)\s?(.*)$');
+
+    for (final line in lines) {
+      final match = regex.firstMatch(line);
+      if (match != null) {
+        DateTime parsedDate;
+        try {
+          // Attempt to parse without timezone abbreviation
+          final dateStr =
+              match.group(3)?.replaceFirst(RegExp(r'\s+[+-]\d{4}$'), '') ?? '';
+          parsedDate = DateTime.parse(dateStr.replaceAll(' ', 'T'));
+        } catch (_) {
+          parsedDate = DateTime.now();
+        }
+
+        blameLines.add(GitBlameLine(
+          commitHash: match.group(1) ?? '',
+          author: match.group(2) ?? '',
+          date: parsedDate,
+          lineNumber: int.tryParse(match.group(4) ?? '') ?? 0,
+          content: match.group(5) ?? '',
+        ));
+      }
+    }
+    return GitBlame(lines: blameLines);
   }
 }

@@ -26,7 +26,7 @@ void main() {
       List<FileSystemEntity> clonedFiles =
           await Directory(testDir).list().toList();
 
-      List<String> commitsBetweenTags = (await rwGit.getCommitsBetween(
+      List<GitCommit> commitsBetweenTags = (await rwGit.getCommitsBetween(
               clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6'))
           .getOrThrow();
 

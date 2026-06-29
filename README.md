@@ -28,7 +28,7 @@ Whether you are building a Dart backend, a developer tool, or connecting an AI a
 
 ## Core Git Commands
 
-Provides a clean, fluent API (`RwGit` facade) for all standard Git operations with robust, type-safe error handling.
+Provides a clean, fluent API (`RwGit` facade) for all standard Git operations with robust, type-safe error handling. All Git commands return strongly-typed domain models (e.g., `GitCommit`, `GitStatus`, `GitDiff`) wrapped in a `Result` pattern for predictable error propagation.
 
 - `init`: Initializes a new Git repository.
 - `clone`: Clones a remote repository to a local directory.

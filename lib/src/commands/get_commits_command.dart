@@ -1,8 +1,10 @@
+import 'dart:isolate';
 import '../core/git_command.dart';
 import '../core/process_runner.dart';
+import '../models/git/git_commit.dart';
 import '../git_service/parsers/rw_git_parser.dart';
 
-class GetCommitsCommand extends GitCommand<List<String>> {
+class GetCommitsCommand extends GitCommand<List<GitCommit>> {
   final String firstTag;
   final String secondTag;
 
@@ -10,14 +12,16 @@ class GetCommitsCommand extends GitCommand<List<String>> {
       {required this.firstTag, required this.secondTag});
 
   @override
-  Future<List<String>> run(String directory,
+  Future<List<GitCommit>> run(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) async {
-    // using ... syntax for rev-list
-    final result = await runner.run(
-        'git', ['rev-list', '$firstTag...$secondTag'],
+    final result = await runner.run('git',
+        ['log', '--pretty=format:%H|%an|%ae|%aI|%s', '$firstTag...$secondTag'],
         workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
-    return RwGitParser.parseGitStdoutBasedOnNewLine(
-        result.stdout?.toString() ?? '');
+    final stdout = result.stdout?.toString() ?? '';
+    if (stdout.length > 10000) {
+      return await Isolate.run(() => RwGitParser.parseCommits(stdout));
+    }
+    return RwGitParser.parseCommits(stdout);
   }
 }
