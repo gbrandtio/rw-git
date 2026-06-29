@@ -60,7 +60,6 @@ The library and MCP server tools that it offers, aim to provide out-of-the-box m
 - `get_commits_between`: Lists commits between two tags or branches.
 - `get_contributions_by_author`: Retrieves commit counts grouped by author.
 
-
 **Security & Compliance:**
 - `audit_compliance`: Scans commit history for unsigned commits, empty messages, and unrecognized author emails.
 - `detect_secrets_in_commits`: Scans commit history for exposed secrets or credentials.
