@@ -325,6 +325,32 @@ e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add complex feature
       final tracker = CodeQualityTracker(runner);
       await tracker.findSecrets('fake_dir', limit: '10', branch: 'main');
     });
+
+    test(
+        'findSecrets avoids false positives in lockfiles, tests, and CI variables',
+        () async {
+      final mockOutput = '''
+e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Update dependencies
++++ b/package-lock.json
+@@ -10,5 +10,6 @@
++  "integrity": "sha512-ABCDEF1234567890abcdefABCDEF1234567890abcdefABCDEF1234567890abcdefABCDEF1234567890abcd=="
++++ b/lib/tests/api_test.dart
+@@ -10,5 +10,6 @@
++  final token = "api***key";
++++ b/.github/workflows/ci.yml
+@@ -10,5 +10,6 @@
++  token: \${{ secrets.GITHUB_TOKEN }}
++++ b/lib/config.dart
+@@ -10,5 +10,6 @@
++  final placeholder = "YOUR_API_KEY_HERE_123456";
+''';
+      final runner = MockProcessRunner(mockOutput);
+      final tracker = CodeQualityTracker(runner);
+
+      final secrets = await tracker.findSecrets('fake_dir');
+
+      expect(secrets, isEmpty);
+    });
   });
 }
 

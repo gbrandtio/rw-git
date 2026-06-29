@@ -59,3 +59,5 @@ When creating files (if applicable in `rw_git`), be mindful of the default permi
 
 ### Automated Secret Scanning
 The `rw_git` package includes an automated secret scanning tool via the `CodeQualityTracker` (and its associated MCP tool `detect_secrets_in_commits`). This tool utilizes high-performance Isolates to scan git commit diffs for exposed credentials (e.g., AWS keys, Slack tokens, private keys) without blocking the main event loop. Developers and agents should regularly use this tool to ensure credentials are not accidentally pushed to version control. When credentials are detected, they are automatically redacted in the tool's output to prevent secondary exposure.
+
+To reduce false positives, the scanner employs **Context-Aware Risk Scoring**. It completely excludes lockfiles (like `package-lock.json`, `pubspec.lock`) and broadly excludes test files/directories (like `tests/`, `mock/`, `fixture/`). Furthermore, it actively filters out common placeholder patterns and CI workflow variables (e.g., strings containing `placeholder`, `dummy`, or `${{`) to ensure only actual secrets are flagged.

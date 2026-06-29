@@ -816,18 +816,45 @@ List<String> _parseSecrets(String rawLog) {
     } else if (line.startsWith('+') && !line.startsWith('+++')) {
       // Add Context-Aware Risk Scoring (ignoring test/, etc.)
       final isTestOrMock = currentFile.contains('test/') ||
+          currentFile.contains('tests/') ||
+          currentFile.contains('__tests__/') ||
+          currentFile.contains('spec/') ||
+          currentFile.endsWith('_test.dart') ||
+          currentFile.contains('.test.') ||
+          currentFile.contains('.spec.') ||
           currentFile.contains('mock') ||
           currentFile.contains('fixture') ||
           currentFile.endsWith('.md');
 
-      if (isTestOrMock) continue;
+      // Exclude lock files entirely
+      final isLockFile = currentFile.endsWith('package-lock.json') ||
+          currentFile.endsWith('yarn.lock') ||
+          currentFile.endsWith('pnpm-lock.yaml') ||
+          currentFile.endsWith('pubspec.lock') ||
+          currentFile.endsWith('Cargo.lock') ||
+          currentFile.endsWith('go.sum') ||
+          currentFile.endsWith('Gemfile.lock');
+
+      if (isTestOrMock || isLockFile) continue;
 
       final content = line.substring(1); // remove '+'
 
       final matches = secretRegex.allMatches(content);
       for (final match in matches) {
-        // Redact the secret for reporting to avoid exposing it again
         final secretVal = match.group(0) ?? '';
+
+        // Filter out CI variables and placeholder keys
+        final lowerSecret = secretVal.toLowerCase();
+        if (lowerSecret.contains(r'${{') ||
+            lowerSecret.contains(r'${') ||
+            lowerSecret.contains('placeholder') ||
+            lowerSecret.contains('example') ||
+            lowerSecret.contains('dummy') ||
+            lowerSecret.contains('your_')) {
+          continue;
+        }
+
+        // Redact the secret for reporting to avoid exposing it again
         final redacted = secretVal.length > 6
             ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
             : '***';
@@ -842,6 +869,17 @@ List<String> _parseSecrets(String rawLog) {
       final wordMatches = wordRegex.allMatches(content);
       for (final match in wordMatches) {
         final word = match.group(0)!;
+
+        // Filter out CI variables and placeholder keys for entropy too
+        final lowerWord = word.toLowerCase();
+        if (lowerWord.contains(r'${{') ||
+            lowerWord.contains(r'${') ||
+            lowerWord.contains('placeholder') ||
+            lowerWord.contains('example') ||
+            lowerWord.contains('dummy') ||
+            lowerWord.contains('your_')) {
+          continue;
+        }
 
         // Exclude common long non-secrets like very long URLs or paths if needed,
         // but for now, rely on high entropy.
