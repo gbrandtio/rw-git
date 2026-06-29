@@ -6,7 +6,7 @@ description: "Comprehensive workflow for orchestrating rw_git MCP tools to gener
 # `rw-git` MCP Reporting Workflow
 
 This skill instructs you on how to orchestrate the complete suite of MCP tools provided by the `rw_git` server to generate a comprehensive, structured report of a repository.
-When a user asks you to analyze the repository, assess code quality, evaluate an entire project, or generate a report, strictly follow this step-by-step workflow to ensure no stone is left unturned.
+When a user asks you to analyze the repository, assess code quality, evaluate an entire project, or generate a report, strictly follow this step-by-step workflow.
 
 ## 1. Environment & Scope Preparation
 Before diving into analysis, you **MUST** understand the context and establish the baseline environment.
@@ -55,7 +55,7 @@ If the user's request involves summarizing changes between releases or wrapping 
 - **Changelog Generation:** Run `generate_changelog` to retrieve a structured, human-readable list of features, fixes, and breaking changes. Note that this tool also structurally links fixes to bug-introducing commits via SZZ.
 
 ## 8. Synthesis & Formatting
-Aggregate the outputs from all the invoked tools into a highly structured, unified Markdown artifact. 
+Aggregate the outputs from all the invoked tools into a highly structured, unified Markdown artifact.
 - **Analyze Offloaded Data (CRITICAL):** Because the tools offload their detailed JSON responses to the filesystem, you MUST actively analyze these files to extract business value. Do not just regurgitate that the analysis was completed or that files were offloaded. You must read the offloaded JSON files (e.g., using file reading tools, or by writing and executing a short script to parse and aggregate the top issues) to extract concrete metrics, problematic file paths, and specific findings to include in your final report.
 - Present the information with a clear executive summary followed by detailed sections.
 - Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, `> [!CAUTION]`) to highlight critical risks, exposed secrets, severe compliance violations, or likely merge conflicts.

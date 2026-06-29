@@ -1,3 +1,6 @@
+# 3.0.4
+- **FEAT (MCP)**: Because many small LLMs completely ignore the file offloading, made the behaviour default and mandatory. This approach saves tokens and increases efficiency.
+
 ## 3.0.3
 - **FIX (MCP):** Fixed issue with small LLMs hallucinating tool calls and not reading the offloaded JSON results.
 - **CHORE (Agent Skills):** Updated agent skills to provide more comprehensive documentation and guidance.
