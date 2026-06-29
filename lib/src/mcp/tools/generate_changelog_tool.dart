@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// generate_changelog_tool.dart
 /// Generates a structured changelog from commit
@@ -46,9 +47,9 @@ class GenerateChangelogTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
-    final from = arguments['from'] as String;
-    final to = arguments['to'] as String;
+    final directory = arguments.getStringArgument('directory');
+    final from = arguments.getStringArgument('from');
+    final to = arguments.getStringArgument('to');
 
     final logRaw = (await rwGit.runCommand(
       directory,

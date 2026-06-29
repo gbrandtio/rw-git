@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
 import '../../constants.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// audit_compliance_tool.dart
 /// Scans commit history for compliance policy
@@ -50,9 +51,10 @@ class AuditComplianceTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
+    final directory = arguments.getStringArgument('directory');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
-    final allowedEmailsStr = arguments['allowedEmails'] as String?;
+    final allowedEmailsStr =
+        arguments.getOptionalStringArgument('allowedEmails');
 
     final allowedEmails =
         allowedEmailsStr != null && allowedEmailsStr.isNotEmpty

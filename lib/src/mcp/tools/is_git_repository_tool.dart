@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// is_git_repository_tool.dart
 /// Checks if a directory is a valid Git repository via MCP.
@@ -32,7 +33,7 @@ class IsGitRepositoryTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final dir = arguments['directoryToCheck'] as String;
+    final dir = arguments.getStringArgument('directoryToCheck');
     final result = (await rwGit.isGitRepository(dir)).getOrThrow();
 
     if (!result) {

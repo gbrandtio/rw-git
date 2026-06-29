@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// get_stats_tool.dart
 /// Gets statistics between two tags via MCP.
@@ -40,9 +41,9 @@ class GetStatsTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments['localCheckoutDirectory'] as String;
-    final oldTag = arguments['oldTag'] as String;
-    final newTag = arguments['newTag'] as String;
+    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final oldTag = arguments.getStringArgument('oldTag');
+    final newTag = arguments.getStringArgument('newTag');
     final stats = (await rwGit.stats(localDir, oldTag, newTag)).getOrThrow();
 
     // Group insertions/deletions by file extension

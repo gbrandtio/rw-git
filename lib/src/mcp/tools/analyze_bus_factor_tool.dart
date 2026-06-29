@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
 import '../../constants.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_bus_factor_tool.dart
 /// Analyzes the bus-factor risk and knowledge silos within a git repository.
@@ -46,7 +47,7 @@ class AnalyzeBusFactorTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
+    final directory = arguments.getStringArgument('directory');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final detailed = arguments['detailed'] as bool? ?? false;
 

@@ -1,4 +1,5 @@
 ## 3.0.2
+- **FIX (MCP):** Implemented safe argument extraction (`getStringArgument`, `getOptionalStringArgument`) for all MCP tools to provide clear, actionable error messages to LLMs when required arguments are missing or malformed, instead of crashing with a cryptic Dart type cast error (`type 'Null' is not a subtype of type 'String' in type cast`).
 - **FEAT (MCP):** Implemented `McpToolFileOffloadDecorator` to automatically offload heavy analytical tool JSON responses to the local filesystem by default, preventing LLM context window overflow.
 - **FEAT (MCP):** Added `output_file` and `return_full_json` arguments to all verbose analysis tools to allow LLMs to control context ingestion and orchestration paths.
 

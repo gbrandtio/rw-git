@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
 import '../../constants.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// base_analyze_code_quality_tool.dart
 /// Abstract base class for code quality analysis tools
@@ -55,7 +56,7 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
   Future<String> execute(
     Map<String, dynamic> arguments,
   ) async {
-    final directory = arguments['directory'] as String;
+    final directory = arguments.getStringArgument('directory');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final includeCommitLog = arguments['includeCommitLog'] as bool? ?? false;
     final includeCodeDiff = arguments['includeCodeDiff'] as bool? ?? false;

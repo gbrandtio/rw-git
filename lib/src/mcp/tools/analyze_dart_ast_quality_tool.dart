@@ -4,6 +4,7 @@ import 'dart:isolate';
 import 'package:path/path.dart' as p;
 import '../../../rw_git.dart';
 import '../../quality/dart_ast_analyzer.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 class AnalyzeDartAstQualityTool implements McpTool {
   final RwGit rwGit;
@@ -41,9 +42,9 @@ class AnalyzeDartAstQualityTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
-    final baseBranch = arguments['baseBranch'] as String;
-    final targetBranch = arguments['targetBranch'] as String;
+    final directory = arguments.getStringArgument('directory');
+    final baseBranch = arguments.getStringArgument('baseBranch');
+    final targetBranch = arguments.getStringArgument('targetBranch');
 
     // 1. Get changed files
     final mergeBaseRes = await rwGit

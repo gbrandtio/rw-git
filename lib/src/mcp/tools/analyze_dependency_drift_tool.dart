@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_dependency_drift_tool.dart
 /// Analyzes dependency manifests for version pinning
@@ -37,7 +38,7 @@ class AnalyzeDependencyDriftTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
+    final directory = arguments.getStringArgument('directory');
 
     final manifests = await tracker.parseDependencyManifests(directory);
 

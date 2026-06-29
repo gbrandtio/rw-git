@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// predict_merge_conflicts_tool.dart
 /// Predicts merge conflict risk between two branches.
@@ -43,9 +44,9 @@ class PredictMergeConflictsTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
-    final branchA = arguments['branchA'] as String;
-    final branchB = arguments['branchB'] as String;
+    final directory = arguments.getStringArgument('directory');
+    final branchA = arguments.getStringArgument('branchA');
+    final branchB = arguments.getStringArgument('branchB');
 
     final riskData = await tracker.findConflictRiskFiles(
       directory,

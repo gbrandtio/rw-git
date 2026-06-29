@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:isolate';
 import '../../../rw_git.dart';
 import '../../constants.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_pr_diff_tool.dart
 /// Analyzes a PR diff for risk signals by combining
@@ -51,9 +52,9 @@ class AnalyzePrDiffTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
-    final base = arguments['base'] as String;
-    final head = arguments['head'] as String;
+    final directory = arguments.getStringArgument('directory');
+    final base = arguments.getStringArgument('base');
+    final head = arguments.getStringArgument('head');
     final topN = arguments['topN'] as int?;
 
     // 1. Get numstat and raw diff for the PR range

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:isolate';
 import '../../../rw_git.dart';
 import '../../constants.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_release_delta_tool.dart
 /// Analyzes the release delta and velocity between two stable tags.
@@ -49,9 +50,9 @@ class AnalyzeReleaseDeltaTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments['localCheckoutDirectory'] as String;
-    final firstTag = arguments['firstTag'] as String;
-    final secondTag = arguments['secondTag'] as String;
+    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final firstTag = arguments.getStringArgument('firstTag');
+    final secondTag = arguments.getStringArgument('secondTag');
     final detailed = arguments['detailed'] as bool? ?? false;
 
     // 1. Get all commits and authors

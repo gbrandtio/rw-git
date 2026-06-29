@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// init_repository_tool.dart
 /// Initializes a new Git repository via MCP.
@@ -31,7 +32,7 @@ class InitRepositoryTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final dir = arguments['directoryToInit'] as String;
+    final dir = arguments.getStringArgument('directoryToInit');
     final result = (await rwGit.init(dir)).getOrThrow();
     return jsonEncode({'success': result});
   }

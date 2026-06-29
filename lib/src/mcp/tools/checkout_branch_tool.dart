@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// checkout_branch_tool.dart
 /// Checks out a specific branch via MCP.
@@ -35,8 +36,8 @@ class CheckoutBranchTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments['localCheckoutDirectory'] as String;
-    final branch = arguments['branchToCheckout'] as String;
+    final localDir = arguments.getStringArgument('localCheckoutDirectory');
+    final branch = arguments.getStringArgument('branchToCheckout');
     final result = (await rwGit.checkout(localDir, branch)).getOrThrow();
     return jsonEncode({'success': result});
   }

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// fetch_tags_tool.dart
 /// Fetches all tags for a repository via MCP.
@@ -31,7 +32,7 @@ class FetchTagsTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments['localCheckoutDirectory'] as String;
+    final localDir = arguments.getStringArgument('localCheckoutDirectory');
     final tags = (await rwGit.fetchTags(localDir)).getOrThrow();
     return jsonEncode({'tags': tags});
   }

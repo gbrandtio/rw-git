@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
 import '../../constants.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_bug_hotspots_tool.dart
 /// Implements the SZZ Algorithm to identify files and authors
@@ -39,7 +40,7 @@ class AnalyzeBugHotspotsTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
+    final directory = arguments.getStringArgument('directory');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
 
     final hotspots =

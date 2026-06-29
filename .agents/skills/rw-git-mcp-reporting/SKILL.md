@@ -56,6 +56,7 @@ If the user's request involves summarizing changes between releases or wrapping 
 
 ## 8. Synthesis & Formatting
 Aggregate the outputs from all the invoked tools into a highly structured, unified Markdown artifact. 
+- **Analyze Offloaded Data (CRITICAL):** Because the tools offload their detailed JSON responses to the filesystem, you MUST actively analyze these files to extract business value. Do not just regurgitate that the analysis was completed or that files were offloaded. You must read the offloaded JSON files (e.g., using file reading tools, or by writing and executing a short script to parse and aggregate the top issues) to extract concrete metrics, problematic file paths, and specific findings to include in your final report.
 - Present the information with a clear executive summary followed by detailed sections.
 - Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, `> [!CAUTION]`) to highlight critical risks, exposed secrets, severe compliance violations, or likely merge conflicts.
 - **Leverage Structured Data:** The underlying `rw_git` tools return highly structured Git models (e.g., `GitCommit`, `GitDiff`, `GitStatus`, `GitTag`, `RwGitStats`) making the outputs strongly typed and predictable. Leverage these rich structures to confidently generate tables, summaries, and charts without brittle string parsing.

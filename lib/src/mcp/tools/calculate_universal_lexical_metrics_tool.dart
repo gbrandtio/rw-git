@@ -9,6 +9,7 @@ import '../../quality/metrics/agnostic/algorithms/halstead_complexity.dart';
 import '../../quality/metrics/agnostic/algorithms/cognitive_complexity.dart';
 import '../../quality/metrics/agnostic/algorithms/indentation_complexity.dart';
 import '../../quality/metrics/agnostic/algorithms/maintainability_index.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// MCP Tool that calculates language-agnostic code quality metrics
 /// for any text-based source file using a high-performance FSM Lexer.
@@ -35,7 +36,7 @@ class CalculateUniversalLexicalMetricsTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final filePath = arguments['file_path'] as String;
+    final filePath = arguments.getStringArgument('file_path');
     final file = File(filePath);
 
     if (!file.existsSync()) {

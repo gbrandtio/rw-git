@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// get_contributions_by_author_tool.dart
 /// Gets contributions by author via MCP.
@@ -31,7 +32,7 @@ class GetContributionsByAuthorTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments['localCheckoutDirectory'] as String;
+    final localDir = arguments.getStringArgument('localCheckoutDirectory');
     final contributions =
         (await rwGit.contributionsByAuthor(localDir)).getOrThrow();
     return jsonEncode({

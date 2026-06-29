@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// clone_specific_branch_tool.dart
 /// Clones a repository and checks out a specific branch via MCP.
@@ -43,9 +44,9 @@ class CloneSpecificBranchTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments['localDirectoryToCloneInto'] as String;
-    final repoUrl = arguments['repository'] as String;
-    final branch = arguments['branchToCheckout'] as String;
+    final localDir = arguments.getStringArgument('localDirectoryToCloneInto');
+    final repoUrl = arguments.getStringArgument('repository');
+    final branch = arguments.getStringArgument('branchToCheckout');
     final result = (await rwGit.cloneSpecificBranch(localDir, repoUrl, branch))
         .getOrThrow();
     return jsonEncode({'success': result});

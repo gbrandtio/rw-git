@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_file_ownership_tool.dart
 /// Cross-references CODEOWNERS with git blame history
@@ -43,7 +44,7 @@ class AnalyzeFileOwnershipTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
+    final directory = arguments.getStringArgument('directory');
     // We ignore the limit argument to properly analyze time periods for drift.
 
     // 1. Try to read CODEOWNERS from common locations

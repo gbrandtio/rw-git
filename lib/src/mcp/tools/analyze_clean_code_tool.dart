@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_clean_code_tool.dart
 /// Language-agnostic tool to analyze basic clean code heuristics.
@@ -32,7 +33,7 @@ class AnalyzeCleanCodeTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final filePath = arguments['file_path'] as String;
+    final filePath = arguments.getStringArgument('file_path');
     final file = File(filePath);
 
     if (!await file.exists()) {

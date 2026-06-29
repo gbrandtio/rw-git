@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// analyze_architecture_drift_tool.dart
 /// Analyzes git history to detect architectural drift and tight coupling
@@ -43,10 +44,10 @@ class AnalyzeArchitectureDriftTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final directory = arguments['directory'] as String;
+    final directory = arguments.getStringArgument('directory');
     final layerPatternsMap =
         arguments['layer_patterns'] as Map<String, dynamic>;
-    final since = arguments['since'] as String? ?? '90 days ago';
+    final since = arguments.getOptionalStringArgument('since') ?? '90 days ago';
 
     final layerRegexes = <String, RegExp>{};
     for (final entry in layerPatternsMap.entries) {

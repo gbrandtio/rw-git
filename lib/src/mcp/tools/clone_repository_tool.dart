@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../rw_git.dart';
+import '../utils/mcp_argument_extensions.dart';
 
 /// clone_repository_tool.dart
 /// Clones a git repository via MCP.
@@ -35,8 +36,8 @@ class CloneRepositoryTool implements McpTool {
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
-    final localDir = arguments['localDirectoryToCloneInto'] as String;
-    final repoUrl = arguments['repository'] as String;
+    final localDir = arguments.getStringArgument('localDirectoryToCloneInto');
+    final repoUrl = arguments.getStringArgument('repository');
     final result = (await rwGit.clone(localDir, repoUrl)).getOrThrow();
     return jsonEncode({'success': result});
   }

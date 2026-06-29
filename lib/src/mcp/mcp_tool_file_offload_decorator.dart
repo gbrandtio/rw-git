@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'mcp_tool.dart';
+import 'utils/mcp_argument_extensions.dart';
 
 /// A decorator that adds file-offloading capabilities to any [McpTool].
 ///
@@ -23,10 +24,11 @@ class McpToolFileOffloadDecorator implements McpTool {
         '**CONTEXT OFFLOADING (MANDATORY DEFAULT)**: By default, the full JSON '
         'response of this tool is written to a file on disk rather than returned '
         'in the chat, to prevent context window overflow. You will receive a '
-        'summary and the file path. You can optionally specify the exact '
-        '`output_file` path (must be within the repository). '
-        'If you absolutely need the raw JSON returned in the chat, set '
-        '`return_full_json: true`.';
+        'summary and the file path. **CRITICAL: You MUST use your file reading '
+        'tools to read this offloaded file to extract the metrics and construct a '
+        'meaningful report.** You can optionally specify the exact `output_file` '
+        'path (must be within the repository). If you absolutely need the raw '
+        'JSON returned in the chat immediately, set `return_full_json: true`.';
   }
 
   @override
@@ -61,7 +63,7 @@ class McpToolFileOffloadDecorator implements McpTool {
     final returnFullJson = arguments['return_full_json'] as bool? ?? false;
 
     // Extract base directory if available. Many tools require 'directory'.
-    final directory = arguments['directory'] as String?;
+    final directory = arguments.getOptionalStringArgument('directory');
 
     // Execute the inner tool to get the raw JSON
     final rawOutput = await _inner.execute(arguments);
@@ -82,7 +84,8 @@ class McpToolFileOffloadDecorator implements McpTool {
     }
 
     String outputPath;
-    final providedOutputFile = arguments['output_file'] as String?;
+    final providedOutputFile =
+        arguments.getOptionalStringArgument('output_file');
 
     if (providedOutputFile != null && providedOutputFile.trim().isNotEmpty) {
       // Validate path traversal
@@ -138,7 +141,7 @@ class McpToolFileOffloadDecorator implements McpTool {
         'file_size_bytes': await file.length(),
         'file': outputPath,
         'hint':
-            'You can use file reading tools to inspect this file, or inform the user of its location.'
+            'To generate a meaningful report, you MUST use your file reading tools to inspect this file and extract the concrete metrics. Do not just inform the user that the file was created.'
       });
     } on FileSystemException catch (e) {
       return jsonEncode({
