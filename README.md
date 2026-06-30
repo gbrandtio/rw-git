@@ -12,7 +12,9 @@ Modern software teams generate a vast amount of data in their git history.
 `rw_git` turns that raw history into actionable intelligence, empowering 
 engineering leaders to ask and answer critical business questions.
 
-With that being said, `rw-git` can be integrated via the MCP with your AI agent, or used as a library where your application orchestrates the insights gathering *without any LLM participation*. 
+With that being said, `rw-git` can be integrated via the MCP with your 
+AI agent, or used as a library where your application orchestrates the insights 
+gathering *without any LLM participation*. 
 
 Among a variety of questions that `rw-git` answers, below are some examples:
 
@@ -40,7 +42,9 @@ parsing massive git histories, running algorithms like SZZ,
 and computing metrics *entirely in runtime locally*. 
 
 When you use AI agents to analyze your repository, the LLM only consumes tokens 
-to read the finalized, highly structured insights and interact with the MCP server. The underlying work of gathering and structuring insights and metrics is performed during runtime, by carefully crafted algorithms.
+to read the finalized, highly structured insights and interact with the 
+MCP server. The underlying work of gathering and structuring insights 
+and metrics is performed during runtime, by carefully crafted algorithms.
 
 ---
 
