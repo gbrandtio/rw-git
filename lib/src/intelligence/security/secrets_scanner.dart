@@ -196,7 +196,8 @@ List<String> _parseSecrets(String rawLog) {
         // decode it and check for well-known secret patterns in the payload.
         if (word.length % 4 == 0 && _base64Charset.hasMatch(word)) {
           try {
-            final decoded = utf8.decode(base64.decode(word), allowMalformed: false);
+            final decoded =
+                utf8.decode(base64.decode(word), allowMalformed: false);
             final decodedMatches = secretRegex.allMatches(decoded);
             for (final dm in decodedMatches) {
               final secretVal = dm.group(0) ?? '';

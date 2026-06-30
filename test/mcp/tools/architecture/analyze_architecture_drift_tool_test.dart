@@ -94,7 +94,8 @@ lib/ui/another.dart
     expect(firstCommit['hash'], 'hash1');
   });
 
-  test('AnalyzeArchitectureDriftTool returns coupling_ratio and coupling_density',
+  test(
+      'AnalyzeArchitectureDriftTool returns coupling_ratio and coupling_density',
       () async {
     final logOut = '''
 hash1||commit 1
@@ -178,8 +179,7 @@ lib/core/c.dart
 
     final data = jsonDecode(res) as Map<String, dynamic>;
     final smells = data['architectural_smells'] as List<dynamic>;
-    expect(
-        smells.any((s) => (s as Map)['type'] == 'Scattered Functionality'),
+    expect(smells.any((s) => (s as Map)['type'] == 'Scattered Functionality'),
         isTrue);
   });
 }

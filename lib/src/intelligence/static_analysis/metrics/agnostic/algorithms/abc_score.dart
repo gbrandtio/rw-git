@@ -14,12 +14,28 @@ import '../../models.dart';
 /// Thresholds per function: < 15 is good, > 30 signals over-complexity.
 class AbcScoreAlgorithm implements AgnosticMetricAlgorithm<AbcScore> {
   static const _assignmentOps = {
-    '=', '+=', '-=', '*=', '/=', '%=',
-    '&=', '|=', '^=', '<<=', '>>=',
+    '=',
+    '+=',
+    '-=',
+    '*=',
+    '/=',
+    '%=',
+    '&=',
+    '|=',
+    '^=',
+    '<<=',
+    '>>=',
   };
 
   static const _comparisonOps = {
-    '==', '!=', '<', '>', '<=', '>=', '===', '!==',
+    '==',
+    '!=',
+    '<',
+    '>',
+    '<=',
+    '>=',
+    '===',
+    '!==',
   };
 
   static const _logicalBranchOps = {'&&', '||', '?'};

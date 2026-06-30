@@ -90,8 +90,7 @@ class SzzAlgorithm {
       // MA-SZZ: ignore whitespace and blank-line changes to avoid attributing
       // cosmetic edits as bug introductions (da Costa et al., 2017).
       final diffRes = await runner.run(
-          'git',
-          ['diff', '-M', '-w', '--ignore-blank-lines', parent, commit],
+          'git', ['diff', '-M', '-w', '--ignore-blank-lines', parent, commit],
           workingDirectory: directory);
       if (diffRes.exitCode != 0) continue;
       final diffOutput = (diffRes.stdout?.toString() ?? '').split('\n');

@@ -140,8 +140,7 @@ class AnalyzeArchitectureDriftTool implements McpTool {
     }
     // Matrix is symmetric — each pair is counted twice.
     coupledPairCount ~/= 2;
-    final couplingDensity =
-        maxPairs > 0 ? coupledPairCount / maxPairs : 0.0;
+    final couplingDensity = maxPairs > 0 ? coupledPairCount / maxPairs : 0.0;
 
     // Coupling ratio: share of commits that violate layer boundaries.
     final couplingRatio =
@@ -155,8 +154,7 @@ class AnalyzeArchitectureDriftTool implements McpTool {
       final layerDriftCount = <String, int>{};
       for (final dc in driftCommits) {
         for (final l in dc['layers_coupled'] as List<dynamic>) {
-          layerDriftCount[l as String] =
-              (layerDriftCount[l] ?? 0) + 1;
+          layerDriftCount[l as String] = (layerDriftCount[l] ?? 0) + 1;
         }
       }
       for (final entry in layerDriftCount.entries) {
@@ -166,8 +164,8 @@ class AnalyzeArchitectureDriftTool implements McpTool {
             'layer': entry.key,
             'description':
                 'Layer "${entry.key}" appears in ${entry.value}/${driftCommits.length} '
-                'drift commits. It has too many cross-cutting concerns and likely '
-                'violates the Single Responsibility Principle at the architecture level.',
+                    'drift commits. It has too many cross-cutting concerns and likely '
+                    'violates the Single Responsibility Principle at the architecture level.',
           });
         }
       }
@@ -183,8 +181,8 @@ class AnalyzeArchitectureDriftTool implements McpTool {
               'layer': entry.key,
               'description':
                   'Layer "${entry.key}" is coupled with $degree/${numLayers - 1} '
-                  'other layers, acting as a central coupling hub and introducing '
-                  'fragility.',
+                      'other layers, acting as a central coupling hub and introducing '
+                      'fragility.',
             });
           }
         }
@@ -200,8 +198,8 @@ class AnalyzeArchitectureDriftTool implements McpTool {
           'count': scattered,
           'description':
               '$scattered commits simultaneously modify 3 or more layers, '
-              'suggesting business logic or infrastructure concerns that are not '
-              'cleanly assigned to a single layer.',
+                  'suggesting business logic or infrastructure concerns that are not '
+                  'cleanly assigned to a single layer.',
         });
       }
     }

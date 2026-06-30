@@ -116,7 +116,8 @@ void compute() {
       final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
       final tempFile = File('${tempDir.path}/dup.dart');
       // 5 identical lines → 4 duplicates
-      await tempFile.writeAsString(List.filled(5, 'print("hello world");').join('\n'));
+      await tempFile
+          .writeAsString(List.filled(5, 'print("hello world");').join('\n'));
 
       final result = await tool.execute({
         'directory': tempDir.path,
