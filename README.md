@@ -8,15 +8,19 @@
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 </p>
 
+## Preface
+
 Modern software teams generate a vast amount of data in their git history. 
 `rw_git` turns that raw history into actionable intelligence, empowering 
 engineering leaders to ask and answer critical business questions.
 
-With that being said, `rw-git` can be integrated via the MCP with your 
-AI agent, or used as a library where your application orchestrates the insights 
-gathering *without any LLM participation*. 
+`rw_git` depends on strong technical foundations backed by academic research and published academic papers (see `doc/tools`). This means that the underlying functionality and intel collection is vastly available without the need of an LLM / MCP integration (which essentially means that you can utilise the raw functionality with or without the MCP tools).
 
-Among a variety of questions that `rw-git` answers, below are some examples:
+Different stakeholders have different requirements for information intelligence, which is the reason why `rw_git` is easily extendable, flexible and highly configurable.
+
+## Business Intelligence beyond engineering metrics
+
+Among a variety of questions that `rw_git` answers, below are some examples:
 
 - **Where is our technical debt accumulating?** We identify implicitly coupled 
   files and high-churn code to highlight architectural decay and predict 
