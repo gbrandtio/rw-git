@@ -1,3 +1,4 @@
+import 'dart:convert';
 import '../../../intelligence/security/secrets_scanner.dart';
 import 'package:rw_git/src/core/process_runner.dart';
 import '../../mcp_tool.dart';
@@ -57,17 +58,17 @@ class DetectSecretsTool implements McpTool {
         .findSecrets(directory, limit: limit, branch: branch);
 
     if (secrets.isEmpty) {
-      return 'No exposed secrets or sensitive credentials found.';
+      return jsonEncode({
+        'secrets_found': 0,
+        'message': 'No exposed secrets or sensitive credentials found.',
+      });
     }
 
-    final buffer = StringBuffer();
-    buffer.writeln('⚠️ WARNING: Potential secrets exposed in commit history!');
-    buffer.writeln('-' * 60);
-    for (final secret in secrets) {
-      buffer.writeln(secret);
-      buffer.writeln('-' * 60);
-    }
-
-    return buffer.toString();
+    return jsonEncode({
+      'secrets_found': secrets.length,
+      'message': 'WARNING: Potential secrets exposed in commit history! '
+          'Values are redacted. Review each finding immediately.',
+      'findings': secrets,
+    });
   }
 }

@@ -18,19 +18,34 @@ void main() {
     });
 
     test('executes successfully on this repo', () async {
-      final result = await tool.execute({'file_path': 'lib/rw_git.dart'});
+      final result = await tool.execute({
+        'directory': '.',
+        'file_path': 'lib/rw_git.dart',
+      });
       expect(result, isNotNull);
     });
 
     test('returns error when file does not exist', () async {
-      final result =
-          await tool.execute({'file_path': 'non_existent_file.dart'});
+      final result = await tool.execute({
+        'directory': '.',
+        'file_path': 'non_existent_file.dart',
+      });
       final parsed = jsonDecode(result) as Map<String, dynamic>;
       expect(parsed['error'], contains('File not found'));
     });
 
+    test('rejects path traversal outside directory', () async {
+      final result = await tool.execute({
+        'directory': '.',
+        'file_path': '../../etc/passwd',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['error'], contains('must resolve within directory'));
+    });
+
     test('detects long lines, deep nesting, and file length', () async {
-      final tempFile = File('test_clean_code.dart');
+      final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
+      final tempFile = File('${tempDir.path}/test_clean_code.dart');
       final lines = List.generate(350, (i) => 'void main() {}');
       // Add a very long line
       lines[0] = List.generate(150, (i) => 'a').join();
@@ -43,29 +58,34 @@ void main() {
 
       await tempFile.writeAsString(lines.join('\n'));
 
-      final result = await tool.execute({'file_path': 'test_clean_code.dart'});
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'test_clean_code.dart',
+      });
       final parsed = jsonDecode(result) as Map<String, dynamic>;
 
-      expect(parsed['file'], 'test_clean_code.dart');
       expect(parsed['total_lines'], 350);
       expect(parsed['clean_code_issues'], hasLength(3));
       expect(parsed['risk_level'], 'high');
 
-      await tempFile.delete();
+      await tempDir.delete(recursive: true);
     });
 
     test('detects medium risk', () async {
-      final tempFile = File('test_clean_code_medium.dart');
+      final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
+      final tempFile = File('${tempDir.path}/test_clean_code_medium.dart');
       final lines = List.generate(350, (i) => 'void main() {}');
       await tempFile.writeAsString(lines.join('\n'));
 
-      final result =
-          await tool.execute({'file_path': 'test_clean_code_medium.dart'});
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'test_clean_code_medium.dart',
+      });
       final parsed = jsonDecode(result) as Map<String, dynamic>;
       expect(parsed['risk_level'], 'medium');
       expect(parsed['clean_code_issues'], hasLength(1));
 
-      await tempFile.delete();
+      await tempDir.delete(recursive: true);
     });
   });
 }

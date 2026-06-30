@@ -51,7 +51,14 @@ class AnalyzeArchitectureDriftTool implements McpTool {
 
     final layerRegexes = <String, RegExp>{};
     for (final entry in layerPatternsMap.entries) {
-      layerRegexes[entry.key] = RegExp(entry.value.toString());
+      try {
+        layerRegexes[entry.key] = RegExp(entry.value.toString());
+      } on FormatException catch (e) {
+        return jsonEncode({
+          'error': 'Invalid regex pattern for layer "${entry.key}": '
+              '${e.message}',
+        });
+      }
     }
 
     final logRes = await rwGit.runCommand(

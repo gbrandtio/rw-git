@@ -166,6 +166,60 @@ void main() {
       expect(parsed['trend'], 'decelerating');
     });
 
+    test('rejects invalid since date', () async {
+      final runner = _MockRunner('');
+      final tool = AnalyzeCommitVelocityTool(runner);
+
+      final result = await tool.execute({
+        'directory': '/test',
+        'since': 'not-a-date',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['error'], contains('"since"'));
+    });
+
+    test('rejects invalid until date', () async {
+      final runner = _MockRunner('');
+      final tool = AnalyzeCommitVelocityTool(runner);
+
+      final result = await tool.execute({
+        'directory': '/test',
+        'until': 'some random garbage',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['error'], contains('"until"'));
+    });
+
+    test('accepts valid ISO-8601 since and until dates', () async {
+      final log = [
+        'aaa||Alice||2024-01-15T10:00:00+00:00',
+        'bbb||Bob||2024-02-15T10:00:00+00:00',
+      ].join('\n');
+
+      final runner = _MockRunner(log);
+      final tool = AnalyzeCommitVelocityTool(runner);
+
+      final result = await tool.execute({
+        'directory': '/test',
+        'since': '2024-01-01',
+        'until': '2024-12-31',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed.containsKey('error'), isFalse);
+    });
+
+    test('accepts relative git date phrases', () async {
+      final runner = _MockRunner('');
+      final tool = AnalyzeCommitVelocityTool(runner);
+
+      final result = await tool.execute({
+        'directory': '/test',
+        'since': '2 weeks ago',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed.containsKey('error'), isFalse);
+    });
+
     test('detects anomalies', () async {
       final log = [
         'aaa||Alice||2024-01-01T10:00:00+00:00', // week 1

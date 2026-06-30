@@ -61,6 +61,26 @@ void main() {
       expect((schema['required'] as List).contains('author'), isTrue);
     });
 
+    test('returns error for malformed positiveRegex', () async {
+      final result = await tool.execute({
+        'directory': '.',
+        'author': 'Alice',
+        'positiveRegex': '(unclosed',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['error'], contains('positiveRegex'));
+    });
+
+    test('returns error for malformed negativeRegex', () async {
+      final result = await tool.execute({
+        'directory': '.',
+        'author': 'Alice',
+        'negativeRegex': '[invalid',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['error'], contains('negativeRegex'));
+    });
+
     test('execute returns valid JSON with introduced bugs', () async {
       mockRunner.mockResult(
           'git',

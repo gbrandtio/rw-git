@@ -82,10 +82,12 @@ class AnalyzeDartAstQualityTool implements McpTool {
     }
 
     // 3. Extract file contents and run AST parser via Isolate to prevent blocking
+    final canonicalDir = p.canonicalize(directory);
     final Map<String, String> filesContent = {};
     for (final file in changedFiles) {
-      final path = p.join(directory, file);
-      final f = File(path);
+      final resolvedPath = p.canonicalize(p.join(directory, file));
+      if (!p.isWithin(canonicalDir, resolvedPath)) continue;
+      final f = File(resolvedPath);
       if (await f.exists()) {
         filesContent[file] = await f.readAsString();
       }

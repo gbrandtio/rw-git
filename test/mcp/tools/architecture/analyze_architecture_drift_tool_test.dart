@@ -51,6 +51,18 @@ void main() {
     expect(res, contains('error'));
   });
 
+  test('AnalyzeArchitectureDriftTool rejects malformed regex pattern',
+      () async {
+    final tool = AnalyzeArchitectureDriftTool(_MockRwGit());
+    final res = await tool.execute({
+      'directory': '.',
+      'layer_patterns': {'ui': '(unclosed'},
+    });
+    final data = jsonDecode(res) as Map<String, dynamic>;
+    expect(data['error'], contains('Invalid regex pattern'));
+    expect(data['error'], contains('ui'));
+  });
+
   test('AnalyzeArchitectureDriftTool detects coupling matrix', () async {
     final logOut = '''
 hash1||commit 1

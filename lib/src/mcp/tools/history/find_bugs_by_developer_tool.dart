@@ -56,8 +56,27 @@ class FindBugsByDeveloperTool implements McpTool {
     final directory = arguments.getStringArgument('directory');
     final author = arguments.getStringArgument('author');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
-    final positiveRegex = arguments['positiveRegex']?.toString();
-    final negativeRegex = arguments['negativeRegex']?.toString();
+    final positiveRegex = arguments.getOptionalStringArgument('positiveRegex');
+    final negativeRegex = arguments.getOptionalStringArgument('negativeRegex');
+
+    if (positiveRegex != null) {
+      try {
+        RegExp(positiveRegex);
+      } on FormatException catch (e) {
+        return jsonEncode({
+          'error': 'Invalid positiveRegex pattern: ${e.message}',
+        });
+      }
+    }
+    if (negativeRegex != null) {
+      try {
+        RegExp(negativeRegex);
+      } on FormatException catch (e) {
+        return jsonEncode({
+          'error': 'Invalid negativeRegex pattern: ${e.message}',
+        });
+      }
+    }
 
     final matches = await SzzAlgorithm(runner).execute(
       directory,

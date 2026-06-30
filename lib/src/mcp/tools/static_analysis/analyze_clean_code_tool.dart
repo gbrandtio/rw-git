@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:path/path.dart' as p;
 import '../../../../rw_git.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
@@ -23,18 +24,37 @@ class AnalyzeCleanCodeTool implements McpTool {
   Map<String, dynamic> get inputSchema => {
         'type': 'object',
         'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The absolute path to the repository root. '
+                'Used to scope file access and prevent path traversal.',
+          },
           'file_path': {
             'type': 'string',
-            'description': 'The absolute path to the file to analyze.',
+            'description': 'Path to the file to analyze, absolute or relative '
+                'to directory.',
           }
         },
-        'required': ['file_path'],
+        'required': ['directory', 'file_path'],
       };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
+    final directory = arguments.getStringArgument('directory');
     final filePath = arguments.getStringArgument('file_path');
-    final file = File(filePath);
+
+    final canonicalDir = p.canonicalize(directory);
+    final resolvedPath = p.isAbsolute(filePath)
+        ? p.canonicalize(filePath)
+        : p.canonicalize(p.join(directory, filePath));
+
+    if (!p.isWithin(canonicalDir, resolvedPath)) {
+      return jsonEncode({
+        'error': 'file_path must resolve within directory.',
+      });
+    }
+
+    final file = File(resolvedPath);
 
     if (!await file.exists()) {
       return jsonEncode({'error': 'File not found'});
@@ -85,7 +105,7 @@ class AnalyzeCleanCodeTool implements McpTool {
     }
 
     return jsonEncode({
-      'file': filePath,
+      'file': resolvedPath,
       'total_lines': totalLines,
       'max_indentation_level': maxIndentation,
       'long_lines': longLines,

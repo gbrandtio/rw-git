@@ -65,6 +65,19 @@ class AnalyzeCommitVelocityTool implements McpTool {
     final granularity =
         arguments.getOptionalStringArgument('granularity') ?? 'week';
 
+    if (since != null && !_isValidDateInput(since)) {
+      return jsonEncode({
+        'error': 'Invalid "since" value. Use ISO-8601 (e.g. "2024-01-01") '
+            'or a git relative date (e.g. "2 weeks ago").',
+      });
+    }
+    if (until != null && !_isValidDateInput(until)) {
+      return jsonEncode({
+        'error': 'Invalid "until" value. Use ISO-8601 (e.g. "2024-12-31") '
+            'or a git relative date (e.g. "1 month ago").',
+      });
+    }
+
     final velocity =
         await CommitVelocityHeuristic(runner).calculateCommitVelocity(
       directory,
@@ -98,4 +111,22 @@ class AnalyzeCommitVelocityTool implements McpTool {
           .toList(),
     });
   }
+}
+
+// Accepts ISO-8601 dates (YYYY-MM-DD) and git relative date phrases
+// such as "2 weeks ago", "1 month ago", "yesterday".
+bool _isValidDateInput(String value) {
+  if (RegExp(r'^\d{4}-\d{2}-\d{2}$').hasMatch(value)) {
+    return true;
+  }
+  if (RegExp(
+    r'^\d+\s+(second|minute|hour|day|week|month|year)s?\s+ago$',
+    caseSensitive: false,
+  ).hasMatch(value)) {
+    return true;
+  }
+  return RegExp(
+    r'^yesterday$',
+    caseSensitive: false,
+  ).hasMatch(value);
 }

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
@@ -23,16 +24,19 @@ void main() {
       expect(() => tool.execute({}), throwsA(isA<ArgumentError>()));
     });
 
-    test('returns "No exposed secrets" when none are found', () async {
+    test('returns JSON with zero findings when none are found', () async {
       final runner = MockProcessRunner(
           'commit 12345||Author||Date||Message\n+++ b/lib/main.dart\n+  print("Hello");');
       final tool = DetectSecretsTool(runner);
 
       final result = await tool.execute({'directory': 'fake_dir'});
-      expect(result, 'No exposed secrets or sensitive credentials found.');
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['secrets_found'], 0);
+      expect(parsed['message'], contains('No exposed secrets'));
     });
 
-    test('returns formatted string with secrets when they are found', () async {
+    test('returns JSON with redacted findings when secrets are found',
+        () async {
       final mockOutput = '''
 e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add aws config
 +++ b/lib/aws_config.dart
@@ -45,8 +49,11 @@ e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add aws config
       final result =
           await tool.execute({'directory': 'fake_dir', 'limit': '1'});
 
-      expect(result, contains('WARNING: Potential secrets exposed'));
-      expect(result, contains('AKI***DEF'));
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['secrets_found'], greaterThan(0));
+      expect(parsed['message'], contains('WARNING'));
+      final findings = parsed['findings'] as List;
+      expect(findings.any((f) => (f as String).contains('AKI***DEF')), isTrue);
     });
 
     test('handles branch and limit parameters correctly', () async {
@@ -55,7 +62,8 @@ e2a4b3c||John Doe||Thu Jun 26 10:00:00 2026 +0000||Add aws config
 
       final result = await tool
           .execute({'directory': 'fake_dir', 'limit': '10', 'branch': 'main'});
-      expect(result, 'No exposed secrets or sensitive credentials found.');
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['secrets_found'], 0);
     });
   });
 }
