@@ -1,5 +1,6 @@
 # 3.0.7
 - **REFACTOR:** Refactored the MCP tools implementation, adhering to SRP principles and making the repository future-proof and easily extendable.
+- **FEAT (Quality):** Based on academic papers, enhanced the MCP tools underlying technical foundations and documented under `doc/tools`.
 
 # 3.0.6
 - **TEST (Quality):** Added `documentation_formatting_test.dart` to enforce 80 column wrapping for the README file.
