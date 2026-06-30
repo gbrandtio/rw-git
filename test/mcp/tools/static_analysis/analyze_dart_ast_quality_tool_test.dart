@@ -16,6 +16,11 @@ void main() {
 
     await rwGit.init(tempDir.path);
 
+    await runner.run('git', ['config', 'user.name', 'Test User'],
+        workingDirectory: tempDir.path);
+    await runner.run('git', ['config', 'user.email', 'test@example.com'],
+        workingDirectory: tempDir.path);
+
     // Create initial commit
     final file1 = File('${tempDir.path}/main.dart');
     await file1.writeAsString('void main() {}');

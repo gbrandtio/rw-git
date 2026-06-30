@@ -17,6 +17,11 @@ void main() {
 
     await rwGit.init(tempDir.path);
 
+    await runner.run('git', ['config', 'user.name', 'Test User'],
+        workingDirectory: tempDir.path);
+    await runner.run('git', ['config', 'user.email', 'test@example.com'],
+        workingDirectory: tempDir.path);
+
     final pkgJson = File('${tempDir.path}/package.json');
     await pkgJson.writeAsString(
         '{\n"dependencies": {\n"lodash": "^4.17.21"\n},\n"devDependencies": {\n"jest": "27.0.0"\n}\n}');

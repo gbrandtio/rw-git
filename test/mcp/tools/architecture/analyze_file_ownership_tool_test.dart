@@ -16,6 +16,11 @@ void main() {
     testDir = Directory.systemTemp.createTempSync('rw_git_test_');
     await rwGit.init(testDir.path);
 
+    await runner.run('git', ['config', 'user.name', 'Test User'],
+        workingDirectory: testDir.path);
+    await runner.run('git', ['config', 'user.email', 'test@example.com'],
+        workingDirectory: testDir.path);
+
     // Create CODEOWNERS with various patterns
     final codeowners = File('${testDir.path}/CODEOWNERS');
     await codeowners.writeAsString('''
