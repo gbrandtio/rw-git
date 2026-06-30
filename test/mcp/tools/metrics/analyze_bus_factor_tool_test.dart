@@ -98,8 +98,8 @@ void main() {
 
     setUp(() {
       mockRunner = MockProcessRunner();
-      mockRunner.setMockResult('git', ['log', '-n', '500', '--format=%an'],
-          0, 'Alice\nBob\nAlice\nAlice\nCharlie\n', '');
+      mockRunner.setMockResult('git', ['log', '-n', '500', '--format=%an'], 0,
+          'Alice\nBob\nAlice\nAlice\nCharlie\n', '');
 
       rwGit = RwGit(runner: mockRunner);
     });
