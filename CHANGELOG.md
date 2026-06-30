@@ -1,14 +1,20 @@
-# 3.0.9
+# 3.0.8
+- **FEAT (Library):** Exposed the intelligence/analysis algorithms (bus factor, bug hotspots, logical coupling, code volatility, etc.) directly from `package:rw_git/rw_git.dart`, so consumers can use the same analyses the MCP tools rely on without running the MCP server.
+- **FEAT (Intelligence):** Added package freshness check for `analyze_dependency_drift` tool.
 - **FEAT (MCP):** `McpToolFileOffloadDecorator` now returns small responses (under 8KB, `offloadSizeThresholdBytes`) inline instead of unconditionally offloading them to disk, eliminating a wasted file-write/file-read round trip for low-volume tools like `get_stats` and `get_contributions_by_author`.
 - **FIX (MCP):** Implemented the `return_full_json` opt-out argument on `McpToolFileOffloadDecorator`. It was documented (and referenced in earlier CHANGELOG entries) but never actually wired into the decorator's `execute()` or `inputSchema` — passing it had no effect. It now correctly skips file offloading and returns the full JSON inline.
 - **FEAT (MCP):** Offload summaries now include a `preview` field (top-level keys, value types, array lengths) so LLMs can target reads without guessing the offloaded file's shape.
 - **FEAT (MCP):** Added `read_report_slice` tool to fetch a targeted key-path/array-slice from a previously offloaded report file, instead of reading the entire file into context.
 - **CHORE (MCP):** Shrunk the offload boilerplate appended to all 27 wrapped tools' descriptions from a ~70-word paragraph to one sentence pointing at `get_rw_git_documentation`, reducing the fixed token cost of every `tools/list` call.
 - **DOCS:** Updated `get_rw_git_documentation` with the new size threshold, `return_full_json`, `read_report_slice`, and an advisory `format: summary|full` parameter-naming convention for future tools.
-
-# 3.0.8
-- **FEAT (Library):** Exposed the intelligence/analysis algorithms (bus factor, bug hotspots, logical coupling, code volatility, etc.) directly from `package:rw_git/rw_git.dart`, so consumers can use the same analyses the MCP tools rely on without running the MCP server.
-- **FEAT (Intelligence):** Added package freshness check for `analyze_dependency_drift` tool.
+- **PERF (MCP):** Cut the fixed `tools/list` cost from ~43KB (~12k tokens) to ~30KB (~8.4k tokens) by deferring the offload contract to `get_rw_git_documentation` instead of stamping a verbose paragraph plus two long property descriptions onto all 35 tool schemas. A regression test (`tools_list_size_test.dart`) now guards the budget. This lowers the floor enough for 8–16K-context local models to hold the full tool surface.
+- **FEAT (MCP):** `tools/list` now advertises standard tool **annotations** (`readOnlyHint`/`idempotentHint`) — 30 read-only analysis tools are marked auto-approvable and 5 repository-mutating tools (clone/checkout/init/fetch) are flagged — plus an `outputSchema` on `analyze_bus_factor`. Metadata is attached centrally via `McpToolWithMetadata` without touching individual tools.
+- **FEAT (MCP):** Bumped the implemented protocol revision to **2025-06-18** with version negotiation (older revisions still accepted), accurate capability advertisement, and `serverInfo.version` sourced from a single constant.
+- **FEAT (MCP):** Offloaded reports are now exposed as MCP **Resources** (`resources/list` / `resources/read`); offload summaries include a `resource_uri`. Only files produced this session are readable. The existing `read_report_slice` path is unchanged for small/local models.
+- **FEAT (MCP):** Optional `tools/list` **pagination** (opaque cursor) via the `RW_GIT_TOOLS_PAGE_SIZE` env var, for clients with very small context windows. Off by default (full list returned).
+- **REFACTOR (MCP):** Extracted tool/prompt registration into a single `buildDefaultRegistry()` shared by the `rw_git_mcp` executable and the test suite, removing duplication between production and tests.
+- **CHORE (Build):** Agent workflows now have a single source of truth — MCP prompt Dart sources are generated from the canonical `.agents/skills/<name>/SKILL.md` via `tool/sync_prompts.dart`, with a drift-guard test (`prompts_sync_test.dart`).
+- **DOCS:** Documented all five reporting prompts and the six bundled skills in `README.md`; added a "Adding or modifying prompts and skills" section to `CONTRIBUTING.md`; added `doc/SMALL_LLM_EFFICIENCY_EVALUATION.md` (token-cost model and local/frontier model suitability matrix).
 
 # 3.0.7
 - **REFACTOR:** Refactored the MCP tools implementation, adhering to SRP principles and making the repository future-proof and easily extendable.
