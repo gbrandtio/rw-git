@@ -144,7 +144,8 @@ engineering management and code quality challenges.
 **Security & Compliance:**
 - `audit_compliance`: Scans for unsigned commits and empty messages.
 - `detect_secrets_in_commits`: Scans commit history for exposed secrets.
-- `analyze_dependency_drift`: Parses dependency manifests for pinning risk, with an opt-in network-based version freshness check (`check_freshness`).
+- `analyze_dependency_drift`: Parses dependency manifests for pinning risk,
+  with an opt-in network-based version freshness check (`check_freshness`).
 
 **Code Review AI Agents:**
 - `evaluate_comment_llm_generation`: Detects AI-generated code comments.
