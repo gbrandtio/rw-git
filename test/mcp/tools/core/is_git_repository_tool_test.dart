@@ -31,5 +31,16 @@ void main() {
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema, isNotEmpty);
     });
+
+    test('execute returns false on failure', () async {
+      final mock = ProcessRunner.mock() as MockProcessRunner;
+      mock.setMockResult('git', ['rev-parse', '--is-inside-work-tree'], 1, '',
+          'fatal: not a git repository');
+      final rwGit2 = RwGit(runner: mock);
+      final tool2 = IsGitRepositoryTool(rwGit2);
+      final result = await tool2.execute({'directory': 'test_dir'});
+      final json = jsonDecode(result) as Map<String, dynamic>;
+      expect(json['isGitRepository'], isFalse);
+    });
   });
 }

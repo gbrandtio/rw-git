@@ -1,3 +1,4 @@
+import '../../../intelligence/security/dependency_manifest_parser.dart';
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../utils/mcp_argument_extensions.dart';
@@ -7,9 +8,9 @@ import '../../utils/mcp_argument_extensions.dart';
 /// and supply chain risk.
 
 class AnalyzeDependencyDriftTool implements McpTool {
-  final CodeQualityTracker tracker;
+  final ProcessRunner runner;
 
-  AnalyzeDependencyDriftTool(this.tracker);
+  AnalyzeDependencyDriftTool(this.runner);
 
   @override
   String get name => 'analyze_dependency_drift';
@@ -40,7 +41,8 @@ class AnalyzeDependencyDriftTool implements McpTool {
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments.getStringArgument('directory');
 
-    final manifests = await tracker.parseDependencyManifests(directory);
+    final manifests = await DependencyManifestParser(runner)
+        .parseDependencyManifests(directory);
 
     final ecosystems = manifests.ecosystems
         .map((e) => {

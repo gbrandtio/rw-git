@@ -1,5 +1,5 @@
 // ignore_for_file: avoid_dynamic_calls, unnecessary_cast
-import 'package:rw_git/src/git_service/parsers/git_url_parser.dart';
+import 'package:rw_git/src/vcs/parsers/git_url_parser.dart';
 import 'package:test/test.dart';
 
 void main() {

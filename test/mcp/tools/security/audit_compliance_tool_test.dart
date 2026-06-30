@@ -31,8 +31,7 @@ void main() {
   group('AuditComplianceTool', () {
     test('has correct name and schema', () {
       final runner = _MockRunner('');
-      final tracker = CodeQualityTracker(runner);
-      final tool = AuditComplianceTool(tracker);
+      final tool = AuditComplianceTool(runner);
 
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema.isNotEmpty, isTrue);
@@ -47,8 +46,7 @@ void main() {
       ].join('\n');
 
       final runner = _MockRunner(log);
-      final tracker = CodeQualityTracker(runner);
-      final tool = AuditComplianceTool(tracker);
+      final tool = AuditComplianceTool(runner);
 
       final result = await tool.execute({'directory': '/test'});
       final parsed = jsonDecode(result) as Map<String, dynamic>;
@@ -68,8 +66,7 @@ void main() {
       ].join('\n');
 
       final runner = _MockRunner(log);
-      final tracker = CodeQualityTracker(runner);
-      final tool = AuditComplianceTool(tracker);
+      final tool = AuditComplianceTool(runner);
 
       final result = await tool.execute({
         'directory': '/test',
@@ -87,8 +84,7 @@ void main() {
           'aaa||G||alice@example.com||Alice||2024-01-01T10:00:00+00:00||feat: ok';
 
       final runner = _MockRunner(log);
-      final tracker = CodeQualityTracker(runner);
-      final tool = AuditComplianceTool(tracker);
+      final tool = AuditComplianceTool(runner);
 
       final result = await tool.execute({'directory': '/test'});
       final parsed = jsonDecode(result) as Map<String, dynamic>;
@@ -98,8 +94,7 @@ void main() {
 
     test('handles empty log', () async {
       final runner = _MockRunner('');
-      final tracker = CodeQualityTracker(runner);
-      final tool = AuditComplianceTool(tracker);
+      final tool = AuditComplianceTool(runner);
 
       final result = await tool.execute({'directory': '/test'});
       final parsed = jsonDecode(result) as Map<String, dynamic>;

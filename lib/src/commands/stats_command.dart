@@ -1,7 +1,7 @@
 import '../core/git_command.dart';
 import '../core/process_runner.dart';
 import '../models/short_stat_dto.dart';
-import '../git_service/parsers/rw_git_parser.dart';
+import '../vcs/parsers/rw_git_parser.dart';
 
 class StatsCommand extends GitCommand<ShortStatDto> {
   final String oldTag;

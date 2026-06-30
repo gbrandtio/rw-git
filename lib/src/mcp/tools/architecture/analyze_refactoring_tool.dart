@@ -1,15 +1,15 @@
+import '../../../intelligence/architecture/refactoring_detection_algorithm.dart';
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
 import '../../utils/mcp_argument_extensions.dart';
-import '../../../quality/refactoring_detection_algorithm.dart';
 
 /// analyze_refactoring_tool.dart
 /// Implements the MCP Tool to detect structural refactorings.
 class AnalyzeRefactoringTool implements McpTool {
-  final CodeQualityTracker tracker;
+  final ProcessRunner runner;
 
-  AnalyzeRefactoringTool(this.tracker);
+  AnalyzeRefactoringTool(this.runner);
 
   @override
   String get name => 'analyze_refactoring';
@@ -43,7 +43,7 @@ class AnalyzeRefactoringTool implements McpTool {
     final directory = arguments.getStringArgument('directory');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
 
-    final algo = RefactoringDetectionAlgorithm(tracker.runner);
+    final algo = RefactoringDetectionAlgorithm(runner);
     final results = await algo.execute(directory, limit: limit);
 
     return jsonEncode({

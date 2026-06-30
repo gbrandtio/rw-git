@@ -1,3 +1,4 @@
+import '../../../intelligence/security/compliance_scanner.dart';
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
@@ -9,9 +10,9 @@ import '../../utils/mcp_argument_extensions.dart';
 /// unrecognized authors).
 
 class AuditComplianceTool implements McpTool {
-  final CodeQualityTracker tracker;
+  final ProcessRunner runner;
 
-  AuditComplianceTool(this.tracker);
+  AuditComplianceTool(this.runner);
 
   @override
   String get name => 'audit_compliance';
@@ -65,7 +66,7 @@ class AuditComplianceTool implements McpTool {
                 .toList()
             : <String>[];
 
-    final report = await tracker.scanComplianceIssues(
+    final report = await ComplianceScanner(runner).scanComplianceIssues(
       directory,
       limit: limit,
       allowedEmails: allowedEmails,

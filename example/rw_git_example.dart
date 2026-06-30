@@ -78,28 +78,6 @@ void main() async {
     print('Number of lines deleted: ${shortStatDto.deletions}');
     print('Number of files changed: ${shortStatDto.numberOfChangedFiles}\n');
   }
-
-  // 8. Code Quality and Analytics
-  print("Running Code Quality and Analytics Tools...");
-  final processRunner = ProcessRunner.defaultRunner();
-  final qualityTracker = CodeQualityTracker(processRunner);
-
-  // 8.1 Calculate Code Churn
-  final churnMetrics = await qualityTracker
-      .calculateChurn(localDirectoryToCloneInto, limit: "50");
-  print("Analyzed ${churnMetrics.totalCommits} commits for churn metrics.");
-
-  // 8.2 Find Suspicious Commits (e.g., TODOs, FIXMEs, workarounds)
-  final suspiciousCommits = await qualityTracker
-      .findSuspiciousCommits(localDirectoryToCloneInto, limit: "100");
-  print(
-      "Found ${suspiciousCommits.length} commits containing suspicious keywords.");
-
-  // 8.3 Commit Velocity
-  final commitVelocity = await qualityTracker
-      .calculateCommitVelocity(localDirectoryToCloneInto, granularity: "month");
-  print(
-      "Commit Velocity trend: ${commitVelocity.trend} (Avg: ${commitVelocity.averagePerPeriod.toStringAsFixed(1)} commits/month).\n");
 }
 
 /// Creates the directory where the repository will be checked out.

@@ -1,3 +1,6 @@
+# 3.0.7
+- **REFACTOR:** Refactored the MCP tools implementation, adhering to SRP principles and making the repository future-proof and easily extendable.
+
 # 3.0.6
 - **TEST (Quality):** Added `documentation_formatting_test.dart` to enforce 80 column wrapping for the README file.
 - **DOCS:** Formatted `README.md` and `.agents/skills/**/SKILL.md` to adhere strictly to the 80 column wrap limit.

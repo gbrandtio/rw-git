@@ -1,6 +1,6 @@
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/mcp/tools/security/detect_secrets_tool.dart';
-import 'package:rw_git/src/mcp/tools/bugs/find_bugs_by_developer_tool.dart';
+import 'package:rw_git/src/mcp/tools/history/find_bugs_by_developer_tool.dart';
 import 'package:rw_git/src/mcp/prompts/rw_git_mcp_reporting_prompt.dart';
 import 'package:rw_git/src/mcp/prompts/rw_git_mcp_code_review_reporting_prompt.dart';
 import 'package:rw_git/src/mcp/prompts/rw_git_mcp_pm_reporting_prompt.dart';
@@ -16,17 +16,16 @@ import 'package:rw_git/src/mcp/prompts/rw_git_mcp_technical_reporting_prompt.dar
 void main() async {
   final runner = ProcessRunner.defaultRunner();
   final rwGit = RwGit(runner: runner);
-  final tracker = CodeQualityTracker(runner);
 
   final registry = McpRegistry();
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeCodeQualityTool(tracker, rwGit)));
+      McpToolFileOffloadDecorator(AnalyzeCodeQualityTool(runner, rwGit)));
   registry.registerTool(McpToolFileOffloadDecorator(
-      AnalyzeCodeQualityWithAuthorsTool(tracker, rwGit)));
+      AnalyzeCodeQualityWithAuthorsTool(runner, rwGit)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeBugHotspotsTool(tracker)));
+      McpToolFileOffloadDecorator(AnalyzeBugHotspotsTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(FindBugsByDeveloperTool(tracker)));
+      McpToolFileOffloadDecorator(FindBugsByDeveloperTool(runner)));
   registry.registerTool(GetRwGitDocumentationTool(registry));
   registry.registerTool(InitRepositoryTool(rwGit));
   registry.registerTool(IsGitRepositoryTool(rwGit));
@@ -41,37 +40,36 @@ void main() async {
   registry.registerTool(CloneSpecificBranchTool(rwGit));
 
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeReleaseDeltaTool(rwGit, tracker)));
+      McpToolFileOffloadDecorator(AnalyzeReleaseDeltaTool(rwGit, runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeBusFactorTool(tracker, rwGit)));
+      McpToolFileOffloadDecorator(AnalyzeBusFactorTool(runner, rwGit)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeLogicalCouplingTool(tracker)));
+      McpToolFileOffloadDecorator(AnalyzeLogicalCouplingTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeCodeVolatilityTool(tracker)));
+      McpToolFileOffloadDecorator(AnalyzeCodeVolatilityTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeRefactoringTool(tracker)));
+      McpToolFileOffloadDecorator(AnalyzeRefactoringTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(EvaluateCommentLlmGenerationTool(tracker)));
+      McpToolFileOffloadDecorator(EvaluateCommentLlmGenerationTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(EvaluateCommentQualityTool(tracker)));
+      McpToolFileOffloadDecorator(EvaluateCommentQualityTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(EvaluateCommentNecessityTool(tracker)));
-  registry
-      .registerTool(McpToolFileOffloadDecorator(DetectSecretsTool(tracker)));
+      McpToolFileOffloadDecorator(EvaluateCommentNecessityTool(runner)));
+  registry.registerTool(McpToolFileOffloadDecorator(DetectSecretsTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzePrDiffTool(tracker, rwGit)));
+      McpToolFileOffloadDecorator(AnalyzePrDiffTool(runner, rwGit)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(PredictMergeConflictsTool(tracker)));
+      McpToolFileOffloadDecorator(PredictMergeConflictsTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeCommitVelocityTool(tracker)));
+      McpToolFileOffloadDecorator(AnalyzeCommitVelocityTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeDependencyDriftTool(tracker)));
+      McpToolFileOffloadDecorator(AnalyzeDependencyDriftTool(runner)));
   registry
       .registerTool(McpToolFileOffloadDecorator(GenerateChangelogTool(rwGit)));
   registry
-      .registerTool(McpToolFileOffloadDecorator(AuditComplianceTool(tracker)));
+      .registerTool(McpToolFileOffloadDecorator(AuditComplianceTool(runner)));
   registry.registerTool(
-      McpToolFileOffloadDecorator(AnalyzeFileOwnershipTool(tracker, rwGit)));
+      McpToolFileOffloadDecorator(AnalyzeFileOwnershipTool(runner, rwGit)));
   registry.registerTool(
       McpToolFileOffloadDecorator(AnalyzeDartAstQualityTool(rwGit)));
   registry.registerTool(

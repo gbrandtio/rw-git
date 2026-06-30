@@ -2,14 +2,14 @@ import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
 import '../../utils/mcp_argument_extensions.dart';
-import '../../../quality/logical_coupling_algorithm.dart';
+import '../../../intelligence/architecture/logical_coupling_algorithm.dart';
 
 /// analyze_logical_coupling_tool.dart
 /// Implements the MCP Tool to find implicit file dependencies.
 class AnalyzeLogicalCouplingTool implements McpTool {
-  final CodeQualityTracker tracker;
+  final ProcessRunner runner;
 
-  AnalyzeLogicalCouplingTool(this.tracker);
+  AnalyzeLogicalCouplingTool(this.runner);
 
   @override
   String get name => 'analyze_logical_coupling';
@@ -49,7 +49,7 @@ class AnalyzeLogicalCouplingTool implements McpTool {
         ? int.tryParse(arguments['min_co_changes'].toString()) ?? 3
         : 3;
 
-    final algo = LogicalCouplingAlgorithm(tracker.runner);
+    final algo = LogicalCouplingAlgorithm(runner);
     final results =
         await algo.execute(directory, limit: limit, minCoChanges: minCoChanges);
 

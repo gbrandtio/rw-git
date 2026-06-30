@@ -44,8 +44,7 @@ void main() {
   group('AnalyzeDependencyDriftTool', () {
     test('has correct name and schema', () {
       final runner = _MockRunner(lsTreeOutput: '');
-      final tracker = CodeQualityTracker(runner);
-      final tool = AnalyzeDependencyDriftTool(tracker);
+      final tool = AnalyzeDependencyDriftTool(runner);
 
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema.isNotEmpty, isTrue);
@@ -69,8 +68,7 @@ dev_dependencies:
         lsTreeOutput: lsTree,
         fileContents: {'pubspec.yaml': pubspec},
       );
-      final tracker = CodeQualityTracker(runner);
-      final tool = AnalyzeDependencyDriftTool(tracker);
+      final tool = AnalyzeDependencyDriftTool(runner);
 
       final result = await tool.execute({'directory': '/test'});
       final parsed = jsonDecode(result) as Map<String, dynamic>;
@@ -94,8 +92,7 @@ numpy
         lsTreeOutput: lsTree,
         fileContents: {'requirements.txt': reqs},
       );
-      final tracker = CodeQualityTracker(runner);
-      final tool = AnalyzeDependencyDriftTool(tracker);
+      final tool = AnalyzeDependencyDriftTool(runner);
 
       final result = await tool.execute({'directory': '/test'});
       final parsed = jsonDecode(result) as Map<String, dynamic>;
@@ -109,14 +106,33 @@ numpy
 
     test('reports none risk for no manifests', () async {
       final runner = _MockRunner(lsTreeOutput: 'src/main.dart');
-      final tracker = CodeQualityTracker(runner);
-      final tool = AnalyzeDependencyDriftTool(tracker);
+      final tool = AnalyzeDependencyDriftTool(runner);
 
       final result = await tool.execute({'directory': '/test'});
       final parsed = jsonDecode(result) as Map<String, dynamic>;
 
       expect(parsed['overall_risk'], 'none');
       expect(parsed['total_dependencies'], 0);
+    });
+
+    test('increments missingLocks when lock file is missing', () async {
+      final lsTree = 'pubspec.yaml';
+      final pubspec = '''
+name: my_app
+dependencies:
+  http: ^0.13.0
+''';
+      final runner = _MockRunner(
+        lsTreeOutput: lsTree,
+        fileContents: {'pubspec.yaml': pubspec},
+      );
+      final tool = AnalyzeDependencyDriftTool(runner);
+
+      final result = await tool.execute({'directory': '/test'});
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+
+      final eco = (parsed['ecosystems'] as List).first;
+      expect(eco['has_lock_file'], isFalse);
     });
   });
 }

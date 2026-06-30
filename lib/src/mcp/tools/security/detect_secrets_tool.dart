@@ -1,4 +1,5 @@
-import '../../../quality/code_quality_tracker.dart';
+import '../../../intelligence/security/secrets_scanner.dart';
+import 'package:rw_git/src/core/process_runner.dart';
 import '../../mcp_tool.dart';
 import '../../../constants.dart';
 
@@ -6,9 +7,9 @@ import '../../../constants.dart';
 /// Scans commit history for exposed secrets, API keys, or credentials.
 
 class DetectSecretsTool implements McpTool {
-  final CodeQualityTracker tracker;
+  final ProcessRunner runner;
 
-  DetectSecretsTool(this.tracker);
+  DetectSecretsTool(this.runner);
 
   @override
   String get name => 'detect_secrets_in_commits';
@@ -52,8 +53,8 @@ class DetectSecretsTool implements McpTool {
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final branch = arguments['branch']?.toString();
 
-    final secrets =
-        await tracker.findSecrets(directory, limit: limit, branch: branch);
+    final secrets = await SecretsScanner(runner)
+        .findSecrets(directory, limit: limit, branch: branch);
 
     if (secrets.isEmpty) {
       return 'No exposed secrets or sensitive credentials found.';

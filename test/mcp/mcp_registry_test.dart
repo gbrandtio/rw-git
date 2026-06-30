@@ -1,64 +1,56 @@
-// ignore_for_file: avoid_dynamic_calls, unnecessary_cast
-import 'package:rw_git/src/mcp/mcp_registry.dart';
-import 'package:rw_git/src/mcp/mcp_tool.dart';
+import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/mcp/mcp_prompt.dart';
 import 'package:test/test.dart';
 
-class MockMcpTool implements McpTool {
+class DummyTool implements McpTool {
   @override
-  final String name;
-
+  String get name => 'dummy_tool';
   @override
-  final String description;
-
+  String get description => 'A dummy tool';
   @override
-  final Map<String, dynamic> inputSchema;
-
-  MockMcpTool(this.name, this.description, this.inputSchema);
-
+  Map<String, dynamic> get inputSchema => {'type': 'object'};
   @override
-  Future<String> execute(Map<String, dynamic> arguments) async {
-    return 'Success';
-  }
+  Future<String> execute(Map<String, dynamic> arguments) async => 'done';
+}
+
+class DummyPrompt implements McpPrompt {
+  @override
+  String get name => 'dummy_prompt';
+  @override
+  String get description => 'A dummy prompt';
+  @override
+  List<Map<String, dynamic>> get messages => [];
 }
 
 void main() {
   group('McpRegistry', () {
-    late McpRegistry registry;
-
-    setUp(() {
-      registry = McpRegistry();
-    });
-
-    test('registerTool adds a tool to the registry', () {
-      final tool = MockMcpTool('test_tool', 'A test tool', {'type': 'object'});
+    test('Tool registration and lookup', () {
+      final registry = McpRegistry();
+      final tool = DummyTool();
       registry.registerTool(tool);
 
-      final retrieved = registry.getTool('test_tool');
-      expect(retrieved, isNotNull);
-      expect(retrieved?.name, 'test_tool');
-    });
-
-    test('getTool returns null for unregistered tool', () {
-      final retrieved = registry.getTool('unknown_tool');
-      expect(retrieved, isNull);
-    });
-
-    test('getToolListings returns formatted tool list', () {
-      final tool1 = MockMcpTool('tool_1', 'Desc 1', {'type': 'object'});
-      final tool2 = MockMcpTool('tool_2', 'Desc 2', {'type': 'string'});
-      registry.registerTool(tool1);
-      registry.registerTool(tool2);
+      expect(registry.getTool('dummy_tool'), isNotNull);
+      expect(registry.getTool('non_existent'), isNull);
 
       final listings = registry.getToolListings();
-      expect(listings.length, 2);
+      expect(listings.length, 1);
+      expect(listings.first['name'], 'dummy_tool');
+      expect(listings.first['description'], 'A dummy tool');
+      expect(listings.first['inputSchema'], isA<Map>());
+    });
 
-      expect(listings[0]['name'], 'tool_1');
-      expect(listings[0]['description'], 'Desc 1');
-      expect(listings[0]['inputSchema'], {'type': 'object'});
+    test('Prompt registration and lookup', () {
+      final registry = McpRegistry();
+      final prompt = DummyPrompt();
+      registry.registerPrompt(prompt);
 
-      expect(listings[1]['name'], 'tool_2');
-      expect(listings[1]['description'], 'Desc 2');
-      expect(listings[1]['inputSchema'], {'type': 'string'});
+      expect(registry.getPrompt('dummy_prompt'), isNotNull);
+      expect(registry.getPrompt('non_existent'), isNull);
+
+      final listings = registry.getPromptListings();
+      expect(listings.length, 1);
+      expect(listings.first['name'], 'dummy_prompt');
+      expect(listings.first['description'], 'A dummy prompt');
     });
   });
 }

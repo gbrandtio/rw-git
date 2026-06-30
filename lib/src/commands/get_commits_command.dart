@@ -2,7 +2,7 @@ import 'dart:isolate';
 import '../core/git_command.dart';
 import '../core/process_runner.dart';
 import '../models/git/git_commit.dart';
-import '../git_service/parsers/rw_git_parser.dart';
+import '../vcs/parsers/rw_git_parser.dart';
 
 class GetCommitsCommand extends GitCommand<List<GitCommit>> {
   final String firstTag;

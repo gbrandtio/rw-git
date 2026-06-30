@@ -104,5 +104,75 @@ void main() {
       final result = jsonDecode(resultString) as Map<String, dynamic>;
       expect(result['error'], contains('Security violation'));
     });
+
+    test('returns decorator name', () {
+      expect(decorator.name, equals('mock_tool'));
+    });
+
+    test('handles inputSchema without properties', () {
+      final emptySchemaTool = MockEmptySchemaTool();
+      final emptyDecorator = McpToolFileOffloadDecorator(emptySchemaTool);
+      final schema = emptyDecorator.inputSchema;
+      final properties = schema['properties'] as Map<String, dynamic>;
+      expect(properties.containsKey('output_file'), isTrue);
+    });
+
+    test('uses file_path when directory is not provided', () async {
+      final mockFilePath = p.join(tempDir.path, 'some_file.dart');
+      final resultString = await decorator.execute({
+        'file_path': mockFilePath,
+      });
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+      expect(result['status'], equals('success'));
+    });
+
+    test('creates parent directory if it does not exist', () async {
+      final specificPath =
+          p.join(tempDir.path, 'nested', 'dir', 'custom_report.json');
+
+      final resultString = await decorator.execute({
+        'directory': tempDir.path,
+        'output_file': specificPath,
+      });
+
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+      expect(result['status'], equals('success'));
+      expect(result['file'], equals(specificPath));
+
+      final writtenFile = File(specificPath);
+      expect(await writtenFile.exists(), isTrue);
+    });
+
+    test('handles FileSystemException on write', () async {
+      final specificPath = p.join(tempDir.path, 'custom_report.json');
+      // Create a directory at the specificPath so file creation throws FileSystemException
+      await Directory(specificPath).create();
+
+      final resultString = await decorator.execute({
+        'directory': tempDir.path,
+        'output_file': specificPath,
+      });
+
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+      expect(result['error'], equals('Failed to write output to file'));
+    });
   });
+}
+
+class MockEmptySchemaTool implements McpTool {
+  @override
+  String get name => 'empty';
+
+  @override
+  String get description => 'desc';
+
+  @override
+  Map<String, dynamic> get inputSchema => {
+        'type': 'object',
+      };
+
+  @override
+  Future<String> execute(Map<String, dynamic> arguments) async {
+    return jsonEncode({'data': 'test'});
+  }
 }

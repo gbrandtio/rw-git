@@ -4,25 +4,44 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/mcp/mcp_prompt.dart';
 import 'package:test/test.dart';
 
 class MockMcpTool implements McpTool {
   @override
   final String name;
 
-  @override
-  final String description = 'desc';
-
-  @override
-  final Map<String, dynamic> inputSchema = {};
-
   final Future<String> Function(Map<String, dynamic>) onExecute;
 
   MockMcpTool(this.name, this.onExecute);
 
   @override
+  String get description => 'A test tool';
+
+  @override
+  Map<String, dynamic> get inputSchema => {
+        'type': 'object',
+        'properties': {},
+      };
+
+  @override
   Future<String> execute(Map<String, dynamic> arguments) =>
       onExecute(arguments);
+}
+
+class MockMcpPrompt implements McpPrompt {
+  @override
+  final String name;
+
+  MockMcpPrompt(this.name);
+
+  @override
+  String get description => 'A test prompt';
+
+  @override
+  List<Map<String, dynamic>> get messages => [
+        {'role': 'user', 'content': 'hello'}
+      ];
 }
 
 void main() {
@@ -156,6 +175,68 @@ void main() {
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 2);
       expect(response['result']['tools'][0]['name'], 'test_tool');
+    });
+
+    test('responds to prompts/get successfully', () async {
+      registry.registerPrompt(MockMcpPrompt('test_prompt'));
+      server.start();
+
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 102,
+        'method': 'prompts/get',
+        'params': {'name': 'test_prompt'}
+      });
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+      expect(response['id'], 102);
+      expect(response['result']['description'], 'A test prompt');
+      expect(response['result']['messages'][0]['content'], 'hello');
+    });
+
+    test('prompts/get missing name returns error', () async {
+      server.start();
+
+      sendInput(
+          {'jsonrpc': '2.0', 'id': 103, 'method': 'prompts/get', 'params': {}});
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+      expect(response['error']['code'], -32602);
+      expect(response['error']['message'], contains('missing prompt name'));
+    });
+
+    test('prompts/get unknown prompt returns error', () async {
+      server.start();
+
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 104,
+        'method': 'prompts/get',
+        'params': {'name': 'unknown_prompt'}
+      });
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+      expect(response['error']['code'], 32601);
+      expect(response['error']['message'],
+          contains('Prompt not found: unknown_prompt'));
     });
 
     test('responds to tools/call successfully', () async {

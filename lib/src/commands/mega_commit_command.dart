@@ -1,6 +1,6 @@
 import '../core/git_command.dart';
 import '../core/process_runner.dart';
-import '../git_service/parsers/rw_git_parser.dart';
+import '../vcs/parsers/rw_git_parser.dart';
 
 class MegaCommitCheckCommand extends GitCommand<List<String>> {
   final int thresholdLinesChanged;

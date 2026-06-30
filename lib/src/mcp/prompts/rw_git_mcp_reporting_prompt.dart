@@ -8,7 +8,7 @@ class RwGitMcpReportingPrompt implements McpPrompt {
 
   @override
   String get description =>
-      'Comprehensive workflow for orchestrating rw_git MCP tools to perform a high-level Deep Audit of a repository, assessing code quality, security, architecture, and ecosystem health. For focused deep-dives, it directs to specialized reporting skills.';
+      'Comprehensive workflow for orchestrating rw_git MCP tools to perform a high-level Deep Audit of a repository, assessing repository health, security, architecture, and ecosystem health. For focused deep-dives, it directs to specialized reporting skills.';
 
   @override
   List<Map<String, dynamic>> get messages => [
@@ -29,9 +29,9 @@ You are a Staff Engineer performing a High-Level Deep Audit of a repository. You
 <constraints>
 1. **Data Offloading (CRITICAL)**: ALL verbose analytical tools will offload their JSON responses to the local filesystem (e.g., `.rw_git/reports/...`) to prevent your context window from overflowing. You MUST actively read these offloaded JSON files (using file reading tools) iteratively, synthesize their insights, and extract business value. Do not regurgitate file paths.
 2. **Context Window Safety**: Do not attempt to read multiple massive files simultaneously. Read, analyze, and summarize them iteratively.
-3. **Commit Limit**: The default limit for code quality analysis tools is **500 commits**. Explicitly override the `limit` argument if needed.
+3. **Commit Limit**: The default limit for repository analysis tools is **500 commits**. Explicitly override the `limit` argument if needed.
 4. **Tool Selection**: Do NOT run every single available tool. This skill orchestrates a "Deep Audit" using key tools. If the user requests a deep-dive into a specific area, stop and instruct them to use one of the specialized skills:
-   - `rw-git-mcp-technical-reporting` (Code quality & Architecture)
+   - `rw-git-mcp-technical-reporting` (Repository analysis & Architecture)
    - `rw-git-mcp-pm-reporting` (Velocity & Project Management)
    - `rw-git-mcp-security-reporting` (Security & Compliance)
    - `rw-git-mcp-code-review-reporting` (PRs & Code Review)
