@@ -102,13 +102,26 @@ class AnalyzeDartAstQualityTool implements McpTool {
     final analysisResults =
         await Isolate.run(() => _runAstAnalysis(filesContent));
 
+    // Collect per-file imports for cycle detection.
+    final fileImports = <String, List<String>>{};
+    for (final entry in analysisResults.entries) {
+      final perFile = entry.value as Map<String, dynamic>?;
+      if (perFile != null && perFile.containsKey('imports')) {
+        fileImports[entry.key] =
+            List<String>.from(perFile['imports'] as List<dynamic>? ?? []);
+      }
+    }
+    final cycles = DartAstAnalyzer().detectImportCycles(fileImports);
+
     return jsonEncode({
       'files_analyzed': filesContent.keys.toList(),
       'ast_analysis': analysisResults,
+      'import_cycles': cycles,
       'guidance': [
         'Use the "dependencies" graph to verify that layers are isolated properly (e.g. UI should not depend on DB direct access).',
         'Check "api_signatures" for unintended breaking changes to public interfaces.',
-        'Use "internal_methods" and "invocations" to audit for dead code. If an internal method is never invoked in the same file or its dependencies, it might be dead code.'
+        'Use "internal_methods" and "invocations" to audit for dead code. If an internal method is never invoked in the same file or its dependencies, it might be dead code.',
+        'If "import_cycles" is non-empty, the listed files form circular import chains. Break cycles by extracting shared types into a separate module.',
       ]
     });
   }

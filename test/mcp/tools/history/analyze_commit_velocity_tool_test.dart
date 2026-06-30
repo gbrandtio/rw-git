@@ -220,6 +220,41 @@ void main() {
       expect(parsed.containsKey('error'), isFalse);
     });
 
+    test('returns gini_coefficient and velocity_slope', () async {
+      final log = [
+        'aaa||Alice||2024-01-01T10:00:00+00:00',
+        'bbb||Alice||2024-01-08T10:00:00+00:00',
+        'ccc||Bob||2024-01-15T10:00:00+00:00',
+      ].join('\n');
+
+      final runner = _MockRunner(log);
+      final tool = AnalyzeCommitVelocityTool(runner);
+
+      final result = await tool.execute({
+        'directory': '/test',
+        'granularity': 'week',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed.containsKey('gini_coefficient'), isTrue);
+      expect(parsed.containsKey('velocity_slope'), isTrue);
+      expect(parsed['gini_coefficient'], isA<double>());
+      expect(parsed['velocity_slope'], isA<double>());
+    });
+
+    test('gini_coefficient is 0.0 when only one author', () async {
+      final log = [
+        'aaa||Alice||2024-01-01T10:00:00+00:00',
+        'bbb||Alice||2024-01-08T10:00:00+00:00',
+      ].join('\n');
+
+      final runner = _MockRunner(log);
+      final tool = AnalyzeCommitVelocityTool(runner);
+
+      final result = await tool.execute({'directory': '/test'});
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['gini_coefficient'], 0.0);
+    });
+
     test('detects anomalies', () async {
       final log = [
         'aaa||Alice||2024-01-01T10:00:00+00:00', // week 1

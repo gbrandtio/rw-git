@@ -5,6 +5,8 @@ import '../../../intelligence/static_analysis/metrics/agnostic/algorithms/indent
 import '../../../intelligence/static_analysis/metrics/agnostic/algorithms/cognitive_complexity.dart';
 import '../../../intelligence/static_analysis/metrics/agnostic/algorithms/halstead_complexity.dart';
 import '../../../intelligence/static_analysis/metrics/agnostic/algorithms/cyclomatic_complexity.dart';
+import '../../../intelligence/static_analysis/metrics/agnostic/algorithms/npath_complexity.dart';
+import '../../../intelligence/static_analysis/metrics/agnostic/algorithms/abc_score.dart';
 import 'dart:io';
 import 'dart:convert';
 import 'package:path/path.dart' as p;
@@ -20,8 +22,9 @@ class CalculateUniversalLexicalMetricsTool implements McpTool {
 
   @override
   String get description =>
-      'Calculates language-agnostic code quality metrics (Cyclomatic, Halstead, '
-      'Cognitive, Maintainability Index) for any source file using a fast Lexical FSM.';
+      'Calculates language-agnostic code quality metrics (Cyclomatic, NPath, ABC, '
+      'Halstead, Cognitive, Maintainability Index) for any source file using a '
+      'fast Lexical FSM.';
 
   @override
   Map<String, dynamic> get inputSchema => {
@@ -75,6 +78,8 @@ class CalculateUniversalLexicalMetricsTool implements McpTool {
     // Run heuristics
     final cyclomatic =
         CyclomaticComplexityAlgorithm().calculate(tokens, profile);
+    final npath = NpathComplexityAlgorithm().calculate(tokens, profile);
+    final abc = AbcScoreAlgorithm().calculate(tokens, profile);
     final halstead = HalsteadComplexityAlgorithm().calculate(tokens, profile);
     final cognitive = CognitiveComplexityAlgorithm().calculate(tokens, profile);
     final indentation =
@@ -85,6 +90,8 @@ class CalculateUniversalLexicalMetricsTool implements McpTool {
     return jsonEncode({
       'language_profile': profile.name,
       'cyclomatic_complexity': cyclomatic,
+      'npath_complexity': npath,
+      'abc_score': abc.toJson(),
       'cognitive_complexity': cognitive,
       'indentation_complexity': indentation,
       'halstead_metrics': halstead.toJson(),

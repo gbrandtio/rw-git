@@ -8,6 +8,14 @@ class CommitVelocityDto {
   final List<TimeBucket> anomalies;
   final int totalBurnoutCommits;
 
+  /// Gini coefficient [0, 1] measuring commit inequality across authors.
+  /// 0 = perfectly equal; 1 = one author does all commits.
+  final double giniCoefficient;
+
+  /// Slope of the linear regression line fitted to bucket commit counts.
+  /// Positive = commits are increasing over time; negative = decreasing.
+  final double velocitySlope;
+
   const CommitVelocityDto({
     required this.buckets,
     required this.totalCommits,
@@ -15,6 +23,8 @@ class CommitVelocityDto {
     required this.trend,
     required this.anomalies,
     required this.totalBurnoutCommits,
+    required this.giniCoefficient,
+    required this.velocitySlope,
   });
 }
 

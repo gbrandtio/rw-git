@@ -81,5 +81,76 @@ void main() {
 
       await tempDir.delete(recursive: true);
     });
+
+    test('returns npath_complexity for a valid file', () async {
+      final tempDir =
+          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final srcFile = File('${tempDir.path}/sample.dart');
+      await srcFile.writeAsString('''
+void foo(int x) {
+  if (x > 0) {
+    if (x > 10) {
+      print("big");
+    }
+  }
+}
+''');
+
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'sample.dart',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed.containsKey('npath_complexity'), isTrue);
+      // 2 if-statements → NPath = 2^2 = 4
+      expect(parsed['npath_complexity'], greaterThan(1));
+
+      await tempDir.delete(recursive: true);
+    });
+
+    test('returns abc_score with assignments, branches, conditions', () async {
+      final tempDir =
+          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final srcFile = File('${tempDir.path}/abc_sample.dart');
+      await srcFile.writeAsString('''
+void bar(int a, int b) {
+  int x = a + b;
+  if (x == 0) {
+    x += 1;
+  }
+}
+''');
+
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'abc_sample.dart',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed.containsKey('abc_score'), isTrue);
+      final abc = parsed['abc_score'] as Map<String, dynamic>;
+      expect(abc['score'], isA<num>());
+      expect(abc['assignments'], isA<int>());
+      expect(abc['branches'], isA<int>());
+      expect(abc['conditions'], isA<int>());
+      expect(abc['score'], greaterThan(0));
+
+      await tempDir.delete(recursive: true);
+    });
+
+    test('npath_complexity is 1 for a file with no branches', () async {
+      final tempDir =
+          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final srcFile = File('${tempDir.path}/simple.dart');
+      await srcFile.writeAsString('void hello() { print("hi"); }');
+
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'simple.dart',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['npath_complexity'], 1);
+
+      await tempDir.delete(recursive: true);
+    });
   });
 }

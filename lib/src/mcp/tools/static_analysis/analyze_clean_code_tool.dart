@@ -65,13 +65,24 @@ class AnalyzeCleanCodeTool implements McpTool {
 
     int maxIndentation = 0;
     int longLines = 0;
+    int magicNumbers = 0;
+    int duplicateLines = 0;
+    final seenLines = <String, int>{};
+
+    // Matches numeric literals that are not 0, 1, or -1, and not inside a
+    // string or comment (best-effort lexical approximation).
+    final magicNumberRegex = RegExp(
+      r'(?<!["\w.])\b([2-9]\d*|\d{2,})\b(?!["w.])',
+    );
+    // Strip inline comments before scanning (// ... and # ...)
+    final commentStripRegex = RegExp(r'//.*$|#.*$');
 
     for (final line in lines) {
       if (line.length > 120) {
         longLines++;
       }
 
-      // Calculate indentation (spaces or tabs)
+      // Indentation (spaces or tabs)
       int indent = 0;
       for (int i = 0; i < line.length; i++) {
         if (line[i] == ' ') {
@@ -82,26 +93,43 @@ class AnalyzeCleanCodeTool implements McpTool {
           break;
         }
       }
-
-      // Rough heuristic: 4 spaces per indent level
       final indentLevel = indent ~/ 4;
       if (indentLevel > maxIndentation) {
         maxIndentation = indentLevel;
       }
+
+      // Magic number detection on code content (stripped of comments).
+      final stripped = line.replaceAll(commentStripRegex, '').trim();
+      if (stripped.isNotEmpty) {
+        magicNumbers += magicNumberRegex.allMatches(stripped).length;
+
+        // Duplicate line detection (ignore blank or very short lines).
+        if (stripped.length > 5) {
+          seenLines[stripped] = (seenLines[stripped] ?? 0) + 1;
+        }
+      }
+    }
+
+    for (final count in seenLines.values) {
+      if (count > 1) duplicateLines += count - 1;
     }
 
     final issues = <String>[];
     if (totalLines > 300) {
       issues.add(
-          'File is too long (\${totalLines} lines), indicating potential violation of Single Responsibility Principle.');
+          'File is too long ($totalLines lines), indicating potential violation of Single Responsibility Principle.');
     }
     if (maxIndentation >= 5) {
       issues.add(
-          'Deep nesting detected (max \${maxIndentation} levels). Consider extracting methods to reduce complexity.');
+          'Deep nesting detected (max $maxIndentation levels). Consider extracting methods to reduce complexity.');
     }
     if (longLines > totalLines * 0.1) {
       issues.add(
-          '\${longLines} lines are longer than 120 characters, which may affect readability.');
+          '$longLines lines are longer than 120 characters, which may affect readability.');
+    }
+    if (magicNumbers > 10) {
+      issues.add(
+          '$magicNumbers magic number literals detected. Replace with named constants to improve clarity.');
     }
 
     return jsonEncode({
@@ -109,6 +137,8 @@ class AnalyzeCleanCodeTool implements McpTool {
       'total_lines': totalLines,
       'max_indentation_level': maxIndentation,
       'long_lines': longLines,
+      'magic_numbers': magicNumbers,
+      'duplicate_lines': duplicateLines,
       'clean_code_issues': issues,
       'risk_level': issues.isEmpty
           ? 'low'

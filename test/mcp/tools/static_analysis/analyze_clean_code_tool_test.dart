@@ -87,5 +87,63 @@ void main() {
 
       await tempDir.delete(recursive: true);
     });
+
+    test('returns magic_numbers and duplicate_lines fields', () async {
+      final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
+      final tempFile = File('${tempDir.path}/magic.dart');
+      await tempFile.writeAsString('''
+void compute() {
+  int result = 42 * 100 + 256;
+  int other = 1024 / 8;
+  int x = 2 + 3;
+}
+''');
+
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'magic.dart',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed.containsKey('magic_numbers'), isTrue);
+      expect(parsed.containsKey('duplicate_lines'), isTrue);
+      expect(parsed['magic_numbers'], isA<int>());
+      expect(parsed['duplicate_lines'], isA<int>());
+
+      await tempDir.delete(recursive: true);
+    });
+
+    test('detects duplicate lines', () async {
+      final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
+      final tempFile = File('${tempDir.path}/dup.dart');
+      // 5 identical lines → 4 duplicates
+      await tempFile.writeAsString(List.filled(5, 'print("hello world");').join('\n'));
+
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'dup.dart',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      expect(parsed['duplicate_lines'], greaterThan(0));
+
+      await tempDir.delete(recursive: true);
+    });
+
+    test('flags magic numbers issue when count exceeds threshold', () async {
+      final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
+      final tempFile = File('${tempDir.path}/many_magic.dart');
+      // Generate 15 distinct magic numbers in arithmetic context
+      final nums = List.generate(15, (i) => 'int v$i = ${i + 2} * 42;');
+      await tempFile.writeAsString(nums.join('\n'));
+
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'file_path': 'many_magic.dart',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+      final issues = parsed['clean_code_issues'] as List;
+      expect(issues.any((i) => (i as String).contains('magic number')), isTrue);
+
+      await tempDir.delete(recursive: true);
+    });
   });
 }

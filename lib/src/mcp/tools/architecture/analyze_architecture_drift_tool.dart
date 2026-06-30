@@ -128,10 +128,91 @@ class AnalyzeArchitectureDriftTool implements McpTool {
       }
     }
 
+    final totalAnalyzed = commitLayers.length;
+    final layerNames = layerRegexes.keys.toList();
+    final numLayers = layerNames.length;
+
+    // Coupling density: fraction of possible layer pairs that are coupled.
+    final maxPairs = numLayers > 1 ? numLayers * (numLayers - 1) ~/ 2 : 0;
+    int coupledPairCount = 0;
+    for (final row in couplingMatrix.values) {
+      coupledPairCount += row.length;
+    }
+    // Matrix is symmetric — each pair is counted twice.
+    coupledPairCount ~/= 2;
+    final couplingDensity =
+        maxPairs > 0 ? coupledPairCount / maxPairs : 0.0;
+
+    // Coupling ratio: share of commits that violate layer boundaries.
+    final couplingRatio =
+        totalAnalyzed > 0 ? driftCommits.length / totalAnalyzed : 0.0;
+
+    // Architectural smell detection.
+    final smells = <Map<String, dynamic>>[];
+
+    if (driftCommits.isNotEmpty) {
+      // God Component: a layer involved in > 50 % of drift commits.
+      final layerDriftCount = <String, int>{};
+      for (final dc in driftCommits) {
+        for (final l in dc['layers_coupled'] as List<dynamic>) {
+          layerDriftCount[l as String] =
+              (layerDriftCount[l] ?? 0) + 1;
+        }
+      }
+      for (final entry in layerDriftCount.entries) {
+        if (entry.value > driftCommits.length * 0.5) {
+          smells.add({
+            'type': 'God Component',
+            'layer': entry.key,
+            'description':
+                'Layer "${entry.key}" appears in ${entry.value}/${driftCommits.length} '
+                'drift commits. It has too many cross-cutting concerns and likely '
+                'violates the Single Responsibility Principle at the architecture level.',
+          });
+        }
+      }
+
+      // Hub-Like Dependency: a layer coupling with >= half of all other layers
+      // (only meaningful when there are 4+ layers).
+      if (numLayers >= 4) {
+        for (final entry in couplingMatrix.entries) {
+          final degree = entry.value.length;
+          if (degree >= numLayers / 2) {
+            smells.add({
+              'type': 'Hub-Like Dependency',
+              'layer': entry.key,
+              'description':
+                  'Layer "${entry.key}" is coupled with $degree/${numLayers - 1} '
+                  'other layers, acting as a central coupling hub and introducing '
+                  'fragility.',
+            });
+          }
+        }
+      }
+
+      // Scattered Functionality: commits that touch 3 or more layers at once.
+      final scattered = driftCommits
+          .where((dc) => (dc['layers_coupled'] as List).length >= 3)
+          .length;
+      if (scattered > 0) {
+        smells.add({
+          'type': 'Scattered Functionality',
+          'count': scattered,
+          'description':
+              '$scattered commits simultaneously modify 3 or more layers, '
+              'suggesting business logic or infrastructure concerns that are not '
+              'cleanly assigned to a single layer.',
+        });
+      }
+    }
+
     return jsonEncode({
-      'total_commits_analyzed': commitLayers.length,
+      'total_commits_analyzed': totalAnalyzed,
       'commits_with_drift': driftCommits.length,
+      'coupling_ratio': double.parse(couplingRatio.toStringAsFixed(3)),
+      'coupling_density': double.parse(couplingDensity.toStringAsFixed(3)),
       'coupling_matrix': couplingMatrix,
+      'architectural_smells': smells,
       'drift_commits': driftCommits,
     });
   }

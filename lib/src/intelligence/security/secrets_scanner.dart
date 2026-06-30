@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:isolate';
 import 'dart:math';
 import 'package:rw_git/src/core/process_runner.dart';
@@ -33,12 +34,25 @@ class SecretsScanner {
   }
 }
 
+// Regex matching variable names that are high-confidence secret contexts.
+// When present, the entropy threshold is lowered to catch shorter secrets.
+final _secretContextRegex = RegExp(
+  r'(?:api_?key|apikey|secret|password|passwd|token|auth|credential|private_?key)\s*[=:]\s*',
+  caseSensitive: false,
+);
+
+// Base64 alphabet check (standard + URL-safe).
+final _base64Charset = RegExp(r'^[A-Za-z0-9+/=_\-]+$');
+
 List<String> _parseSecrets(String rawLog) {
   final lines = rawLog.split('\n');
   final List<String> detectedSecrets = [];
 
   String currentCommitHeader = '';
   String currentFile = '';
+  // Blob deduplication: skip re-scanning a git object we have already scanned.
+  final seenBlobs = <String>{};
+  bool skipBlob = false;
 
   // Comprehensive regex for detecting secrets
   // Includes AWS keys, generic bearer tokens, private keys, etc.
@@ -60,6 +74,24 @@ List<String> _parseSecrets(String rawLog) {
   for (final line in lines) {
     if (line.trim().isEmpty) continue;
 
+    // Blob deduplication: parse "index <old>..<new> <mode>" diff headers.
+    if (line.startsWith('index ') && line.contains('..')) {
+      final parts = line.split(' ');
+      if (parts.length >= 2) {
+        final dotDot = parts[1].indexOf('..');
+        if (dotDot >= 0) {
+          final newBlob = parts[1].substring(dotDot + 2);
+          if (seenBlobs.contains(newBlob)) {
+            skipBlob = true;
+          } else {
+            seenBlobs.add(newBlob);
+            skipBlob = false;
+          }
+        }
+      }
+      continue;
+    }
+
     if (line.contains('||') &&
         !line.startsWith(' ') &&
         !line.startsWith('+') &&
@@ -76,7 +108,9 @@ List<String> _parseSecrets(String rawLog) {
       }
     } else if (line.startsWith('+++ b/')) {
       currentFile = line.substring(6).trim();
+      skipBlob = false; // new file resets skip state
     } else if (line.startsWith('+') && !line.startsWith('+++')) {
+      if (skipBlob) continue;
       // Add Context-Aware Risk Scoring (ignoring test/, etc.)
       final isTestOrMock = currentFile.contains('test/') ||
           currentFile.contains('tests/') ||
@@ -126,8 +160,13 @@ List<String> _parseSecrets(String rawLog) {
             'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret (Regex): $redacted');
       }
 
-      // Configurable Shannon Entropy Detection
-      // Look for long alphanumeric strings (base64, hex, etc.)
+      // Context-aware Shannon Entropy Detection.
+      // Lower the threshold when the surrounding line looks like a secret
+      // assignment (api_key = ..., password = ...), because shorter strings
+      // with moderate entropy are still highly suspicious in that context.
+      final isSecretContext = _secretContextRegex.hasMatch(content);
+      final entropyThreshold = isSecretContext ? 3.8 : 4.5;
+
       final wordRegex = RegExp(r'[a-zA-Z0-9_\-\.\+]{20,}');
       final wordMatches = wordRegex.allMatches(content);
       for (final match in wordMatches) {
@@ -144,15 +183,40 @@ List<String> _parseSecrets(String rawLog) {
           continue;
         }
 
-        // Exclude common long non-secrets like very long URLs or paths if needed,
-        // but for now, rely on high entropy.
         final entropy = _calculateEntropy(word);
-        if (entropy > 4.5 && !secretRegex.hasMatch(word)) {
-          // Threshold 4.5 is typical for base64/hex keys
+        if (entropy > entropyThreshold && !secretRegex.hasMatch(word)) {
           final redacted =
               '${word.substring(0, 3)}***${word.substring(word.length - 3)}';
           detectedSecrets.add(
-              'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret (High Entropy: ${entropy.toStringAsFixed(2)}): $redacted');
+              'Commit: $currentCommitHeader\nFile: $currentFile\n'
+              'Found Potential Secret (High Entropy: ${entropy.toStringAsFixed(2)}): $redacted');
+        }
+
+        // Base64 decode and re-scan: if the word looks like valid base64,
+        // decode it and check for well-known secret patterns in the payload.
+        if (word.length % 4 == 0 && _base64Charset.hasMatch(word)) {
+          try {
+            final decoded = utf8.decode(base64.decode(word), allowMalformed: false);
+            final decodedMatches = secretRegex.allMatches(decoded);
+            for (final dm in decodedMatches) {
+              final secretVal = dm.group(0) ?? '';
+              final lowerSec = secretVal.toLowerCase();
+              if (lowerSec.contains('placeholder') ||
+                  lowerSec.contains('example') ||
+                  lowerSec.contains('dummy') ||
+                  lowerSec.contains('your_')) {
+                continue;
+              }
+              final redacted = secretVal.length > 6
+                  ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
+                  : '***';
+              detectedSecrets.add(
+                  'Commit: $currentCommitHeader\nFile: $currentFile\n'
+                  'Found Potential Secret (Base64-encoded Regex): $redacted');
+            }
+          } catch (_) {
+            // Not valid UTF-8 base64; skip.
+          }
         }
       }
     }

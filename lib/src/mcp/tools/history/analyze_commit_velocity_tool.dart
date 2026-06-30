@@ -93,6 +93,8 @@ class AnalyzeCommitVelocityTool implements McpTool {
         velocity.averagePerPeriod.toStringAsFixed(2),
       ),
       'trend': velocity.trend,
+      'velocity_slope': velocity.velocitySlope,
+      'gini_coefficient': velocity.giniCoefficient,
       'total_burnout_commits': velocity.totalBurnoutCommits,
       'granularity': granularity,
       'time_series': velocity.buckets

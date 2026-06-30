@@ -162,5 +162,15 @@ void main() {
       // The AST analyzer shouldn't crash the whole tool
       expect(result, contains('error.dart'));
     });
+
+    test('output includes import_cycles field', () async {
+      final result = await tool.execute({
+        'directory': tempDir.path,
+        'baseBranch': 'master',
+        'targetBranch': 'feature'
+      });
+      // import_cycles is always present (empty list when no cycles detected)
+      expect(result, contains('import_cycles'));
+    });
   });
 }

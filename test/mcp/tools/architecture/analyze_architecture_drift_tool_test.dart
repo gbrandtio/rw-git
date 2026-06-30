@@ -93,4 +93,93 @@ lib/ui/another.dart
     final firstCommit = driftCommits.first as Map<String, dynamic>;
     expect(firstCommit['hash'], 'hash1');
   });
+
+  test('AnalyzeArchitectureDriftTool returns coupling_ratio and coupling_density',
+      () async {
+    final logOut = '''
+hash1||commit 1
+lib/ui/widget.dart
+lib/data/repo.dart
+
+hash2||commit 2
+lib/ui/another.dart
+''';
+    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(logOutput: logOut));
+    final res = await tool.execute({
+      'directory': '.',
+      'layer_patterns': {
+        'ui': 'lib/ui/',
+        'data': 'lib/data/',
+      }
+    });
+
+    final data = jsonDecode(res) as Map<String, dynamic>;
+    expect(data.containsKey('coupling_ratio'), isTrue);
+    expect(data.containsKey('coupling_density'), isTrue);
+    expect(data['coupling_ratio'], isA<double>());
+    expect(data['coupling_density'], isA<double>());
+    // 1 drift commit out of 2 total → ratio = 0.5
+    expect(data['coupling_ratio'], closeTo(0.5, 0.001));
+    // 2 layers, 1 possible pair, 1 coupled → density = 1.0
+    expect(data['coupling_density'], closeTo(1.0, 0.001));
+  });
+
+  test('AnalyzeArchitectureDriftTool detects God Component smell', () async {
+    // All 3 drift commits involve the 'core' layer → God Component
+    final logOut = '''
+h1||feat
+lib/core/a.dart
+lib/ui/b.dart
+
+h2||feat
+lib/core/c.dart
+lib/data/d.dart
+
+h3||feat
+lib/core/e.dart
+lib/ui/f.dart
+
+h4||chore
+lib/docs/readme.md
+''';
+    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(logOutput: logOut));
+    final res = await tool.execute({
+      'directory': '.',
+      'layer_patterns': {
+        'core': 'lib/core/',
+        'ui': 'lib/ui/',
+        'data': 'lib/data/',
+      }
+    });
+
+    final data = jsonDecode(res) as Map<String, dynamic>;
+    final smells = data['architectural_smells'] as List<dynamic>;
+    expect(smells.any((s) => (s as Map)['type'] == 'God Component'), isTrue);
+  });
+
+  test('AnalyzeArchitectureDriftTool detects Scattered Functionality smell',
+      () async {
+    // One commit touches 3 layers → Scattered Functionality
+    final logOut = '''
+h1||feat
+lib/ui/a.dart
+lib/data/b.dart
+lib/core/c.dart
+''';
+    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(logOutput: logOut));
+    final res = await tool.execute({
+      'directory': '.',
+      'layer_patterns': {
+        'core': 'lib/core/',
+        'ui': 'lib/ui/',
+        'data': 'lib/data/',
+      }
+    });
+
+    final data = jsonDecode(res) as Map<String, dynamic>;
+    final smells = data['architectural_smells'] as List<dynamic>;
+    expect(
+        smells.any((s) => (s as Map)['type'] == 'Scattered Functionality'),
+        isTrue);
+  });
 }

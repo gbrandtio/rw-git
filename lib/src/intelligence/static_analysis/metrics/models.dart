@@ -29,6 +29,31 @@ class HalsteadResult {
       };
 }
 
+/// Encapsulates the ABC Software Size Metric (Fitzpatrick, 1997).
+///
+/// A = Assignments, B = Branches, C = Conditions.
+/// Scalar ABC score = sqrt(A² + B² + C²).
+class AbcScore {
+  final int assignments;
+  final int branches;
+  final int conditions;
+  final double score;
+
+  const AbcScore({
+    required this.assignments,
+    required this.branches,
+    required this.conditions,
+    required this.score,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'assignments': assignments,
+        'branches': branches,
+        'conditions': conditions,
+        'score': score,
+      };
+}
+
 /// Encapsulates the results of the composite Maintainability Index algorithm.
 class MaintainabilityResult {
   final double score;

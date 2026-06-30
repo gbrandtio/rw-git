@@ -147,6 +147,18 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
   final totalBurnoutCommits =
       buckets.fold<int>(0, (sum, b) => sum + b.burnoutCommits);
 
+  // Gini coefficient over all author commit totals (project-wide inequality).
+  final Map<String, int> authorTotals = {};
+  for (final bucket in buckets) {
+    for (final entry in bucket.authors.entries) {
+      authorTotals[entry.key] = (authorTotals[entry.key] ?? 0) + entry.value;
+    }
+  }
+  final gini = _giniCoefficient(authorTotals.values.toList());
+
+  // Linear regression slope over bucket commit counts.
+  final slope = _linearRegressionSlope(commitCounts);
+
   return CommitVelocityDto(
     buckets: buckets,
     totalCommits: totalCommits,
@@ -154,5 +166,40 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
     trend: trend,
     anomalies: anomalies,
     totalBurnoutCommits: totalBurnoutCommits,
+    giniCoefficient: double.parse(gini.toStringAsFixed(3)),
+    velocitySlope: double.parse(slope.toStringAsFixed(3)),
   );
+}
+
+/// Gini coefficient for a list of non-negative commit counts.
+/// Returns 0.0 when the list is empty or all values are zero.
+double _giniCoefficient(List<int> values) {
+  if (values.isEmpty) return 0.0;
+  final total = values.fold<int>(0, (s, v) => s + v);
+  if (total == 0) return 0.0;
+  final n = values.length;
+  int sumAbsDiffs = 0;
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+      sumAbsDiffs += (values[i] - values[j]).abs();
+    }
+  }
+  return sumAbsDiffs / (2.0 * n * total);
+}
+
+/// Ordinary least-squares slope for the sequence of bucket commit counts.
+/// Returns 0.0 when the series has fewer than 2 points.
+double _linearRegressionSlope(List<int> values) {
+  final n = values.length;
+  if (n < 2) return 0.0;
+  double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
+  for (int i = 0; i < n; i++) {
+    sumX += i;
+    sumY += values[i];
+    sumXY += i * values[i];
+    sumX2 += i.toDouble() * i;
+  }
+  final denom = n * sumX2 - sumX * sumX;
+  if (denom == 0) return 0.0;
+  return (n * sumXY - sumX * sumY) / denom;
 }
