@@ -1,5 +1,3 @@
-import '../../../intelligence/history/heuristics/bug_hotspots_heuristic.dart';
-import '../../../intelligence/history/heuristics/advanced_metrics_heuristic.dart';
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../../rw_git.dart';

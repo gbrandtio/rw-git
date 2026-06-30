@@ -1,4 +1,3 @@
-import '../../../intelligence/history/heuristics/suspicious_commits_heuristic.dart';
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';

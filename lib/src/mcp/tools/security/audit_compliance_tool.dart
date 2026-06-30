@@ -1,4 +1,3 @@
-import '../../../intelligence/security/compliance_scanner.dart';
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';

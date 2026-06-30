@@ -18,6 +18,7 @@ export 'src/models/git/git_blame.dart';
 export 'src/models/git/git_blame_line.dart';
 export 'src/core/exceptions.dart';
 export 'src/core/process_runner.dart';
+export 'src/intelligence.dart';
 export 'src/mcp/mcp_server.dart';
 export 'src/mcp/mcp_registry.dart';
 export 'src/mcp/mcp_tool.dart';

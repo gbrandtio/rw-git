@@ -6,6 +6,8 @@
   <img src="https://github.com/gbrandtio/rw-git/actions/workflows/coverage.yml/badge.svg" alt="Code Coverage"/>
   <a href="https://codecov.io/gh/gbrandtio/rw-git" ><img src="https://codecov.io/gh/gbrandtio/rw-git/branch/main/graph/badge.svg?token=ETZPSI51EH"/></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
+  <a href="https://pub.dev/packages/rw_git"><img src="https://img.shields.io/pub/v/rw_git.svg" alt="Pub Version"></a>
+  <a href="https://pub.dev/packages/rw_git/score"><img src="https://img.shields.io/pub/points/rw_git" alt="Pub Points"></a>
 </p>
 
 ## Preface
@@ -14,9 +16,34 @@ Modern software teams generate a vast amount of data in their git history.
 `rw_git` turns that raw history into actionable intelligence, empowering 
 engineering leaders to ask and answer critical business questions.
 
-`rw_git` depends on strong technical foundations backed by academic research and published academic papers (see `doc/tools`). This means that the underlying functionality and intel collection is vastly available without the need of an LLM / MCP integration (which essentially means that you can utilise the raw functionality with or without the MCP tools).
+`rw_git` depends on strong technical foundations backed by academic research
+and published academic papers (see `doc/tools`). This means that the 
+underlying functionality and intel collection is vastly available 
+without the need of an LLM / MCP integration (which essentially means that 
+you can utilise the raw functionality with or without the MCP tools).
 
-Different stakeholders have different requirements for information intelligence, which is the reason why `rw_git` is easily extendable, flexible and highly configurable.
+Different stakeholders have different requirements for data insights, which is the reason why `rw_git` is easily extendable, flexible and highly configurable.
+
+**Who is this for?** Engineering leaders who need defensible answers about
+delivery risk and technical debt, platform/DevEx teams building internal tooling
+on top of repository data, security and compliance reviewers auditing commit
+history, and individual contributors who want deeper context during code review.
+
+### Why rw_git
+
+- **Zero LLM token cost**: every metric is computed locally by deterministic
+  Dart code, not by asking an LLM to read and summarize raw `git log` output.
+  AI agents only spend tokens on the finished insight.
+- **Evidence-based, not ad hoc**: each algorithm (bug attribution via SZZ,
+  secret detection via entropy analysis, bus factor, logical coupling, and more)
+  is grounded in peer-reviewed software-engineering research, not a one-off
+  heuristic script.
+- **Library first, MCP second**: the same analyses are available as a
+  standalone Dart API and as MCP tools, so you are never locked into an
+  agent-only workflow.
+- **Broad coverage**: 30+ tools spanning technical debt, bus factor, security
+  and compliance, delivery velocity, and AI-assisted code review, instead of a
+  single narrow metric.
 
 ## Business Intelligence beyond engineering metrics
 
@@ -61,7 +88,10 @@ and metrics is performed during runtime, by carefully crafted algorithms.
   - [Installing Agent Skills](#installing-agent-skills)
   - [Connecting MCP with Agents](#connecting-mcp-with-agents)
 - [Core Git Commands](#core-git-commands)
+- [Using rw-git as a Library](#using-rw-git-as-a-library)
 - [Getting started](#getting-started)
+- [Contributing](#contributing)
+- [License](#license)
 - [Additional information](#additional-information)
 
 ## About
@@ -122,6 +152,10 @@ engineering management and code quality challenges.
 **Repository Operations:**
 - `init_repository`, `clone_repository`, `clone_specific_branch`, 
   `checkout_branch`, `is_git_repository`, `fetch_tags`: Standard git operations.
+
+**Documentation & Discovery:**
+- `get_rw_git_documentation`: Retrieves tool documentation directly within the
+  MCP session, so agents can self-discover capabilities without external lookups.
 
 ### Available Prompts
 
@@ -191,13 +225,55 @@ All commands return strongly-typed domain models wrapped in a predictable
 - `init`, `clone`, `checkout`, `branch`, `status`, `pull`, `diff`, `merge`, 
   `stash`, `blame`, `show`, `fetchTags`, `getCommitsBetween`, `stats`.
 
+## Using rw-git as a Library
+
+Every analysis behind the MCP tools above is also available as a plain Dart
+class, so you can use the same algorithms without running the MCP server.
+Each class takes a `ProcessRunner` and returns a strongly-typed DTO:
+
+```dart
+import 'package:rw_git/rw_git.dart';
+
+void main() async {
+  final runner = ProcessRunner.defaultRunner();
+
+  final busFactor = await BusFactorAlgorithm(runner).execute('./my-project');
+  print('Bus factor: ${busFactor.busFactor}');
+
+  // The same DTOs returned by the MCP tools are available directly,
+  // including their .toJson() if you still want a JSON representation.
+  print(busFactor.toJson());
+}
+```
+
+Available classes (all in `package:rw_git/rw_git.dart`):
+
+| Class | Returns |
+| --- | --- |
+| `BusFactorAlgorithm` | `BusFactorDto` |
+| `LogicalCouplingAlgorithm` | `List<LogicalCouplingDto>` |
+| `RefactoringDetectionAlgorithm` | `List<RefactoringDto>` |
+| `CodeVolatilityAlgorithm` | `List<CodeVolatilityDto>` |
+| `SzzAlgorithm` | `List<SzzMatch>` |
+| `AdvancedMetricsHeuristic` | `AdvancedCodeQualityDto` |
+| `BugHotspotsHeuristic` | `BugHotspotDto` |
+| `ChurnHeuristic` | `ChurnMetricsDto` / `ChurnMetricsWithAuthorsDto` |
+| `CommitVelocityHeuristic` | `CommitVelocityDto` |
+| `ConflictRiskHeuristic` | `Map<String, List<String>>` |
+| `MegaCommitsHeuristic` | `List<String>` |
+| `SuspiciousCommitsHeuristic` | `List<String>` |
+| `ComplianceScanner` | `ComplianceReportDto` |
+| `DependencyManifestParser` | `DependencyManifestDto` |
+| `SecretsScanner` | `List<String>` |
+| `DartAstAnalyzer` | `AstAnalysisResult` |
+
 ## Getting started
 
 Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rw_git: ^2.0.0
+  rw_git: ^3.0.7
 ```
 
 ### Quick Start
@@ -217,6 +293,17 @@ void main() async {
 
 For full API details, see our 
 [official documentation](https://pub.dev/documentation/rw_git/latest/).
+
+## Contributing
+
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for
+details on filing issues, proposing features, setting up a development
+environment, and our pull request workflow.
+
+## License
+
+`rw_git` is released under the [MIT License](LICENSE). See
+[CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Additional information
 

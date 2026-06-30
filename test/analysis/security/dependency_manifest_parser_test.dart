@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:test/test.dart';
-import 'package:rw_git/src/intelligence/security/dependency_manifest_parser.dart';
 import 'package:rw_git/rw_git.dart';
 
 void main() {

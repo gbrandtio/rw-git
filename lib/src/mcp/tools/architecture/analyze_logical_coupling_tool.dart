@@ -2,7 +2,6 @@ import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
 import '../../utils/mcp_argument_extensions.dart';
-import '../../../intelligence/architecture/logical_coupling_algorithm.dart';
 
 /// analyze_logical_coupling_tool.dart
 /// Implements the MCP Tool to find implicit file dependencies.

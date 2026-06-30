@@ -2,7 +2,6 @@ import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
 import '../../utils/mcp_argument_extensions.dart';
-import '../../../intelligence/history/algorithms/szz_algorithm.dart';
 
 /// find_bugs_by_developer_tool.dart
 /// Implements the MCP Tool to find bugs introduced by a specific developer.

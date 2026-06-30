@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
-import 'package:rw_git/src/intelligence/history/heuristics/bug_hotspots_heuristic.dart';
 import 'package:test/test.dart';
 
 class MockProcessRunner implements ProcessRunner {

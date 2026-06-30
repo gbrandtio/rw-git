@@ -1,4 +1,3 @@
-import '../../../intelligence/history/heuristics/commit_velocity_heuristic.dart';
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';

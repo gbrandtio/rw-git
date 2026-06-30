@@ -1,4 +1,3 @@
-import '../../../intelligence/security/dependency_manifest_parser.dart';
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../utils/mcp_argument_extensions.dart';

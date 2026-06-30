@@ -2,7 +2,6 @@ import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
 import '../../utils/mcp_argument_extensions.dart';
-import '../../../intelligence/architecture/bus_factor_algorithm.dart';
 
 /// analyze_bus_factor_tool.dart
 /// Implements the MCP Tool to calculate the Bus Factor.

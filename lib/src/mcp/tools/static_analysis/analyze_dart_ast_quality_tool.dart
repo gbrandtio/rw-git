@@ -3,7 +3,6 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:path/path.dart' as p;
 import '../../../../rw_git.dart';
-import '../../../intelligence/static_analysis/dart/dart_ast_analyzer.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 class AnalyzeDartAstQualityTool implements McpTool {
