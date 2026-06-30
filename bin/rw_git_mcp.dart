@@ -27,6 +27,7 @@ void main() async {
   registry.registerTool(
       McpToolFileOffloadDecorator(FindBugsByDeveloperTool(runner)));
   registry.registerTool(GetRwGitDocumentationTool(registry));
+  registry.registerTool(ReadReportSliceTool());
   registry.registerTool(InitRepositoryTool(rwGit));
   registry.registerTool(IsGitRepositoryTool(rwGit));
   registry.registerTool(CloneRepositoryTool(rwGit));

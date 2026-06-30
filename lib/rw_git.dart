@@ -32,6 +32,7 @@ export 'src/mcp/mcp_tool_file_offload_decorator.dart';
 export 'src/mcp/tools/static_analysis/analyze_code_quality_tool.dart';
 export 'src/mcp/tools/static_analysis/analyze_code_quality_with_authors_tool.dart';
 export 'src/mcp/tools/system/get_rw_git_documentation_tool.dart';
+export 'src/mcp/tools/system/read_report_slice_tool.dart';
 export 'src/mcp/tools/core/init_repository_tool.dart';
 export 'src/mcp/tools/core/is_git_repository_tool.dart';
 export 'src/mcp/tools/core/clone_repository_tool.dart';

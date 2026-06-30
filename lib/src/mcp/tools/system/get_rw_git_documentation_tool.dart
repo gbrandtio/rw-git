@@ -43,7 +43,13 @@ You are interacting with the RwGit repository via the MCP tools provided in your
 The default commit analysis limit is 500 commits (`limit = 500`). This is a conservative default for safety and predictability. If your analysis requires a broader historical scope (e.g., analyzing a massive repository's full lifetime) or a tighter, faster analysis window (e.g., checking only the last 10 commits), you **MUST explicitly override the `limit` argument** with the appropriate number of commits.
 
 ⚠️ **CRITICAL: Context Offloading (Preventing Overflow)**
-To prevent your context window from overflowing, all verbose analytical tools will offload their massive JSON responses to the local filesystem by default (e.g., `.rw_git/reports/...`) and return only a lightweight summary. **CRITICAL:** You CANNOT generate a meaningful report with just this lightweight summary. You MUST actively read the offloaded JSON file (e.g., using your file reading tools or a script) to extract concrete metrics, lists, and actionable insights to include in your final response. You can specify a custom `output_file` path (must be within the repository) for better organization.
+To prevent your context window from overflowing, verbose analytical tools offload their massive JSON responses to the local filesystem by default (e.g., `.rw_git/reports/...`) and return only a lightweight summary. **CRITICAL:** You CANNOT generate a meaningful report with just this lightweight summary. You MUST actively read the offloaded JSON file to extract concrete metrics, lists, and actionable insights to include in your final response. For large files, prefer the `read_report_slice` tool (pass the file path, and optionally a dot-separated `path` plus `offset`/`limit`) to fetch only the data you need instead of reading the whole file — the summary's `preview` field (top-level keys, array lengths) tells you what's available to slice. You can specify a custom `output_file` path (must be within the repository) for better organization.
+
+Two ways to skip offloading entirely:
+- Responses smaller than 8KB are returned inline automatically — no action needed.
+- Pass `return_full_json: true` to force an inline response regardless of size.
+
+**Parameter naming convention:** when a tool exposes a verbose/concise distinction, prefer a `format: "summary" | "full"` parameter for consistency. Existing tools predate this convention and use ad hoc flags instead (`detailed`, `includeCommitLog`, `includeCodeDiff`, `check_freshness`); new tools should follow the `format` convention going forward.
 
 ## 2. Available Tools
 

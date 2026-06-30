@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
+import '../constants.dart';
 import 'mcp_tool.dart';
 import 'utils/mcp_argument_extensions.dart';
 
@@ -9,7 +10,9 @@ import 'utils/mcp_argument_extensions.dart';
 /// This enforces a mandatory default behavior: large JSON responses are written
 /// to disk (either to an auto-generated file or an LLM-provided `output_file`)
 /// instead of being returned to the LLM, keeping the context window pristine.
-/// The LLM can explicitly opt out by passing `return_full_json: true`.
+/// Responses smaller than [offloadSizeThresholdBytes] are returned inline
+/// instead, since offloading them would only add a wasted file-read round
+/// trip. The LLM can explicitly opt out by passing `return_full_json: true`.
 class McpToolFileOffloadDecorator implements McpTool {
   final McpTool _inner;
 
@@ -21,13 +24,10 @@ class McpToolFileOffloadDecorator implements McpTool {
   @override
   String get description {
     return '${_inner.description}\n\n'
-        '**CONTEXT OFFLOADING (MANDATORY DEFAULT)**: The full JSON '
-        'response of this tool is written to a file on disk rather than returned '
-        'in the chat, to prevent context window overflow. You will receive a '
-        'summary and the file path. **CRITICAL: You MUST use your file reading '
-        'tools to read this offloaded file to extract the metrics and construct a '
-        'meaningful report.** You can optionally specify the exact `output_file` '
-        'path (must be within the repository).';
+        '(Large responses are offloaded to disk by default — see '
+        'get_rw_git_documentation for details. Responses under '
+        '${offloadSizeThresholdBytes ~/ 1024}KB are returned inline; pass '
+        '`return_full_json: true` to force an inline response.)';
   }
 
   @override
@@ -47,8 +47,50 @@ class McpToolFileOffloadDecorator implements McpTool {
           'MUST reside within the target repository directory.',
     };
 
+    properties['return_full_json'] = {
+      'type': 'boolean',
+      'description': 'Optional. If true, skips file offloading entirely and '
+          'returns the full JSON response inline regardless of size. Use '
+          'only when you specifically need the full payload in-context.',
+    };
+
     schema['properties'] = properties;
     return schema;
+  }
+
+  /// Builds a shallow, schema-agnostic structural index of [decoded] so the
+  /// caller can target reads (e.g. via `read_report_slice`) without loading
+  /// the entire offloaded file into context.
+  Map<String, dynamic>? _buildPreview(dynamic decoded) {
+    try {
+      if (decoded is Map) {
+        final topLevelKeys = <String>[];
+        final arrayLengths = <String, int>{};
+        final valueTypes = <String, String>{};
+        decoded.forEach((key, value) {
+          final k = key.toString();
+          topLevelKeys.add(k);
+          if (value is List) {
+            arrayLengths[k] = value.length;
+            valueTypes[k] = 'array';
+          } else if (value is Map) {
+            valueTypes[k] = 'object';
+          } else {
+            valueTypes[k] = value.runtimeType.toString();
+          }
+        });
+        return {
+          'top_level_keys': topLevelKeys,
+          'array_lengths': arrayLengths,
+          'value_types': valueTypes,
+        };
+      } else if (decoded is List) {
+        return {'top_level_type': 'array', 'length': decoded.length};
+      }
+      return {'top_level_type': decoded.runtimeType.toString()};
+    } catch (_) {
+      return null;
+    }
   }
 
   @override
@@ -66,20 +108,35 @@ class McpToolFileOffloadDecorator implements McpTool {
     // Execute the inner tool to get the raw JSON
     final rawOutput = await _inner.execute(arguments);
 
-    // If the output is an error or already a tiny summary, maybe we shouldn't write it to file?
+    dynamic decoded;
     try {
-      final decoded = jsonDecode(rawOutput);
+      decoded = jsonDecode(rawOutput);
       if (decoded is Map && decoded.containsKey('error')) {
         // Return errors directly
         return rawOutput;
       }
     } catch (_) {
-      // Not JSON, write it anyway
+      // Not JSON, write/return it anyway
+    }
+
+    // Explicit opt-out always wins: skip disk entirely.
+    final returnFullJson =
+        arguments.getOptionalBoolArgument('return_full_json') ?? false;
+    if (returnFullJson) {
+      return rawOutput;
+    }
+
+    final providedOutputFile =
+        arguments.getOptionalStringArgument('output_file');
+
+    // For small payloads with no explicit output_file request, returning
+    // inline avoids a wasted file-write + file-read round trip.
+    if ((providedOutputFile == null || providedOutputFile.trim().isEmpty) &&
+        utf8.encode(rawOutput).length < offloadSizeThresholdBytes) {
+      return rawOutput;
     }
 
     String outputPath;
-    final providedOutputFile =
-        arguments.getOptionalStringArgument('output_file');
 
     if (providedOutputFile != null && providedOutputFile.trim().isNotEmpty) {
       // Validate path traversal
@@ -128,15 +185,22 @@ class McpToolFileOffloadDecorator implements McpTool {
 
       await file.writeAsString(rawOutput);
 
-      return jsonEncode({
+      final summary = <String, dynamic>{
         'status': 'success',
         'message':
             'Tool execution successful. Output offloaded to disk to preserve context window.',
         'file_size_bytes': await file.length(),
         'file': outputPath,
         'hint':
-            'To generate a meaningful report, you MUST use your file reading tools to inspect this file and extract the concrete metrics. Do not just inform the user that the file was created.'
-      });
+            'To generate a meaningful report, you MUST use your file reading tools to inspect this file and extract the concrete metrics. Do not just inform the user that the file was created. For large files, prefer the read_report_slice tool with this file path and the preview below to fetch only the data you need, instead of reading the whole file.'
+      };
+
+      final preview = _buildPreview(decoded);
+      if (preview != null) {
+        summary['preview'] = preview;
+      }
+
+      return jsonEncode(summary);
     } on FileSystemException catch (e) {
       return jsonEncode({
         'error': 'Failed to write output to file',

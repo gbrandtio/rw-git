@@ -1,3 +1,11 @@
+# 3.0.9
+- **FEAT (MCP):** `McpToolFileOffloadDecorator` now returns small responses (under 8KB, `offloadSizeThresholdBytes`) inline instead of unconditionally offloading them to disk, eliminating a wasted file-write/file-read round trip for low-volume tools like `get_stats` and `get_contributions_by_author`.
+- **FIX (MCP):** Implemented the `return_full_json` opt-out argument on `McpToolFileOffloadDecorator`. It was documented (and referenced in earlier CHANGELOG entries) but never actually wired into the decorator's `execute()` or `inputSchema` — passing it had no effect. It now correctly skips file offloading and returns the full JSON inline.
+- **FEAT (MCP):** Offload summaries now include a `preview` field (top-level keys, value types, array lengths) so LLMs can target reads without guessing the offloaded file's shape.
+- **FEAT (MCP):** Added `read_report_slice` tool to fetch a targeted key-path/array-slice from a previously offloaded report file, instead of reading the entire file into context.
+- **CHORE (MCP):** Shrunk the offload boilerplate appended to all 27 wrapped tools' descriptions from a ~70-word paragraph to one sentence pointing at `get_rw_git_documentation`, reducing the fixed token cost of every `tools/list` call.
+- **DOCS:** Updated `get_rw_git_documentation` with the new size threshold, `return_full_json`, `read_report_slice`, and an advisory `format: summary|full` parameter-naming convention for future tools.
+
 # 3.0.8
 - **FEAT (Library):** Exposed the intelligence/analysis algorithms (bus factor, bug hotspots, logical coupling, code volatility, etc.) directly from `package:rw_git/rw_git.dart`, so consumers can use the same analyses the MCP tools rely on without running the MCP server.
 - **FEAT (Intelligence):** Added package freshness check for `analyze_dependency_drift` tool.
