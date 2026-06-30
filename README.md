@@ -8,8 +8,6 @@
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
 </p>
 
-## The Business Value of `rw_git`
-
 Modern software teams generate a vast amount of data in their git history. 
 `rw_git` turns that raw history into actionable intelligence, empowering 
 engineering leaders to ask and answer critical business questions.
