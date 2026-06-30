@@ -22,7 +22,9 @@ underlying functionality and intel collection is vastly available
 without the need of an LLM / MCP integration (which essentially means that 
 you can utilise the raw functionality with or without the MCP tools).
 
-Different stakeholders have different requirements for data insights, which is the reason why `rw_git` is easily extendable, flexible and highly configurable.
+Different stakeholders have different requirements for data insights, which
+is the reason why `rw_git` is easily extendable, flexible and highly
+configurable.
 
 **Who is this for?** Engineering leaders who need defensible answers about
 delivery risk and technical debt, platform/DevEx teams building internal tooling
@@ -155,7 +157,8 @@ engineering management and code quality challenges.
 
 **Documentation & Discovery:**
 - `get_rw_git_documentation`: Retrieves tool documentation directly within the
-  MCP session, so agents can self-discover capabilities without external lookups.
+  MCP session, so agents can self-discover capabilities without external
+  lookups.
 
 ### Available Prompts
 
