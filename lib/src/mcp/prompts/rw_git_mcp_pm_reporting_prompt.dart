@@ -2,6 +2,10 @@ import '../mcp_prompt.dart';
 
 /// rw_git_mcp_pm_reporting_prompt.dart
 /// Provides the rw-git-mcp-pm-reporting skill as an MCP Prompt.
+///
+/// GENERATED FILE — do not edit by hand. Edit the canonical skill at
+/// `.agents/skills/rw-git-mcp-pm-reporting/SKILL.md` and run
+/// `dart run tool/sync_prompts.dart`.
 class RwGitMcpPmReportingPrompt implements McpPrompt {
   @override
   String get name => 'rw-git-mcp-pm-reporting';

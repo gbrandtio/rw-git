@@ -63,6 +63,33 @@ If your change adds or modifies a tool exposed via the MCP server:
   where applicable).
 - Update `README.md`'s "Available MCP Tools" section to list the new tool.
 
+## Adding or modifying prompts and skills
+
+Agent workflows have a **single source of truth**: the canonical skill markdown
+in `.agents/skills/<name>/SKILL.md`. The matching MCP prompt Dart class in
+`lib/src/mcp/prompts/<name>_prompt.dart` is **generated** from it — do not edit
+the prompt files by hand.
+
+To add or change a workflow:
+
+1. Edit (or create) `.agents/skills/<name>/SKILL.md`, including its
+   `name`/`description` frontmatter.
+2. Regenerate the prompt sources and format them:
+
+   ```bash
+   dart run tool/sync_prompts.dart
+   dart format --line-length=80 lib/src/mcp/prompts
+   ```
+
+3. If you added a new workflow, register its prompt in
+   `lib/src/mcp/server_registry.dart` and add its name to `promptSkillNames` in
+   `tool/prompt_codegen.dart`.
+4. List it under "Available Prompts" in `README.md`.
+
+CI runs `dart run tool/sync_prompts.dart --check` (via the prompts sync test),
+which fails if a prompt has drifted from its SKILL.md. The npm distribution
+copies of the skills are produced automatically by the `prepack` script.
+
 ## Pull request workflow
 
 1. Fork the repository and create a branch from `main`.

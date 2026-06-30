@@ -113,11 +113,14 @@ void main() {
       expect(properties.containsKey('return_full_json'), isTrue);
     });
 
-    test('modifies description to include offloading hint', () {
+    test('appends a terse offloading pointer to the description', () {
       final desc = decorator.description;
-      expect(desc, contains('offloaded to disk'));
+      // The full offload contract lives in get_rw_git_documentation; the
+      // decorator only appends a short pointer to keep tools/list small.
+      expect(desc, contains('to disk'));
       expect(desc, contains('get_rw_git_documentation'));
-      expect(desc, contains('return_full_json'));
+      // The verbose paragraph must not be re-stamped onto every tool.
+      expect(desc, isNot(contains('return_full_json')));
     });
 
     test('writes to auto-generated file by default and returns summary',

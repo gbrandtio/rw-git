@@ -1,0 +1,167 @@
+/// prompt_codegen.dart
+///
+/// Pure, side-effect-free helpers for turning a canonical agent skill
+/// (`.agents/skills/<name>/SKILL.md`) into its MCP prompt Dart source
+/// (`lib/src/mcp/prompts/<name>_prompt.dart`).
+///
+/// Shared by `tool/sync_prompts.dart` (the generator CLI) and
+/// `test/mcp/prompts_sync_test.dart` (the drift guard) so the two can never
+/// disagree about what "in sync" means.
+library;
+
+/// The skill names that have a corresponding MCP prompt. `rw-git-mcp-installation`
+/// is intentionally excluded — it is a human setup guide, not an agent workflow.
+const List<String> promptSkillNames = [
+  'rw-git-mcp-reporting',
+  'rw-git-mcp-technical-reporting',
+  'rw-git-mcp-pm-reporting',
+  'rw-git-mcp-security-reporting',
+  'rw-git-mcp-code-review-reporting',
+];
+
+/// A parsed SKILL.md: its frontmatter `name`/`description` and markdown body.
+class SkillDoc {
+  final String name;
+  final String description;
+  final String body;
+
+  const SkillDoc(this.name, this.description, this.body);
+}
+
+/// Parses the YAML-ish frontmatter and body out of a SKILL.md [raw] string.
+SkillDoc parseSkill(String raw) {
+  final normalized = raw.replaceAll('\r\n', '\n');
+  if (!normalized.startsWith('---')) {
+    throw const FormatException(
+        'SKILL.md must start with a "---" frontmatter block.');
+  }
+  final end = normalized.indexOf('\n---', 3);
+  if (end == -1) {
+    throw const FormatException(
+        'SKILL.md frontmatter is not terminated by "---".');
+  }
+  final frontmatter = normalized.substring(3, end);
+  // Body starts after the line that closes the frontmatter.
+  final afterClose = normalized.indexOf('\n', end + 1);
+  final body = afterClose == -1
+      ? ''
+      : normalized.substring(afterClose + 1).replaceFirst(RegExp(r'^\n+'), '');
+
+  String? name;
+  String? description;
+  for (final line in frontmatter.split('\n')) {
+    final trimmed = line.trim();
+    if (trimmed.startsWith('name:')) {
+      name = _unquote(trimmed.substring('name:'.length).trim());
+    } else if (trimmed.startsWith('description:')) {
+      description = _unquote(trimmed.substring('description:'.length).trim());
+    }
+  }
+  if (name == null || name.isEmpty) {
+    throw const FormatException('SKILL.md frontmatter is missing "name".');
+  }
+  if (description == null || description.isEmpty) {
+    throw const FormatException(
+        'SKILL.md frontmatter is missing "description".');
+  }
+  return SkillDoc(name, description, body);
+}
+
+String _unquote(String s) {
+  if (s.length >= 2 &&
+      ((s.startsWith('"') && s.endsWith('"')) ||
+          (s.startsWith("'") && s.endsWith("'")))) {
+    return s.substring(1, s.length - 1);
+  }
+  return s;
+}
+
+/// `rw-git-mcp-pm-reporting` -> `RwGitMcpPmReportingPrompt`.
+String dartClassName(String skillName) {
+  final pascal = skillName
+      .split('-')
+      .where((p) => p.isNotEmpty)
+      .map((p) => p[0].toUpperCase() + p.substring(1))
+      .join();
+  return '${pascal}Prompt';
+}
+
+/// `rw-git-mcp-pm-reporting` -> `rw_git_mcp_pm_reporting_prompt.dart`.
+String dartFileName(String skillName) =>
+    '${skillName.replaceAll('-', '_')}_prompt.dart';
+
+/// Renders the full Dart source for the prompt class described by [doc].
+String generatePromptSource(SkillDoc doc) {
+  final className = dartClassName(doc.name);
+  final fileName = dartFileName(doc.name);
+  final desc = _escapeSingleQuoted(doc.description);
+  // Bodies are emitted as raw triple-quoted strings; verified to be free of
+  // a `'''` sequence by [bodyIsRawSafe].
+  final body = doc.body;
+
+  return '''
+import '../mcp_prompt.dart';
+
+/// $fileName
+/// Provides the ${doc.name} skill as an MCP Prompt.
+///
+/// GENERATED FILE — do not edit by hand. Edit the canonical skill at
+/// `.agents/skills/${doc.name}/SKILL.md` and run
+/// `dart run tool/sync_prompts.dart`.
+class $className implements McpPrompt {
+  @override
+  String get name => '${doc.name}';
+
+  @override
+  String get description =>
+      '$desc';
+
+  @override
+  List<Map<String, dynamic>> get messages => [
+        {
+          'role': 'user',
+          'content': {
+            'type': 'text',
+            'text': _promptText,
+          }
+        }
+      ];
+
+  static const String _promptText = r\'\'\'
+$body\'\'\';
+}
+''';
+}
+
+/// A raw triple-quoted Dart string cannot contain `'''`.
+bool bodyIsRawSafe(String body) => !body.contains("'''");
+
+String _escapeSingleQuoted(String s) =>
+    s.replaceAll('\\', '\\\\').replaceAll('\$', '\\\$').replaceAll("'", "\\'");
+
+/// Extracts the `name`, `description`, and raw `_promptText` body from an
+/// already-generated prompt Dart [source]. Used by the drift test to compare
+/// on-disk prompts against their canonical skill without depending on exact
+/// formatting.
+SkillDoc extractFromPromptSource(String source) {
+  final nameMatch =
+      RegExp(r"String get name =>\s*'([^']*)'").firstMatch(source);
+  final descMatch = RegExp(r"String get description =>\s*'((?:\\.|[^'\\])*)'")
+      .firstMatch(source);
+  final start = source.indexOf("r'''");
+  final bodyStart = source.indexOf('\n', start) + 1;
+  final bodyEnd = source.lastIndexOf("'''");
+  if (nameMatch == null ||
+      descMatch == null ||
+      start == -1 ||
+      bodyEnd <= start) {
+    throw const FormatException('Could not parse generated prompt source.');
+  }
+  final name = nameMatch.group(1)!;
+  final description = _unescapeSingleQuoted(descMatch.group(1)!);
+  final body = source.substring(bodyStart, bodyEnd);
+  return SkillDoc(name, description, body);
+}
+
+String _unescapeSingleQuoted(String s) =>
+    s.replaceAll("\\'", "'").replaceAll('\\\$', '\$').replaceAll('\\\\', '\\');

@@ -2,6 +2,10 @@ import '../mcp_prompt.dart';
 
 /// rw_git_mcp_code_review_reporting_prompt.dart
 /// Provides the rw-git-mcp-code-review-reporting skill as an MCP Prompt.
+///
+/// GENERATED FILE — do not edit by hand. Edit the canonical skill at
+/// `.agents/skills/rw-git-mcp-code-review-reporting/SKILL.md` and run
+/// `dart run tool/sync_prompts.dart`.
 class RwGitMcpCodeReviewReportingPrompt implements McpPrompt {
   @override
   String get name => 'rw-git-mcp-code-review-reporting';

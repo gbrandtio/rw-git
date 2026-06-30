@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import '../constants.dart';
+import 'mcp_resources.dart';
 import 'mcp_tool.dart';
 import 'utils/mcp_argument_extensions.dart';
 
@@ -16,19 +17,19 @@ import 'utils/mcp_argument_extensions.dart';
 class McpToolFileOffloadDecorator implements McpTool {
   final McpTool _inner;
 
-  McpToolFileOffloadDecorator(this._inner);
+  /// When provided, each offloaded report is registered here so it can be
+  /// served via the MCP `resources/read` method (in addition to the existing
+  /// `read_report_slice` path).
+  final ResourceRegistry? resources;
+
+  McpToolFileOffloadDecorator(this._inner, {this.resources});
 
   @override
   String get name => _inner.name;
 
   @override
-  String get description {
-    return '${_inner.description}\n\n'
-        '(Large responses are offloaded to disk by default — see '
-        'get_rw_git_documentation for details. Responses under '
-        '${offloadSizeThresholdBytes ~/ 1024}KB are returned inline; pass '
-        '`return_full_json: true` to force an inline response.)';
-  }
+  String get description => '${_inner.description} (Offloads responses >'
+      '${offloadSizeThresholdBytes ~/ 1024}KB to disk; see get_rw_git_documentation.)';
 
   @override
   Map<String, dynamic> get inputSchema {
@@ -43,15 +44,13 @@ class McpToolFileOffloadDecorator implements McpTool {
 
     properties['output_file'] = {
       'type': 'string',
-      'description': 'Optional. Absolute path to save the JSON output. '
-          'MUST reside within the target repository directory.',
+      'description':
+          'Optional. Absolute path within the repo to save JSON output.',
     };
 
     properties['return_full_json'] = {
       'type': 'boolean',
-      'description': 'Optional. If true, skips file offloading entirely and '
-          'returns the full JSON response inline regardless of size. Use '
-          'only when you specifically need the full payload in-context.',
+      'description': 'Optional. Return full JSON inline instead of offloading.',
     };
 
     schema['properties'] = properties;
@@ -198,6 +197,13 @@ class McpToolFileOffloadDecorator implements McpTool {
       final preview = _buildPreview(decoded);
       if (preview != null) {
         summary['preview'] = preview;
+      }
+
+      // Expose the offloaded report as an MCP resource so standards-aware
+      // clients can fetch it via resources/read.
+      final registry = resources;
+      if (registry != null) {
+        summary['resource_uri'] = registry.register(outputPath);
       }
 
       return jsonEncode(summary);

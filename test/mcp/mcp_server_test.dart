@@ -96,7 +96,10 @@ void main() {
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 1);
-      expect(response['result']['protocolVersion'], '2024-11-05');
+      // No version requested -> server advertises its latest implemented one.
+      expect(response['result']['protocolVersion'], '2025-06-18');
+      expect(response['result']['capabilities'],
+          containsPair('resources', anything));
     });
 
     test('responds to ping', () async {

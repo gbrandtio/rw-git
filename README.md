@@ -163,14 +163,26 @@ engineering management and code quality challenges.
 
 ### Available Prompts
 
-The server exposes native MCP Prompts that provide AI agents with workflows:
+The server exposes native MCP Prompts that hand the agent a ready-made,
+token-efficient workflow for a specific reporting goal. Each is the
+authoritative source for the matching agent skill (see below):
 
-- `rw-git-mcp-reporting`: A step-by-step workflow instructing the AI on 
-  orchestrating tools to generate comprehensive repository reports.
+- `rw-git-mcp-reporting`: High-level Deep Audit orchestrating the most critical
+  tools across health, security, architecture, and ecosystem; routes to the
+  specialized prompts below for focused deep-dives.
+- `rw-git-mcp-technical-reporting`: Code quality, technical debt, and
+  architectural integrity (AST analysis, hotspots, drift).
+- `rw-git-mcp-pm-reporting`: Team velocity, contributions, release deltas, and
+  knowledge distribution for engineering managers.
+- `rw-git-mcp-security-reporting`: Secret scanning, dependency drift, and commit
+  signature/compliance auditing.
+- `rw-git-mcp-code-review-reporting`: PR diff risk, merge-conflict prediction,
+  and AI-generated comment evaluation.
 
 ### Installing Agent Skills
 
-To install bundled AI agent skills locally:
+The MCP Prompts above are also shipped as file-based agent skills. To install
+them locally:
 
 ```bash
 npx @gbrandtio/rw-git-mcp install-skills
@@ -178,6 +190,9 @@ npx @gbrandtio/rw-git-mcp install-skills
 *(Or `rw-git-mcp install-skills` if installed globally)*
 
 This extracts skills to `./.agents/skills/rw-git-mcp/` for local agent usage.
+The bundled skills are the five reporting workflows listed under **Available
+Prompts**, plus `rw-git-mcp-installation`, a step-by-step setup guide for
+Claude Desktop, Cursor, and other MCP clients.
 
 ### Connecting MCP with Agents
 
@@ -277,7 +292,7 @@ Add the package to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  rw_git: ^3.0.7
+  rw_git: ^3.1.0
 ```
 
 ### Quick Start

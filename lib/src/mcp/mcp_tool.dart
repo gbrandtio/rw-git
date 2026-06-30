@@ -15,3 +15,16 @@ abstract interface class McpTool {
   /// Executes the tool with the given arguments.
   Future<String> execute(Map<String, dynamic> arguments);
 }
+
+/// Optional, standard MCP metadata a tool may expose in the `tools/list`
+/// response. Tools opt in by being wrapped so the registry can advertise
+/// `annotations` (e.g. `readOnlyHint`, `idempotentHint`) and an `outputSchema`
+/// without forcing every [McpTool] implementation to define them.
+mixin McpToolMetadata {
+  /// MCP tool annotations (behavioural hints such as `readOnlyHint`).
+  Map<String, dynamic>? get annotations => null;
+
+  /// JSON Schema describing the tool's structured output, when its shape is
+  /// stable enough to be useful. Kept compact to respect the context budget.
+  Map<String, dynamic>? get outputSchema => null;
+}
