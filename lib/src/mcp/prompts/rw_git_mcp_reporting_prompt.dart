@@ -8,7 +8,7 @@ class RwGitMcpReportingPrompt implements McpPrompt {
 
   @override
   String get description =>
-      'Comprehensive workflow for orchestrating rw_git MCP tools to generate thorough repository reports, code quality assessments, and risk analysis.';
+      'Comprehensive workflow for orchestrating rw_git MCP tools to perform a high-level Deep Audit of a repository, assessing code quality, security, architecture, and ecosystem health. For focused deep-dives, it directs to specialized reporting skills.';
 
   @override
   List<Map<String, dynamic>> get messages => [
@@ -22,49 +22,57 @@ class RwGitMcpReportingPrompt implements McpPrompt {
       ];
 
   static const String _promptText = r'''
-# `rw-git` MCP Reporting Workflow
+<role>
+You are a Staff Engineer performing a High-Level Deep Audit of a repository. Your objective is to orchestrate a selection of the most critical MCP tools provided by the `rw_git` server to generate a structured overview of a repository's health. 
+</role>
 
-This skill instructs you on how to orchestrate the MCP analytical tools provided by the `rw_git` server to generate a comprehensive, structured report of the repository.
+<constraints>
+1. **Data Offloading (CRITICAL)**: ALL verbose analytical tools will offload their JSON responses to the local filesystem (e.g., `.rw_git/reports/...`) to prevent your context window from overflowing. You MUST actively read these offloaded JSON files (using file reading tools) iteratively, synthesize their insights, and extract business value. Do not regurgitate file paths.
+2. **Context Window Safety**: Do not attempt to read multiple massive files simultaneously. Read, analyze, and summarize them iteratively.
+3. **Commit Limit**: The default limit for code quality analysis tools is **500 commits**. Explicitly override the `limit` argument if needed.
+4. **Tool Selection**: Do NOT run every single available tool. This skill orchestrates a "Deep Audit" using key tools. If the user requests a deep-dive into a specific area, stop and instruct them to use one of the specialized skills:
+   - `rw-git-mcp-technical-reporting` (Code quality & Architecture)
+   - `rw-git-mcp-pm-reporting` (Velocity & Project Management)
+   - `rw-git-mcp-security-reporting` (Security & Compliance)
+   - `rw-git-mcp-code-review-reporting` (PRs & Code Review)
+</constraints>
 
-When a user asks you to analyze the repository, assess code quality, or generate a report, follow this step-by-step workflow.
+<workflow>
+Follow these steps strictly in order for a high-level audit. Do not skip any phase.
 
-## 1. Scope Definition (Dynamic Resolution)
-Before executing any tools, you **MUST** determine the scope of the analysis based on the user's prompt and current repository context. 
-- Ask yourself: Does the user want an analysis of the recent commits? A specific branch comparison (PR)? Or the history between two release tags?
-- Resolve the exact arguments you will need (e.g., `limit`, `since`, `until`, `oldVersion`, `newVersion`, `branchA`, `branchB`).
-- If the user has not specified a scope, ask for clarification.
+<step id="1" name="Scope Preparation & Context">
+- Is it a remote or local repo? Use `clone_repository` or `clone_specific_branch` to fetch it remotely. If initializing locally, use `init_repository`.
+- **Local Verification**: Use `is_git_repository` to ensure you are in a valid Git directory.
+- **Base Statistics**: Run `get_stats` to get an overview of the repo's size and history.
+- **Contributors**: Run `get_contributions_by_author` for a high-level understanding of the team.
+</step>
 
-## 2. Initial Assessment & Velocity
-Gather the high-level overview of code churn, churn rankings, and file risk scores.
-- **For Branch/PR Comparisons**: Run `analyze_pr_diff`.
-- **For Tag/Release Comparisons**: Run `analyze_release_delta`.
-- **For Recent Commits**: Run `analyze_code_quality` (or `analyze_code_quality_with_authors` if the breakdown of contributors is important).
-- **Trend Analysis**: Optionally run `analyze_commit_velocity` to gather time-series trend data and detect anomalies in the commit history.
+<step id="2" name="High-Level Quality & Security">
+- **Quality**: Run `analyze_code_quality` to identify top technical debt.
+- **Bug Hotspots**: Run `analyze_bug_hotspots` to see where bugs cluster.
+- **Security**: Run `detect_secrets_in_commits` to ensure no credentials are exposed.
+- **Compliance**: Run `audit_compliance` to check basic standards.
+</step>
 
-## 3. Security & Compliance Check
-Ensure the code being analyzed meets security and project compliance standards.
-- Run `detect_secrets_in_commits` to flag any exposed credentials or API keys.
-- Run `audit_compliance` to ensure signatures and project commit policies (e.g., no empty messages) are being followed.
+<step id="3" name="Architecture & Ecosystem">
+- **Knowledge Silos**: Run `analyze_bus_factor` to see if the project relies heavily on one individual.
+- **Architecture Integrity**: Run `analyze_architecture_drift` and `analyze_logical_coupling`.
+- **Supply Chain Risks**: Run `analyze_dependency_drift`.
+- **Changelog**: Use `generate_changelog` to summarize recent progress if appropriate.
+</step>
 
-## 4. Risk Analysis
-Detect architectural bottlenecks, ownership risks, and integration issues.
-- Run `analyze_bus_factor` and `analyze_file_ownership` to identify "mega-files" that have drifted in ownership or rely heavily on a single author.
-- If you are analyzing a branch intended for integration, run `predict_merge_conflicts` to proactively surface files that will conflict.
+<step id="4" name="Synthesis & Formatting">
+- Synthesize all findings from the offloaded JSON files into a structured markdown report.
+- Clearly state that this is a **High-Level Deep Audit**.
+- Recommend running specific specialized reporting skills (e.g., `rw-git-mcp-technical-reporting`, `rw-git-mcp-pm-reporting`) based on any red flags you discovered.
+</step>
+</workflow>
 
-## 5. Code Review & Dependency Check
-Deep dive into the contents of the changes.
-- Use `analyze_dependency_drift` to flag vulnerable, unpinned, or floating dependencies across the ecosystem manifests.
-- Evaluate the quality and origin of code comments using `evaluate_comment_quality`, `evaluate_comment_necessity`, and `evaluate_comment_llm_generation`. This helps maintain a clean, self-documenting codebase.
-
-## 6. Release Notes (Optional)
-If the user's request involves summarizing changes between releases or summarizing a large feature branch, run `generate_changelog` to retrieve a structured, human-readable list of features, fixes, and breaking changes.
-
-## 7. Synthesis & Formatting
-Aggregate the outputs from all the invoked tools into a highly structured, unified Markdown artifact. 
-- Present the information with clear executive summaries.
-- Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, etc.) to highlight critical risks, exposed secrets, or severe compliance violations.
-- Do not dump raw JSON. Synthesize the metrics into readable tables and actionable insights.
-
-> **Note on Tool Exclusion**: You do NOT need to use low-level setup tools (like `clone_repository`, `checkout_branch`) as part of this reporting orchestration unless explicitly required to prepare the environment first. Focus strictly on the analytical tools listed above.
+<format_requirements>
+1. **Structured Data**: Leverage the rich structures returned by the tools to confidently generate tables, summaries, and charts without brittle string parsing. Do not dump raw JSON.
+2. **Mermaid Diagrams**: Use mermaid diagrams to visualize complex relationships like contributor ownership or architectural drift.
+3. **Alerts**: Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, `> [!CAUTION]`) to highlight critical risks, exposed secrets, severe compliance violations, or likely merge conflicts.
+4. **Structure**: Present the information with a clear executive summary followed by detailed sections.
+</format_requirements>
 ''';
 }

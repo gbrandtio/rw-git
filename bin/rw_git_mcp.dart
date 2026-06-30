@@ -2,6 +2,10 @@ import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/mcp/tools/security/detect_secrets_tool.dart';
 import 'package:rw_git/src/mcp/tools/bugs/find_bugs_by_developer_tool.dart';
 import 'package:rw_git/src/mcp/prompts/rw_git_mcp_reporting_prompt.dart';
+import 'package:rw_git/src/mcp/prompts/rw_git_mcp_code_review_reporting_prompt.dart';
+import 'package:rw_git/src/mcp/prompts/rw_git_mcp_pm_reporting_prompt.dart';
+import 'package:rw_git/src/mcp/prompts/rw_git_mcp_security_reporting_prompt.dart';
+import 'package:rw_git/src/mcp/prompts/rw_git_mcp_technical_reporting_prompt.dart';
 
 /// ----------------------------------------------------------------------------
 /// rw_git_mcp.dart
@@ -77,6 +81,10 @@ void main() async {
       McpToolFileOffloadDecorator(CalculateUniversalLexicalMetricsTool()));
 
   registry.registerPrompt(RwGitMcpReportingPrompt());
+  registry.registerPrompt(RwGitMcpCodeReviewReportingPrompt());
+  registry.registerPrompt(RwGitMcpPmReportingPrompt());
+  registry.registerPrompt(RwGitMcpSecurityReportingPrompt());
+  registry.registerPrompt(RwGitMcpTechnicalReportingPrompt());
 
   final server = McpServer(registry: registry);
   server.start();
