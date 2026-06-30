@@ -1,3 +1,6 @@
+# 3.0.9
+- **FIX (Quality):** Added `example/README.md` in order to be able to render multiple examples (core git commands usage, intelligence commands usage) in pub.dev.
+
 # 3.0.8
 - **FEAT (Library):** Exposed the intelligence/analysis algorithms (bus factor, bug hotspots, logical coupling, code volatility, etc.) directly from `package:rw_git/rw_git.dart`, so consumers can use the same analyses the MCP tools rely on without running the MCP server.
 - **FEAT (Intelligence):** Added package freshness check for `analyze_dependency_drift` tool.
