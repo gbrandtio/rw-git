@@ -1,5 +1,8 @@
-# 3.0.7
+# 3.0.8
 - **FEAT (Library):** Exposed the intelligence/analysis algorithms (bus factor, bug hotspots, logical coupling, code volatility, etc.) directly from `package:rw_git/rw_git.dart`, so consumers can use the same analyses the MCP tools rely on without running the MCP server.
+- **FEAT (Intelligence):** Added package freshness check for `analyze_dependency_drift` tool.
+
+# 3.0.7
 - **REFACTOR:** Refactored the MCP tools implementation, adhering to SRP principles and making the repository future-proof and easily extendable.
 - **FEAT (Quality):** Based on academic papers, enhanced the MCP tools underlying technical foundations and documented under `doc/tools`.
 
