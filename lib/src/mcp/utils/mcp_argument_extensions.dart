@@ -32,4 +32,19 @@ extension McpArgumentExtensions on Map<String, dynamic> {
     }
     return value;
   }
+
+  /// Extracts an optional bool argument from the map.
+  /// Returns null if the argument is missing.
+  /// Throws an [ArgumentError] with a clear message if the argument is present but not a bool.
+  bool? getOptionalBoolArgument(String key) {
+    if (!containsKey(key) || this[key] == null) {
+      return null;
+    }
+    final value = this[key];
+    if (value is! bool) {
+      throw ArgumentError(
+          'Argument $key must be a bool if provided, but got: ${value.runtimeType}');
+    }
+    return value;
+  }
 }

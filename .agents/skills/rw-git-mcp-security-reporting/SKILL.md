@@ -28,7 +28,7 @@ Follow these steps to conduct a Security and Compliance deep-dive.
 </step>
 
 <step id="4" name="Supply Chain Risks">
-- **Dependencies**: Run `analyze_dependency_drift` to parse package manifests (`pubspec.yaml`, `package.json`, etc.) and identify outdated or risky dependency shifts.
+- **Dependencies**: Run `analyze_dependency_drift` to parse package manifests (`pubspec.yaml`, `package.json`, etc.) and identify pinning/lock-file risk. Pass `check_freshness: true` to additionally compare each dependency against its latest registry release (this performs network lookups) and surface how far behind (patch/minor/major) each one is.
 </step>
 
 <step id="5" name="Synthesis & Formatting">

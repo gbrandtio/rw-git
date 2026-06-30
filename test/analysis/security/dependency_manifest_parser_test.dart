@@ -77,33 +77,94 @@ void main() {
       expect(npm.pinnedCount, 1);
       expect(npm.floatingCount, 1);
       expect(npm.hasLockFile, isTrue);
+      expect(
+        npm.dependencies,
+        containsAll([
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'lodash')
+              .having((e) => e.declaredVersion, 'declaredVersion', '^4.17.21')
+              .having((e) => e.isPinned, 'isPinned', isFalse),
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'jest')
+              .having((e) => e.declaredVersion, 'declaredVersion', '27.0.0')
+              .having((e) => e.isPinned, 'isPinned', isTrue),
+        ]),
+      );
 
       final dart = result.ecosystems.firstWhere((e) => e.type == 'dart');
       expect(dart.totalDependencies, 2);
       expect(dart.pinnedCount, 1);
       expect(dart.floatingCount, 1);
       expect(dart.hasLockFile, isTrue);
+      expect(
+        dart.dependencies,
+        containsAll([
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'http')
+              .having((e) => e.isPinned, 'isPinned', isFalse),
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'test')
+              .having((e) => e.isPinned, 'isPinned', isTrue),
+        ]),
+      );
 
       final python = result.ecosystems.firstWhere((e) => e.type == 'python');
       expect(python.totalDependencies, 2);
       expect(python.pinnedCount, 1);
       expect(python.floatingCount, 1);
       expect(python.hasLockFile, isTrue);
+      expect(
+        python.dependencies,
+        containsAll([
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'requests')
+              .having((e) => e.isPinned, 'isPinned', isTrue),
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'numpy')
+              .having((e) => e.isPinned, 'isPinned', isFalse),
+        ]),
+      );
 
       final go = result.ecosystems.firstWhere((e) => e.type == 'go');
       expect(go.totalDependencies, 1);
       expect(go.pinnedCount, 1);
       expect(go.floatingCount, 0);
+      expect(
+        go.dependencies.first.name,
+        'github.com/gin-gonic/gin',
+      );
 
       final rust = result.ecosystems.firstWhere((e) => e.type == 'rust');
       expect(rust.totalDependencies, 2);
       expect(rust.pinnedCount, 1);
       expect(rust.floatingCount, 1);
+      expect(
+        rust.dependencies,
+        containsAll([
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'serde')
+              .having((e) => e.isPinned, 'isPinned', isFalse),
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'serde_json')
+              .having((e) => e.isPinned, 'isPinned', isTrue),
+        ]),
+      );
 
       final ruby = result.ecosystems.firstWhere((e) => e.type == 'ruby');
       expect(ruby.totalDependencies, 2);
       expect(ruby.pinnedCount, 1);
       expect(ruby.floatingCount, 1);
+      expect(
+        ruby.dependencies,
+        containsAll([
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'rails')
+              .having((e) => e.isPinned, 'isPinned', isFalse),
+          isA<DependencyEntry>()
+              .having((e) => e.name, 'name', 'sqlite3')
+              .having((e) => e.isPinned, 'isPinned', isTrue),
+        ]),
+      );
     });
   });
 }

@@ -93,14 +93,13 @@ EcosystemReport _parseSingleManifest(
   String manifestPath,
   bool hasLock,
 ) {
-  int pinned = 0;
-  int floating = 0;
+  final entries = <DependencyEntry>[];
 
   switch (ecosystemType) {
     case 'dart':
       // Parse pubspec.yaml dependencies
       final depRegex = RegExp(
-        r'^\s+\w[\w_]*:\s*(.+)$',
+        r'^\s+(\w[\w_]*):\s*(.+)$',
         multiLine: true,
       );
       bool inDeps = false;
@@ -120,12 +119,13 @@ EcosystemReport _parseSingleManifest(
         if (inDeps) {
           final match = depRegex.firstMatch(line);
           if (match != null) {
-            final version = match.group(1)?.trim() ?? '';
-            if (_isPinnedVersion(version)) {
-              pinned++;
-            } else {
-              floating++;
-            }
+            final name = match.group(1)?.trim() ?? '';
+            final version = match.group(2)?.trim() ?? '';
+            entries.add(DependencyEntry(
+              name: name,
+              declaredVersion: version,
+              isPinned: _isPinnedVersion(version),
+            ));
           }
         }
       }
@@ -133,7 +133,7 @@ EcosystemReport _parseSingleManifest(
     case 'npm':
       // Parse package.json dependencies
       final depRegex = RegExp(
-        r'"[^"]+"\s*:\s*"([^"]+)"',
+        r'"([^"]+)"\s*:\s*"([^"]+)"',
       );
       bool inDeps = false;
       int braceDepth = 0;
@@ -153,12 +153,13 @@ EcosystemReport _parseSingleManifest(
           }
           final match = depRegex.firstMatch(line);
           if (match != null) {
-            final version = match.group(1) ?? '';
-            if (_isNpmPinned(version)) {
-              pinned++;
-            } else {
-              floating++;
-            }
+            final name = match.group(1) ?? '';
+            final version = match.group(2) ?? '';
+            entries.add(DependencyEntry(
+              name: name,
+              declaredVersion: version,
+              isPinned: _isNpmPinned(version),
+            ));
           }
         }
       }
@@ -170,10 +171,21 @@ EcosystemReport _parseSingleManifest(
         if (trimmed.isEmpty || trimmed.startsWith('#')) {
           continue;
         }
-        if (trimmed.contains('==')) {
-          pinned++;
+        final operatorMatch = RegExp(r'==|>=|~=|>|<').firstMatch(trimmed);
+        if (operatorMatch != null) {
+          final name = trimmed.substring(0, operatorMatch.start).trim();
+          final version = trimmed.substring(operatorMatch.start).trim();
+          entries.add(DependencyEntry(
+            name: name,
+            declaredVersion: version,
+            isPinned: trimmed.contains('=='),
+          ));
         } else {
-          floating++;
+          entries.add(DependencyEntry(
+            name: trimmed,
+            declaredVersion: '',
+            isPinned: false,
+          ));
         }
       }
 
@@ -191,7 +203,14 @@ EcosystemReport _parseSingleManifest(
           continue;
         }
         // Go modules are always pinned
-        pinned++;
+        final parts = trimmed.split(RegExp(r'\s+'));
+        final name = parts.isNotEmpty ? parts[0] : trimmed;
+        final version = parts.length > 1 ? parts[1] : '';
+        entries.add(DependencyEntry(
+          name: name,
+          declaredVersion: version,
+          isPinned: true,
+        ));
       }
 
     case 'rust':
@@ -208,18 +227,21 @@ EcosystemReport _parseSingleManifest(
           continue;
         }
         if (inDeps && trimmed.contains('=')) {
-          if (trimmed.contains('"=') ||
-              RegExp(r'"\d+\.\d+\.\d+"').hasMatch(trimmed)) {
-            pinned++;
-          } else {
-            floating++;
-          }
+          final name = trimmed.substring(0, trimmed.indexOf('=')).trim();
+          final version = trimmed.substring(trimmed.indexOf('=') + 1).trim();
+          final isPinned = trimmed.contains('"=') ||
+              RegExp(r'"\d+\.\d+\.\d+"').hasMatch(trimmed);
+          entries.add(DependencyEntry(
+            name: name,
+            declaredVersion: version,
+            isPinned: isPinned,
+          ));
         }
       }
 
     case 'ruby':
       // Parse Gemfile
-      final gemRegex = RegExp(r"gem\s+'[^']+'");
+      final gemRegex = RegExp(r"gem\s+'([^']+)'");
       for (final line in content.split('\n')) {
         final trimmed = line.trim();
         if (trimmed.isEmpty ||
@@ -228,30 +250,40 @@ EcosystemReport _parseSingleManifest(
             trimmed.startsWith('group')) {
           continue;
         }
-        if (gemRegex.hasMatch(trimmed)) {
+        final nameMatch = gemRegex.firstMatch(trimmed);
+        if (nameMatch != null) {
+          final name = nameMatch.group(1) ?? '';
           // Check if version is specified
           final parts = trimmed.split(',');
           if (parts.length > 1) {
             final versionPart = parts[1].trim();
-            if (versionPart.startsWith("'~>")) {
-              floating++;
-            } else {
-              pinned++;
-            }
+            entries.add(DependencyEntry(
+              name: name,
+              declaredVersion: versionPart.replaceAll("'", ''),
+              isPinned: !versionPart.startsWith("'~>"),
+            ));
           } else {
-            floating++; // No version = floating
+            entries.add(DependencyEntry(
+              name: name,
+              declaredVersion: '',
+              isPinned: false, // No version = floating
+            ));
           }
         }
       }
   }
 
+  final pinned = entries.where((e) => e.isPinned).length;
+  final floating = entries.length - pinned;
+
   return EcosystemReport(
     type: ecosystemType,
     manifestFile: manifestPath,
-    totalDependencies: pinned + floating,
+    totalDependencies: entries.length,
     pinnedCount: pinned,
     floatingCount: floating,
     hasLockFile: hasLock,
+    dependencies: entries,
   );
 }
 

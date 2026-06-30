@@ -134,5 +134,129 @@ dependencies:
       final eco = (parsed['ecosystems'] as List).first;
       expect(eco['has_lock_file'], isFalse);
     });
+
+    test('makes zero network calls when check_freshness is absent', () async {
+      final lsTree = 'pubspec.yaml\npubspec.lock';
+      final pubspec = '''
+name: my_app
+dependencies:
+  http: ^0.13.0
+''';
+      final runner = _MockRunner(
+        lsTreeOutput: lsTree,
+        fileContents: {'pubspec.yaml': pubspec},
+      );
+      final httpClient = MockHttpClient(); // throws if any request is made
+      final tool = AnalyzeDependencyDriftTool(runner, httpClient: httpClient);
+
+      final result = await tool.execute({'directory': '/test'});
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+
+      expect(httpClient.capturedRequests, isEmpty);
+      expect(parsed.containsKey('freshness_summary'), isFalse);
+      final eco = (parsed['ecosystems'] as List).first as Map<String, dynamic>;
+      expect(eco.containsKey('dependencies'), isFalse);
+    });
+
+    test('makes zero network calls when check_freshness is false', () async {
+      final lsTree = 'pubspec.yaml';
+      final pubspec = 'dependencies:\n  http: ^0.13.0\n';
+      final runner = _MockRunner(
+        lsTreeOutput: lsTree,
+        fileContents: {'pubspec.yaml': pubspec},
+      );
+      final httpClient = MockHttpClient();
+      final tool = AnalyzeDependencyDriftTool(runner, httpClient: httpClient);
+
+      await tool.execute({'directory': '/test', 'check_freshness': false});
+
+      expect(httpClient.capturedRequests, isEmpty);
+    });
+
+    test('check_freshness=true adds freshness data per dependency', () async {
+      final lsTree = 'pubspec.yaml';
+      final pubspec = '''
+name: my_app
+dependencies:
+  path: 1.0.0
+''';
+      final runner = _MockRunner(
+        lsTreeOutput: lsTree,
+        fileContents: {'pubspec.yaml': pubspec},
+      );
+      final httpClient = MockHttpClient();
+      httpClient.setMockResponse(
+        'GET',
+        Uri.parse('https://pub.dev/api/packages/path'),
+        200,
+        '{"latest":{"version":"1.9.1"}}',
+      );
+      final tool = AnalyzeDependencyDriftTool(runner, httpClient: httpClient);
+
+      final result =
+          await tool.execute({'directory': '/test', 'check_freshness': true});
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+
+      final eco = (parsed['ecosystems'] as List).first as Map<String, dynamic>;
+      final deps = eco['dependencies'] as List;
+      expect(deps, hasLength(1));
+      final dep = deps.first as Map<String, dynamic>;
+      expect(dep['name'], 'path');
+      final freshness = dep['freshness'] as Map<String, dynamic>;
+      expect(freshness['latest_version'], '1.9.1');
+      expect(freshness['classification'], 'minor_behind');
+
+      final summary = parsed['freshness_summary'] as Map<String, dynamic>;
+      expect(summary['checked'], isTrue);
+      expect(summary['minor_behind'], 1);
+    });
+
+    test('a failed freshness lookup still returns a successful tool result',
+        () async {
+      final lsTree = 'pubspec.yaml';
+      final pubspec = '''
+name: my_app
+dependencies:
+  path: 1.0.0
+  http: 1.0.0
+''';
+      final runner = _MockRunner(
+        lsTreeOutput: lsTree,
+        fileContents: {'pubspec.yaml': pubspec},
+      );
+      final httpClient = MockHttpClient();
+      httpClient.setMockResponse(
+        'GET',
+        Uri.parse('https://pub.dev/api/packages/path'),
+        200,
+        '{"latest":{"version":"1.0.0"}}',
+      );
+      httpClient.setMockResponse(
+        'GET',
+        Uri.parse('https://pub.dev/api/packages/http'),
+        500,
+        'server error',
+      );
+      final tool = AnalyzeDependencyDriftTool(runner, httpClient: httpClient);
+
+      final result =
+          await tool.execute({'directory': '/test', 'check_freshness': true});
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+
+      final eco = (parsed['ecosystems'] as List).first as Map<String, dynamic>;
+      final deps = (eco['dependencies'] as List).cast<Map<String, dynamic>>();
+      final pathDep = deps.firstWhere((d) => d['name'] == 'path')['freshness']
+          as Map<String, dynamic>;
+      final httpDep = deps.firstWhere((d) => d['name'] == 'http')['freshness']
+          as Map<String, dynamic>;
+
+      expect(pathDep['classification'], 'current');
+      expect(httpDep['classification'], 'unknown');
+      expect(httpDep['error'], isNotNull);
+
+      final summary = parsed['freshness_summary'] as Map<String, dynamic>;
+      expect(summary['current'], 1);
+      expect(summary['unknown'], 1);
+    });
   });
 }

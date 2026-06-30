@@ -18,5 +18,8 @@ export 'intelligence/history/heuristics/mega_commits_heuristic.dart';
 export 'intelligence/history/heuristics/suspicious_commits_heuristic.dart';
 export 'intelligence/security/compliance_scanner.dart';
 export 'intelligence/security/dependency_manifest_parser.dart';
+export 'intelligence/security/dependency_freshness_checker.dart';
+export 'intelligence/security/registry_adapters.dart';
+export 'intelligence/security/semver_compare.dart';
 export 'intelligence/security/secrets_scanner.dart';
 export 'intelligence/static_analysis/dart/dart_ast_analyzer.dart';

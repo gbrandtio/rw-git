@@ -8,8 +8,11 @@ import '../../utils/mcp_argument_extensions.dart';
 
 class AnalyzeDependencyDriftTool implements McpTool {
   final ProcessRunner runner;
+  final RwHttpClient httpClient;
 
-  AnalyzeDependencyDriftTool(this.runner);
+  AnalyzeDependencyDriftTool(this.runner, {RwHttpClient? httpClient})
+      : httpClient = httpClient ??
+            RwHttpClient.defaultClient(interceptors: [RetryInterceptor()]);
 
   @override
   String get name => 'analyze_dependency_drift';
@@ -20,7 +23,10 @@ class AnalyzeDependencyDriftTool implements McpTool {
       'Cargo.toml, Gemfile) from the git working tree. '
       'Returns a structured report of pinned vs '
       'floating dependencies and lock file presence '
-      'for each ecosystem. '
+      'for each ecosystem. Optionally (check_freshness=true) '
+      'performs network lookups against each ecosystem\'s '
+      'package registry to compare declared versions against '
+      'the latest available release. '
       'For a complete guide, invoke the '
       'get_rw_git_documentation tool.';
 
@@ -32,6 +38,15 @@ class AnalyzeDependencyDriftTool implements McpTool {
             'type': 'string',
             'description': 'The local repository path.',
           },
+          'check_freshness': {
+            'type': 'boolean',
+            'description': 'Optional. When true, performs network lookups '
+                'against each ecosystem\'s package registry (pub.dev, '
+                'npmjs.org, pypi.org, crates.io, proxy.golang.org, '
+                'rubygems.org) to compare declared versions against the '
+                'latest available, and adds a "freshness" block per '
+                'dependency. Default false (fully offline).',
+          },
         },
         'required': ['directory'],
       };
@@ -39,20 +54,62 @@ class AnalyzeDependencyDriftTool implements McpTool {
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments.getStringArgument('directory');
+    final checkFreshness =
+        arguments.getOptionalBoolArgument('check_freshness') ?? false;
 
     final manifests = await DependencyManifestParser(runner)
         .parseDependencyManifests(directory);
 
-    final ecosystems = manifests.ecosystems
-        .map((e) => {
-              'type': e.type,
-              'manifest_file': e.manifestFile,
-              'total_dependencies': e.totalDependencies,
-              'pinned_count': e.pinnedCount,
-              'floating_count': e.floatingCount,
-              'has_lock_file': e.hasLockFile,
-            })
-        .toList();
+    final freshnessChecker =
+        checkFreshness ? DependencyFreshnessChecker(httpClient) : null;
+
+    final freshnessCounts = <String, int>{
+      'current': 0,
+      'patch_behind': 0,
+      'minor_behind': 0,
+      'major_behind': 0,
+      'unknown': 0,
+    };
+
+    final ecosystems = <Map<String, dynamic>>[];
+    for (final e in manifests.ecosystems) {
+      final ecoJson = <String, dynamic>{
+        'type': e.type,
+        'manifest_file': e.manifestFile,
+        'total_dependencies': e.totalDependencies,
+        'pinned_count': e.pinnedCount,
+        'floating_count': e.floatingCount,
+        'has_lock_file': e.hasLockFile,
+      };
+
+      if (checkFreshness) {
+        final freshnessResults =
+            await freshnessChecker!.checkFreshness(e.dependencies, e.type);
+        final freshnessByName = {
+          for (final r in freshnessResults) r.name: r,
+        };
+
+        ecoJson['dependencies'] = e.dependencies.map((dep) {
+          final freshness = freshnessByName[dep.name];
+          if (freshness != null) {
+            freshnessCounts[freshness.classification] =
+                (freshnessCounts[freshness.classification] ?? 0) + 1;
+          }
+          return {
+            'name': dep.name,
+            'declared_version': dep.declaredVersion,
+            'is_pinned': dep.isPinned,
+            'freshness': {
+              'latest_version': freshness?.latestVersion,
+              'classification': freshness?.classification ?? 'unknown',
+              'error': freshness?.error,
+            },
+          };
+        }).toList();
+      }
+
+      ecosystems.add(ecoJson);
+    }
 
     // Compute overall risk
     int totalDeps = 0;
@@ -77,12 +134,21 @@ class AnalyzeDependencyDriftTool implements McpTool {
       overallRisk = 'medium';
     }
 
-    return jsonEncode({
+    final result = <String, dynamic>{
       'ecosystems': ecosystems,
       'total_dependencies': totalDeps,
       'total_floating': totalFloating,
       'missing_lock_files': missingLocks,
       'overall_risk': overallRisk,
-    });
+    };
+
+    if (checkFreshness) {
+      result['freshness_summary'] = {
+        'checked': true,
+        ...freshnessCounts,
+      };
+    }
+
+    return jsonEncode(result);
   }
 }
