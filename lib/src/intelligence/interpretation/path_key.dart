@@ -13,25 +13,25 @@ class PathKey {
   /// Canonical form: forward slashes, no `a/`/`b/` diff prefix, no leading
   /// `./` or `/`.
   static String normalize(String path) {
-    var p = path.trim().replaceAll('\\', '/');
-    if (p.startsWith('a/') || p.startsWith('b/')) {
-      p = p.substring(2);
+    var normalizedPath = path.trim().replaceAll('\\', '/');
+    if (normalizedPath.startsWith('a/') || normalizedPath.startsWith('b/')) {
+      normalizedPath = normalizedPath.substring(2);
     }
-    while (p.startsWith('./')) {
-      p = p.substring(2);
+    while (normalizedPath.startsWith('./')) {
+      normalizedPath = normalizedPath.substring(2);
     }
-    while (p.startsWith('/')) {
-      p = p.substring(1);
+    while (normalizedPath.startsWith('/')) {
+      normalizedPath = normalizedPath.substring(1);
     }
-    return p;
+    return normalizedPath;
   }
 
   /// The top-level directory/module of a path (its first segment), or `''`
   /// when the path has no directory component. Used to decide whether a
   /// coupled pair spans two declared modules.
   static String topDir(String path) {
-    final n = normalize(path);
-    final idx = n.indexOf('/');
-    return idx == -1 ? '' : n.substring(0, idx);
+    final normalizedPath = normalize(path);
+    final idx = normalizedPath.indexOf('/');
+    return idx == -1 ? '' : normalizedPath.substring(0, idx);
   }
 }

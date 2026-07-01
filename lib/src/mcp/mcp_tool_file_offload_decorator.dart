@@ -72,15 +72,15 @@ class McpToolFileOffloadDecorator implements McpTool {
         final arrayLengths = <String, int>{};
         final valueTypes = <String, String>{};
         decoded.forEach((key, value) {
-          final k = key.toString();
-          topLevelKeys.add(k);
+          final resourceKey = key.toString();
+          topLevelKeys.add(resourceKey);
           if (value is List) {
-            arrayLengths[k] = value.length;
-            valueTypes[k] = 'array';
+            arrayLengths[resourceKey] = value.length;
+            valueTypes[resourceKey] = 'array';
           } else if (value is Map) {
-            valueTypes[k] = 'object';
+            valueTypes[resourceKey] = 'object';
           } else {
-            valueTypes[k] = value.runtimeType.toString();
+            valueTypes[resourceKey] = value.runtimeType.toString();
           }
         });
         final preview = <String, dynamic>{

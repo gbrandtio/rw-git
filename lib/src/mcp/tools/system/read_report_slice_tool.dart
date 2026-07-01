@@ -61,9 +61,9 @@ class ReadReportSliceTool implements McpTool {
       final topLevelKeys = <String>[];
       final arrayLengths = <String, int>{};
       value.forEach((key, v) {
-        final k = key.toString();
-        topLevelKeys.add(k);
-        if (v is List) arrayLengths[k] = v.length;
+        final resourceKey = key.toString();
+        topLevelKeys.add(resourceKey);
+        if (v is List) arrayLengths[resourceKey] = v.length;
       });
       return {'top_level_keys': topLevelKeys, 'array_lengths': arrayLengths};
     } else if (value is List) {

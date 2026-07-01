@@ -86,9 +86,9 @@ class AnalyzeDartAstQualityTool implements McpTool {
     for (final file in changedFiles) {
       final resolvedPath = p.canonicalize(p.join(directory, file));
       if (!p.isWithin(canonicalDir, resolvedPath)) continue;
-      final f = File(resolvedPath);
-      if (await f.exists()) {
-        filesContent[file] = await f.readAsString();
+      final sourceFile = File(resolvedPath);
+      if (await sourceFile.exists()) {
+        filesContent[file] = await sourceFile.readAsString();
       }
     }
 

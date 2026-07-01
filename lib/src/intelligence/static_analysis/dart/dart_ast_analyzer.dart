@@ -33,6 +33,10 @@ class AstAnalysisResult {
 
 /// Detects circular import groups using Tarjan's Strongly Connected Components
 /// algorithm (Tarjan, 1972). Only returns SCCs of size > 1 (actual cycles).
+///
+/// The internal `v`/`w` node identifiers below follow the standard notation
+/// used in the graph-algorithm literature for this algorithm, rather than
+/// this codebase's usual descriptive-naming convention.
 List<List<String>> _tarjanScc(Map<String, List<String>> graph) {
   final indices = <String, int>{};
   final lowlinks = <String, int>{};

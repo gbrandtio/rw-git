@@ -155,7 +155,7 @@ class CompoundFindingCorrelator {
   }
 
   bool _looksLikeDependencyConfig(String path) {
-    final p = path.toLowerCase();
+    final lowercasePath = path.toLowerCase();
     const manifests = [
       'pubspec.yaml',
       'package.json',
@@ -164,11 +164,11 @@ class CompoundFindingCorrelator {
       'cargo.toml',
       'gemfile',
     ];
-    for (final m in manifests) {
-      if (p.endsWith(m)) return true;
+    for (final manifestName in manifests) {
+      if (lowercasePath.endsWith(manifestName)) return true;
     }
-    return p.contains('.env') ||
-        p.startsWith('config/') ||
-        p.contains('/config/');
+    return lowercasePath.contains('.env') ||
+        lowercasePath.startsWith('config/') ||
+        lowercasePath.contains('/config/');
   }
 }

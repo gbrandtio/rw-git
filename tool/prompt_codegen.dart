@@ -67,13 +67,13 @@ SkillDoc parseSkill(String raw) {
   return SkillDoc(name, description, body);
 }
 
-String _unquote(String s) {
-  if (s.length >= 2 &&
-      ((s.startsWith('"') && s.endsWith('"')) ||
-          (s.startsWith("'") && s.endsWith("'")))) {
-    return s.substring(1, s.length - 1);
+String _unquote(String rawValue) {
+  if (rawValue.length >= 2 &&
+      ((rawValue.startsWith('"') && rawValue.endsWith('"')) ||
+          (rawValue.startsWith("'") && rawValue.endsWith("'")))) {
+    return rawValue.substring(1, rawValue.length - 1);
   }
-  return s;
+  return rawValue;
 }
 
 /// `rw-git-mcp-pm-reporting` -> `RwGitMcpPmReportingPrompt`.
@@ -136,8 +136,10 @@ $body\'\'\';
 /// A raw triple-quoted Dart string cannot contain `'''`.
 bool bodyIsRawSafe(String body) => !body.contains("'''");
 
-String _escapeSingleQuoted(String s) =>
-    s.replaceAll('\\', '\\\\').replaceAll('\$', '\\\$').replaceAll("'", "\\'");
+String _escapeSingleQuoted(String rawValue) => rawValue
+    .replaceAll('\\', '\\\\')
+    .replaceAll('\$', '\\\$')
+    .replaceAll("'", "\\'");
 
 /// Extracts the `name`, `description`, and raw `_promptText` body from an
 /// already-generated prompt Dart [source]. Used by the drift test to compare
@@ -163,5 +165,7 @@ SkillDoc extractFromPromptSource(String source) {
   return SkillDoc(name, description, body);
 }
 
-String _unescapeSingleQuoted(String s) =>
-    s.replaceAll("\\'", "'").replaceAll('\\\$', '\$').replaceAll('\\\\', '\\');
+String _unescapeSingleQuoted(String escapedValue) => escapedValue
+    .replaceAll("\\'", "'")
+    .replaceAll('\\\$', '\$')
+    .replaceAll('\\\\', '\\');

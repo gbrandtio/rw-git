@@ -134,7 +134,9 @@ List<String> _parseSecrets(String rawLog) {
 
       if (isTestOrMock || isLockFile) continue;
 
-      final content = line.substring(1); // remove '+'
+      // Diff-added lines are prefixed with '+' by `git log -p`; strip it so
+      // secret/entropy detection matches against the actual file content.
+      final content = line.substring(1);
 
       final matches = secretRegex.allMatches(content);
       for (final match in matches) {
@@ -226,17 +228,17 @@ List<String> _parseSecrets(String rawLog) {
   return detectedSecrets;
 }
 
-double _calculateEntropy(String s) {
-  if (s.isEmpty) return 0.0;
+double _calculateEntropy(String candidateString) {
+  if (candidateString.isEmpty) return 0.0;
   final frequencies = <String, int>{};
-  for (int i = 0; i < s.length; i++) {
-    final char = s[i];
+  for (int i = 0; i < candidateString.length; i++) {
+    final char = candidateString[i];
     frequencies[char] = (frequencies[char] ?? 0) + 1;
   }
   double entropy = 0.0;
   for (final count in frequencies.values) {
-    final p = count / s.length;
-    entropy -= p * (log(p) / ln2);
+    final characterProbability = count / candidateString.length;
+    entropy -= characterProbability * (log(characterProbability) / ln2);
   }
   return entropy;
 }

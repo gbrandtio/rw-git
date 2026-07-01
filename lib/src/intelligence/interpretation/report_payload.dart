@@ -63,9 +63,9 @@ class ReportPayload {
     final bCompound = b.category == 'compound' ? 1 : 0;
     if (aCompound != bCompound) return bCompound - aCompound;
 
-    final av = a.value is num ? (a.value as num).toDouble() : 0.0;
-    final bv = b.value is num ? (b.value as num).toDouble() : 0.0;
-    return bv.compareTo(av);
+    final coercedValueA = a.value is num ? (a.value as num).toDouble() : 0.0;
+    final coercedValueB = b.value is num ? (b.value as num).toDouble() : 0.0;
+    return coercedValueB.compareTo(coercedValueA);
   }
 
   Map<String, dynamic> toJson() => {

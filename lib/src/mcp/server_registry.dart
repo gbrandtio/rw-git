@@ -80,19 +80,20 @@ const Map<String, dynamic> _reportOutputSchema = {
 };
 
 McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
-  final r = runner ?? ProcessRunner.defaultRunner();
-  final git = rwGit ?? RwGit(runner: r);
+  final processRunner = runner ?? ProcessRunner.defaultRunner();
+  final git = rwGit ?? RwGit(runner: processRunner);
 
   final registry = McpRegistry();
 
   // Read-only analysis tools (offloaded), with standard annotations attached
   // as the outermost wrapper so the registry can advertise them.
-  void ro(McpTool tool, {Map<String, dynamic>? outputSchema}) =>
+  void registerReadOnly(McpTool tool, {Map<String, dynamic>? outputSchema}) =>
       registry.registerTool(McpToolWithMetadata(tool,
           annotations: _readOnly, outputSchema: outputSchema));
 
   void offloadedRo(McpTool inner, {Map<String, dynamic>? outputSchema}) =>
-      ro(McpToolFileOffloadDecorator(inner, resources: registry.resources),
+      registerReadOnly(
+          McpToolFileOffloadDecorator(inner, resources: registry.resources),
           outputSchema: outputSchema);
 
   void mutating(McpTool tool) =>
@@ -103,22 +104,24 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   // band-classified, ranked report instead of forcing the model to orchestrate
   // many raw tools, read offloaded files, and apply the interpretation guide
   // itself.
-  offloadedRo(GenerateRepositoryAuditTool(r),
+  offloadedRo(GenerateRepositoryAuditTool(processRunner),
       outputSchema: _reportOutputSchema);
-  offloadedRo(GenerateTechnicalReportTool(r),
+  offloadedRo(GenerateTechnicalReportTool(processRunner),
       outputSchema: _reportOutputSchema);
-  offloadedRo(GenerateSecurityReportTool(r), outputSchema: _reportOutputSchema);
-  offloadedRo(GeneratePmReportTool(r), outputSchema: _reportOutputSchema);
-  offloadedRo(GenerateCodeReviewReportTool(r),
+  offloadedRo(GenerateSecurityReportTool(processRunner),
+      outputSchema: _reportOutputSchema);
+  offloadedRo(GeneratePmReportTool(processRunner),
+      outputSchema: _reportOutputSchema);
+  offloadedRo(GenerateCodeReviewReportTool(processRunner),
       outputSchema: _reportOutputSchema);
 
-  offloadedRo(AnalyzeCodeQualityTool(r, git));
-  offloadedRo(AnalyzeBugHotspotsTool(r));
-  offloadedRo(FindBugsByDeveloperTool(r));
-  ro(GetRwGitDocumentationTool(registry));
-  ro(ReadReportSliceTool());
+  offloadedRo(AnalyzeCodeQualityTool(processRunner, git));
+  offloadedRo(AnalyzeBugHotspotsTool(processRunner));
+  offloadedRo(FindBugsByDeveloperTool(processRunner));
+  registerReadOnly(GetRwGitDocumentationTool(registry));
+  registerReadOnly(ReadReportSliceTool());
   mutating(InitRepositoryTool(git));
-  ro(IsGitRepositoryTool(git));
+  registerReadOnly(IsGitRepositoryTool(git));
   mutating(CloneRepositoryTool(git));
   mutating(CheckoutBranchTool(git));
   mutating(FetchTagsTool(git));
@@ -126,10 +129,10 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(GetStatsTool(git));
   offloadedRo(GetContributionsByAuthorTool(git));
   mutating(CloneSpecificBranchTool(git));
-  offloadedRo(AnalyzeReleaseDeltaTool(git, r));
+  offloadedRo(AnalyzeReleaseDeltaTool(git, processRunner));
   // Stable, compact shape — advertised so the model knows the offloaded file's
   // structure without reading it. Additional tools can opt in the same way.
-  offloadedRo(AnalyzeBusFactorTool(r, git), outputSchema: const {
+  offloadedRo(AnalyzeBusFactorTool(processRunner, git), outputSchema: const {
     'type': 'object',
     'properties': {
       'bus_factor': {'type': 'integer'},
@@ -147,18 +150,18 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
       },
     },
   });
-  offloadedRo(AnalyzeLogicalCouplingTool(r));
-  offloadedRo(AnalyzeCodeVolatilityTool(r));
-  offloadedRo(AnalyzeRefactoringTool(r));
-  offloadedRo(EvaluateCommentsTool(r));
-  offloadedRo(DetectSecretsTool(r));
-  offloadedRo(AnalyzePrDiffTool(r, git));
-  offloadedRo(PredictMergeConflictsTool(r));
-  offloadedRo(AnalyzeCommitVelocityTool(r));
-  offloadedRo(AnalyzeDependencyDriftTool(r));
+  offloadedRo(AnalyzeLogicalCouplingTool(processRunner));
+  offloadedRo(AnalyzeCodeVolatilityTool(processRunner));
+  offloadedRo(AnalyzeRefactoringTool(processRunner));
+  offloadedRo(EvaluateCommentsTool(processRunner));
+  offloadedRo(DetectSecretsTool(processRunner));
+  offloadedRo(AnalyzePrDiffTool(processRunner, git));
+  offloadedRo(PredictMergeConflictsTool(processRunner));
+  offloadedRo(AnalyzeCommitVelocityTool(processRunner));
+  offloadedRo(AnalyzeDependencyDriftTool(processRunner));
   offloadedRo(GenerateChangelogTool(git));
-  offloadedRo(AuditComplianceTool(r));
-  offloadedRo(AnalyzeFileOwnershipTool(r, git));
+  offloadedRo(AuditComplianceTool(processRunner));
+  offloadedRo(AnalyzeFileOwnershipTool(processRunner, git));
   offloadedRo(AnalyzeDartAstQualityTool(git));
   offloadedRo(AnalyzeArchitectureDriftTool(git));
   offloadedRo(AnalyzeCleanCodeTool());

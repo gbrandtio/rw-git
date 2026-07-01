@@ -49,13 +49,13 @@ class GenerateChangelogTool implements McpTool {
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments.getStringArgument('directory');
     final from = arguments.getStringArgument('from');
-    final to = arguments.getStringArgument('to');
+    final toReference = arguments.getStringArgument('to');
 
     final logRaw = (await rwGit.runCommand(
       directory,
       [
         'log',
-        '$from..$to',
+        '$from..$toReference',
         '--format=%H||%an||%s',
       ],
     ))
@@ -97,27 +97,28 @@ class GenerateChangelogTool implements McpTool {
     }
 
     final enrichedBreaking = <Map<String, dynamic>>[];
-    for (final dynamic bDyn in parsed['breaking_changes'] as List? ?? []) {
-      final b = bDyn as Map<String, dynamic>;
-      final hash = b['hash']!;
+    for (final dynamic breakingChangeDyn
+        in parsed['breaking_changes'] as List? ?? []) {
+      final breakingChange = breakingChangeDyn as Map<String, dynamic>;
+      final hash = breakingChange['hash']!;
       final changedFiles = await _getChangedFiles(directory, hash);
       enrichedBreaking.add({
         'hash': hash,
-        'author': b['author'],
-        'message': b['message'],
+        'author': breakingChange['author'],
+        'message': breakingChange['message'],
         'changed_files': changedFiles,
       });
     }
 
     final enrichedOther = <Map<String, dynamic>>[];
-    for (final dynamic oDyn in parsed['other'] as List? ?? []) {
-      final o = oDyn as Map<String, dynamic>;
-      final hash = o['hash']!;
+    for (final dynamic otherChangeDyn in parsed['other'] as List? ?? []) {
+      final otherChange = otherChangeDyn as Map<String, dynamic>;
+      final hash = otherChange['hash']!;
       final changedFiles = await _getChangedFiles(directory, hash);
       enrichedOther.add({
         'hash': hash,
-        'author': o['author'],
-        'message': o['message'],
+        'author': otherChange['author'],
+        'message': otherChange['message'],
         'changed_files': changedFiles,
       });
     }
@@ -129,11 +130,11 @@ class GenerateChangelogTool implements McpTool {
     for (final fix in enrichedFixes) {
       contributors.add(fix['author']);
     }
-    for (final b in enrichedBreaking) {
-      contributors.add(b['author']);
+    for (final breakingChange in enrichedBreaking) {
+      contributors.add(breakingChange['author']);
     }
-    for (final o in enrichedOther) {
-      contributors.add(o['author']);
+    for (final otherChange in enrichedOther) {
+      contributors.add(otherChange['author']);
     }
     contributors.removeWhere((c) => c.isEmpty);
 

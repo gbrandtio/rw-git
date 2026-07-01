@@ -136,18 +136,22 @@ class RwGitParser {
 
     for (final line in lines) {
       if (line.length < 3) continue;
-      final x = line[0];
-      final y = line[1];
+      // `git status --porcelain` encodes each entry as two status columns:
+      // the index (staged) column followed by the worktree (unstaged) column.
+      final indexStatusCode = line[0];
+      final worktreeStatusCode = line[1];
       final path = line.substring(3).trim();
 
-      if (x == '?' && y == '?') {
+      if (indexStatusCode == '?' && worktreeStatusCode == '?') {
         untracked.add(path);
       } else {
-        if (x != ' ' && x != '?') {
-          staged.add(GitFileChange(path: path, status: mapStatus(x)));
+        if (indexStatusCode != ' ' && indexStatusCode != '?') {
+          staged.add(
+              GitFileChange(path: path, status: mapStatus(indexStatusCode)));
         }
-        if (y != ' ' && y != '?') {
-          unstaged.add(GitFileChange(path: path, status: mapStatus(y)));
+        if (worktreeStatusCode != ' ' && worktreeStatusCode != '?') {
+          unstaged.add(
+              GitFileChange(path: path, status: mapStatus(worktreeStatusCode)));
         }
       }
     }

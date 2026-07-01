@@ -41,7 +41,10 @@ class SuspiciousCommitsHeuristic {
         final parts = line.split('||');
         if (parts.length >= 2) {
           currentCommitHeader = line;
-          currentCommitFlagged = false; // Reset for new commit
+          // Flag state is per-commit: without resetting here, a keyword match
+          // in an earlier commit would incorrectly suppress detection for
+          // every commit that follows it in the same log stream.
+          currentCommitFlagged = false;
 
           // Check if message itself has suspicious keywords
           final message = parts.sublist(parts.length >= 4 ? 3 : 1).join('||');
@@ -159,7 +162,9 @@ List<Map<String, dynamic>> _parseChangedComments(String rawLog) {
     } else if (currentBlock.isNotEmpty) {
       currentBlock.add(line);
       if (line.startsWith('+')) {
-        final content = line.substring(1); // remove '+'
+        // Diff-added lines are prefixed with '+' by `git log -p`; strip it
+        // so the comment regex matches against the actual line content.
+        final content = line.substring(1);
         if (commentRegex.hasMatch(content)) {
           blockHasComment = true;
         }

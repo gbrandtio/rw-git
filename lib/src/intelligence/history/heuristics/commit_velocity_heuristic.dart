@@ -177,29 +177,29 @@ double _giniCoefficient(List<int> values) {
   if (values.isEmpty) return 0.0;
   final total = values.fold<int>(0, (s, v) => s + v);
   if (total == 0) return 0.0;
-  final n = values.length;
+  final sampleCount = values.length;
   int sumAbsDiffs = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = 0; j < n; j++) {
+  for (int i = 0; i < sampleCount; i++) {
+    for (int j = 0; j < sampleCount; j++) {
       sumAbsDiffs += (values[i] - values[j]).abs();
     }
   }
-  return sumAbsDiffs / (2.0 * n * total);
+  return sumAbsDiffs / (2.0 * sampleCount * total);
 }
 
 /// Ordinary least-squares slope for the sequence of bucket commit counts.
 /// Returns 0.0 when the series has fewer than 2 points.
 double _linearRegressionSlope(List<int> values) {
-  final n = values.length;
-  if (n < 2) return 0.0;
+  final sampleCount = values.length;
+  if (sampleCount < 2) return 0.0;
   double sumX = 0, sumY = 0, sumXY = 0, sumX2 = 0;
-  for (int i = 0; i < n; i++) {
+  for (int i = 0; i < sampleCount; i++) {
     sumX += i;
     sumY += values[i];
     sumXY += i * values[i];
     sumX2 += i.toDouble() * i;
   }
-  final denom = n * sumX2 - sumX * sumX;
+  final denom = sampleCount * sumX2 - sumX * sumX;
   if (denom == 0) return 0.0;
-  return (n * sumXY - sumX * sumY) / denom;
+  return (sampleCount * sumXY - sumX * sumY) / denom;
 }
