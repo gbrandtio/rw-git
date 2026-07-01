@@ -43,3 +43,5 @@ Where an ADR touches those areas, it links back to the governing document.
 | [0006](0006-targeted-retrieval-of-offloaded-reports.md) | Targeted retrieval of offloaded reports (`read_report_slice` + MCP Resources) | Accepted |
 | [0007](0007-tools-list-token-budget-and-pagination.md) | Bound the `tools/list` token cost and paginate for tiny-context clients | Accepted |
 | [0008](0008-rules-pattern-for-mcp-request-dispatch.md) | Dispatch MCP JSON-RPC methods via the Rules design pattern | Accepted |
+| [0009](0009-tool-registry-ordering-for-discoverability.md) | Order the tool registry for small-LLM discoverability (report tools first) | Accepted |
+| [0010](0010-interpretation-threshold-change-process.md) | Interpretation thresholds: code is the source of truth, guide follows | Accepted |

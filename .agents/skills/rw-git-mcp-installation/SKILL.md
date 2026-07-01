@@ -72,4 +72,4 @@ If the command outputs a valid JSON-RPC response containing a prompt named `rw-g
 
 ## 5. Important Agent Context
 
-When using `rw_git` tools, especially code quality tools, be aware that the **default commit analysis limit is 500**. If the analysis requires more history, you must explicitly pass a larger `limit` argument to the tools.
+When using `rw_git` tools, especially code quality tools, be aware that history-scanning tools apply a **default commit analysis limit** (`defaultCommitLimit` in `lib/src/constants.dart` of the rw-git repository — currently 500 commits). If the analysis requires more history, you must explicitly pass a larger `limit` argument to the tools; each tool's `limit` parameter description states the current default.

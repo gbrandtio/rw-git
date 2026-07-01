@@ -30,8 +30,7 @@ void main() {
 
     test('handles negative offsets and Z', () {
       final negative = GitDateTime.parse('2026-06-29T01:00:00-05:30');
-      expect(negative.offset,
-          equals(const Duration(hours: -5, minutes: -30)));
+      expect(negative.offset, equals(const Duration(hours: -5, minutes: -30)));
       expect(negative.utc, equals(DateTime.utc(2026, 6, 29, 6, 30)));
 
       final zulu = GitDateTime.parse('2026-06-29T01:00:00Z');

@@ -17,7 +17,8 @@ class ToolsCallRule implements McpRule {
     final args = params['arguments'] as Map<String, dynamic>? ?? {};
 
     if (toolName == null) {
-      ctx.sendError(id, jsonRpcInvalidParams, 'Invalid params: missing tool name');
+      ctx.sendError(
+          id, jsonRpcInvalidParams, 'Invalid params: missing tool name');
       return;
     }
 

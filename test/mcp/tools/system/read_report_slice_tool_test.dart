@@ -146,8 +146,7 @@ void main() {
       final outsideFile = File(p.join(tempDir.path, 'outside.json'));
       await outsideFile.writeAsString(jsonEncode({'a': 1}));
 
-      final traversalPath =
-          p.join(reportsDir.path, '..', '..', 'outside.json');
+      final traversalPath = p.join(reportsDir.path, '..', '..', 'outside.json');
       final resultString = await tool.execute({'file': traversalPath});
       final result = jsonDecode(resultString) as Map<String, dynamic>;
 

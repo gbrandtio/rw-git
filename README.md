@@ -116,9 +116,20 @@ JSON-RPC 2.0.
 We provide a comprehensive suite of tools mapped directly to solving 
 engineering management and code quality challenges.
 
+**One-Call Report Meta-Tools (recommended starting point):**
+
+Each runs the relevant analyses server-side, applies every severity band and
+cross-tool compound-risk rule in Dart, and returns a small, ranked,
+already-classified payload (`summary`, `top_findings`, `compound_findings`):
+- `generate_repository_audit`: High-level deep audit (technical + security).
+- `generate_technical_report`: Code quality, technical debt, architecture.
+- `generate_security_report`: Secrets, compliance, dependency freshness.
+- `generate_pm_report`: Knowledge concentration and delivery bottlenecks.
+- `generate_code_review_report`: Risk signals for code under review.
+
 **Dev Metrics & Technical Debt:**
-- `analyze_code_quality`: Identifies code smells and technical debt.
-- `analyze_code_quality_with_authors`: Correlates metrics with authors.
+- `analyze_code_quality`: Identifies code smells and technical debt. Pass
+  `includeAuthors: true` to correlate metrics with authors.
 - `analyze_bug_hotspots`: Calculates bug hotspots using the SZZ algorithm.
 - `analyze_bus_factor`: Calculates the Bus Factor (Truck Factor).
 - `analyze_logical_coupling`: Detects implicitly coupled files.
@@ -148,9 +159,10 @@ engineering management and code quality challenges.
   with an opt-in network-based version freshness check (`check_freshness`).
 
 **Code Review AI Agents:**
-- `evaluate_comment_llm_generation`: Detects AI-generated code comments.
-- `evaluate_comment_necessity`: Evaluates if comments are redundant.
-- `evaluate_comment_quality`: Analyzes the usefulness of newly added comments.
+- `evaluate_comments`: Evaluates comments added in recent commits across one
+  or more aspects (`aspects` parameter): `quality` (professional, accurate,
+  correctly formatted), `necessity` (redundant vs. self-documenting), and
+  `llm_generation` (AI-generated comment artifacts). Defaults to all aspects.
 
 **Repository Operations:**
 - `init_repository`, `clone_repository`, `clone_specific_branch`, 
@@ -160,6 +172,9 @@ engineering management and code quality challenges.
 - `get_rw_git_documentation`: Retrieves tool documentation directly within the
   MCP session, so agents can self-discover capabilities without external
   lookups.
+- `read_report_slice`: Reads a targeted key-path/array-slice of a report
+  previously offloaded to `.rw_git/reports/`, instead of loading the entire
+  file back into context.
 
 ### Available Prompts
 

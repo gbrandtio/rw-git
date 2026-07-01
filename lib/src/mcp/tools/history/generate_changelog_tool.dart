@@ -179,8 +179,7 @@ class GenerateChangelogTool implements McpTool {
   Future<List<String>> _runSzzForCommit(String directory, String commit) async {
     final introducing = <String>{};
 
-    final parentRes =
-        await gitQuery.run(directory, ['rev-parse', '$commit^']);
+    final parentRes = await gitQuery.run(directory, ['rev-parse', '$commit^']);
     if (parentRes.isFailure) return [];
     final parent = parentRes.getOrThrow().trim();
     if (parent.isEmpty) return [];

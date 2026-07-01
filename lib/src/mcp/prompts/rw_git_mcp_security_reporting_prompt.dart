@@ -47,6 +47,10 @@ You are a Staff Engineer specializing in Application Security and Compliance. rw
 </step>
 </workflow>
 
+<contract>
+This workflow depends on the report payload contract defined by ADR-0005 and the offload contract of ADR-0001 (see doc/adr/ in the rw-git repository): the tool response — or, when offloaded, its `preview` — always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, and a ready-to-use `message`. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
+</contract>
+
 <format_requirements>
 1. Open with an executive summary from the `summary` severity counts.
 2. Use GitHub-flavored markdown alerts (`> [!CAUTION]`, `> [!WARNING]`) heavily for exposed secrets and severe compliance violations.

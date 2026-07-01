@@ -47,8 +47,8 @@ class AnalyzeDartAstQualityTool implements McpTool {
     final targetBranch = arguments.getStringArgument('targetBranch');
 
     // 1. Get changed files
-    final mergeBaseRes = await gitQuery
-        .run(directory, ['merge-base', baseBranch, targetBranch]);
+    final mergeBaseRes =
+        await gitQuery.run(directory, ['merge-base', baseBranch, targetBranch]);
     final mergeBase = mergeBaseRes.getOrNull()?.trim() ?? '';
 
     if (mergeBase.isEmpty) {
@@ -58,8 +58,8 @@ class AnalyzeDartAstQualityTool implements McpTool {
       });
     }
 
-    final diffRes = await gitQuery.run(
-        directory, ['diff', '--name-only', mergeBase, targetBranch]);
+    final diffRes = await gitQuery
+        .run(directory, ['diff', '--name-only', mergeBase, targetBranch]);
     final changedFiles = (diffRes.getOrNull()?.trim() ?? '')
         .split('\n')
         .where((f) => f.endsWith('.dart'))

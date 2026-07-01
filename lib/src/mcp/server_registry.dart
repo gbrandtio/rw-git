@@ -105,7 +105,9 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   // the prominent choice for small models: a single call returns a complete,
   // band-classified, ranked report instead of forcing the model to orchestrate
   // many raw tools, read offloaded files, and apply the interpretation guide
-  // itself.
+  // itself. Registration order is a deliberate discoverability ranking
+  // (ADR-0009): report tools must stay at the top of tools/list; do not
+  // reorder alphabetically or append new tools blindly.
   offloadedRo(GenerateRepositoryAuditTool(processRunner),
       outputSchema: _reportOutputSchema);
   offloadedRo(GenerateTechnicalReportTool(processRunner),

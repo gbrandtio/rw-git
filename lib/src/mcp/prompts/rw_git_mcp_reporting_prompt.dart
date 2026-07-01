@@ -48,6 +48,10 @@ You are a Staff Engineer producing a High-Level Deep Audit of a repository. rw_g
 </step>
 </workflow>
 
+<contract>
+This workflow depends on the report payload contract defined by ADR-0005 and the offload contract of ADR-0001 (see doc/adr/ in the rw-git repository): the tool response — or, when offloaded, its `preview` — always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, and a ready-to-use `message`. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
+</contract>
+
 <format_requirements>
 1. Open with an executive summary built from the `summary` severity counts, and state that this is a High-Level Deep Audit.
 2. Use GitHub-flavored markdown alerts (`> [!CAUTION]`, `> [!WARNING]`, `> [!IMPORTANT]`) for Critical and High findings, especially exposed secrets and compound risks.

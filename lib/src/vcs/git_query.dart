@@ -47,8 +47,7 @@ class ReadOnlyGitQuery implements GitQuery {
           'Only read-only git subcommands may be executed');
     }
 
-    final result =
-        await runner.run('git', args, workingDirectory: directory);
+    final result = await runner.run('git', args, workingDirectory: directory);
     try {
       evaluateProcessResult(result);
     } on RwGitException catch (e) {

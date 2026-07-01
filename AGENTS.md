@@ -133,9 +133,10 @@ Before completing any task, you MUST strictly run `dart analyze` to ensure there
 - **Formatting (STRICTLY ENFORCED)**: All Dart files must be formatted with an 80-character line limit. You MUST strictly run `dart format --line-length=80 .` before finalizing your changes and completing the task to ensure the CI build passes. Do not skip this step under any circumstances.
 - **Analysis (STRICTLY ENFORCED)**: You MUST strictly run `dart analyze` before finalizing your changes. All warnings and info messages must be resolved. Do not skip this step under any circumstances.
 - **Documentation Updates**: It is mandatory to update `README.md` and `CHANGELOG.md` for any feature updates, fixes, or modifications being done to the library or the MCP server.
+- **Tool Documentation Sync (CRITICAL)**: Any change to the tool registrations in `lib/src/mcp/server_registry.dart` (adding, renaming, merging, or removing a tool) must, in the same commit: update the tool list in `README.md`, and add/rename/remove the matching `doc/tools/<category>/<tool_name>.md` document. A regression test (`test/mcp/tools_docs_sync_test.dart`) asserts that every registered tool name has a matching document under `doc/tools/`.
 - **Constants and Defaults**: All constants, default values, and magic numbers must be extracted and centralized in `lib/src/constants.dart`.
 
 ## Testing
-*   **Coverage Requirement (CRITICAL)**: The codebase must maintain 100% test coverage. Any new code or modifications must include unit tests that cover all added or changed lines.
+*   **Coverage Requirement (CRITICAL)**: Every new or modified behavior must ship with unit tests covering all added or changed lines in the same commit. The aggregate coverage is measured by the `coverage.yml` CI workflow and reported via Codecov; coverage must never decrease as a result of a change. New source files without a corresponding test are not acceptable.
 *   **Unit Tests**: Parsing logic and command strategies must be testable.
 *   **Mocking**: Use the Factory or Strategy Patterns (as detailed in `CODING_STANDARDS.md`) to swap out actual implementations with Mock implementations that yield controlled stdout/stderr streams and exit codes.
