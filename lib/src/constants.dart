@@ -16,7 +16,7 @@ const List<String> supportedMcpProtocolVersions = [
 
 /// Server version advertised in the MCP `initialize` handshake. Keep in sync
 /// with the `version` field in `pubspec.yaml`.
-const String rwGitMcpVersion = '4.0.0';
+const String rwGitMcpVersion = '3.0.9';
 
 /// Below this size (bytes), a wrapped MCP tool's full JSON output is
 /// returned inline instead of offloaded to disk, avoiding a wasted
