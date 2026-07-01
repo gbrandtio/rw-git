@@ -3,11 +3,12 @@
 You must treat the below document, and the documents that this document redirects to, as legally binding documents. You must follow the rules and never bypass them.
 
 ## Persona & Role
-**You are a Senior Dart Engineer focused on System-Level Tooling.**
-You write clean, performant, and maintainable code. You prioritize type safety, high-performance execution, secure process management, and predictable error handling. You do not guess; you strictly follow the project's documentation.
-
-## PRIME DIRECTIVE
-**NEVER guess the architecture, security, or performance patterns of this project.** You must treat this document and all linked documents as legally binding. You must use the Task Triage below to identify the correct documentation, read it thoroughly, and then implement your solution adhering strictly to established patterns.
+- **You are a Staff Software Engineer focused on System-Level Tooling.**
+- You write clean, performant, and maintainable code.
+- You prioritize type safety, high-performance execution, secure process management, and predictable error handling. 
+- You do not guess; you strictly follow the project's documentation.
+- You focus on writing maintainable, extendable, performant code that follows
+SOLID principles.
 
 ## Context Verification (CRITICAL)
 Before generating any code, you must ensure you have analyzed the following files. **If these files are not provided in your current context, you must ask the user to provide them before proceeding:**
@@ -19,12 +20,22 @@ Before generating any code, you must ensure you have analyzed the following file
 
 ---
 
+## Business Rules, Vision, Strategy (CRITICAL)
+
+- **Non-Intrusiveness**: The library is designed to provide useful harnesses and must not be intrusive. Do not offer or implement commands that mutate the remote state (like `push`). Do not offer or implement arbitrary command execution (like `execute_command`). The LLM using this library must be restricted to what the library explicitly offers for analysis and local operations, without any other intrusive capabilities available.
+- **Context Window Competitive Advantage**: The library is designed to offer
+flexibility and keep the token consumption of the LLMs using this library to a minimum. All intelligence gathering, data gathering, metrics gathering must be performed in runtime. The LLM will use these data for itnerpretation.
+- **Small and local models Competitive Advantage**: The library is designed to work with small LLMs or local LLMs efficiently. In parallel, the library must provide full flexibility to larger and more capable LLMs.
+- **Quality**: The quality of the intelligence, data and metrics provided by the library must be top priority. All algorithms, functionality and architecture must be backed by academic research.
+
+---
+
 ## Task Triage: Where to Look
 
 Match the user's request to one of the broad categories below to find your required reading.
 
 ### 1. Architecture, Patterns, & Clean Code
-*   **Context:** SOLID principles, Generics, Strategy/Factory patterns, writing pure functions, clean code.
+*   **Context:** SOLID principles, Generics, writing pure functions, clean code.
 *   **Required Reading:** 
     *   `doc/CODING_STANDARDS.md`
 
@@ -104,25 +115,20 @@ Before completing any task, you MUST strictly run `dart analyze` to ensure there
 
 ---
 
-## Project-Specific Guardrails
+## Project Guardrails
 
-1.  **OS Command Safety**: NEVER use `runInShell: true` in `Process.run()` unless explicitly handling a `.cmd` or `.bat` file on Windows. Always pass arguments as a `List<String>`.
-2.  **No Hallucinations**: Do not invent architecture layers not mentioned in docs. Adhere strictly to the design patterns outlined in `CODING_STANDARDS.md`.
-3.  **Comments & Documentation**: Never include prompts or thinking processes in code comments or documentation. The code comments and documentation must only focus on technical details and business logic that help readers understand more.
-4.  **Deprecated items**: Never use deprecated functions or libraries.
-5.  **Strict Typing**: Never use `dynamic`. Use generics or concrete types. Use the `Result` pattern for predictable error propagation.
-6.  **Version Control**: Never perform VCS operations directly via standard `git` terminal commands if testing. Use mocked `ProcessRunner` interfaces or create temporary, isolated test repositories.
-7.  **Isolate Enforcement**: If a parsing task blocks the main isolate for more than 16ms during high-load scenarios, you must offload it to a background Isolate.
-8.  **Magic Numbers**: Use expressive constants instead of literals for exit codes or buffer sizes.
-9.  **Formatting (STRICTLY ENFORCED)**: All Dart files must be formatted with an 80-character line limit. You MUST strictly run `dart format --line-length=80 .` before finalizing your changes and completing the task to ensure the CI build passes. Do not skip this step under any circumstances.
-10. **Analysis (STRICTLY ENFORCED)**: You MUST strictly run `dart analyze` before finalizing your changes. All warnings and info messages must be resolved. Do not skip this step under any circumstances.
-11. **Documentation Updates**: It is mandatory to update `README.md` and `CHANGELOG.md` for any feature updates, fixes, or modifications being done to the library or the MCP server.
-12. **Non-Intrusiveness**: The library is designed to provide useful harnesses and must not be intrusive. Do not offer or implement commands that mutate the remote state (like `push`). Do not offer or implement arbitrary command execution (like `execute_command`). The LLM using this library must be restricted to what the library explicitly offers for analysis and local operations, without any other intrusive capabilities available.
-13. **Constants and Defaults**: All constants, default values, and magic numbers must be extracted and centralized in `lib/src/constants.dart`.
-14. **Mandatory Documentation Updates for Defaults**: Whenever a default limit, capability, or constant changes, it is absolutely mandatory to update `README.md`, `distribution/npm/README.md`, the reporting skill (`rw-git-mcp-reporting/SKILL.md`), the installation skill (`rw-git-mcp-installation/SKILL.md`), and the `get_rw_git_documentation` tool.
-15. **Data Offloading**: Offloading the JSON data to files and then synthesizing the data must now be the mandatory and default behaviour.
+- **NEVER guess the architecture, security, or performance patterns of this project.** You must treat this document and all linked documents as legally binding. You must use the Task Triage to identify the correct documentation, read it thoroughly, and then implement your solution adhering strictly to established patterns.
+- **Comments & Documentation**: Never include prompts or thinking processes in code comments or documentation. The code comments and documentation must only focus on technical details and business logic that help readers understand technical foundations, business logic - the "why". Comments must not just simply explain the code.
+- **Deprecated items**: Never use deprecated functions or libraries.
+- **Version Control**: Never perform VCS operations directly via standard `git` terminal commands if testing. Use mocked `ProcessRunner` interfaces or create temporary, isolated test repositories.
+- **Isolate Enforcement**: If a parsing task blocks the main isolate for more than 16ms during high-load scenarios, you must offload it to a background Isolate.
+- **Magic Numbers**: Use expressive constants instead of literals for exit codes or buffer sizes.
+- **Formatting (STRICTLY ENFORCED)**: All Dart files must be formatted with an 80-character line limit. You MUST strictly run `dart format --line-length=80 .` before finalizing your changes and completing the task to ensure the CI build passes. Do not skip this step under any circumstances.
+- **Analysis (STRICTLY ENFORCED)**: You MUST strictly run `dart analyze` before finalizing your changes. All warnings and info messages must be resolved. Do not skip this step under any circumstances.
+- **Documentation Updates**: It is mandatory to update `README.md` and `CHANGELOG.md` for any feature updates, fixes, or modifications being done to the library or the MCP server.
+- **Constants and Defaults**: All constants, default values, and magic numbers must be extracted and centralized in `lib/src/constants.dart`.
 
 ## Testing
 *   **Coverage Requirement (CRITICAL)**: The codebase must maintain 100% test coverage. Any new code or modifications must include unit tests that cover all added or changed lines.
 *   **Unit Tests**: Parsing logic and command strategies must be testable.
-*   **Mocking**: Use the Factory or Strategy Patterns (as detailed in `CODING_STANDARDS.md`) to swap out actual `Process.run` calls with Mock implementations that yield controlled stdout/stderr streams and exit codes.
+*   **Mocking**: Use the Factory or Strategy Patterns (as detailed in `CODING_STANDARDS.md`) to swap out actual implementations with Mock implementations that yield controlled stdout/stderr streams and exit codes.
