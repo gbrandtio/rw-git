@@ -166,7 +166,9 @@ void main() {
       // narrate the report without a second read.
       final preview = result['preview'] as Map<String, dynamic>;
       expect(preview.containsKey('top_findings'), isTrue);
-      expect((preview['top_findings'] as List).first['severity'], 'Critical');
+      final topFindings = preview['top_findings'] as List<dynamic>;
+      final firstFinding = topFindings.first as Map<String, dynamic>;
+      expect(firstFinding['severity'], 'Critical');
       expect(preview.containsKey('summary'), isTrue);
     });
 
