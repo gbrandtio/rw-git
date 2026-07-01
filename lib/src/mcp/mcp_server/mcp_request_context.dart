@@ -1,0 +1,59 @@
+import 'dart:convert';
+import 'dart:io';
+
+import '../../../rw_git.dart';
+
+/// mcp_request_context.dart
+/// Shared context passed to every [McpRule], bundling the registry, output
+/// sink, and the low-level JSON-RPC response helpers rules need.
+class McpRequestContext {
+  final McpRegistry registry;
+  final IOSink outputSink;
+  final int? toolsPageSize;
+
+  McpRequestContext({
+    required this.registry,
+    required this.outputSink,
+    this.toolsPageSize,
+  });
+
+  void sendResponse(dynamic id, Map<String, dynamic> result) {
+    outputSink.writeln(jsonEncode({
+      'jsonrpc': '2.0',
+      'id': id,
+      'result': result,
+    }));
+  }
+
+  void sendToolResult(dynamic id, String text) {
+    outputSink.writeln(jsonEncode({
+      'jsonrpc': '2.0',
+      'id': id,
+      'result': {
+        'content': [
+          {'type': 'text', 'text': text}
+        ]
+      }
+    }));
+  }
+
+  void sendError(dynamic id, int code, String message) {
+    outputSink.writeln(jsonEncode({
+      'jsonrpc': '2.0',
+      'id': id,
+      'error': {'code': code, 'message': message}
+    }));
+  }
+
+  String encodeCursor(int offset) =>
+      base64Url.encode(utf8.encode(offset.toString()));
+
+  int? decodeCursor(dynamic cursor) {
+    if (cursor is! String) return null;
+    try {
+      return int.tryParse(utf8.decode(base64Url.decode(cursor)));
+    } catch (_) {
+      return null;
+    }
+  }
+}

@@ -42,3 +42,4 @@ Where an ADR touches those areas, it links back to the governing document.
 | [0005](0005-server-side-interpretation-and-report-meta-tools.md) | Server-side interpretation layer and one-call report meta-tools | Accepted |
 | [0006](0006-targeted-retrieval-of-offloaded-reports.md) | Targeted retrieval of offloaded reports (`read_report_slice` + MCP Resources) | Accepted |
 | [0007](0007-tools-list-token-budget-and-pagination.md) | Bound the `tools/list` token cost and paginate for tiny-context clients | Accepted |
+| [0008](0008-rules-pattern-for-mcp-request-dispatch.md) | Dispatch MCP JSON-RPC methods via the Rules design pattern | Accepted |
