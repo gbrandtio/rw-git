@@ -2,6 +2,14 @@
 import 'package:test/test.dart';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/core/result.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
+
+class MockGitQuery implements GitQuery {
+  @override
+  Future<Result<String, RwGitException>> run(
+          String directory, List<String> args) async =>
+      const Success('command output');
+}
 
 class MockRwGit implements RwGit {
   @override
@@ -77,11 +85,6 @@ class MockRwGit implements RwGit {
           bool streamOutput = false}) async =>
       const Success(true);
   @override
-  Future<Result<bool, RwGitException>> push(String directory,
-          {List<String> extraArgs = const [],
-          bool streamOutput = false}) async =>
-      const Success(true);
-  @override
   Future<Result<GitDiff, RwGitException>> diff(String directory,
           {List<String> extraArgs = const [],
           bool streamOutput = false}) async =>
@@ -113,11 +116,6 @@ class MockRwGit implements RwGit {
           message: 'm'));
 
   @override
-  Future<Result<String, RwGitException>> runCommand(
-          String directory, List<String> args,
-          {bool streamOutput = false}) async =>
-      const Success('command output');
-  @override
   Future<Result<bool, RwGitException>> cloneSpecificBranch(
           String localDirectoryToCloneInto,
           String repository,
@@ -140,7 +138,7 @@ void main() {
   });
 
   test('IsGitRepositoryTool', () async {
-    final tool = IsGitRepositoryTool(rwGit);
+    final tool = IsGitRepositoryTool(rwGit, MockGitQuery());
     final result = await tool.execute({'directory': 'testDir'});
     expect(result, contains('true'));
   });
@@ -173,7 +171,7 @@ void main() {
   });
 
   test('GetStatsTool', () async {
-    final tool = GetStatsTool(rwGit);
+    final tool = GetStatsTool(rwGit, MockGitQuery());
     final result = await tool
         .execute({'directory': 'testDir', 'oldTag': 'v1', 'newTag': 'v2'});
     expect(result, contains('1'));

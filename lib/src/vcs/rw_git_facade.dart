@@ -53,8 +53,6 @@ abstract class RwGit {
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<bool, RwGitException>> pull(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
-  Future<Result<bool, RwGitException>> push(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<GitDiff, RwGitException>> diff(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<bool, RwGitException>> merge(String directory,
@@ -65,8 +63,4 @@ abstract class RwGit {
       {List<String> extraArgs = const [], bool streamOutput = false});
   Future<Result<GitCommit, RwGitException>> show(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false});
-
-  Future<Result<String, RwGitException>> runCommand(
-      String directory, List<String> args,
-      {bool streamOutput = false});
 }

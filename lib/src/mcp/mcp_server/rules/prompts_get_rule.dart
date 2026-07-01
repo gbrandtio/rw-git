@@ -1,3 +1,4 @@
+import '../../../constants.dart';
 import '../mcp_request_context.dart';
 import 'mcp_rule.dart';
 
@@ -12,13 +13,13 @@ class PromptsGetRule implements McpRule {
       McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
     final promptName = params['name'] as String?;
     if (promptName == null) {
-      ctx.sendError(id, -32602, 'Invalid params: missing prompt name');
+      ctx.sendError(id, jsonRpcInvalidParams, 'Invalid params: missing prompt name');
       return;
     }
 
     final prompt = ctx.registry.getPrompt(promptName);
     if (prompt == null) {
-      ctx.sendError(id, 32601, 'Prompt not found: $promptName');
+      ctx.sendError(id, jsonRpcMethodNotFound, 'Prompt not found: $promptName');
       return;
     }
 

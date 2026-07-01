@@ -1,4 +1,5 @@
 import '../core/process_runner.dart';
+import '../vcs/git_query.dart';
 import '../vcs/rw_git_facade.dart';
 import 'mcp_registry.dart';
 import 'mcp_tool.dart';
@@ -82,6 +83,7 @@ const Map<String, dynamic> _reportOutputSchema = {
 McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   final processRunner = runner ?? ProcessRunner.defaultRunner();
   final git = rwGit ?? RwGit(runner: processRunner);
+  final gitQuery = ReadOnlyGitQuery(processRunner);
 
   final registry = McpRegistry();
 
@@ -115,21 +117,21 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(GenerateCodeReviewReportTool(processRunner),
       outputSchema: _reportOutputSchema);
 
-  offloadedRo(AnalyzeCodeQualityTool(processRunner, git));
+  offloadedRo(AnalyzeCodeQualityTool(processRunner, gitQuery));
   offloadedRo(AnalyzeBugHotspotsTool(processRunner));
   offloadedRo(FindBugsByDeveloperTool(processRunner));
   registerReadOnly(GetRwGitDocumentationTool(registry));
   registerReadOnly(ReadReportSliceTool());
   mutating(InitRepositoryTool(git));
-  registerReadOnly(IsGitRepositoryTool(git));
+  registerReadOnly(IsGitRepositoryTool(git, gitQuery));
   mutating(CloneRepositoryTool(git));
   mutating(CheckoutBranchTool(git));
   mutating(FetchTagsTool(git));
   offloadedRo(GetCommitsBetweenTool(git));
-  offloadedRo(GetStatsTool(git));
+  offloadedRo(GetStatsTool(git, gitQuery));
   offloadedRo(GetContributionsByAuthorTool(git));
   mutating(CloneSpecificBranchTool(git));
-  offloadedRo(AnalyzeReleaseDeltaTool(git, processRunner));
+  offloadedRo(AnalyzeReleaseDeltaTool(gitQuery, processRunner));
   // Stable, compact shape — advertised so the model knows the offloaded file's
   // structure without reading it. Additional tools can opt in the same way.
   offloadedRo(AnalyzeBusFactorTool(processRunner, git), outputSchema: const {
@@ -155,15 +157,15 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(AnalyzeRefactoringTool(processRunner));
   offloadedRo(EvaluateCommentsTool(processRunner));
   offloadedRo(DetectSecretsTool(processRunner));
-  offloadedRo(AnalyzePrDiffTool(processRunner, git));
+  offloadedRo(AnalyzePrDiffTool(processRunner, gitQuery));
   offloadedRo(PredictMergeConflictsTool(processRunner));
   offloadedRo(AnalyzeCommitVelocityTool(processRunner));
   offloadedRo(AnalyzeDependencyDriftTool(processRunner));
-  offloadedRo(GenerateChangelogTool(git));
+  offloadedRo(GenerateChangelogTool(gitQuery));
   offloadedRo(AuditComplianceTool(processRunner));
-  offloadedRo(AnalyzeFileOwnershipTool(processRunner, git));
-  offloadedRo(AnalyzeDartAstQualityTool(git));
-  offloadedRo(AnalyzeArchitectureDriftTool(git));
+  offloadedRo(AnalyzeFileOwnershipTool(processRunner, gitQuery));
+  offloadedRo(AnalyzeDartAstQualityTool(gitQuery));
+  offloadedRo(AnalyzeArchitectureDriftTool(gitQuery));
   offloadedRo(AnalyzeCleanCodeTool());
   offloadedRo(CalculateUniversalLexicalMetricsTool());
 

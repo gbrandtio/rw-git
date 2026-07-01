@@ -211,6 +211,11 @@ dart pub global activate rw_git
 
 #### Client Configurations
 
+**Claude Code (CLI)**:
+```bash
+claude mcp add rw_git --scope user -- npx -y @gbrandtio/rw-git-mcp
+```
+
 **Claude Desktop** (`claude_desktop_config.json`):
 ```json
 {

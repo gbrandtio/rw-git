@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../../rw_git.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// is_git_repository_tool.dart
@@ -7,8 +8,9 @@ import '../../utils/mcp_argument_extensions.dart';
 
 class IsGitRepositoryTool implements McpTool {
   final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  IsGitRepositoryTool(this.rwGit);
+  IsGitRepositoryTool(this.rwGit, this.gitQuery);
 
   @override
   String get name => 'is_git_repository';
@@ -48,22 +50,20 @@ class IsGitRepositoryTool implements McpTool {
 
     try {
       final branchRes =
-          (await rwGit.runCommand(dir, ['branch', '--show-current']))
-              .getOrNull();
+          (await gitQuery.run(dir, ['branch', '--show-current'])).getOrNull();
       currentBranch = branchRes?.trim() ?? '';
 
       final statusRes =
-          (await rwGit.runCommand(dir, ['status', '--porcelain'])).getOrNull();
+          (await gitQuery.run(dir, ['status', '--porcelain'])).getOrNull();
       hasUncommittedChanges =
           (statusRes != null && statusRes.trim().isNotEmpty);
 
       final logRes =
-          (await rwGit.runCommand(dir, ['log', '-1', '--format=%cd']))
-              .getOrNull();
+          (await gitQuery.run(dir, ['log', '-1', '--format=%cd'])).getOrNull();
       lastCommitDate = logRes?.trim() ?? '';
 
       final countRes =
-          (await rwGit.runCommand(dir, ['rev-list', '--count', 'HEAD']))
+          (await gitQuery.run(dir, ['rev-list', '--count', 'HEAD']))
               .getOrNull();
       totalCommits = int.tryParse(countRes?.trim() ?? '') ?? 0;
     } catch (_) {

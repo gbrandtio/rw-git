@@ -9,7 +9,6 @@ import '../commands/stats_command.dart';
 import '../commands/branch_command.dart';
 import '../commands/status_command.dart';
 import '../commands/pull_command.dart';
-import '../commands/push_command.dart';
 import '../commands/diff_command.dart';
 import '../commands/merge_command.dart';
 import '../commands/stash_command.dart';
@@ -110,13 +109,6 @@ class CliRwGit extends BaseRwGit {
   }
 
   @override
-  Future<Result<bool, RwGitException>> push(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false}) {
-    return PushCommand(runner)
-        .execute(directory, extraArgs: extraArgs, streamOutput: streamOutput);
-  }
-
-  @override
   Future<Result<GitDiff, RwGitException>> diff(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) {
     return DiffCommand(runner)
@@ -149,15 +141,5 @@ class CliRwGit extends BaseRwGit {
       {List<String> extraArgs = const [], bool streamOutput = false}) {
     return ShowCommand(runner)
         .execute(directory, extraArgs: extraArgs, streamOutput: streamOutput);
-  }
-
-  @override
-  Future<Result<String, RwGitException>> runCommand(
-      String directory, List<String> args,
-      {bool streamOutput = false}) async {
-    final result = await runner.run('git', args,
-        workingDirectory: directory, streamOutput: streamOutput);
-    evaluateProcessResult(result);
-    return Success(result.stdout?.toString() ?? '');
   }
 }

@@ -1,4 +1,5 @@
 import '../../../../rw_git.dart';
+import '../../../constants.dart';
 import '../mcp_request_context.dart';
 import 'mcp_rule.dart';
 
@@ -16,13 +17,13 @@ class ToolsCallRule implements McpRule {
     final args = params['arguments'] as Map<String, dynamic>? ?? {};
 
     if (toolName == null) {
-      ctx.sendError(id, -32602, 'Invalid params: missing tool name');
+      ctx.sendError(id, jsonRpcInvalidParams, 'Invalid params: missing tool name');
       return;
     }
 
     final tool = ctx.registry.getTool(toolName);
     if (tool == null) {
-      ctx.sendError(id, 32601, 'Method not found: $toolName');
+      ctx.sendError(id, jsonRpcMethodNotFound, 'Method not found: $toolName');
       return;
     }
 
@@ -30,10 +31,10 @@ class ToolsCallRule implements McpRule {
       final resultText = await tool.execute(args);
       ctx.sendToolResult(id, resultText);
     } on RwGitException catch (e) {
-      ctx.sendError(id, -32000,
+      ctx.sendError(id, jsonRpcServerError,
           'Git error (code ${e.exitCode}): ${e.message}\\n${e.stderr}');
     } catch (e) {
-      ctx.sendError(id, -32000, 'Tool execution error: $e');
+      ctx.sendError(id, jsonRpcServerError, 'Tool execution error: $e');
     }
   }
 }

@@ -126,5 +126,32 @@ void main() {
 
       expect(result['error'], contains('Security violation'));
     });
+
+    test(
+        'rejects paths containing .rw_git and reports as non-adjacent '
+        'components', () async {
+      final decoyDir =
+          Directory(p.join(tempDir.path, 'reports', '.rw_git', 'other'));
+      await decoyDir.create(recursive: true);
+      final decoyFile = File(p.join(decoyDir.path, 'decoy.json'));
+      await decoyFile.writeAsString(jsonEncode({'a': 1}));
+
+      final resultString = await tool.execute({'file': decoyFile.path});
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+
+      expect(result['error'], contains('Security violation'));
+    });
+
+    test('rejects traversal out of a .rw_git/reports directory', () async {
+      final outsideFile = File(p.join(tempDir.path, 'outside.json'));
+      await outsideFile.writeAsString(jsonEncode({'a': 1}));
+
+      final traversalPath =
+          p.join(reportsDir.path, '..', '..', 'outside.json');
+      final resultString = await tool.execute({'file': traversalPath});
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+
+      expect(result['error'], contains('Security violation'));
+    });
   });
 }

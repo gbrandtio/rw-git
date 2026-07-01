@@ -1,5 +1,6 @@
 import 'dart:isolate';
 import 'dart:math';
+import 'package:rw_git/src/core/git_date_time.dart';
 import 'package:rw_git/src/core/process_runner.dart';
 import 'package:rw_git/src/models/commit_velocity_dto.dart';
 
@@ -59,9 +60,11 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
     final author = parts[1].trim();
     final dateStr = parts[2].trim();
 
-    // Parse ISO 8601 date
-    final date = DateTime.tryParse(dateStr);
-    if (date == null) continue;
+    // Bucketing and burnout detection reason about the author's wall-clock
+    // time (a 23:00 commit is late-night wherever the author sits), so the
+    // timestamp's own UTC offset is honoured instead of converting to UTC
+    // or to the machine-local timezone.
+    final date = GitDateTime.parse(dateStr).authorLocal;
 
     String periodKey;
     switch (granularity) {

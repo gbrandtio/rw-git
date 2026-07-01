@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/core/result.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 
 class _MockRunner implements ProcessRunner {
@@ -48,28 +49,22 @@ class _MockRunner implements ProcessRunner {
   }
 }
 
-class _MockRwGit implements RwGit {
+class _MockGitQuery implements GitQuery {
   final String numstatOutput;
   final String logOutput;
   final String diffOutput;
 
-  _MockRwGit({
+  _MockGitQuery({
     this.numstatOutput = '',
     this.logOutput = '',
     this.diffOutput = '',
   });
 
   @override
-  String get invalidGitCommandResult => 'INVALID';
-  @override
-  String get gitRepoIndicator => '.git';
-
-  @override
-  Future<Result<String, RwGitException>> runCommand(
+  Future<Result<String, RwGitException>> run(
     String directory,
-    List<String> args, {
-    bool streamOutput = false,
-  }) async {
+    List<String> args,
+  ) async {
     if (args.contains('--numstat') && args.contains('diff')) {
       return Success(numstatOutput);
     }
@@ -81,17 +76,14 @@ class _MockRwGit implements RwGit {
     }
     return const Success('');
   }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {
   group('AnalyzePrDiffTool', () {
     test('has correct name and schema', () {
       final runner = _MockRunner();
-      final rwGit = _MockRwGit();
-      final tool = AnalyzePrDiffTool(runner, rwGit);
+      final gitQuery = _MockGitQuery();
+      final tool = AnalyzePrDiffTool(runner, gitQuery);
 
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema.isNotEmpty, isTrue);
@@ -112,12 +104,12 @@ void main() {
       final diffOutput =
           '+++ b/lib/src/main.dart\n@@ -1,3 +1,3 @@ class Main {\n+ void main() {}\n';
 
-      final rwGit = _MockRwGit(
+      final gitQuery = _MockGitQuery(
         numstatOutput: numstat,
         logOutput: logOutput,
         diffOutput: diffOutput,
       );
-      final tool = AnalyzePrDiffTool(runner, rwGit);
+      final tool = AnalyzePrDiffTool(runner, gitQuery);
 
       final result = await tool.execute({
         'directory': '/test',
@@ -146,8 +138,8 @@ void main() {
       final numstat =
           '10\t5\tfile1.dart\n20\t10\tfile2.dart\n30\t15\tfile3.dart';
 
-      final rwGit = _MockRwGit(numstatOutput: numstat);
-      final tool = AnalyzePrDiffTool(runner, rwGit);
+      final gitQuery = _MockGitQuery(numstatOutput: numstat);
+      final tool = AnalyzePrDiffTool(runner, gitQuery);
 
       final result = await tool.execute({
         'directory': '/test',

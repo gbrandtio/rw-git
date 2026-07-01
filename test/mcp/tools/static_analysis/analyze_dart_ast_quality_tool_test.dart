@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -11,7 +12,7 @@ void main() {
   setUp(() async {
     runner = StandardProcessRunner();
     rwGit = RwGit();
-    tool = AnalyzeDartAstQualityTool(rwGit);
+    tool = AnalyzeDartAstQualityTool(ReadOnlyGitQuery(runner));
     tempDir = await Directory.systemTemp.createTemp('ast_tool_test');
 
     await rwGit.init(tempDir.path);

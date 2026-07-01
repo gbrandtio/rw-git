@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
@@ -72,23 +73,33 @@ void main() {
     });
   });
 
-  group('runCommand', () {
-    test('will successfully execute a generic git command', () async {
+  group('ReadOnlyGitQuery', () {
+    test('will successfully execute a read-only git command', () async {
       (await rwGit.init(testDir)).getOrThrow();
-      String result =
-          (await rwGit.runCommand(testDir, ['status'])).getOrThrow();
+      final gitQuery = ReadOnlyGitQuery(ProcessRunner.defaultRunner());
+      String result = (await gitQuery.run(testDir, ['status'])).getOrThrow();
       expect(result.isNotEmpty, true);
       expect(result.contains('On branch'), true);
     });
 
-    test('will throw exception on invalid git command', () async {
-      (await rwGit.init(testDir)).getOrThrow();
-      try {
-        (await rwGit.runCommand(testDir, ['invalid_command'])).getOrThrow();
-        fail('Should throw an exception');
-      } on RwGitException catch (e) {
-        expect(e.exitCode != 0, true);
+    test('will reject non-allowlisted git subcommands', () async {
+      final gitQuery = ReadOnlyGitQuery(ProcessRunner.defaultRunner());
+      for (final args in [
+        ['push', 'origin', 'main'],
+        ['commit', '-m', 'msg'],
+        ['invalid_command'],
+        <String>[],
+      ]) {
+        expect(() => gitQuery.run(testDir, args), throwsArgumentError);
       }
+    });
+
+    test('will return Failure on a failing read-only command', () async {
+      (await rwGit.init(testDir)).getOrThrow();
+      final gitQuery = ReadOnlyGitQuery(ProcessRunner.defaultRunner());
+      final result = await gitQuery.run(testDir, ['show', 'nonexistent-ref']);
+      expect(result.isFailure, true);
+      expect(() => result.getOrThrow(), throwsA(isA<RwGitException>()));
     });
   });
 }

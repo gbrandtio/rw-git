@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import '../../rw_git.dart';
+import '../constants.dart';
 import 'mcp_server/mcp_request_context.dart';
 import 'mcp_server/rules/initialize_rule.dart';
 import 'mcp_server/rules/mcp_rule.dart';
@@ -88,6 +89,6 @@ class McpServer {
         return;
       }
     }
-    _context.sendError(id, -32601, 'Method not found: $method');
+    _context.sendError(id, jsonRpcMethodNotFound, 'Method not found: $method');
   }
 }

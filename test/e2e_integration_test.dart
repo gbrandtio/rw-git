@@ -5,10 +5,12 @@ import 'package:path/path.dart' as p;
 
 void main() {
   late RwGit rwGit;
+  late ProcessRunner runner;
   late String testDir;
 
   setUp(() {
     rwGit = RwGit();
+    runner = ProcessRunner.defaultRunner();
     testDir = Directory.systemTemp.createTempSync('rw_git_e2e_').path;
   });
 
@@ -19,6 +21,14 @@ void main() {
     }
   });
 
+  // Test fixture setup (config/add/commit) goes straight through the process
+  // runner: the public facade deliberately offers no arbitrary git execution.
+  Future<void> runGit(List<String> args) async {
+    final result = await runner.run('git', args, workingDirectory: testDir);
+    expect(result.exitCode, 0,
+        reason: 'git ${args.join(' ')} failed: ${result.stderr}');
+  }
+
   group('End-to-End Integration Tests', () {
     test('creates a repo, makes a commit, branches, and merges successfully',
         () async {
@@ -27,19 +37,15 @@ void main() {
       expect(initResult.isSuccess, isTrue);
 
       // Configure git user for CI environments
-      await rwGit
-          .runCommand(testDir, ['config', 'user.email', 'test@example.com']);
-      await rwGit
-          .runCommand(testDir, ['config', 'user.name', 'E2E Test Runner']);
+      await runGit(['config', 'user.email', 'test@example.com']);
+      await runGit(['config', 'user.name', 'E2E Test Runner']);
 
       // Create a dummy file
       final file = File(p.join(testDir, 'test_file.txt'));
       file.writeAsStringSync('Hello, E2E!');
 
-      // 2. Add (using runCommand)
-      final addResult =
-          await rwGit.runCommand(testDir, ['add', 'test_file.txt']);
-      expect(addResult.isSuccess, isTrue);
+      // 2. Add
+      await runGit(['add', 'test_file.txt']);
 
       // 3. Status
       final statusResult = await rwGit.status(testDir);
@@ -47,10 +53,8 @@ void main() {
       expect(statusResult.getOrThrow().stagedChanges.map((e) => e.path),
           contains('test_file.txt'));
 
-      // 4. Commit (using runCommand)
-      final commitResult =
-          await rwGit.runCommand(testDir, ['commit', '-m', 'Initial commit']);
-      expect(commitResult.isSuccess, isTrue);
+      // 4. Commit
+      await runGit(['commit', '-m', 'Initial commit']);
 
       // 5. Branch
       final branchResult =
@@ -63,8 +67,8 @@ void main() {
 
       // Modify the file on feature branch
       file.writeAsStringSync('Hello, E2E from feature branch!');
-      await rwGit.runCommand(testDir, ['add', 'test_file.txt']);
-      await rwGit.runCommand(testDir, ['commit', '-m', 'Feature commit']);
+      await runGit(['add', 'test_file.txt']);
+      await runGit(['commit', '-m', 'Feature commit']);
 
       // 7. Checkout main
       final checkoutMainResult = await rwGit.checkout(testDir, 'main');

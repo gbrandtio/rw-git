@@ -8,7 +8,7 @@ import '../../../constants.dart';
 /// Returns structured JSON.
 
 class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
-  AnalyzeCodeQualityTool(super.runner, super.rwGit);
+  AnalyzeCodeQualityTool(super.runner, super.gitQuery);
 
   @override
   String get name => 'analyze_code_quality';

@@ -77,8 +77,19 @@ class ReadReportSliceTool implements McpTool {
     final filePath = arguments.getStringArgument('file');
     final normalizedFile = p.normalize(p.absolute(filePath));
 
-    if (!normalizedFile.split(p.separator).contains('.rw_git') ||
-        !p.split(normalizedFile).contains('reports')) {
+    // The file must sit below an adjacent `.rw_git/reports` component pair;
+    // checking the two components independently would accept unrelated paths
+    // such as /home/user/reports/.rw_git/x.json.
+    final segments = p.split(normalizedFile);
+    var insideReportsDirectory = false;
+    for (int i = 0; i + 2 < segments.length; i++) {
+      if (segments[i] == '.rw_git' && segments[i + 1] == 'reports') {
+        insideReportsDirectory = true;
+        break;
+      }
+    }
+
+    if (!insideReportsDirectory) {
       return jsonEncode({
         'error': 'Security violation: file must reside within a '
             '.rw_git/reports directory.',

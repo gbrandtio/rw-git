@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:isolate';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// analyze_pr_diff_tool.dart
@@ -10,9 +11,9 @@ import '../../utils/mcp_argument_extensions.dart';
 
 class AnalyzePrDiffTool implements McpTool {
   final ProcessRunner runner;
-  final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  AnalyzePrDiffTool(this.runner, this.rwGit);
+  AnalyzePrDiffTool(this.runner, this.gitQuery);
 
   @override
   String get name => 'analyze_pr_diff';
@@ -58,13 +59,13 @@ class AnalyzePrDiffTool implements McpTool {
     final topN = arguments['topN'] as int?;
 
     // 1. Get numstat and raw diff for the PR range
-    final numstatRaw = (await rwGit.runCommand(
+    final numstatRaw = (await gitQuery.run(
       directory,
       ['diff', '--numstat', '$base...$head'],
     ))
         .getOrThrow();
 
-    final diffRaw = (await rwGit.runCommand(
+    final diffRaw = (await gitQuery.run(
       directory,
       ['diff', '-U0', '$base...$head'],
     ))
@@ -77,7 +78,7 @@ class AnalyzePrDiffTool implements McpTool {
     );
 
     // 3. Scan for secrets in the PR range
-    final secretsRaw = (await rwGit.runCommand(
+    final secretsRaw = (await gitQuery.run(
       directory,
       ['log', '-p', '--format=%H||%an||%ad||%s', '$base..$head'],
     ))

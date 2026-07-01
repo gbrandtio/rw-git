@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../../rw_git.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// analyze_file_ownership_tool.dart
@@ -9,9 +10,9 @@ import '../../utils/mcp_argument_extensions.dart';
 
 class AnalyzeFileOwnershipTool implements McpTool {
   final ProcessRunner runner;
-  final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  AnalyzeFileOwnershipTool(this.runner, this.rwGit);
+  AnalyzeFileOwnershipTool(this.runner, this.gitQuery);
 
   @override
   String get name => 'analyze_file_ownership';
@@ -57,7 +58,7 @@ class AnalyzeFileOwnershipTool implements McpTool {
       'doc/CODEOWNERS',
     ]) {
       try {
-        codeownersContent = (await rwGit.runCommand(
+        codeownersContent = (await gitQuery.run(
           directory,
           ['show', 'HEAD:$path'],
         ))

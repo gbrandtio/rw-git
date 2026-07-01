@@ -72,14 +72,6 @@ void main() {
       expect(result, true);
     });
 
-    test('push returns true on success', () async {
-      mockRunner.setMockResult(
-          'git', ['push', 'origin', 'main'], 0, 'Everything up-to-date', '');
-      final result = (await rwGit.push('my_dir', extraArgs: ['origin', 'main']))
-          .getOrThrow();
-      expect(result, true);
-    });
-
     test('diff returns diff string', () async {
       mockRunner.setMockResult(
           'git',

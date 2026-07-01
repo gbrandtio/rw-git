@@ -2,24 +2,19 @@
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/core/result.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 
-class _MockRwGit implements RwGit {
+class _MockGitQuery implements GitQuery {
   final String logOutput;
 
-  _MockRwGit(this.logOutput);
+  _MockGitQuery(this.logOutput);
 
   @override
-  String get invalidGitCommandResult => 'INVALID';
-  @override
-  String get gitRepoIndicator => '.git';
-
-  @override
-  Future<Result<String, RwGitException>> runCommand(
+  Future<Result<String, RwGitException>> run(
     String directory,
-    List<String> args, {
-    bool streamOutput = false,
-  }) async {
+    List<String> args,
+  ) async {
     if (args.contains('show')) {
       return const Success('file1.dart\nfile2.dart');
     }
@@ -35,15 +30,12 @@ class _MockRwGit implements RwGit {
     }
     return Success(logOutput);
   }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {
   group('GenerateChangelogTool', () {
     test('has correct name and schema', () {
-      final tool = GenerateChangelogTool(_MockRwGit(''));
+      final tool = GenerateChangelogTool(_MockGitQuery(''));
 
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema.isNotEmpty, isTrue);
@@ -60,7 +52,7 @@ void main() {
         'ddd||Carol||feat(auth)!: BREAKING CHANGE redesign API',
       ].join('\n');
 
-      final tool = GenerateChangelogTool(_MockRwGit(log));
+      final tool = GenerateChangelogTool(_MockGitQuery(log));
 
       final result = await tool.execute({
         'directory': '/test',
@@ -86,7 +78,7 @@ void main() {
         'bbb||Bob||Fixed a bug',
       ].join('\n');
 
-      final tool = GenerateChangelogTool(_MockRwGit(log));
+      final tool = GenerateChangelogTool(_MockGitQuery(log));
 
       final result = await tool.execute({
         'directory': '/test',
@@ -101,7 +93,7 @@ void main() {
     });
 
     test('handles empty log', () async {
-      final tool = GenerateChangelogTool(_MockRwGit(''));
+      final tool = GenerateChangelogTool(_MockGitQuery(''));
 
       final result = await tool.execute({
         'directory': '/test',
@@ -114,7 +106,7 @@ void main() {
     });
 
     test('handles exceptions gracefully', () async {
-      final mock = _MockRwGit('');
+      final mock = _MockGitQuery('');
       final tool = GenerateChangelogTool(mock);
       // Simulate an error by catching the thrown exception from getStringArgument
       try {
@@ -127,7 +119,7 @@ void main() {
 
     test('includes raw log when includeRawMessages is true', () async {
       final log = 'aaa||Alice||Updated the readme';
-      final tool = GenerateChangelogTool(_MockRwGit(log));
+      final tool = GenerateChangelogTool(_MockGitQuery(log));
 
       final result = await tool.execute({
         'directory': '/test',

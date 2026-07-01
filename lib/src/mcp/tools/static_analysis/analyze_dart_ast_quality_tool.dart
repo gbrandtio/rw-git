@@ -3,12 +3,13 @@ import 'dart:io';
 import 'dart:isolate';
 import 'package:path/path.dart' as p;
 import '../../../../rw_git.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 class AnalyzeDartAstQualityTool implements McpTool {
-  final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  AnalyzeDartAstQualityTool(this.rwGit);
+  AnalyzeDartAstQualityTool(this.gitQuery);
 
   @override
   String get name => 'analyze_dart_ast_quality';
@@ -46,8 +47,8 @@ class AnalyzeDartAstQualityTool implements McpTool {
     final targetBranch = arguments.getStringArgument('targetBranch');
 
     // 1. Get changed files
-    final mergeBaseRes = await rwGit
-        .runCommand(directory, ['merge-base', baseBranch, targetBranch]);
+    final mergeBaseRes = await gitQuery
+        .run(directory, ['merge-base', baseBranch, targetBranch]);
     final mergeBase = mergeBaseRes.getOrNull()?.trim() ?? '';
 
     if (mergeBase.isEmpty) {
@@ -57,7 +58,7 @@ class AnalyzeDartAstQualityTool implements McpTool {
       });
     }
 
-    final diffRes = await rwGit.runCommand(
+    final diffRes = await gitQuery.run(
         directory, ['diff', '--name-only', mergeBase, targetBranch]);
     final changedFiles = (diffRes.getOrNull()?.trim() ?? '')
         .split('\n')

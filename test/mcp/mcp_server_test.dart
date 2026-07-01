@@ -237,7 +237,7 @@ void main() {
           .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
-      expect(response['error']['code'], 32601);
+      expect(response['error']['code'], -32601);
       expect(response['error']['message'],
           contains('Prompt not found: unknown_prompt'));
     });
@@ -306,7 +306,7 @@ void main() {
           .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
-      expect(response['error']['code'], 32601);
+      expect(response['error']['code'], -32601);
       expect(response['error']['message'],
           contains('Method not found: unknown_tool'));
     });

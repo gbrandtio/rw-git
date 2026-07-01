@@ -1,6 +1,7 @@
 import 'dart:convert';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// base_analyze_code_quality_tool.dart
@@ -13,9 +14,9 @@ import '../../utils/mcp_argument_extensions.dart';
 
 abstract class BaseAnalyzeCodeQualityTool implements McpTool {
   final ProcessRunner runner;
-  final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  BaseAnalyzeCodeQualityTool(this.runner, this.rwGit);
+  BaseAnalyzeCodeQualityTool(this.runner, this.gitQuery);
 
   @override
   Map<String, dynamic> get inputSchema => {
@@ -97,7 +98,7 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
     };
 
     if (includeCommitLog) {
-      final commitsLog = (await rwGit.runCommand(
+      final commitsLog = (await gitQuery.run(
               directory, ['log', '-n', limit, '--shortstat', '--format=%H %s']))
           .getOrThrow();
       result['commit_log'] = commitsLog;
@@ -105,7 +106,7 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
 
     if (includeCodeDiff) {
       final codeDiff =
-          (await rwGit.runCommand(directory, ['log', '-n', limit, '-p']))
+          (await gitQuery.run(directory, ['log', '-n', limit, '-p']))
               .getOrThrow();
       result['code_diff'] = codeDiff;
     }

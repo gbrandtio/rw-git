@@ -1,4 +1,5 @@
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 import 'dart:io';
 import 'dart:convert';
@@ -12,7 +13,7 @@ void main() {
   setUp(() async {
     runner = StandardProcessRunner();
     rwGit = RwGit();
-    tool = AnalyzeFileOwnershipTool(runner, rwGit);
+    tool = AnalyzeFileOwnershipTool(runner, ReadOnlyGitQuery(runner));
     testDir = Directory.systemTemp.createTempSync('rw_git_test_');
     await rwGit.init(testDir.path);
 

@@ -2,16 +2,17 @@ import 'dart:convert';
 import 'dart:isolate';
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// analyze_release_delta_tool.dart
 /// Analyzes the release delta and velocity between two stable tags.
 
 class AnalyzeReleaseDeltaTool implements McpTool {
-  final RwGit rwGit;
+  final GitQuery gitQuery;
   final ProcessRunner runner;
 
-  AnalyzeReleaseDeltaTool(this.rwGit, this.runner);
+  AnalyzeReleaseDeltaTool(this.gitQuery, this.runner);
 
   @override
   String get name => 'analyze_release_delta';
@@ -56,13 +57,13 @@ class AnalyzeReleaseDeltaTool implements McpTool {
     final detailed = arguments['detailed'] as bool? ?? false;
 
     // 1. Get all commits and authors
-    final logRaw = (await rwGit.runCommand(localDir,
+    final logRaw = (await gitQuery.run(localDir,
             ['log', '$firstTag..$secondTag', '--format=%H||%an||%ad||%s']))
         .getOrThrow();
 
     // 2. Get file diff stats
-    final numstatRaw = (await rwGit
-            .runCommand(localDir, ['diff', '--numstat', firstTag, secondTag]))
+    final numstatRaw = (await gitQuery
+            .run(localDir, ['diff', '--numstat', firstTag, secondTag]))
         .getOrThrow();
 
     // 3. Get Bug Hotspots and Advanced Metrics (Blast Radius) for context

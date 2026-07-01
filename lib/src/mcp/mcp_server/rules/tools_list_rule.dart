@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import '../../../constants.dart';
 import '../mcp_request_context.dart';
 import 'mcp_rule.dart';
 
@@ -26,7 +27,7 @@ class ToolsListRule implements McpRule {
     if (cursor != null) {
       final decoded = ctx.decodeCursor(cursor);
       if (decoded == null || decoded < 0 || decoded > all.length) {
-        ctx.sendError(id, -32602, 'Invalid params: bad cursor');
+        ctx.sendError(id, jsonRpcInvalidParams, 'Invalid params: bad cursor');
         return;
       }
       start = decoded;

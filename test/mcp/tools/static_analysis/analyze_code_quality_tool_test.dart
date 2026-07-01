@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/core/result.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 
 class _MockRunner implements ProcessRunner {
@@ -45,35 +46,27 @@ class _MockRunner implements ProcessRunner {
   }
 }
 
-class _MockRwGit implements RwGit {
-  const _MockRwGit();
-  @override
-  String get invalidGitCommandResult => 'INVALID';
-  @override
-  String get gitRepoIndicator => '.git';
+class _MockGitQuery implements GitQuery {
+  const _MockGitQuery();
 
   @override
-  Future<Result<String, RwGitException>> runCommand(
+  Future<Result<String, RwGitException>> run(
     String directory,
-    List<String> args, {
-    bool streamOutput = false,
-  }) async {
+    List<String> args,
+  ) async {
     if (args.contains('log')) {
       if (args.contains('-p')) return const Success('mock diff');
       return const Success('mock log');
     }
     return const Success('');
   }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {
   group('AnalyzeCodeQualityTool', () {
     test('has valid name and description', () {
       final runner = _MockRunner('', '', '');
-      final tool = AnalyzeCodeQualityTool(runner, const _MockRwGit());
+      final tool = AnalyzeCodeQualityTool(runner, const _MockGitQuery());
       expect(tool.name, isNotEmpty);
       expect(tool.description, isNotEmpty);
       expect(tool.inputSchema, isNotEmpty);
@@ -105,7 +98,7 @@ void main() {
 
       final runner = _MockRunner(
           churnSb.toString(), megaSb.toString(), suspiciousSb.toString());
-      final tool = AnalyzeCodeQualityTool(runner, const _MockRwGit());
+      final tool = AnalyzeCodeQualityTool(runner, const _MockGitQuery());
 
       final result = await tool.execute({
         'directory': './',
@@ -139,7 +132,7 @@ void main() {
 
       final runner = _MockRunner(
           churnSb.toString(), megaSb.toString(), suspiciousSb.toString());
-      final tool = AnalyzeCodeQualityTool(runner, const _MockRwGit());
+      final tool = AnalyzeCodeQualityTool(runner, const _MockGitQuery());
 
       final result = await tool.execute({
         'directory': './',

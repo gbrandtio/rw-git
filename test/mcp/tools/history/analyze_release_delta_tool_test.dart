@@ -1,15 +1,14 @@
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 
 void main() {
   late StandardProcessRunner runner;
-  late RwGit rwGit;
   late AnalyzeReleaseDeltaTool tool;
 
   setUp(() {
     runner = StandardProcessRunner();
-    rwGit = RwGit();
-    tool = AnalyzeReleaseDeltaTool(rwGit, runner);
+    tool = AnalyzeReleaseDeltaTool(ReadOnlyGitQuery(runner), runner);
   });
 
   group('AnalyzeReleaseDeltaTool', () {

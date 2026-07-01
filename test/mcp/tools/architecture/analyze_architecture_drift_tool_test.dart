@@ -2,37 +2,30 @@ import 'dart:convert';
 import 'package:test/test.dart';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/core/result.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 
-class _MockRwGit implements RwGit {
+class _MockGitQuery implements GitQuery {
   final String logOutput;
   final bool shouldFail;
 
-  _MockRwGit({this.logOutput = '', this.shouldFail = false});
+  _MockGitQuery({this.logOutput = '', this.shouldFail = false});
 
   @override
-  String get invalidGitCommandResult => 'INVALID';
-  @override
-  String get gitRepoIndicator => '.git';
-
-  @override
-  Future<Result<String, RwGitException>> runCommand(
+  Future<Result<String, RwGitException>> run(
     String directory,
-    List<String> args, {
-    bool streamOutput = false,
-  }) async {
+    List<String> args,
+  ) async {
     if (shouldFail) {
       return Failure(RwGitException(message: 'Failed'));
     }
     return Success(logOutput);
   }
-
-  @override
-  dynamic noSuchMethod(Invocation invocation) => throw UnimplementedError();
 }
 
 void main() {
   test('AnalyzeArchitectureDriftTool properties', () async {
-    final tool = AnalyzeArchitectureDriftTool(RwGit());
+    final tool = AnalyzeArchitectureDriftTool(
+        ReadOnlyGitQuery(ProcessRunner.defaultRunner()));
     expect(tool.name, 'analyze_architecture_drift');
     expect(tool.description, isNotEmpty);
     expect(tool.inputSchema, isNotEmpty);
@@ -43,7 +36,7 @@ void main() {
   });
 
   test('AnalyzeArchitectureDriftTool handles failures', () async {
-    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(shouldFail: true));
+    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(shouldFail: true));
     final res = await tool.execute({
       'directory': '.',
       'layer_patterns': {'ui': 'lib/ui'}
@@ -53,7 +46,7 @@ void main() {
 
   test('AnalyzeArchitectureDriftTool rejects malformed regex pattern',
       () async {
-    final tool = AnalyzeArchitectureDriftTool(_MockRwGit());
+    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery());
     final res = await tool.execute({
       'directory': '.',
       'layer_patterns': {'ui': '(unclosed'},
@@ -72,7 +65,7 @@ lib/data/repo.dart
 hash2||commit 2
 lib/ui/another.dart
 ''';
-    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(logOutput: logOut));
+    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(logOutput: logOut));
     final res = await tool.execute({
       'directory': '.',
       'layer_patterns': {
@@ -105,7 +98,7 @@ lib/data/repo.dart
 hash2||commit 2
 lib/ui/another.dart
 ''';
-    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(logOutput: logOut));
+    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(logOutput: logOut));
     final res = await tool.execute({
       'directory': '.',
       'layer_patterns': {
@@ -143,7 +136,7 @@ lib/ui/f.dart
 h4||chore
 lib/docs/readme.md
 ''';
-    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(logOutput: logOut));
+    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(logOutput: logOut));
     final res = await tool.execute({
       'directory': '.',
       'layer_patterns': {
@@ -167,7 +160,7 @@ lib/ui/a.dart
 lib/data/b.dart
 lib/core/c.dart
 ''';
-    final tool = AnalyzeArchitectureDriftTool(_MockRwGit(logOutput: logOut));
+    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(logOutput: logOut));
     final res = await tool.execute({
       'directory': '.',
       'layer_patterns': {

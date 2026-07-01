@@ -17,6 +17,7 @@ export 'src/models/git/git_file_diff.dart';
 export 'src/models/git/git_blame.dart';
 export 'src/models/git/git_blame_line.dart';
 export 'src/core/exceptions.dart';
+export 'src/core/git_date_time.dart';
 export 'src/core/process_runner.dart';
 export 'src/core/network/http_client.dart';
 export 'src/core/network/http_interceptor.dart';

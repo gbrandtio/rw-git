@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../../rw_git.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// get_stats_tool.dart
@@ -7,8 +8,9 @@ import '../../utils/mcp_argument_extensions.dart';
 
 class GetStatsTool implements McpTool {
   final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  GetStatsTool(this.rwGit);
+  GetStatsTool(this.rwGit, this.gitQuery);
 
   @override
   String get name => 'get_stats';
@@ -47,7 +49,7 @@ class GetStatsTool implements McpTool {
     final stats = (await rwGit.stats(localDir, oldTag, newTag)).getOrThrow();
 
     // Group insertions/deletions by file extension
-    final numstatResult = (await rwGit.runCommand(
+    final numstatResult = (await gitQuery.run(
       localDir,
       ['diff', '--numstat', oldTag, newTag],
     ))

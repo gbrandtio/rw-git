@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../../rw_git.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// generate_changelog_tool.dart
@@ -9,9 +10,9 @@ import '../../utils/mcp_argument_extensions.dart';
 /// commits, and includes structural file impact for LLM summarization.
 
 class GenerateChangelogTool implements McpTool {
-  final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  GenerateChangelogTool(this.rwGit);
+  GenerateChangelogTool(this.gitQuery);
 
   @override
   String get name => 'generate_changelog';
@@ -51,7 +52,7 @@ class GenerateChangelogTool implements McpTool {
     final from = arguments.getStringArgument('from');
     final toReference = arguments.getStringArgument('to');
 
-    final logRaw = (await rwGit.runCommand(
+    final logRaw = (await gitQuery.run(
       directory,
       [
         'log',
@@ -161,7 +162,7 @@ class GenerateChangelogTool implements McpTool {
   }
 
   Future<List<String>> _getChangedFiles(String directory, String commit) async {
-    final res = await rwGit.runCommand(
+    final res = await gitQuery.run(
       directory,
       ['show', '--name-only', '--format=', commit],
     );
@@ -179,12 +180,12 @@ class GenerateChangelogTool implements McpTool {
     final introducing = <String>{};
 
     final parentRes =
-        await rwGit.runCommand(directory, ['rev-parse', '$commit^']);
+        await gitQuery.run(directory, ['rev-parse', '$commit^']);
     if (parentRes.isFailure) return [];
     final parent = parentRes.getOrThrow().trim();
     if (parent.isEmpty) return [];
 
-    final diffRes = await rwGit.runCommand(directory, ['diff', parent, commit]);
+    final diffRes = await gitQuery.run(directory, ['diff', parent, commit]);
     if (diffRes.isFailure) return [];
 
     final diffOutput = diffRes.getOrThrow().split('\n');
@@ -208,7 +209,7 @@ class GenerateChangelogTool implements McpTool {
 
         if (count > 0 && start > 0) {
           final end = start + count - 1;
-          final blameRes = await rwGit.runCommand(directory,
+          final blameRes = await gitQuery.run(directory,
               ['blame', '-e', '-L', '$start,$end', parent, '--', currentFile]);
           if (blameRes.isSuccess) {
             final blameLines =

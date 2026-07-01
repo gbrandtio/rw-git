@@ -66,10 +66,10 @@ class SzzAlgorithm {
         final subject = parts.sublist(2).join('\t').trim();
 
         if (rPos.hasMatch(subject) && !rNeg.hasMatch(subject)) {
-          final fixDate = DateTime.tryParse(dateStr);
-          if (fixDate != null) {
-            fixCommits.add(_FixCommitInfo(hash, fixDate));
-          }
+          // Fix/introduction dates are compared across commits from different
+          // authors, so the exact UTC instant (offset honoured) is used.
+          final fixDate = GitDateTime.parse(dateStr).utc;
+          fixCommits.add(_FixCommitInfo(hash, fixDate));
         }
       }
     }
@@ -153,18 +153,16 @@ class SzzAlgorithm {
                         final introHash = authorMatch.group(1)!;
                         final author = authorMatch.group(2)!.trim();
                         final dateStr = authorMatch.group(3)!;
-                        final introDate = DateTime.tryParse(dateStr);
+                        final introDate = GitDateTime.parse(dateStr).utc;
 
-                        if (introDate != null) {
-                          matches.add(SzzMatch(
-                            introducingCommitHash: introHash,
-                            introducingDate: introDate,
-                            introducingAuthor: author,
-                            fixingCommitHash: commit,
-                            fixingDate: fixDate,
-                            filePath: currentFile,
-                          ));
-                        }
+                        matches.add(SzzMatch(
+                          introducingCommitHash: introHash,
+                          introducingDate: introDate,
+                          introducingAuthor: author,
+                          fixingCommitHash: commit,
+                          fixingDate: fixDate,
+                          filePath: currentFile,
+                        ));
                       }
                     }
                   }

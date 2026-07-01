@@ -1,5 +1,6 @@
 import 'dart:convert';
 import '../../../../rw_git.dart';
+import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// analyze_architecture_drift_tool.dart
@@ -7,9 +8,9 @@ import '../../utils/mcp_argument_extensions.dart';
 /// between defined logical layers.
 
 class AnalyzeArchitectureDriftTool implements McpTool {
-  final RwGit rwGit;
+  final GitQuery gitQuery;
 
-  AnalyzeArchitectureDriftTool(this.rwGit);
+  AnalyzeArchitectureDriftTool(this.gitQuery);
 
   @override
   String get name => 'analyze_architecture_drift';
@@ -61,7 +62,7 @@ class AnalyzeArchitectureDriftTool implements McpTool {
       }
     }
 
-    final logRes = await rwGit.runCommand(
+    final logRes = await gitQuery.run(
       directory,
       ['log', '--since=$since', '--format=%H||%s', '--name-only'],
     );

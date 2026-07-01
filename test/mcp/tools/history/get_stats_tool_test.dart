@@ -1,6 +1,7 @@
 // ignore_for_file: avoid_dynamic_calls, unnecessary_cast
 import 'dart:convert';
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/vcs/git_query.dart';
 import 'package:test/test.dart';
 
 void main() {
@@ -17,7 +18,7 @@ void main() {
           '10\t2\tfile1.dart\n40\t8\tfile2.dart', '');
       runner = mock;
       rwGit = RwGit(runner: runner);
-      tool = GetStatsTool(rwGit);
+      tool = GetStatsTool(rwGit, ReadOnlyGitQuery(runner));
     });
 
     test('execute returns stats', () async {

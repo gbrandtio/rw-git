@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:rw_git/src/core/git_date_time.dart';
 import 'package:rw_git/src/models/short_log_dto.dart';
 import 'package:rw_git/src/models/short_stat_dto.dart';
 import 'package:rw_git/src/models/git/git_branch.dart';
@@ -18,6 +19,10 @@ import 'package:rw_git/src/models/git/git_tag.dart';
 class RwGitParser {
   /// Parses a stdout git output into a list. The parsing is achieved by
   /// splitting the data based on newline characters.
+  ///
+  /// NOTE: empty lines are dropped, so the result is unsuitable for output
+  /// where blank lines are significant (e.g. multiline commit bodies, diff
+  /// hunks). Callers needing those must split the raw stdout themselves.
   static List<String> parseGitStdoutBasedOnNewLine(String gitStdout) {
     LineSplitter independentLineSplitter = const LineSplitter();
     List<String> independentLines = independentLineSplitter.convert(gitStdout);
@@ -230,15 +235,10 @@ class RwGitParser {
     for (final line in lines) {
       final match = regex.firstMatch(line);
       if (match != null) {
-        DateTime parsedDate;
-        try {
-          // Attempt to parse without timezone abbreviation
-          final dateStr =
-              match.group(3)?.replaceFirst(RegExp(r'\s+[+-]\d{4}$'), '') ?? '';
-          parsedDate = DateTime.parse(dateStr.replaceAll(' ', 'T'));
-        } catch (_) {
-          parsedDate = DateTime.now();
-        }
+        // Honours the timestamp's UTC offset and throws on malformed input;
+        // substituting a fallback such as DateTime.now() would silently
+        // corrupt every date-based metric downstream.
+        final parsedDate = GitDateTime.parse(match.group(3)!).utc;
 
         blameLines.add(GitBlameLine(
           commitHash: match.group(1) ?? '',

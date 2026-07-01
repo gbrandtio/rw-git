@@ -1,3 +1,4 @@
+import '../../../constants.dart';
 import '../mcp_request_context.dart';
 import 'mcp_rule.dart';
 
@@ -12,16 +13,16 @@ class ResourcesReadRule implements McpRule {
       McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
     final uri = params['uri'] as String?;
     if (uri == null) {
-      ctx.sendError(id, -32602, 'Invalid params: missing resource uri');
+      ctx.sendError(id, jsonRpcInvalidParams, 'Invalid params: missing resource uri');
       return;
     }
     if (!ctx.registry.resources.contains(uri)) {
-      ctx.sendError(id, -32002, 'Resource not found: $uri');
+      ctx.sendError(id, mcpResourceNotFound, 'Resource not found: $uri');
       return;
     }
     final contents = await ctx.registry.resources.read(uri);
     if (contents == null) {
-      ctx.sendError(id, -32002, 'Resource no longer available: $uri');
+      ctx.sendError(id, mcpResourceNotFound, 'Resource no longer available: $uri');
       return;
     }
     ctx.sendResponse(id, {
