@@ -3,8 +3,9 @@ import 'base_analyze_code_quality_tool.dart';
 import '../../../constants.dart';
 
 /// analyze_code_quality_tool.dart
-/// Analyzes a git repository for suspicious or massive
-/// commits. Returns structured JSON.
+/// Analyzes a git repository for suspicious or massive commits and technical
+/// debt. With `includeAuthors: true` it also breaks churn down per author.
+/// Returns structured JSON.
 
 class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
   AnalyzeCodeQualityTool(super.runner, super.rwGit);
@@ -18,11 +19,13 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
       'advanced heuristics: Co-Change Matrix (SRP / Blast Radius), '
       'Method Churn (OCP violations), Architecture Drift (commit distribution), '
       'file complexity, suspicious commits, and mega-commits. '
-      'Set `includeCommitLog: true` for a compact commit log. '
+      'Set `includeAuthors: true` for per-author churn (knowledge silos), or '
+      '`includeCommitLog: true` for a compact commit log. '
       'For a complete guide, invoke the get_rw_git_documentation tool.';
 
   @override
-  Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff) {
+  Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff,
+      {bool includeAuthors = false}) {
     final hints = [
       'Use the co_change_matrix to detect Single Responsibility Principle (SRP) violations. If a file frequently co-changes across multiple unrelated domains or features, it acts as a God Class.',
       'Use method_churn to detect Open/Closed Principle (OCP) violations. Methods modified in almost every branch violate OCP.',
@@ -30,6 +33,12 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
       'Use architecture_distribution to track Architecture Drift. If recent commits heavily skew the historical distribution of commits across top-level directories, flag a potential architectural boundary violation.',
       'Use file_complexity to identify technical debt based on control flow keyword density.',
     ];
+    if (includeAuthors) {
+      hints.add(
+        'Assess author concentration: files heavily modified by a single '
+        'author (see the per-author breakdown) may indicate knowledge silos.',
+      );
+    }
     if (includeCodeDiff) {
       hints.add(
         'Review the code diffs for obvious code smells, '
@@ -46,50 +55,83 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
   Future<Map<String, dynamic>> getChurnData(
     String directory,
     String limit,
-    int? topN,
-  ) async {
-    final churn = await ChurnHeuristic(runner).calculateChurn(
-      directory,
-      limit: limit,
-    );
-
-    final highChurnThreshold = (churn.totalCommits * 0.10).ceil();
-    var highChurnFiles = churn.fileChurn.entries
-        .where(
-          (e) => e.value >= highChurnThreshold && churn.totalCommits > 0,
-        )
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
-
+    int? topN, {
+    bool includeAuthors = false,
+  }) async {
     final effectiveTopN = topN ?? defaultTopN;
 
+    if (!includeAuthors) {
+      final churn =
+          await ChurnHeuristic(runner).calculateChurn(directory, limit: limit);
+      final highChurnThreshold = (churn.totalCommits * 0.10).ceil();
+      var highChurnFiles = churn.fileChurn.entries
+          .where((e) => e.value >= highChurnThreshold && churn.totalCommits > 0)
+          .toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      if (highChurnFiles.length > effectiveTopN) {
+        highChurnFiles = highChurnFiles.take(effectiveTopN).toList();
+      }
+      final sortedClasses = churn.classChurn.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      final sortedBlocks = churn.blockChurn.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+
+      return {
+        'total_commits': churn.totalCommits,
+        'high_churn_files': highChurnFiles
+            .map((e) => {'file': e.key, 'changes': e.value})
+            .toList(),
+        'top_churned_classes': sortedClasses
+            .take(effectiveTopN)
+            .map((e) => {'class': e.key, 'changes': e.value})
+            .toList(),
+        'top_churned_blocks': sortedBlocks
+            .take(effectiveTopN)
+            .map((e) => {'block': e.key, 'changes': e.value})
+            .toList(),
+      };
+    }
+
+    final churn = await ChurnHeuristic(runner)
+        .calculateChurnWithAuthors(directory, limit: limit);
+    final highChurnThreshold = (churn.totalCommits * 0.10).ceil();
+    var highChurnFiles = churn.fileChurn.entries
+        .where((e) =>
+            e.value.total >= highChurnThreshold && churn.totalCommits > 0)
+        .toList()
+      ..sort((a, b) => b.value.total.compareTo(a.value.total));
     if (highChurnFiles.length > effectiveTopN) {
       highChurnFiles = highChurnFiles.take(effectiveTopN).toList();
     }
-
     final sortedClasses = churn.classChurn.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+      ..sort((a, b) => b.value.total.compareTo(a.value.total));
     final sortedBlocks = churn.blockChurn.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+      ..sort((a, b) => b.value.total.compareTo(a.value.total));
 
     return {
       'total_commits': churn.totalCommits,
       'high_churn_files': highChurnFiles
-          .map(
-            (e) => {'file': e.key, 'changes': e.value},
-          )
+          .map((e) => {
+                'file': e.key,
+                'changes': e.value.total,
+                'authors': e.value.authors
+              })
           .toList(),
       'top_churned_classes': sortedClasses
           .take(effectiveTopN)
-          .map(
-            (e) => {'class': e.key, 'changes': e.value},
-          )
+          .map((e) => {
+                'class': e.key,
+                'changes': e.value.total,
+                'authors': e.value.authors,
+              })
           .toList(),
       'top_churned_blocks': sortedBlocks
           .take(effectiveTopN)
-          .map(
-            (e) => {'block': e.key, 'changes': e.value},
-          )
+          .map((e) => {
+                'block': e.key,
+                'changes': e.value.total,
+                'authors': e.value.authors,
+              })
           .toList(),
     };
   }

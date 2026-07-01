@@ -12,7 +12,7 @@ class RwGitMcpPmReportingPrompt implements McpPrompt {
 
   @override
   String get description =>
-      'Specialized workflow for generating a Project Management Report focusing on Team Velocity, Contributions, Release Deltas, and Knowledge Distribution.';
+      'Project-management report on knowledge concentration and delivery bottlenecks using the one-call generate_pm_report tool, which returns already-classified, ranked findings (bus factor, single-owner files, bug hotspots).';
 
   @override
   List<Map<String, dynamic>> get messages => [
@@ -27,44 +27,32 @@ class RwGitMcpPmReportingPrompt implements McpPrompt {
 
   static const String _promptText = r'''
 <role>
-You are a Staff Engineer performing a focused Project Management and Velocity Audit of a repository. Your objective is to use the `rw_git` server's tools to extract insights regarding team productivity, release stability, and developer impact.
+You are a Staff Engineer producing a project-management and delivery-risk report for engineering managers. rw_git has already run the analysis and classified every metric — you call one tool and narrate its findings.
 </role>
 
-<constraints>
-1. **Data Offloading (CRITICAL)**: ALL verbose analytical tools will offload their JSON responses to the local filesystem (e.g., `.rw_git/reports/...`) to prevent your context window from overflowing. You MUST actively read these offloaded JSON files (using file reading tools) iteratively, synthesize their insights, and extract business value. Do not regurgitate file paths.
-</constraints>
-
 <workflow>
-Follow these steps to conduct a PM deep-dive.
-
-<step id="1" name="Scope Preparation & Context">
-- Determine if the repository is local or remote, and if you need to fetch/clone it. 
-- Use `is_git_repository` to ensure you are in a valid Git directory.
-- Use `fetch_tags` or `checkout_branch` to target specific periods or releases.
-- Get the baseline sizes with `get_stats` and `get_commits_between`.
+<step id="1" name="Prepare">
+- If the repository is remote, clone it first; if local, confirm it with `is_git_repository`.
 </step>
 
-<step id="2" name="Velocity & Impact">
-- **Velocity Tracking**: Run `analyze_commit_velocity` to chart the commits over time.
-- **Top Contributors**: Run `get_contributions_by_author`.
-- **Release Tracking**: If investigating the changes between two specific releases/tags, use `analyze_release_delta`.
+<step id="2" name="Generate the report">
+- Call `generate_pm_report` with the repository `directory` (and `limit` for a specific commit window).
+- The response already contains a `summary` by severity, a ranked `top_findings` array, and a `compound_findings` array. Each finding carries `severity`, `subject`, `band`, `metric`, `value`, and a ready-to-use `message`.
+- You do NOT need to read offloaded files or apply bus-factor thresholds — the payload already classified every file/author. If the response was offloaded, narrate from the `preview`'s `top_findings`/`compound_findings`.
+- For time-series velocity or release-delta detail, call `analyze_commit_velocity` or `analyze_release_delta` separately.
 </step>
 
-<step id="3" name="Stability & Risk">
-- **Developer Impact on Bugs**: Run `find_bugs_by_developer` if isolating bug-introduction rates.
-- **Knowledge Silos**: Run `analyze_bus_factor` and `analyze_file_ownership` to identify areas of the code that are heavily reliant on single individuals.
-</step>
-
-<step id="4" name="Synthesis & Formatting">
-- Synthesize all findings from the offloaded JSON files into a structured markdown report.
-- Focus on actionable insights for Engineering Managers (e.g., "Developer X is a single point of failure for System Y").
+<step id="3" name="Report">
+- Lead with `compound_findings` and any Critical single-owner or bug-hotspot findings — these are single points of failure.
+- Frame each finding for a manager: who/what is the risk, and what staffing or process action it implies.
 </step>
 </workflow>
 
 <format_requirements>
-1. **Structured Data**: Leverage the rich structures returned by the tools to confidently generate tables, summaries, and charts without brittle string parsing. Do not dump raw JSON.
-2. **Mermaid Diagrams**: Use mermaid diagrams (e.g., pie charts or bar charts) to visualize contributor shares or velocity over time.
-3. **Alerts**: Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, `> [!CAUTION]`) to highlight single-point-of-failure risks (Bus Factor).
+1. Open with an executive summary from the `summary` severity counts.
+2. Use GitHub-flavored markdown alerts for single-point-of-failure (bus factor) risks.
+3. For each finding, state its severity band, the `subject` (person/file/module), and the recommended action. Present as a table or grouped bullets — never dump raw JSON.
+4. If both finding lists are empty, report that knowledge and delivery risk are well distributed.
 </format_requirements>
 ''';
 }

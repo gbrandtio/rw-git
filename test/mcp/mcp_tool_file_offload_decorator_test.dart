@@ -60,6 +60,37 @@ class MockSmallTool implements McpTool {
   }
 }
 
+/// Emits a report-style payload (large enough to offload) that carries the
+/// `top_findings`/`summary` envelope the report meta-tools produce.
+class MockFindingsTool implements McpTool {
+  @override
+  String get name => 'mock_findings_tool';
+
+  @override
+  String get description => 'A mock tool that emits interpreted findings.';
+
+  @override
+  Map<String, dynamic> get inputSchema => {
+        'type': 'object',
+        'properties': {
+          'directory': {'type': 'string', 'description': 'The repo directory.'}
+        },
+        'required': ['directory'],
+      };
+
+  @override
+  Future<String> execute(Map<String, dynamic> arguments) async {
+    return jsonEncode({
+      'summary': {'Critical': 1},
+      'top_findings': [
+        {'severity': 'Critical', 'subject': 'lib/x.dart', 'message': 'bad'},
+      ],
+      'compound_findings': [],
+      'padding': 'x' * 9000,
+    });
+  }
+}
+
 class MockStructuredTool implements McpTool {
   @override
   String get name => 'mock_structured_tool';
@@ -117,10 +148,26 @@ void main() {
       final desc = decorator.description;
       // The full offload contract lives in get_rw_git_documentation; the
       // decorator only appends a short pointer to keep tools/list small.
-      expect(desc, contains('to disk'));
-      expect(desc, contains('get_rw_git_documentation'));
+      expect(desc, contains('offloaded to disk'));
       // The verbose paragraph must not be re-stamped onto every tool.
       expect(desc, isNot(contains('return_full_json')));
+    });
+
+    test('offloaded report stays actionable: preview carries top_findings',
+        () async {
+      final decorator = McpToolFileOffloadDecorator(MockFindingsTool());
+      final result =
+          jsonDecode(await decorator.execute({'directory': tempDir.path}))
+              as Map<String, dynamic>;
+
+      // Large payload still offloads to disk...
+      expect(result.containsKey('file'), isTrue);
+      // ...but the preview echoes the ranked findings so a small model can
+      // narrate the report without a second read.
+      final preview = result['preview'] as Map<String, dynamic>;
+      expect(preview.containsKey('top_findings'), isTrue);
+      expect((preview['top_findings'] as List).first['severity'], 'Critical');
+      expect(preview.containsKey('summary'), isTrue);
     });
 
     test('writes to auto-generated file by default and returns summary',

@@ -16,6 +16,7 @@ export 'intelligence/history/heuristics/commit_velocity_heuristic.dart';
 export 'intelligence/history/heuristics/conflict_risk_heuristic.dart';
 export 'intelligence/history/heuristics/mega_commits_heuristic.dart';
 export 'intelligence/history/heuristics/suspicious_commits_heuristic.dart';
+export 'intelligence/interpretation.dart';
 export 'intelligence/security/compliance_scanner.dart';
 export 'intelligence/security/dependency_manifest_parser.dart';
 export 'intelligence/security/dependency_freshness_checker.dart';

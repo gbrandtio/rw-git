@@ -6,185 +6,106 @@ import 'package:rw_git/rw_git.dart';
 void main() {
   late MockProcessRunner runner;
 
+  const gitArgs = [
+    'log',
+    '-n',
+    '500',
+    '-p',
+    '--format=%H||%an||%ad||%s',
+  ];
+
+  const sampleDiff = '+++ b/test.dart\n'
+      '@@ -1,1 +1,2 @@\n'
+      '+ // comment';
+
   setUp(() {
     runner = MockProcessRunner();
   });
 
-  group('EvaluateComment Tools', () {
-    test(
-      'EvaluateCommentLlmGenerationTool returns '
-      'structured JSON',
-      () async {
-        final tool = EvaluateCommentLlmGenerationTool(runner);
-        expect(
-          tool.name,
-          'evaluate_comment_llm_generation',
-        );
+  group('EvaluateCommentsTool', () {
+    test('name and schema', () {
+      final tool = EvaluateCommentsTool(runner);
+      expect(tool.name, 'evaluate_comments');
+      expect(tool.description, isNotEmpty);
+      expect(tool.inputSchema.isNotEmpty, isTrue);
+    });
 
-        runner.setMockResult(
-          'git',
-          [
-            'log',
-            '-n',
-            '500',
-            '-p',
-            '--format=%H||%an||%ad||%s',
-          ],
-          0,
-          '+++ b/test.dart\n'
-              '@@ -1,1 +1,2 @@\n'
-              '+ // comment',
-          '',
-        );
+    test('defaults to all aspects with keyed criteria', () async {
+      final tool = EvaluateCommentsTool(runner);
+      runner.setMockResult('git', gitArgs, 0, sampleDiff, '');
 
-        final resultStr = await tool.execute({'directory': 'fake_dir'});
-        final result = jsonDecode(resultStr) as Map<String, dynamic>;
+      final result = jsonDecode(await tool.execute({'directory': 'fake_dir'}))
+          as Map<String, dynamic>;
 
-        expect(
-          result['evaluation_criteria'],
-          isA<List>(),
-        );
-        expect(
-          (result['evaluation_criteria'] as List).any(
-            (c) => (c as String).contains('LLM artifacts'),
-          ),
-          isTrue,
-        );
-        expect(
-          (result['changed_comments'] as List).first['file'],
-          'test.dart',
-        );
+      expect(result['aspects'],
+          containsAll(['quality', 'necessity', 'llm_generation']));
 
-        // No persona in output
-        expect(
-          resultStr,
-          isNot(contains('Staff Software Engineer')),
-        );
-      },
-    );
+      final criteria = result['evaluation_criteria'] as Map<String, dynamic>;
+      expect(criteria.keys,
+          containsAll(['quality', 'necessity', 'llm_generation']));
+      expect(
+        (criteria['llm_generation'] as List).any(
+          (c) => (c as String).contains('LLM artifacts'),
+        ),
+        isTrue,
+      );
+      expect(
+        (criteria['quality'] as List).any(
+          (c) => (c as String).contains('explain "Why"'),
+        ),
+        isTrue,
+      );
+      expect(
+        (criteria['necessity'] as List).any(
+          (c) => (c as String).contains('self-documenting'),
+        ),
+        isTrue,
+      );
+      expect((result['changed_comments'] as List).first['file'], 'test.dart');
+      expect(result.toString(), isNot(contains('Staff Software Engineer')));
+    });
 
-    test(
-      'EvaluateCommentQualityTool returns structured JSON',
-      () async {
-        final tool = EvaluateCommentQualityTool(runner);
-        expect(tool.description, isNotEmpty);
-        expect(tool.inputSchema.isNotEmpty, isTrue);
-        expect(tool.name, 'evaluate_comment_quality');
+    test('selects only requested aspects', () async {
+      final tool = EvaluateCommentsTool(runner);
+      runner.setMockResult('git', gitArgs, 0, sampleDiff, '');
 
-        runner.setMockResult(
-          'git',
-          [
-            'log',
-            '-n',
-            '500',
-            '-p',
-            '--format=%H||%an||%ad||%s',
-          ],
-          0,
-          '+++ b/test.dart\n'
-              '@@ -1,1 +1,2 @@\n'
-              '+ // comment',
-          '',
-        );
+      final result = jsonDecode(await tool
+              .execute({'directory': 'fake_dir', 'aspects': 'quality'}))
+          as Map<String, dynamic>;
 
-        final resultStr = await tool.execute({'directory': 'fake_dir'});
-        final result = jsonDecode(resultStr) as Map<String, dynamic>;
+      expect(result['aspects'], ['quality']);
+      final criteria = result['evaluation_criteria'] as Map<String, dynamic>;
+      expect(criteria.keys, ['quality']);
+    });
 
-        expect(
-          result['evaluation_criteria'],
-          isA<List>(),
-        );
-        expect(
-          (result['evaluation_criteria'] as List).any(
-            (c) => (c as String).contains('explain "Why"'),
-          ),
-          isTrue,
-        );
-        expect(
-          (result['changed_comments'] as List).first['file'],
-          'test.dart',
-        );
-      },
-    );
+    test('unknown aspects fall back to all', () async {
+      final tool = EvaluateCommentsTool(runner);
+      runner.setMockResult('git', gitArgs, 0, sampleDiff, '');
 
-    test(
-      'EvaluateCommentNecessityTool returns '
-      'structured JSON',
-      () async {
-        final tool = EvaluateCommentNecessityTool(runner);
-        expect(tool.description, isNotEmpty);
-        expect(tool.inputSchema.isNotEmpty, isTrue);
-        expect(tool.name, 'evaluate_comment_necessity');
+      final result = jsonDecode(
+              await tool.execute({'directory': 'fake_dir', 'aspects': 'bogus'}))
+          as Map<String, dynamic>;
 
-        runner.setMockResult(
-          'git',
-          [
-            'log',
-            '-n',
-            '500',
-            '-p',
-            '--format=%H||%an||%ad||%s',
-          ],
-          0,
-          '+++ b/test.dart\n'
-              '@@ -1,1 +1,2 @@\n'
-              '+ // comment',
-          '',
-        );
+      expect((result['aspects'] as List).length, 3);
+    });
 
-        final resultStr = await tool.execute({'directory': 'fake_dir'});
-        final result = jsonDecode(resultStr) as Map<String, dynamic>;
+    test('returns no_comments_found status', () async {
+      final tool = EvaluateCommentsTool(runner);
+      runner.setMockResult(
+        'git',
+        gitArgs,
+        0,
+        '+++ b/test.dart\n'
+            '@@ -1,1 +1,2 @@\n'
+            '+ no comment here',
+        '',
+      );
 
-        expect(
-          result['evaluation_criteria'],
-          isA<List>(),
-        );
-        expect(
-          (result['evaluation_criteria'] as List).any(
-            (c) => (c as String).contains(
-              'self-documenting',
-            ),
-          ),
-          isTrue,
-        );
-        expect(
-          (result['changed_comments'] as List).first['file'],
-          'test.dart',
-        );
-      },
-    );
+      final result = jsonDecode(await tool.execute({'directory': 'fake_dir'}))
+          as Map<String, dynamic>;
 
-    test(
-      'Returns structured JSON with no_comments_found '
-      'status',
-      () async {
-        final tool = EvaluateCommentNecessityTool(runner);
-
-        runner.setMockResult(
-          'git',
-          [
-            'log',
-            '-n',
-            '500',
-            '-p',
-            '--format=%H||%an||%ad||%s',
-          ],
-          0,
-          '+++ b/test.dart\n'
-              '@@ -1,1 +1,2 @@\n'
-              '+ no comment here',
-          '',
-        );
-
-        final resultStr = await tool.execute({'directory': 'fake_dir'});
-        final result = jsonDecode(resultStr) as Map<String, dynamic>;
-
-        expect(result['status'], 'no_comments_found');
-        expect(
-          result['message'],
-          contains('No comments found'),
-        );
-      },
-    );
+      expect(result['status'], 'no_comments_found');
+      expect(result['message'], contains('No comments found'));
+    });
   });
 }

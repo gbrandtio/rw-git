@@ -42,6 +42,11 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
                 'for the recent commits, allowing the LLM to '
                 'check for code smells. (default: false)'
           },
+          'includeAuthors': {
+            'type': 'boolean',
+            'description': 'If true, adds per-author contribution counts to '
+                'the churn metrics (knowledge-silo analysis). (default: false)'
+          },
           'topN': {
             'type': 'number',
             'description': 'Limits all top-N lists (suspicious, mega, '
@@ -60,6 +65,7 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final includeCommitLog = arguments['includeCommitLog'] as bool? ?? false;
     final includeCodeDiff = arguments['includeCodeDiff'] as bool? ?? false;
+    final includeAuthors = arguments['includeAuthors'] as bool? ?? false;
     final topN = arguments['topN'] as int?;
 
     var suspicious =
@@ -77,7 +83,8 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
       if (mega.length > topN) mega = mega.take(topN).toList();
     }
 
-    final churnData = await getChurnData(directory, limit, topN);
+    final churnData = await getChurnData(directory, limit, topN,
+        includeAuthors: includeAuthors);
     final advancedMetrics = await AdvancedMetricsHeuristic(runner)
         .calculateAdvancedMetrics(directory, limit: limit);
 
@@ -86,7 +93,7 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
       'mega_commits': mega,
       ...churnData,
       'advanced_metrics': advancedMetrics.toJson(),
-      ...getAnalysisGuidance(includeCodeDiff),
+      ...getAnalysisGuidance(includeCodeDiff, includeAuthors: includeAuthors),
     };
 
     if (includeCommitLog) {
@@ -107,6 +114,8 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
   }
 
   Future<Map<String, dynamic>> getChurnData(
-      String directory, String limit, int? topN);
-  Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff);
+      String directory, String limit, int? topN,
+      {bool includeAuthors});
+  Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff,
+      {bool includeAuthors});
 }

@@ -12,7 +12,7 @@ class RwGitMcpReportingPrompt implements McpPrompt {
 
   @override
   String get description =>
-      'Comprehensive workflow for orchestrating rw_git MCP tools to perform a high-level Deep Audit of a repository, assessing repository health, security, architecture, and ecosystem health. For focused deep-dives, it directs to specialized reporting skills.';
+      'High-level Deep Audit of a repository (health, security, architecture, ownership) using the one-call generate_repository_audit tool, which returns already-classified, ranked findings. For focused deep-dives it directs to the specialized reporting skills.';
 
   @override
   List<Map<String, dynamic>> get messages => [
@@ -27,56 +27,32 @@ class RwGitMcpReportingPrompt implements McpPrompt {
 
   static const String _promptText = r'''
 <role>
-You are a Staff Engineer performing a High-Level Deep Audit of a repository. Your objective is to orchestrate a selection of the most critical MCP tools provided by the `rw_git` server to generate a structured overview of a repository's health. 
+You are a Staff Engineer producing a High-Level Deep Audit of a repository. rw_git has already done the heavy analysis: you orchestrate one tool and narrate its findings — you do not compute metrics, apply thresholds, or cross-reference tools yourself.
 </role>
 
-<constraints>
-1. **Data Offloading (CRITICAL)**: ALL verbose analytical tools will offload their JSON responses to the local filesystem (e.g., `.rw_git/reports/...`) to prevent your context window from overflowing. You MUST actively read these offloaded JSON files (using file reading tools) iteratively, synthesize their insights, and extract business value. Do not regurgitate file paths.
-2. **Context Window Safety**: Do not attempt to read multiple massive files simultaneously. Read, analyze, and summarize them iteratively.
-3. **Commit Limit**: The default limit for repository analysis tools is **500 commits**. Explicitly override the `limit` argument if needed.
-4. **Tool Selection**: Do NOT run every single available tool. This skill orchestrates a "Deep Audit" using key tools. If the user requests a deep-dive into a specific area, stop and instruct them to use one of the specialized skills:
-   - `rw-git-mcp-technical-reporting` (Repository analysis & Architecture)
-   - `rw-git-mcp-pm-reporting` (Velocity & Project Management)
-   - `rw-git-mcp-security-reporting` (Security & Compliance)
-   - `rw-git-mcp-code-review-reporting` (PRs & Code Review)
-</constraints>
-
 <workflow>
-Follow these steps strictly in order for a high-level audit. Do not skip any phase.
-
-<step id="1" name="Scope Preparation & Context">
-- Is it a remote or local repo? Use `clone_repository` or `clone_specific_branch` to fetch it remotely. If initializing locally, use `init_repository`.
-- **Local Verification**: Use `is_git_repository` to ensure you are in a valid Git directory.
-- **Base Statistics**: Run `get_stats` to get an overview of the repo's size and history.
-- **Contributors**: Run `get_contributions_by_author` for a high-level understanding of the team.
+<step id="1" name="Prepare">
+- If the repository is remote, clone it first (`clone_repository` or `clone_specific_branch`). If it is local, confirm it with `is_git_repository`.
 </step>
 
-<step id="2" name="High-Level Quality & Security">
-- **Quality**: Run `analyze_code_quality` to identify top technical debt.
-- **Bug Hotspots**: Run `analyze_bug_hotspots` to see where bugs cluster.
-- **Security**: Run `detect_secrets_in_commits` to ensure no credentials are exposed.
-- **Compliance**: Run `audit_compliance` to check basic standards.
+<step id="2" name="Generate the audit">
+- Call `generate_repository_audit` with the repository `directory` (and `limit` for a specific commit window, or `check_freshness: true` to include dependency-freshness checks).
+- The response already contains everything you need: a `summary` count by severity, a ranked `top_findings` array, and a `compound_findings` array. Every finding carries `severity`, `subject`, `band`, `metric`, `value`, and a ready-to-use `message`.
+- You do NOT need to read any offloaded file, apply severity bands, or correlate tools — that is already done in the payload. If the response was offloaded, its `preview` still carries `summary`, `top_findings`, and `compound_findings`; narrate from those.
 </step>
 
-<step id="3" name="Architecture & Ecosystem">
-- **Knowledge Silos**: Run `analyze_bus_factor` to see if the project relies heavily on one individual.
-- **Architecture Integrity**: Run `analyze_architecture_drift` and `analyze_logical_coupling`.
-- **Supply Chain Risks**: Run `analyze_dependency_drift`.
-- **Changelog**: Use `generate_changelog` to summarize recent progress if appropriate.
-</step>
-
-<step id="4" name="Synthesis & Formatting">
-- Synthesize all findings from the offloaded JSON files into a structured markdown report.
-- Clearly state that this is a **High-Level Deep Audit**.
-- Recommend running specific specialized reporting skills (e.g., `rw-git-mcp-technical-reporting`, `rw-git-mcp-pm-reporting`) based on any red flags you discovered.
+<step id="3" name="Report">
+- Lead with `compound_findings` — these are the highest-priority, cross-tool correlated risks.
+- Then walk the `top_findings` in order (they are already ranked most-severe first).
+- Recommend a specialized skill for any red flag worth a deeper dive: `rw-git-mcp-technical-reporting`, `rw-git-mcp-pm-reporting`, `rw-git-mcp-security-reporting`, or `rw-git-mcp-code-review-reporting`.
 </step>
 </workflow>
 
 <format_requirements>
-1. **Structured Data**: Leverage the rich structures returned by the tools to confidently generate tables, summaries, and charts without brittle string parsing. Do not dump raw JSON.
-2. **Mermaid Diagrams**: Use mermaid diagrams to visualize complex relationships like contributor ownership or architectural drift.
-3. **Alerts**: Use Github-flavored markdown alerts (`> [!WARNING]`, `> [!IMPORTANT]`, `> [!CAUTION]`) to highlight critical risks, exposed secrets, severe compliance violations, or likely merge conflicts.
-4. **Structure**: Present the information with a clear executive summary followed by detailed sections.
+1. Open with an executive summary built from the `summary` severity counts, and state that this is a High-Level Deep Audit.
+2. Use GitHub-flavored markdown alerts (`> [!CAUTION]`, `> [!WARNING]`, `> [!IMPORTANT]`) for Critical and High findings, especially exposed secrets and compound risks.
+3. For each finding, state its severity band, the specific `subject` (file/author/dependency), and the action implied by its `message`. Present findings as a table or grouped bullet list — never dump raw JSON.
+4. If both `top_findings` and `compound_findings` are empty, report that the repository is healthy across the audited axes.
 </format_requirements>
 ''';
 }

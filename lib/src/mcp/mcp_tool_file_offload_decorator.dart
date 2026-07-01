@@ -22,14 +22,19 @@ class McpToolFileOffloadDecorator implements McpTool {
   /// `read_report_slice` path).
   final ResourceRegistry? resources;
 
+  /// Upper bound on how many pre-classified findings are echoed into the
+  /// offload preview to keep an offloaded report actionable without bloating
+  /// the inline summary.
+  static const int _previewFindingsLimit = 8;
+
   McpToolFileOffloadDecorator(this._inner, {this.resources});
 
   @override
   String get name => _inner.name;
 
   @override
-  String get description => '${_inner.description} (Offloads responses >'
-      '${offloadSizeThresholdBytes ~/ 1024}KB to disk; see get_rw_git_documentation.)';
+  String get description => '${_inner.description} '
+      '(>${offloadSizeThresholdBytes ~/ 1024}KB offloaded to disk.)';
 
   @override
   Map<String, dynamic> get inputSchema {
@@ -78,17 +83,40 @@ class McpToolFileOffloadDecorator implements McpTool {
             valueTypes[k] = value.runtimeType.toString();
           }
         });
-        return {
+        final preview = <String, dynamic>{
           'top_level_keys': topLevelKeys,
           'array_lengths': arrayLengths,
           'value_types': valueTypes,
         };
+
+        // Actionable-inline convention: if the tool produced already-classified
+        // findings (the report meta-tools), surface a bounded slice of them
+        // right here so a small model can narrate a report from this summary
+        // without a second read of the offloaded file. Purely a passthrough —
+        // the decorator stays schema-agnostic and just forwards known keys.
+        _carryFindings(decoded, preview);
+
+        return preview;
       } else if (decoded is List) {
         return {'top_level_type': 'array', 'length': decoded.length};
       }
       return {'top_level_type': decoded.runtimeType.toString()};
     } catch (_) {
       return null;
+    }
+  }
+
+  /// Copies a bounded slice of already-classified findings from [decoded] into
+  /// [preview] when present, so an offloaded report remains actionable inline.
+  void _carryFindings(Map decoded, Map<String, dynamic> preview) {
+    final summary = decoded['summary'];
+    if (summary is Map) preview['summary'] = summary;
+
+    for (final key in const ['top_findings', 'compound_findings']) {
+      final value = decoded[key];
+      if (value is List && value.isNotEmpty) {
+        preview[key] = value.take(_previewFindingsLimit).toList();
+      }
     }
   }
 

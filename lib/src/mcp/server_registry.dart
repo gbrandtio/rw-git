@@ -6,7 +6,6 @@ import 'mcp_tool_file_offload_decorator.dart';
 import 'mcp_tool_metadata_decorator.dart';
 
 import 'tools/static_analysis/analyze_code_quality_tool.dart';
-import 'tools/static_analysis/analyze_code_quality_with_authors_tool.dart';
 import 'tools/history/analyze_bug_hotspots_tool.dart';
 import 'tools/history/find_bugs_by_developer_tool.dart';
 import 'tools/system/get_rw_git_documentation_tool.dart';
@@ -25,9 +24,7 @@ import 'tools/architecture/analyze_bus_factor_tool.dart';
 import 'tools/architecture/analyze_logical_coupling_tool.dart';
 import 'tools/history/analyze_code_volatility_tool.dart';
 import 'tools/architecture/analyze_refactoring_tool.dart';
-import 'tools/static_analysis/evaluate_comment_llm_generation_tool.dart';
-import 'tools/static_analysis/evaluate_comment_quality_tool.dart';
-import 'tools/static_analysis/evaluate_comment_necessity_tool.dart';
+import 'tools/static_analysis/evaluate_comments_tool.dart';
 import 'tools/security/detect_secrets_tool.dart';
 import 'tools/history/analyze_pr_diff_tool.dart';
 import 'tools/history/predict_merge_conflicts_tool.dart';
@@ -40,6 +37,11 @@ import 'tools/static_analysis/analyze_dart_ast_quality_tool.dart';
 import 'tools/architecture/analyze_architecture_drift_tool.dart';
 import 'tools/static_analysis/analyze_clean_code_tool.dart';
 import 'tools/static_analysis/calculate_universal_lexical_metrics_tool.dart';
+import 'tools/reports/generate_technical_report_tool.dart';
+import 'tools/reports/generate_security_report_tool.dart';
+import 'tools/reports/generate_pm_report_tool.dart';
+import 'tools/reports/generate_code_review_report_tool.dart';
+import 'tools/reports/generate_repository_audit_tool.dart';
 
 import 'prompts/rw_git_mcp_reporting_prompt.dart';
 import 'prompts/rw_git_mcp_code_review_reporting_prompt.dart';
@@ -64,6 +66,19 @@ const Map<String, dynamic> _readOnly = {
 /// fetch). Advertised so clients know they are not safe to auto-run.
 const Map<String, dynamic> _mutating = {'readOnlyHint': false};
 
+/// Shared, compact output shape for the one-call report meta-tools. Advertised
+/// so a model knows the payload structure — pre-classified, ranked findings —
+/// without reading anything first.
+const Map<String, dynamic> _reportOutputSchema = {
+  'type': 'object',
+  'properties': {
+    'report_type': {'type': 'string'},
+    'summary': {'type': 'object'},
+    'top_findings': {'type': 'array'},
+    'compound_findings': {'type': 'array'},
+  },
+};
+
 McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   final r = runner ?? ProcessRunner.defaultRunner();
   final git = rwGit ?? RwGit(runner: r);
@@ -83,8 +98,21 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   void mutating(McpTool tool) =>
       registry.registerTool(McpToolWithMetadata(tool, annotations: _mutating));
 
+  // One-call, pre-interpreted report meta-tools. Registered first so they are
+  // the prominent choice for small models: a single call returns a complete,
+  // band-classified, ranked report instead of forcing the model to orchestrate
+  // many raw tools, read offloaded files, and apply the interpretation guide
+  // itself.
+  offloadedRo(GenerateRepositoryAuditTool(r),
+      outputSchema: _reportOutputSchema);
+  offloadedRo(GenerateTechnicalReportTool(r),
+      outputSchema: _reportOutputSchema);
+  offloadedRo(GenerateSecurityReportTool(r), outputSchema: _reportOutputSchema);
+  offloadedRo(GeneratePmReportTool(r), outputSchema: _reportOutputSchema);
+  offloadedRo(GenerateCodeReviewReportTool(r),
+      outputSchema: _reportOutputSchema);
+
   offloadedRo(AnalyzeCodeQualityTool(r, git));
-  offloadedRo(AnalyzeCodeQualityWithAuthorsTool(r, git));
   offloadedRo(AnalyzeBugHotspotsTool(r));
   offloadedRo(FindBugsByDeveloperTool(r));
   ro(GetRwGitDocumentationTool(registry));
@@ -122,9 +150,7 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(AnalyzeLogicalCouplingTool(r));
   offloadedRo(AnalyzeCodeVolatilityTool(r));
   offloadedRo(AnalyzeRefactoringTool(r));
-  offloadedRo(EvaluateCommentLlmGenerationTool(r));
-  offloadedRo(EvaluateCommentQualityTool(r));
-  offloadedRo(EvaluateCommentNecessityTool(r));
+  offloadedRo(EvaluateCommentsTool(r));
   offloadedRo(DetectSecretsTool(r));
   offloadedRo(AnalyzePrDiffTool(r, git));
   offloadedRo(PredictMergeConflictsTool(r));
