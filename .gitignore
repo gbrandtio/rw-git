@@ -47,3 +47,4 @@ distribution/npm/skills/
 pubspec.lock
 *_TEST_DIR/
 coverage/lcov.info
+.rw_git/reports/
