@@ -2,7 +2,7 @@
 
 ## Business Logic
 
-Answers: "Which files and which authors are most associated with bugs across the entire codebase?" Surfaces systemic quality problems — the 20% of files that cause 80% of bugs — so that engineering leadership can make targeted investments in refactoring, testing, and code review focus.
+Answers: "Which files and which authors are most associated with bugs across the entire codebase?" Surfaces systemic quality problems (the 20% of files that cause 80% of bugs) so that engineering leadership can make targeted investments in refactoring, testing, and code review focus.
 
 ## Algorithm
 
@@ -13,10 +13,10 @@ Runs the same **RA-SZZ pipeline** (refactoring-aware SZZ, layered on MA-SZZ whit
 3. Exclude refactoring changes (RA-SZZ, see `find_bugs_by_developer.md` Phases 3 and 5): deleted lines that re-appear as added lines in the same commit (moved code), and attributions whose introducing commit is itself a refactoring
 4. Blame each surviving deleted line range on the parent to find introducing commits
 5. Aggregate per **file**:
-   - `bug_introduction_count` — how many bugs were introduced into this file
-   - `average_bug_lifetime_in_days` — mean of `(fix_date − introducing_date)` in fractional days across all bugs in this file. This is the SZZ *bug lifetime* (how long the bug existed in the codebase before being fixed), not the effort spent producing the fix; lifetimes of weeks or months are normal (Kim & Whitehead, MSR 2006)
+   - `bug_introduction_count`: how many bugs were introduced into this file
+   - `average_bug_lifetime_in_days`: mean of `(fix_date − introducing_date)` in fractional days across all bugs in this file. This is the SZZ *bug lifetime* (how long the bug existed in the codebase before being fixed), not the effort spent producing the fix; lifetimes of weeks or months are normal (Kim & Whitehead, MSR 2006)
 6. Aggregate per **author**:
-   - `bugs_introduced` — total bugs attributed to this author
+   - `bugs_introduced`: total bugs attributed to this author
 7. Sort files descending by `bug_introduction_count`; sort authors descending by `bugs_introduced`
 8. Return top-N files and top-N authors
 
@@ -68,7 +68,7 @@ Runs the same **RA-SZZ pipeline** (refactoring-aware SZZ, layered on MA-SZZ whit
 
 **Key claim:** In large industrial systems, 20% of files account for approximately 80% of all defects (a Pareto distribution). This concentration is stable across releases and enables meaningful prioritisation.
 
-**How rw-git uses it:** The top-N ranking of files by bug count is a direct operationalisation of Ostrand et al.'s finding. Engineering leaders can apply the 80/20 heuristic — the top quintile of the returned list covers most of the bug surface.
+**How rw-git uses it:** The top-N ranking of files by bug count is a direct operationalisation of Ostrand et al.'s finding. Engineering leaders can apply the 80/20 heuristic where the top quintile of the returned list covers most of the bug surface.
 
 ---
 

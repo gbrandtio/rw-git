@@ -8,10 +8,10 @@ Answers: "Which files are most at risk of containing latent defects, even if no 
 
 **ChurnHeuristic** processes the full repository history:
 
-1. `git log --name-only --format=%H||%an --no-merges` — parse each commit's changed file list and author
+1. `git log --name-only --format=%H||%an --no-merges` to parse each commit's changed file list and author
 2. For each file path accumulate:
-   - `change_frequency` — number of distinct commits that modified this file
-   - `author_set` — set of unique author names who committed to this file
+   - `change_frequency`: number of distinct commits that modified this file
+   - `author_set`: set of unique author names who committed to this file
 3. Compute `author_count = author_set.length`
 4. Compute **volatility score**: `score = change_frequency × author_count`
    - Multiplicative: a file changed 100 times by one author scores lower than a file changed 50 times by 10 authors
@@ -53,6 +53,6 @@ Answers: "Which files are most at risk of containing latent defects, even if no 
 
 **Published in:** Datamation
 
-**Key claim:** Systems mirror the communication structure of the organisations that build them (Conway's Law). A module touched by many developers who do not coordinate closely will have hidden coupling and inconsistencies — structural defects that accumulate invisibly.
+**Key claim:** Systems mirror the communication structure of the organisations that build them (Conway's Law). A module touched by many developers who do not coordinate closely will have hidden coupling and inconsistencies. These are structural defects that accumulate invisibly.
 
-**How rw-git uses it:** High `author_count` is not just a statistical signal — it reflects a structural reality: many-author files have implicit coordination overhead. The volatility score surfaces this organisational risk as a measurable metric.
+**How rw-git uses it:** High `author_count` is not just a statistical signal but it also reflects a structural reality: many-author files have implicit coordination overhead. The volatility score surfaces this organisational risk as a measurable metric.

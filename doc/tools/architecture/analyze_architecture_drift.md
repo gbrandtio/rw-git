@@ -7,7 +7,7 @@ Answers: "Are our architectural layers leaking into each other?" Detects commits
 ## Algorithm
 
 1. **Commit and file extraction:**
-   `git log --since=<date> --format=%H||%s --name-only` — commits with full file path lists
+   `git log --since=<date> --format=%H||%s --name-only` commits with full file path lists
 
 2. **Layer matching:**
    For each commit, match every changed file path against user-supplied layer regex patterns (e.g., `lib/ui/.*` → `ui`, `lib/data/.*` → `data`). Record which layers each commit touches.
@@ -16,14 +16,14 @@ Answers: "Are our architectural layers leaking into each other?" Detects commits
    A commit touching ≥ 2 distinct layers is a **drift commit**. Each layer-pair it touches is recorded in the **coupling matrix** (a symmetric count map: `(layerA, layerB) → count`).
 
 4. **Metrics:**
-   - `coupling_ratio = drift_commits / total_commits` — proportion of commits that cross layer boundaries
-   - `coupling_density = unique_coupled_pairs / max_possible_pairs` — how densely interconnected the layers are
+   - `coupling_ratio = drift_commits / total_commits` measurement for proportion of commits that cross layer boundaries
+   - `coupling_density = unique_coupled_pairs / max_possible_pairs` measures how densely interconnected the layers are
    - `max_possible_pairs = n × (n − 1) / 2` for n layers
 
 5. **Architectural smell classification:**
-   - **God Component** — a layer appears in > 50% of all drift commits (one layer is coupled to everything)
-   - **Hub-Like Dependency** — a layer is coupled with ≥ n/2 other layers (when n ≥ 4), creating a hub node in the coupling graph
-   - **Scattered Functionality** — any commit touches ≥ 3 distinct layers simultaneously (a single feature spread across too many layers)
+   - **God Component**: a layer appears in > 50% of all drift commits (one layer is coupled to everything)
+   - **Hub-Like Dependency**: a layer is coupled with ≥ n/2 other layers (when n ≥ 4), creating a hub node in the coupling graph
+   - **Scattered Functionality**: any commit touches ≥ 3 distinct layers simultaneously (a single feature spread across too many layers)
 
 ## Academic Foundation
 
@@ -31,9 +31,9 @@ Answers: "Are our architectural layers leaking into each other?" Detects commits
 
 **Published in:** ACM SIGSOFT Software Engineering Notes
 
-**Key claim:** Software architecture has three components: elements (what exists), form (how they relate), and rationale (why that form was chosen). **Architectural drift** is the divergence of the actual form from the intended rationale over time — it is measurable from commit history because each cross-layer commit is a small form violation.
+**Key claim:** Software architecture has three components: elements (what exists), form (how they relate), and rationale (why that form was chosen). **Architectural drift** is the divergence of the actual form from the intended rationale over time. This is measurable from commit history because each cross-layer commit is a small form violation.
 
-**How rw-git uses it:** Each drift commit is a direct measurement of Perry & Wolf's "form deviation" — a commit where the actual change pattern violates the intended layer separation. The coupling ratio quantifies the aggregate drift.
+**How rw-git uses it:** Each drift commit is a direct measurement of Perry & Wolf's "form deviation" which states that a commit where the actual change pattern violates the intended layer separation. The coupling ratio quantifies the aggregate drift.
 
 ---
 

@@ -19,11 +19,11 @@ Answers: "When did the team refactor, and what did they restructure?" Tracking r
    `git log -M --name-status --no-merges` — the `-M` flag activates git's similarity-based rename detector (default threshold: 50% content similarity). Lines beginning with `R` in the name-status output indicate detected renames.
 
 3. **Simplification ratio:**
-   `git log --shortstat --no-merges` — for each commit, compute:
+   `git log --shortstat --no-merges` and for each commit, compute:
    ```
    simplification = deletions > 50 AND insertions < 0.2 × deletions
    ```
-   Net code reduction commits (much more deletion than insertion) are classified as simplifications — a structural refactoring signal independent of commit message language.
+   Net code reduction commits (much more deletion than insertion) are classified as simplifications. This a structural refactoring signal independent of commit message language.
 
 A commit is classified as a refactoring if any one of the three heuristics fires. Output per refactoring commit: hash, subject, detected renames, insertion/deletion counts, and trigger reason (keyword / rename / simplification).
 
@@ -53,9 +53,9 @@ A commit is classified as a refactoring if any one of the three heuristics fires
 
 **Published in:** ICSE 2018 / ASE 2020, ACM/IEEE
 
-**Key claim:** AST-level analysis of commit diffs — comparing full file ASTs before and after a commit — achieves 98%+ precision and 87%+ recall in detecting 40+ refactoring types. This is the current state of the art for automatic refactoring detection.
+**Key claim:** AST-level analysis of commit diffs (comparing full file ASTs before and after a commit) achieves 98%+ precision and 87%+ recall in detecting 40+ refactoring types. This is the current state of the art for automatic refactoring detection.
 
-**How rw-git uses it:** The rw-git implementation uses heuristic signals (keywords, renames, deletion dominance) as a lightweight approximation of RefactoringMiner that requires no language-specific parser and works across all languages. The trade-off is lower recall — some refactorings are missed — but zero false positives from AST parser errors or unsupported language syntax.
+**How rw-git uses it:** The rw-git implementation uses heuristic signals (keywords, renames, deletion dominance) as a lightweight approximation of RefactoringMiner that requires no language-specific parser and works across all languages. The trade-off is lower recall (i.e., some refactorings are missed) but zero false positives from AST parser errors or unsupported language syntax.
 
 ---
 
@@ -63,9 +63,9 @@ A commit is classified as a refactoring if any one of the three heuristics fires
 
 **Published in:** ICSE, ACM/IEEE
 
-**Key claim:** Developers rarely refactor in isolation. 90% of refactoring activity is interleaved with feature development or bug fixing — in the same commit. Commits that mix refactoring with features are harder to code-review, more likely to introduce regressions, and harder to revert if a problem is discovered.
+**Key claim:** Developers rarely refactor in isolation. 90% of refactoring activity is interleaved with feature development or bug fixing and happens in the same commit. Commits that mix refactoring with features are harder to code-review, more likely to introduce regressions, and harder to revert if a problem is discovered.
 
-**How rw-git uses it:** By identifying which commits are refactoring-attributed, the tool enables detection of "mixed commits" — commits flagged by both a feature/fix keyword and a refactoring keyword. This pattern (refactoring + feature in one commit) is the highest-risk refactoring anti-pattern.
+**How rw-git uses it:** By identifying which commits are refactoring-attributed, the tool enables detection of "mixed commits" i.e., commits flagged by both a feature/fix keyword and a refactoring keyword. This pattern (refactoring + feature in one commit) is the highest-risk refactoring anti-pattern.
 
 ---
 
@@ -75,4 +75,4 @@ A commit is classified as a refactoring if any one of the three heuristics fires
 
 **Key claim:** Refactoring activity alone does not reliably improve maintainability metrics. Refactoring that is not accompanied by test coverage improvement or code smell removal has no measurable maintainability effect. This challenges the common assumption that refactoring = quality improvement.
 
-**How rw-git uses it:** The refactoring timeline enables correlation analysis: engineering leaders can use the output alongside `analyze_code_quality` before/after timestamps to check whether refactoring commits are actually followed by complexity reduction — validating or refuting the Palomba et al. finding in their specific codebase.
+**How rw-git uses it:** The refactoring timeline enables correlation analysis: engineering leaders can use the output alongside `analyze_code_quality` before/after timestamps to check whether refactoring commits are actually followed by complexity reduction and in this way validate or refute the Palomba et al. finding in their specific codebase.
