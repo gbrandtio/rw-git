@@ -16,7 +16,7 @@ const List<String> supportedMcpProtocolVersions = [
 
 /// Server version advertised in the MCP `initialize` handshake. Keep in sync
 /// with the `version` field in `pubspec.yaml`.
-const String rwGitMcpVersion = '3.0.10';
+const String rwGitMcpVersion = '3.1.0';
 
 /// JSON-RPC 2.0 error codes used by the MCP server. Per the JSON-RPC
 /// specification these are all negative; MCP-specific server errors live in
@@ -55,6 +55,45 @@ const int reportToolOffloadThresholdBytes = 4096;
 /// threshold avoids a pointless write-then-read round trip for payloads the
 /// model would immediately fetch in full anyway.
 const int compactHistoryToolOffloadThresholdBytes = 16384;
+
+/// Report-grade lexical metrics bounding (ADR-0014): the report meta-tools
+/// compute genuine McCabe cyclomatic complexity and the maintainability
+/// index only for the highest-churn files — the files where complexity
+/// matters most (Nagappan & Ball, ICSE 2005) — so report runtime stays
+/// bounded regardless of repository size.
+const int maxLexicalMetricsFilesPerReport = 10;
+
+/// Files larger than this are skipped by the report-grade lexical sampler;
+/// they are almost always generated or vendored code whose complexity is
+/// not actionable, and lexing them would dominate report latency.
+const int maxLexicalMetricsFileSizeBytes = 262144;
+
+/// McCabe cyclomatic complexity bands (McCabe, IEEE TSE 1976): 1-10 simple,
+/// 11-20 moderate, 21-50 complex/high-risk, 51+ effectively untestable.
+const int mccabeElevatedCyclomaticComplexityThreshold = 10;
+const int mccabeHighRiskCyclomaticComplexityThreshold = 20;
+const int mccabeCriticalCyclomaticComplexityThreshold = 50;
+
+/// Maintainability-index bands (Coleman et al., ICSM 1994; Visual Studio
+/// recalibration): >= 85 highly maintainable, 65-85 moderate, < 65 low.
+const double maintainabilityIndexModerateBandThreshold = 85;
+const double maintainabilityIndexLowBandThreshold = 65;
+
+/// Author-concentration Gini coefficient above which delivery depends on
+/// too few people (Gini 1912 applied to commit inequality).
+const double giniAuthorConcentrationHighThreshold = 0.6;
+
+/// Share of commits landing in the burnout window (nights/weekends, Claes
+/// et al., ICSE 2018) above which sustained off-hours work is flagged.
+const double burnoutCommitShareHighThreshold = 0.15;
+
+/// Detected refactoring commits at or above this count are surfaced as a
+/// notable tech-debt-paydown signal in the technical report.
+const int refactoringActivityNotableThreshold = 5;
+
+/// Sample size for evidence lists on aggregate findings (e.g. mega-commit
+/// hashes), mirroring the compliance classifier's sample bound.
+const int aggregateFindingEvidenceSampleSize = 5;
 
 /// Finding keys stripped from the bounded findings echoed into an offload
 /// preview. The compact `basis` citation stays inline; the fuller

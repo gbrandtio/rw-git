@@ -3,8 +3,8 @@ import '../mcp_prompt.dart';
 /// rw_git_mcp_reporting_prompt.dart
 /// Provides the rw-git-mcp-reporting skill as an MCP Prompt.
 ///
-/// GENERATED FILE — do not edit by hand. Edit the canonical skill at
-/// `.agents/skills/rw-git-mcp-reporting/SKILL.md` and run
+/// GENERATED FILE — do not edit by hand. Edit the canonical template at
+/// `.agents/skills/rw-git-mcp-reporting/SKILL.template.md` and run
 /// `dart run tool/sync_prompts.dart`.
 class RwGitMcpReportingPrompt implements McpPrompt {
   @override
@@ -32,7 +32,7 @@ You are a Principal Business Analyst producing a High-Level Deep Audit of a repo
 
 <workflow>
 <step id="1" name="Prepare">
-- If the repository is remote, clone it first (`clone_repository` or `clone_specific_branch`). If it is local, confirm it with `is_git_repository`.
+- If the repository is remote, clone it first (`clone_repository` or `clone_specific_branch`); if local, confirm it with `is_git_repository`.
 </step>
 
 <step id="2" name="Generate the audit">
@@ -49,7 +49,7 @@ You are a Principal Business Analyst producing a High-Level Deep Audit of a repo
 </workflow>
 
 <contract>
-The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, and a ready-to-use `message`. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
+The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, a ready-to-use `message`, and a compact `basis` citation naming the research behind the band. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
 </contract>
 
 <format_requirements>
@@ -58,5 +58,10 @@ The tool response, or, when offloaded, its `preview`, always carries `summary`, 
 3. For each finding, state its severity band, the specific `subject` (file/author/dependency), and the action implied by its `message`. Present findings as a table or grouped bullet list. Never dump raw JSON.
 4. If both `top_findings` and `compound_findings` are empty, report that the repository is healthy across the audited axes.
 </format_requirements>
+
+<deep_dive optional="true" audience="capable models">
+Optional, for capable models with token budget to spare — small models should skip this section and narrate the report above as-is. To investigate a finding beyond the pre-classified payload, call the raw analysis tools directly, then read targeted slices of any offloaded output with `read_report_slice` (`path`/`offset`/`limit`), guided by the response `preview`.
+Raw tools for this audit: `analyze_code_quality`, `analyze_bug_hotspots`, `analyze_bus_factor`, `analyze_logical_coupling`, `detect_secrets_in_commits`, `audit_compliance`, `analyze_dependency_drift`, `analyze_architecture_drift`.
+</deep_dive>
 ''';
 }

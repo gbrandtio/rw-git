@@ -1,38 +1,15 @@
-import '../mcp_prompt.dart';
+---
+name: rw-git-mcp-code-review-reporting
+description: "Code-review & integration-risk report using the one-call generate_code_review_report tool (secrets, complexity outliers including genuine McCabe metrics, single-owner files, bug hotspots, and — with base_branch/target_branch — predicted merge conflicts)."
+---
 
-/// rw_git_mcp_code_review_reporting_prompt.dart
-/// Provides the rw-git-mcp-code-review-reporting skill as an MCP Prompt.
-///
-/// GENERATED FILE — do not edit by hand. Edit the canonical template at
-/// `.agents/skills/rw-git-mcp-code-review-reporting/SKILL.template.md` and run
-/// `dart run tool/sync_prompts.dart`.
-class RwGitMcpCodeReviewReportingPrompt implements McpPrompt {
-  @override
-  String get name => 'rw-git-mcp-code-review-reporting';
-
-  @override
-  String get description =>
-      'Code-review & integration-risk report using the one-call generate_code_review_report tool (secrets, complexity outliers including genuine McCabe metrics, single-owner files, bug hotspots, and — with base_branch/target_branch — predicted merge conflicts).';
-
-  @override
-  List<Map<String, dynamic>> get messages => [
-        {
-          'role': 'user',
-          'content': {
-            'type': 'text',
-            'text': _promptText,
-          }
-        }
-      ];
-
-  static const String _promptText = r'''
 <role>
 You are a Staff Engineer specializing in Code Review and Integration Risk. rw_git has already analysed the code under review and classified every finding — you call one tool and narrate its findings.
 </role>
 
 <workflow>
 <step id="1" name="Prepare">
-- If the repository is remote, clone it first (`clone_repository` or `clone_specific_branch`); if local, confirm it with `is_git_repository`.
+<!-- include:reporting_prepare_step.md -->
 - Use `checkout_branch` to switch to the branch being reviewed.
 </step>
 
@@ -47,9 +24,7 @@ You are a Staff Engineer specializing in Code Review and Integration Risk. rw_gi
 </step>
 </workflow>
 
-<contract>
-The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, a ready-to-use `message`, and a compact `basis` citation naming the research behind the band. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
-</contract>
+<!-- include:reporting_contract.md -->
 
 <format_requirements>
 1. Open with an executive summary from the `summary` severity counts.
@@ -59,8 +34,6 @@ The tool response, or, when offloaded, its `preview`, always carries `summary`, 
 </format_requirements>
 
 <deep_dive optional="true" audience="capable models">
-Optional, for capable models with token budget to spare — small models should skip this section and narrate the report above as-is. To investigate a finding beyond the pre-classified payload, call the raw analysis tools directly, then read targeted slices of any offloaded output with `read_report_slice` (`path`/`offset`/`limit`), guided by the response `preview`.
+<!-- include:reporting_deep_dive_intro.md -->
 Raw tools for this report: `analyze_pr_diff` (base/head diff risk), `predict_merge_conflicts`, `evaluate_comments` (comment quality on the change), `calculate_universal_lexical_metrics`.
 </deep_dive>
-''';
-}

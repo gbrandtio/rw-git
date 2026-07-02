@@ -38,6 +38,17 @@ class GenerateCodeReviewReportTool implements McpTool {
             'description':
                 'Max recent commits to analyze (default: $defaultCommitLimit).',
           },
+          'base_branch': {
+            'type': 'string',
+            'description': 'Optional. Merge target branch. When both '
+                'base_branch and target_branch are set, predicted merge '
+                'conflicts between them are included as findings.',
+          },
+          'target_branch': {
+            'type': 'string',
+            'description': 'Optional. Branch under review, compared against '
+                'base_branch for conflict prediction.',
+          },
         },
         'required': ['directory'],
       };
@@ -47,8 +58,15 @@ class GenerateCodeReviewReportTool implements McpTool {
     final directory = arguments.getStringArgument('directory');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
     final branch = arguments['branch']?.toString();
-    final payload = await ReportOrchestrator(runner)
-        .codeReviewReport(directory, limit: limit, branch: branch);
+    final baseBranch = arguments.getOptionalStringArgument('base_branch');
+    final targetBranch = arguments.getOptionalStringArgument('target_branch');
+    final payload = await ReportOrchestrator(runner).codeReviewReport(
+      directory,
+      limit: limit,
+      branch: branch,
+      baseBranch: baseBranch,
+      targetBranch: targetBranch,
+    );
     return jsonEncode(payload.toJson());
   }
 }

@@ -1,4 +1,54 @@
 # 3.1.0
+- **FEAT (Skills, depth escalation):** Each of the five reporting skills
+  gains a short trailing `<deep_dive optional="true" audience="capable
+  models">` section: the default path stays the compact one-call
+  narrate-the-report workflow (the small-LLM path, unchanged in cost), and
+  capable models get an explicit route to the report's raw analysis tools
+  plus `read_report_slice` drill-down. One skillset serves both model
+  classes; no duplicated skill surface.
+- **REFACTOR (Skills, single-sourcing v2):** The five reporting skills are
+  now generated from `SKILL.template.md` files that reference shared
+  partials in `.agents/skills/_shared/` (`reporting_contract.md`,
+  `reporting_prepare_step.md`, `reporting_deep_dive_intro.md`) — the
+  contract/prepare/deep-dive boilerplate previously copied verbatim across
+  all five skills (and mirrored into five generated prompts) now lives
+  once. `tool/sync_prompts.dart` expands the template and writes **both**
+  the agent-facing `SKILL.md` (with a generated-file notice, stripped from
+  prompt bodies) and the Dart prompt; `prompts_sync_test` guards both
+  axes. The shared contract text now also names the `basis` citation field.
+- **FEAT (Reports, real complexity science):** The technical, code-review,
+  and audit reports now include **genuine McCabe cyclomatic complexity and
+  maintainability-index findings** (`lexicalComplexity` category, standard
+  absolute bands: CC > 10/20/50 → Elevated/High/Critical; MI < 85/65 →
+  Elevated/High). The new `BoundedLexicalMetricsSampler` (ADR-0014) lexes
+  only the top-`maxLexicalMetricsFilesPerReport` files by churn (skipping
+  files over `maxLexicalMetricsFileSizeBytes`, path-traversal-safe, in a
+  background isolate), so report runtime stays bounded. Previously the
+  lexical metrics engine was reachable only via
+  `calculate_universal_lexical_metrics` and never appeared in any report;
+  report "complexity" was solely the diff-keyword proxy (which remains, as
+  a repo-relative signal).
+- **FEAT (Reports, orphaned analyzers wired in):**
+  - PM report gains **delivery cadence** findings from
+    `CommitVelocityHeuristic`: declining trend (Elevated), Gini author
+    concentration > 0.6 (High), burnout-window share > 15% (High).
+  - Code-review report accepts optional `base_branch`/`target_branch` and
+    classifies **predicted merge conflicts** (`ConflictRiskHeuristic`):
+    textual conflicts High, logical overlaps Elevated.
+  - Technical report gains **refactoring awareness**
+    (`RefactoringDetectionAlgorithm`): churn/volatility findings on
+    refactored files are downgraded one band (the RA-SZZ insight), and 5+
+    refactoring commits surface as an Elevated tech-debt-paydown signal.
+  - Repository audit gains **commit hygiene** aggregates: mega commits and
+    suspicious commits, one bounded finding per family.
+- **FEAT (Interpretation, new compound rules):** Rule 5 — genuine McCabe
+  High-or-worse + top-decile churn on the same file → **Critical**
+  `real_complexity_x_churn`; Rule 6 — predicted conflict + bug hotspot →
+  **High** `conflict_x_bug_hotspot`.
+- **CHORE (Docs process):** Plain git-operation tools (`core` category) are
+  now exempt from the per-tool `doc/tools/` document requirement (their
+  `inputSchema` is the complete contract); `tools_docs_sync_test` encodes
+  the exemption list. Follows the doc cleanup that removed those documents.
 - **FEAT (Intelligence, research visibility):** Every classified `Finding`
   now carries its academic grounding in the payload: a compact `basis`
   citation tag (e.g. `Truck-factor estimation (Avelino et al. 2016)`) that

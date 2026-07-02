@@ -12,15 +12,21 @@ import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/core/network/http_client.dart';
 import 'package:rw_git/src/core/process_runner.dart';
 import 'package:rw_git/src/intelligence/architecture/logical_coupling_algorithm.dart';
+import 'package:rw_git/src/intelligence/architecture/refactoring_detection_algorithm.dart';
 import 'package:rw_git/src/intelligence/history/algorithms/code_volatility_algorithm.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/advanced_metrics_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/bug_hotspots_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/churn_heuristic.dart';
+import 'package:rw_git/src/intelligence/history/heuristics/commit_velocity_heuristic.dart';
+import 'package:rw_git/src/intelligence/history/heuristics/conflict_risk_heuristic.dart';
+import 'package:rw_git/src/intelligence/history/heuristics/mega_commits_heuristic.dart';
+import 'package:rw_git/src/intelligence/history/heuristics/suspicious_commits_heuristic.dart';
 import 'package:rw_git/src/intelligence/architecture/bus_factor_algorithm.dart';
 import 'package:rw_git/src/intelligence/security/compliance_scanner.dart';
 import 'package:rw_git/src/intelligence/security/dependency_freshness_checker.dart';
 import 'package:rw_git/src/intelligence/security/dependency_manifest_parser.dart';
 import 'package:rw_git/src/intelligence/security/secrets_scanner.dart';
+import 'package:rw_git/src/intelligence/static_analysis/metrics/bounded_lexical_metrics_sampler.dart';
 import 'package:rw_git/src/models/dependency_freshness_dto.dart';
 
 import 'compound_finding_correlator.dart';
@@ -86,7 +92,8 @@ class ReportOrchestrator {
   }
 
   /// Project-management report: knowledge concentration (bus factor + per-file
-  /// ownership) and delivery bottlenecks (bug hotspots).
+  /// ownership), delivery bottlenecks (bug hotspots), and delivery cadence
+  /// (velocity trend, author concentration, burnout-window work).
   Future<ReportPayload> pmReport(
     String directory, {
     String? limit,
@@ -98,11 +105,14 @@ class ReportOrchestrator {
         .calculateChurnWithAuthors(directory, limit: lim);
     final hotspots = await BugHotspotsHeuristic(runner)
         .calculateBugHotspots(directory, limit: lim);
+    final velocity = await CommitVelocityHeuristic(runner)
+        .calculateCommitVelocity(directory, limit: lim);
 
     final findings = <Finding>[
       ..._classifier.fromBusFactor(busFactor),
       ..._classifier.fromOwnership(churnAuthors),
       ..._classifier.fromBugHotspots(hotspots),
+      ..._classifier.fromCommitVelocity(velocity),
     ];
     return ReportPayload.fromFindings(
       reportType: 'pm',
@@ -113,35 +123,56 @@ class ReportOrchestrator {
   }
 
   /// Code-review report: risk signals for code under review — exposed secrets,
-  /// bug hotspots, single-owner files, and complexity outliers among the code
-  /// a reviewer is about to accept. (PR-diff and merge-conflict specifics stay
-  /// in the dedicated analyze_pr_diff / predict_merge_conflicts tools.)
+  /// bug hotspots, single-owner files, complexity outliers (both the diff
+  /// proxy and genuine McCabe metrics on the highest-churn files), and, when
+  /// [baseBranch] and [targetBranch] are both provided, predicted merge
+  /// conflicts between them.
   Future<ReportPayload> codeReviewReport(
     String directory, {
     String? limit,
     String? branch,
+    String? baseBranch,
+    String? targetBranch,
   }) async {
     final lim = limit ?? defaultCommitLimit;
     final advanced = await AdvancedMetricsHeuristic(runner)
         .calculateAdvancedMetrics(directory, limit: lim);
+    final churn =
+        await ChurnHeuristic(runner).calculateChurn(directory, limit: lim);
     final churnAuthors = await ChurnHeuristic(runner)
         .calculateChurnWithAuthors(directory, limit: lim);
     final hotspots = await BugHotspotsHeuristic(runner)
         .calculateBugHotspots(directory, limit: lim);
     final secrets = await SecretsScanner(runner)
         .findSecrets(directory, limit: lim, branch: branch);
+    final lexicalMetrics = await const BoundedLexicalMetricsSampler()
+        .sampleTopChurnFiles(directory, churn.fileChurn);
+
+    final conflictFindings = <Finding>[];
+    if (baseBranch != null && targetBranch != null) {
+      final conflictRisk = await ConflictRiskHeuristic(runner)
+          .findConflictRiskFiles(directory, baseBranch, targetBranch);
+      conflictFindings.addAll(_classifier.fromConflictRisk(conflictRisk));
+    }
 
     final findings = <Finding>[
       ..._classifier.fromSecrets(secrets),
       ..._classifier.fromComplexity(advanced),
+      ..._classifier.fromLexicalMetrics(lexicalMetrics),
       ..._classifier.fromOwnership(churnAuthors),
       ..._classifier.fromBugHotspots(hotspots),
+      ..._classifier.fromChurn(churn),
+      ...conflictFindings,
     ];
     return ReportPayload.fromFindings(
       reportType: 'code_review',
       findings: findings,
       compounds: _correlator.correlate(findings),
-      metadata: {'directory': directory, 'commit_limit': lim},
+      metadata: {
+        'directory': directory,
+        'commit_limit': lim,
+        'conflict_prediction_ran': baseBranch != null && targetBranch != null,
+      },
     );
   }
 
@@ -158,8 +189,14 @@ class ReportOrchestrator {
     final lim = limit ?? defaultCommitLimit;
     final busFactor =
         await BusFactorAlgorithm(runner).execute(directory, limit: lim);
+    final megaCommits = await MegaCommitsHeuristic(runner)
+        .findMegaCommits(directory, limit: lim);
+    final suspiciousCommits = await SuspiciousCommitsHeuristic(runner)
+        .findSuspiciousCommits(directory, limit: lim);
     final findings = <Finding>[
       ..._classifier.fromBusFactor(busFactor),
+      ..._classifier.fromMegaCommits(megaCommits),
+      ..._classifier.fromSuspiciousCommits(suspiciousCommits),
       ...await _technicalFindings(directory, lim),
       ...await _securityFindings(
         directory,
@@ -192,15 +229,27 @@ class ReportOrchestrator {
         await LogicalCouplingAlgorithm(runner).execute(directory, limit: lim);
     final volatility =
         await CodeVolatilityAlgorithm(runner).execute(directory, limit: lim);
+    // Genuine McCabe/maintainability metrics for a bounded top-churn sample
+    // (ADR-0014) — churn is already computed above, so this costs no extra
+    // git calls, only N bounded file reads.
+    final lexicalMetrics = await const BoundedLexicalMetricsSampler()
+        .sampleTopChurnFiles(directory, churn.fileChurn);
+    final refactorings = await RefactoringDetectionAlgorithm(runner)
+        .execute(directory, limit: lim);
 
-    return <Finding>[
+    final findings = <Finding>[
       ..._classifier.fromComplexity(advanced),
+      ..._classifier.fromLexicalMetrics(lexicalMetrics),
       ..._classifier.fromChurn(churn),
       ..._classifier.fromOwnership(churnAuthors),
       ..._classifier.fromBugHotspots(hotspots),
       ..._classifier.fromLogicalCoupling(coupling),
       ..._classifier.fromVolatility(volatility),
+      ..._classifier.fromRefactoringActivity(refactorings),
     ];
+    // Refactoring-aware pass (RA-SZZ insight): churn/volatility findings on
+    // files the refactorings renamed are downgraded one band.
+    return _classifier.applyRefactoringContext(findings, refactorings);
   }
 
   Future<List<Finding>> _securityFindings(

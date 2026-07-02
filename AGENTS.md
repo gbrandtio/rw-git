@@ -111,6 +111,12 @@ not silently record it as a promise.
 cannot tell an intention from a contract. A decision record or an
 implementation are both verifiable; a "later" is not.
 
+### Rule 14: Git and Version Control Operations
+- You **MUST NEVER** perform VCS and git operations.
+- Never push code.
+- Never stage code.
+- Never commit changes.
+
 ---
 
 ## Required Agent Workflow
@@ -140,13 +146,12 @@ Before completing any task, you MUST strictly run `dart analyze` to ensure there
 - **NEVER guess the architecture, security, or performance patterns of this project.** You must treat this document and all linked documents as legally binding. You must use the Task Triage to identify the correct documentation, read it thoroughly, and then implement your solution adhering strictly to established patterns.
 - **Comments & Documentation**: Never include prompts or thinking processes in code comments or documentation. The code comments and documentation must only focus on technical details and business logic that help readers understand technical foundations, business logic - the "why". Comments must not just simply explain the code.
 - **Deprecated items**: Never use deprecated functions or libraries.
-- **Version Control**: Never perform VCS operations directly via standard `git` terminal commands if testing. Use mocked `ProcessRunner` interfaces or create temporary, isolated test repositories.
 - **Isolate Enforcement**: If a parsing task blocks the main isolate for more than 16ms during high-load scenarios, you must offload it to a background Isolate.
 - **Magic Numbers**: Use expressive constants instead of literals for exit codes or buffer sizes.
 - **Formatting (STRICTLY ENFORCED)**: All Dart files must be formatted with an 80-character line limit. You MUST strictly run `dart format --line-length=80 .` before finalizing your changes and completing the task to ensure the CI build passes. Do not skip this step under any circumstances.
 - **Analysis (STRICTLY ENFORCED)**: You MUST strictly run `dart analyze` before finalizing your changes. All warnings and info messages must be resolved. Do not skip this step under any circumstances.
 - **Documentation Updates**: It is mandatory to update `README.md` and `CHANGELOG.md` for any feature updates, fixes, or modifications being done to the library or the MCP server.
-- **Tool Documentation Sync (CRITICAL)**: Any change to the tool registrations in `lib/src/mcp/server_registry.dart` (adding, renaming, merging, or removing a tool) must, in the same commit: update the tool list in `README.md`, and add/rename/remove the matching `doc/tools/<category>/<tool_name>.md` document. A regression test (`test/mcp/tools_docs_sync_test.dart`) asserts that every registered tool name has a matching document under `doc/tools/`.
+- **Tool Documentation Sync (CRITICAL)**: Any change to the tool registrations in `lib/src/mcp/server_registry.dart` (adding, renaming, merging, or removing a tool) must, in the same change set: update the tool list in `README.md`, and add/rename/remove the matching `doc/tools/<category>/<tool_name>.md` document. Plain git-operation tools (the `core` category: clone, checkout, init, fetch, commit listing) are exempt — they wrap a single well-known git command and their `inputSchema` is the complete contract. A regression test (`test/mcp/tools_docs_sync_test.dart`) asserts the sync and encodes the exemption list.
 - **Constants and Defaults**: All constants, default values, and magic numbers must be extracted and centralized in `lib/src/constants.dart`.
 
 ## Testing

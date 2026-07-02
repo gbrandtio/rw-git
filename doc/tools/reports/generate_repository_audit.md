@@ -8,7 +8,7 @@ This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpreta
 
 ## Algorithm
 
-1. `ReportOrchestrator` runs the relevant analysis algorithms server-side (bus factor, ownership, bug hotspots, complexity, churn, logical coupling, volatility, secrets, compliance, and — opt-in — dependency freshness), reusing the existing library-first algorithms.
+1. `ReportOrchestrator` runs the relevant analysis algorithms server-side (bus factor, ownership, bug hotspots, complexity — including genuine McCabe/maintainability metrics on the top-churn files (ADR-0014) — churn, logical coupling, volatility, refactoring detection, commit hygiene (mega and suspicious commits), secrets, compliance, and — opt-in — dependency freshness), reusing the existing library-first algorithms.
 2. Per-metric **classifiers** (`lib/src/intelligence/interpretation/classifiers/`) map each analysis DTO into severity-banded `Finding`s using the bands documented in [`doc/INTERPRETATION_GUIDE.md`](../../INTERPRETATION_GUIDE.md).
 3. The `CompoundFindingCorrelator` applies the cross-tool AND-rules — risks that only matter when two signals co-occur.
 4. Findings are ranked most-severe first and returned as a bounded `ReportPayload`.

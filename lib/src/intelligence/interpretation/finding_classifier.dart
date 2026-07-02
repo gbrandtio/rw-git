@@ -12,18 +12,26 @@ import 'package:rw_git/src/models/bus_factor_dto.dart';
 import 'package:rw_git/src/models/churn_metrics_dto.dart';
 import 'package:rw_git/src/models/churn_metrics_with_authors_dto.dart';
 import 'package:rw_git/src/models/code_volatility_dto.dart';
+import 'package:rw_git/src/models/commit_velocity_dto.dart';
 import 'package:rw_git/src/models/compliance_report_dto.dart';
 import 'package:rw_git/src/models/dependency_freshness_dto.dart';
+import 'package:rw_git/src/models/file_lexical_metrics_dto.dart';
 import 'package:rw_git/src/models/logical_coupling_dto.dart';
+import 'package:rw_git/src/models/refactoring_dto.dart';
 
 import 'classifiers/bug_hotspot_classifier.dart';
 import 'classifiers/bus_factor_classifier.dart';
 import 'classifiers/churn_classifier.dart';
+import 'classifiers/commit_hygiene_classifier.dart';
+import 'classifiers/commit_velocity_classifier.dart';
 import 'classifiers/compliance_classifier.dart';
 import 'classifiers/complexity_classifier.dart';
+import 'classifiers/conflict_risk_classifier.dart';
 import 'classifiers/dependency_classifier.dart';
+import 'classifiers/lexical_complexity_classifier.dart';
 import 'classifiers/logical_coupling_classifier.dart';
 import 'classifiers/ownership_classifier.dart';
+import 'classifiers/refactoring_context_classifier.dart';
 import 'classifiers/secrets_classifier.dart';
 import 'classifiers/volatility_classifier.dart';
 import 'finding.dart';
@@ -61,4 +69,29 @@ class FindingClassifier {
 
   List<Finding> fromSecrets(List<String> rawFindings) =>
       const SecretsClassifier().classify(rawFindings);
+
+  List<Finding> fromLexicalMetrics(List<FileLexicalMetricsDto> files) =>
+      const LexicalComplexityClassifier().classify(files);
+
+  List<Finding> fromCommitVelocity(CommitVelocityDto dto) =>
+      const CommitVelocityClassifier().classify(dto);
+
+  List<Finding> fromConflictRisk(Map<String, List<String>> conflictRisk) =>
+      const ConflictRiskClassifier().classify(conflictRisk);
+
+  List<Finding> fromMegaCommits(List<String> megaCommits) =>
+      const CommitHygieneClassifier().classifyMegaCommits(megaCommits);
+
+  List<Finding> fromSuspiciousCommits(List<String> suspiciousCommits) =>
+      const CommitHygieneClassifier()
+          .classifySuspiciousCommits(suspiciousCommits);
+
+  List<Finding> fromRefactoringActivity(List<RefactoringDto> refactorings) =>
+      const RefactoringContextClassifier().classify(refactorings);
+
+  /// Downgrades churn-derived findings whose subject was refactored; see
+  /// [RefactoringContextClassifier.annotate].
+  List<Finding> applyRefactoringContext(
+          List<Finding> findings, List<RefactoringDto> refactorings) =>
+      const RefactoringContextClassifier().annotate(findings, refactorings);
 }

@@ -144,11 +144,16 @@ already-classified payload (`summary`, `top_findings`, `compound_findings`).
 Every finding names the research behind its band in a compact `basis` tag
 (e.g. `Truck-factor estimation (Avelino et al. 2016)`), with a fuller
 per-finding `rationale` in the offloaded full report:
-- `generate_repository_audit`: High-level deep audit (technical + security).
-- `generate_technical_report`: Code quality, technical debt, architecture.
+- `generate_repository_audit`: High-level deep audit (technical + security +
+  commit hygiene).
+- `generate_technical_report`: Code quality, technical debt, architecture —
+  including genuine McCabe complexity / maintainability index on top-churn
+  files and refactoring-aware churn discounting.
 - `generate_security_report`: Secrets, compliance, dependency freshness.
-- `generate_pm_report`: Knowledge concentration and delivery bottlenecks.
-- `generate_code_review_report`: Risk signals for code under review.
+- `generate_pm_report`: Knowledge concentration, delivery bottlenecks, and
+  delivery cadence (velocity trend, author concentration, burnout signals).
+- `generate_code_review_report`: Risk signals for code under review; pass
+  `base_branch`/`target_branch` to include predicted merge conflicts.
 
 **Dev Metrics & Technical Debt:**
 - `analyze_code_quality`: Identifies code smells and technical debt. Pass
@@ -204,8 +209,13 @@ per-finding `rationale` in the offloaded full report:
 ### Available Prompts
 
 The server exposes native MCP Prompts that hand the agent a ready-made,
-token-efficient workflow for a specific reporting goal. Each is the
-authoritative source for the matching agent skill (see below):
+token-efficient workflow for a specific reporting goal. Each is generated
+from a canonical `SKILL.template.md` (shared boilerplate lives once in
+`.agents/skills/_shared/`), which also produces the matching agent skill
+(see below). Every workflow serves both model classes: the default path is
+the compact one-call narrate-the-report flow for small/local models, and a
+trailing `<deep_dive>` section routes capable models to the raw analysis
+tools plus `read_report_slice` drill-down:
 
 - `rw-git-mcp-reporting`: High-level Deep Audit orchestrating the most critical
   tools across health, security, architecture, and ecosystem; routes to the

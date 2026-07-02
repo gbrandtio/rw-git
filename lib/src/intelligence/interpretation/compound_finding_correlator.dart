@@ -42,6 +42,24 @@ class CompoundFindingCorrelator {
       'Murta, SBES 2009): the real structure has drifted from the intended '
       'one.';
 
+  /// Rule 5 — genuine McCabe outlier that also churns.
+  static const String realComplexityChurnBasis =
+      'McCabe complexity x churn (McCabe 1976; Nagappan & Ball 2005)';
+  static const String realComplexityChurnRationale =
+      'Genuine cyclomatic complexity above the high-risk band (McCabe, '
+      '1976) on a file with top-decile churn (Nagappan & Ball, ICSE 2005) '
+      'is the strongest single defect-injection predictor the report can '
+      'compute.';
+
+  /// Rule 6 — predicted merge conflict on a known bug hotspot.
+  static const String conflictHotspotBasis =
+      'Merge conflict x bug hotspot (Brun et al. 2011; Śliwerski 2005)';
+  static const String conflictHotspotRationale =
+      'A predicted merge conflict (Brun et al., FSE 2011) on a file with '
+      'SZZ-attributed bug density (Śliwerski et al., MSR 2005) risks '
+      'resolving the conflict incorrectly in precisely the code that '
+      'breeds bugs.';
+
   /// Rule 4 — exposed secret alongside stale dependencies.
   static const String staleDependencySecretBasis =
       'Secret leakage x supply chain (Meli et al. 2019; Ohm et al. 2020)';
@@ -158,6 +176,53 @@ class CompoundFindingCorrelator {
             },
           ));
         }
+      }
+    }
+
+    // Rule 5: a genuine McCabe cyclomatic-complexity outlier (absolute bands,
+    // unlike the keyword-count proxy of Rule 2) that also churns heavily.
+    for (final lexical in of('lexicalComplexity')) {
+      if (lexical.severity.rank < Severity.high.rank) continue;
+      final churn = onSubject('churn', lexical.subject);
+      if (churn != null) {
+        compounds.add(_compound(
+          subject: lexical.subject,
+          metric: 'real_complexity_x_churn',
+          band: 'high McCabe complexity in actively-changing code',
+          message: 'Prime defect-injection risk: ${lexical.subject} has '
+              'genuine McCabe complexity '
+              '${lexical.evidence['cyclomatic_complexity']} and top-decile '
+              'churn.',
+          sources: const [
+            'calculate_universal_lexical_metrics',
+            'analyze_code_quality',
+          ],
+          basis: realComplexityChurnBasis,
+          rationale: realComplexityChurnRationale,
+          evidence: {'lexical_complexity': _ref(lexical), 'churn': _ref(churn)},
+        ));
+      }
+    }
+
+    // Rule 6: a predicted merge conflict landing on a known bug hotspot.
+    for (final conflict in of('conflictRisk')) {
+      final hotspot = onSubject('bugHotspot', conflict.subject);
+      if (hotspot != null) {
+        compounds.add(_compound(
+          subject: conflict.subject,
+          metric: 'conflict_x_bug_hotspot',
+          band: 'merge conflict predicted on a bug hotspot',
+          message: 'High-stakes merge: ${conflict.subject} is expected to '
+              'conflict and is already a bug hotspot.',
+          sources: const ['predict_merge_conflicts', 'analyze_bug_hotspots'],
+          basis: conflictHotspotBasis,
+          rationale: conflictHotspotRationale,
+          evidence: {
+            'conflict_risk': _ref(conflict),
+            'bug_hotspot': _ref(hotspot),
+          },
+          severity: Severity.high,
+        ));
       }
     }
 

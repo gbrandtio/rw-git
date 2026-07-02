@@ -1,7 +1,9 @@
 /// prompt_codegen.dart
 ///
 /// Pure, side-effect-free helpers for turning a canonical agent skill
-/// (`.agents/skills/<name>/SKILL.md`) into its MCP prompt Dart source
+/// template (`.agents/skills/<name>/SKILL.template.md`, expanded with the
+/// shared partials in `.agents/skills/_shared/`) into both the agent-facing
+/// `SKILL.md` and its MCP prompt Dart source
 /// (`lib/src/mcp/prompts/<name>_prompt.dart`).
 ///
 /// Shared by `tool/sync_prompts.dart` (the generator CLI) and
@@ -105,8 +107,8 @@ import '../mcp_prompt.dart';
 /// $fileName
 /// Provides the ${doc.name} skill as an MCP Prompt.
 ///
-/// GENERATED FILE — do not edit by hand. Edit the canonical skill at
-/// `.agents/skills/${doc.name}/SKILL.md` and run
+/// GENERATED FILE — do not edit by hand. Edit the canonical template at
+/// `.agents/skills/${doc.name}/SKILL.template.md` and run
 /// `dart run tool/sync_prompts.dart`.
 class $className implements McpPrompt {
   @override
@@ -135,6 +137,44 @@ $body\'\'\';
 
 /// A raw triple-quoted Dart string cannot contain `'''`.
 bool bodyIsRawSafe(String body) => !body.contains("'''");
+
+/// Matches an include marker line in a `SKILL.template.md`:
+/// `<!-- include:reporting_contract.md -->` — the path is relative to
+/// `.agents/skills/_shared/`.
+final RegExp includeMarkerPattern = RegExp(r'<!--\s*include:([^\s]+)\s*-->');
+
+/// Expands every include marker in [template] by substituting the shared
+/// partial returned by [readPartial] (called with the marker's relative
+/// path). Pure so the generator CLI and the drift-guard test can never
+/// disagree about what an expanded skill looks like.
+String expandIncludes(
+    String template, String Function(String relativePath) readPartial) {
+  return template.replaceAllMapped(includeMarkerPattern,
+      (match) => readPartial(match.group(1)!).trimRight());
+}
+
+/// The notice inserted into every generated `SKILL.md` so a contributor
+/// edits the template, not the expansion. Stripped before prompt
+/// generation so agents never pay tokens for it.
+const String generatedSkillNotice =
+    '<!-- GENERATED FILE — do not edit by hand. Edit SKILL.template.md in '
+    'this directory and run `dart run tool/sync_prompts.dart`. -->';
+
+/// Renders the on-disk `SKILL.md` content for an [expandedTemplate]:
+/// the frontmatter, the generated-file notice, then the body.
+String renderGeneratedSkill(String expandedTemplate) {
+  final normalized = expandedTemplate.replaceAll('\r\n', '\n');
+  final frontmatterEnd = normalized.indexOf('\n---', 3);
+  if (!normalized.startsWith('---') || frontmatterEnd == -1) {
+    throw const FormatException(
+        'SKILL.template.md must start with a "---" frontmatter block.');
+  }
+  final afterClose = normalized.indexOf('\n', frontmatterEnd + 1);
+  final head = normalized.substring(0, afterClose + 1);
+  final body =
+      normalized.substring(afterClose + 1).replaceFirst(RegExp(r'^\n+'), '');
+  return '$head\n$generatedSkillNotice\n\n$body';
+}
 
 String _escapeSingleQuoted(String rawValue) => rawValue
     .replaceAll('\\', '\\\\')

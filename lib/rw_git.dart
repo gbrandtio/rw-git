@@ -80,3 +80,4 @@ export 'src/models/logical_coupling_dto.dart';
 export 'src/models/bus_factor_dto.dart';
 export 'src/models/code_volatility_dto.dart';
 export 'src/models/refactoring_dto.dart';
+export 'src/models/file_lexical_metrics_dto.dart';

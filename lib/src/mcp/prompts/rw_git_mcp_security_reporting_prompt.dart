@@ -3,8 +3,8 @@ import '../mcp_prompt.dart';
 /// rw_git_mcp_security_reporting_prompt.dart
 /// Provides the rw-git-mcp-security-reporting skill as an MCP Prompt.
 ///
-/// GENERATED FILE — do not edit by hand. Edit the canonical skill at
-/// `.agents/skills/rw-git-mcp-security-reporting/SKILL.md` and run
+/// GENERATED FILE — do not edit by hand. Edit the canonical template at
+/// `.agents/skills/rw-git-mcp-security-reporting/SKILL.template.md` and run
 /// `dart run tool/sync_prompts.dart`.
 class RwGitMcpSecurityReportingPrompt implements McpPrompt {
   @override
@@ -32,7 +32,7 @@ You are a Staff Cybersecurity Engineer specializing in Application Security and 
 
 <workflow>
 <step id="1" name="Prepare">
-- If the repository is remote, clone it first; if local, confirm it with `is_git_repository`.
+- If the repository is remote, clone it first (`clone_repository` or `clone_specific_branch`); if local, confirm it with `is_git_repository`.
 </step>
 
 <step id="2" name="Generate the report">
@@ -48,7 +48,7 @@ You are a Staff Cybersecurity Engineer specializing in Application Security and 
 </workflow>
 
 <contract>
-The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, and a ready-to-use `message`. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
+The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, a ready-to-use `message`, and a compact `basis` citation naming the research behind the band. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
 </contract>
 
 <format_requirements>
@@ -57,5 +57,10 @@ The tool response, or, when offloaded, its `preview`, always carries `summary`, 
 3. For each finding, state its severity band, the `subject` (file/dependency/commit), and the recommended remediation. Present as a table or grouped bullets. Never dump raw JSON.
 4. If both finding lists are empty, report that no secrets, compliance, or dependency risks were found in the scanned window.
 </format_requirements>
+
+<deep_dive optional="true" audience="capable models">
+Optional, for capable models with token budget to spare — small models should skip this section and narrate the report above as-is. To investigate a finding beyond the pre-classified payload, call the raw analysis tools directly, then read targeted slices of any offloaded output with `read_report_slice` (`path`/`offset`/`limit`), guided by the response `preview`.
+Raw tools for this report: `detect_secrets_in_commits`, `audit_compliance`, `analyze_dependency_drift` (per-ecosystem manifest detail).
+</deep_dive>
 ''';
 }

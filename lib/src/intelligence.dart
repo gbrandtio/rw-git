@@ -24,3 +24,4 @@ export 'intelligence/security/registry_adapters.dart';
 export 'intelligence/security/semver_compare.dart';
 export 'intelligence/security/secrets_scanner.dart';
 export 'intelligence/static_analysis/dart/dart_ast_analyzer.dart';
+export 'intelligence/static_analysis/metrics/bounded_lexical_metrics_sampler.dart';
