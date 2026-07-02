@@ -45,7 +45,7 @@ Both paths are **sandboxed**:
   session; it maps URI → absolute path and refuses anything unregistered, so it
   cannot be used to read arbitrary paths.
 
-The `preview` from the offload summary (top-level keys, array lengths) is what
+The `preview` from the offload summary (a `structure` map of top-level keys to type tags with array lengths) is what
 makes targeting possible: the model knows what to ask for before asking.
 
 ## Consequences

@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:path/path.dart' as p;
 import '../../mcp_tool.dart';
+import '../../utils/json_structure_preview.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// read_report_slice_tool.dart
@@ -57,17 +58,8 @@ class ReadReportSliceTool implements McpTool {
       };
 
   Map<String, dynamic>? _previewOf(dynamic value) {
-    if (value is Map) {
-      final topLevelKeys = <String>[];
-      final arrayLengths = <String, int>{};
-      value.forEach((key, v) {
-        final resourceKey = key.toString();
-        topLevelKeys.add(resourceKey);
-        if (v is List) arrayLengths[resourceKey] = v.length;
-      });
-      return {'top_level_keys': topLevelKeys, 'array_lengths': arrayLengths};
-    } else if (value is List) {
-      return {'top_level_type': 'array', 'length': value.length};
+    if (value is Map || value is List) {
+      return buildJsonStructurePreview(value);
     }
     return null;
   }

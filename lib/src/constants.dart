@@ -56,6 +56,14 @@ const int reportToolOffloadThresholdBytes = 4096;
 /// model would immediately fetch in full anyway.
 const int compactHistoryToolOffloadThresholdBytes = 16384;
 
+/// Inline hint attached to every offload summary. Kept deliberately short:
+/// it is re-sent on every offloaded call, so each character is a recurring
+/// token cost. The full offload contract lives once in
+/// `get_rw_git_documentation` instead of being repeated here.
+const String offloadedReportHint =
+    'Read targeted slices with read_report_slice (path/offset/limit) using '
+    'the preview below; full offload contract: get_rw_git_documentation.';
+
 /// Per-tool overrides for [offloadSizeThresholdBytes], keyed by MCP tool
 /// name (ADR-0011). Tools absent from this map use the global default.
 const Map<String, int> perToolOffloadThresholdBytes = {

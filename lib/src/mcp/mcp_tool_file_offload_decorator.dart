@@ -4,6 +4,7 @@ import 'package:path/path.dart' as p;
 import '../constants.dart';
 import 'mcp_resources.dart';
 import 'mcp_tool.dart';
+import 'utils/json_structure_preview.dart';
 import 'utils/mcp_argument_extensions.dart';
 
 /// A decorator that adds file-offloading capabilities to any [McpTool].
@@ -76,40 +77,18 @@ class McpToolFileOffloadDecorator implements McpTool {
   /// the entire offloaded file into context.
   Map<String, dynamic>? _buildPreview(dynamic decoded) {
     try {
+      final preview = buildJsonStructurePreview(decoded);
+
+      // Actionable-inline convention: if the tool produced already-classified
+      // findings (the report meta-tools), surface a bounded slice of them
+      // right here so a small model can narrate a report from this summary
+      // without a second read of the offloaded file. Purely a passthrough —
+      // the decorator stays schema-agnostic and just forwards known keys.
       if (decoded is Map) {
-        final topLevelKeys = <String>[];
-        final arrayLengths = <String, int>{};
-        final valueTypes = <String, String>{};
-        decoded.forEach((key, value) {
-          final resourceKey = key.toString();
-          topLevelKeys.add(resourceKey);
-          if (value is List) {
-            arrayLengths[resourceKey] = value.length;
-            valueTypes[resourceKey] = 'array';
-          } else if (value is Map) {
-            valueTypes[resourceKey] = 'object';
-          } else {
-            valueTypes[resourceKey] = value.runtimeType.toString();
-          }
-        });
-        final preview = <String, dynamic>{
-          'top_level_keys': topLevelKeys,
-          'array_lengths': arrayLengths,
-          'value_types': valueTypes,
-        };
-
-        // Actionable-inline convention: if the tool produced already-classified
-        // findings (the report meta-tools), surface a bounded slice of them
-        // right here so a small model can narrate a report from this summary
-        // without a second read of the offloaded file. Purely a passthrough —
-        // the decorator stays schema-agnostic and just forwards known keys.
         _carryFindings(decoded, preview);
-
-        return preview;
-      } else if (decoded is List) {
-        return {'top_level_type': 'array', 'length': decoded.length};
       }
-      return {'top_level_type': decoded.runtimeType.toString()};
+
+      return preview;
     } catch (_) {
       return null;
     }
@@ -227,8 +206,7 @@ class McpToolFileOffloadDecorator implements McpTool {
             'Tool execution successful. Output offloaded to disk to preserve context window.',
         'file_size_bytes': await file.length(),
         'file': outputPath,
-        'hint':
-            'To generate a meaningful report, you MUST use your file reading tools to inspect this file and extract the concrete metrics. Do not just inform the user that the file was created. For large files, prefer the read_report_slice tool with this file path and the preview below to fetch only the data you need, instead of reading the whole file.'
+        'hint': offloadedReportHint,
       };
 
       final preview = _buildPreview(decoded);

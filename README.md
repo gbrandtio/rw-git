@@ -121,7 +121,10 @@ Large tool outputs are offloaded to `.rw_git/reports/` instead of being
 returned inline. The size gate is per tool: report meta-tools offload above
 4 KiB (their summaries already carry the findings inline), compact history
 tools (`get_stats`, `get_commits_between`) stay inline up to 16 KiB, and all
-other tools use the 8 KiB default.
+other tools use the 8 KiB default. Each offload summary carries a compact
+`preview` (a `structure` map of top-level keys to type tags, plus any
+pre-classified findings) so targeted slices can be fetched with
+`read_report_slice` without reading the whole file.
 
 ### Available MCP Tools
 

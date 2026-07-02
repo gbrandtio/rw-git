@@ -11,7 +11,7 @@ Answers: "How do I get one piece of an offloaded report back without re-inflatin
 3. Resolve the optional dot-separated `path` argument (e.g. `"findings"` or `"summary.totals"`) key by key. A wrong path returns the available keys as a `preview`, so the model can self-correct without another guess-read cycle.
 4. If the resolved value is an array, return a bounded page — `offset` (default 0) and `limit` (default 50, max 500) — together with `total_length`, so the model knows how much remains. Otherwise return the resolved value directly.
 
-The `preview` field of the original offload summary (top-level keys, array lengths) is what makes targeting possible: the model knows what to ask for before asking.
+The `preview` field of the original offload summary (a `structure` map of top-level keys to type tags with array lengths) is what makes targeting possible: the model knows what to ask for before asking.
 
 ## Parameters
 

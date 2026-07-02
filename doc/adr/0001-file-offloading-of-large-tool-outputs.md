@@ -59,7 +59,7 @@ instead of the full payload. Specifically:
   violation error instead of writing.
 - **Actionable summary, not just a pointer.** The offload response is a small
   JSON object containing `status`, a human hint, `file`, `file_size_bytes`, and
-  a schema-agnostic `preview` (top-level keys, value types, array lengths). When
+  a schema-agnostic `preview` (a single `structure` map of top-level keys to compact type tags, e.g. `array(12)`). When
   the payload carries already-classified findings (`summary`, `top_findings`,
   `compound_findings` — see ADR-0005), a bounded slice of them is echoed into the
   preview so a small model can narrate the report **without a second read**.

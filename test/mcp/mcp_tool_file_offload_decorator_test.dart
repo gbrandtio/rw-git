@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:test/test.dart';
 import 'package:path/path.dart' as p;
+import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/mcp/mcp_tool.dart';
 import 'package:rw_git/src/mcp/mcp_tool_file_offload_decorator.dart';
 
@@ -387,11 +388,28 @@ void main() {
 
       final result = jsonDecode(resultString) as Map<String, dynamic>;
       final preview = result['preview'] as Map<String, dynamic>;
-      final topLevelKeys = preview['top_level_keys'] as List;
-      final arrayLengths = preview['array_lengths'] as Map;
+      final structure = preview['structure'] as Map<String, dynamic>;
 
-      expect(topLevelKeys, containsAll(['summary', 'findings', 'padding']));
-      expect(arrayLengths['findings'], equals(3));
+      // A single structure map (key -> compact type tag) replaces the old
+      // top_level_keys/array_lengths/value_types trio: each key appears once,
+      // keeping the recurring inline token cost of the summary minimal.
+      expect(structure.keys, containsAll(['summary', 'findings', 'padding']));
+      expect(structure['findings'], equals('array(3)'));
+      expect(preview.containsKey('top_level_keys'), isFalse);
+      expect(preview.containsKey('array_lengths'), isFalse);
+      expect(preview.containsKey('value_types'), isFalse);
+    });
+
+    test('offload summary hint is the short centralized constant', () async {
+      final structuredDecorator =
+          McpToolFileOffloadDecorator(MockStructuredTool());
+
+      final resultString = await structuredDecorator.execute({
+        'directory': tempDir.path,
+      });
+
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+      expect(result['hint'], equals(offloadedReportHint));
     });
   });
 }

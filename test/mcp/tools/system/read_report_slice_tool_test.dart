@@ -104,8 +104,9 @@ void main() {
 
       expect(result['error'], equals('Path not found'));
       final availableKeys = result['available_keys'] as Map<String, dynamic>;
-      expect(availableKeys['top_level_keys'],
-          containsAll(['summary', 'findings']));
+      final structure = availableKeys['structure'] as Map<String, dynamic>;
+      expect(structure.keys, containsAll(['summary', 'findings']));
+      expect(structure['findings'], equals('array(0)'));
     });
 
     test('returns an error for a missing file', () async {

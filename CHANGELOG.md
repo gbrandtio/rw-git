@@ -1,3 +1,20 @@
+# 3.1.0
+- **PERF/BREAKING (MCP, offload preview):** The offload summary's `preview`
+  now carries a single `structure` map (`key -> 'array(<n>)' | 'object' |
+  <scalar type>`) instead of the redundant `top_level_keys` /
+  `array_lengths` / `value_types` trio — each key appears once instead of up
+  to three times, cutting the recurring inline cost of every offloaded call.
+  The structural index is built by the shared
+  `lib/src/mcp/utils/json_structure_preview.dart` helper, which
+  `read_report_slice` now also uses for its path-miss `available_keys`
+  response. The `summary`/`top_findings`/`compound_findings` passthrough is
+  unchanged.
+- **PERF (MCP, offload hint):** The ~300-character `hint` repeated in every
+  offload summary is replaced by the short centralized
+  `offloadedReportHint` constant (`lib/src/constants.dart`); the full
+  offload contract lives once in `get_rw_git_documentation` instead of
+  being re-sent per call.
+
 # 3.0.10
 - **FEAT (Intelligence):** Upgraded the SZZ implementation from MA-SZZ to
   **RA-SZZ** (Refactoring-Aware SZZ: Neto et al., SANER 2018), removing the
