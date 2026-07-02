@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:rw_git/src/core/exceptions.dart';
 import 'package:rw_git/src/core/git_date_time.dart';
 import 'package:rw_git/src/models/short_log_dto.dart';
 import 'package:rw_git/src/models/short_stat_dto.dart';
@@ -234,20 +235,28 @@ class RwGitParser {
 
     for (final line in lines) {
       final match = regex.firstMatch(line);
-      if (match != null) {
-        // Honours the timestamp's UTC offset and throws on malformed input;
-        // substituting a fallback such as DateTime.now() would silently
-        // corrupt every date-based metric downstream.
-        final parsedDate = GitDateTime.parse(match.group(3)!).utc;
-
-        blameLines.add(GitBlameLine(
-          commitHash: match.group(1) ?? '',
-          author: match.group(2) ?? '',
-          date: parsedDate,
-          lineNumber: int.tryParse(match.group(4) ?? '') ?? 0,
-          content: match.group(5) ?? '',
-        ));
+      if (match == null) {
+        // BlameCommand pins --date=iso, so every line must match; silently
+        // skipping a line would return a truncated-but-successful result and
+        // corrupt every metric built on top of it.
+        throw GitOutputParseException(
+          offendingLine: line,
+          reason: 'does not match the git blame --date=iso format',
+        );
       }
+
+      // Honours the timestamp's UTC offset and throws on malformed input;
+      // substituting a fallback such as DateTime.now() would silently
+      // corrupt every date-based metric downstream.
+      final parsedDate = GitDateTime.parse(match.group(3)!).utc;
+
+      blameLines.add(GitBlameLine(
+        commitHash: match.group(1) ?? '',
+        author: match.group(2) ?? '',
+        date: parsedDate,
+        lineNumber: int.tryParse(match.group(4) ?? '') ?? 0,
+        content: match.group(5) ?? '',
+      ));
     }
     return GitBlame(lines: blameLines);
   }

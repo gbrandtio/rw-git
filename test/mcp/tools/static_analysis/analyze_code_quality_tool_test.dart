@@ -34,7 +34,7 @@ class _MockRunner implements ProcessRunner {
     List<String> args, {
     String? workingDirectory,
   }) async* {
-    if (args.contains('-p') && args.contains('--format=%H||%an||%ad||%s')) {
+    if (args.contains('-p') && args.contains('--format=%H||%an||%aI||%s')) {
       for (final line in suspiciousOutput.split('\n')) {
         yield line;
       }

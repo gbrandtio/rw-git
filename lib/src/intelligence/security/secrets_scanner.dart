@@ -15,7 +15,7 @@ class SecretsScanner {
   /// Offloads the heavy regex scanning to an Isolate.
   Future<List<String>> findSecrets(String directory,
       {String? limit, String? branch}) async {
-    final args = ['log', '-p', '--format=%H||%an||%ad||%s'];
+    final args = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);

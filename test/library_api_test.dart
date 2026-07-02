@@ -40,7 +40,7 @@ void main() {
     test('SecretsScanner is usable via package:rw_git/rw_git.dart', () async {
       final runner = MockProcessRunner();
       runner.setMockResult(
-          'git', ['log', '-p', '--format=%H||%an||%ad||%s'], 0, '', '');
+          'git', ['log', '-p', '--format=%H||%an||%aI||%s'], 0, '', '');
 
       final result = await SecretsScanner(runner).findSecrets('.');
 

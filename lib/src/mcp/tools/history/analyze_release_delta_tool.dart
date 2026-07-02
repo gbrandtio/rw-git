@@ -58,7 +58,7 @@ class AnalyzeReleaseDeltaTool implements McpTool {
 
     // 1. Get all commits and authors
     final logRaw = (await gitQuery.run(localDir,
-            ['log', '$firstTag..$secondTag', '--format=%H||%an||%ad||%s']))
+            ['log', '$firstTag..$secondTag', '--format=%H||%an||%aI||%s']))
         .getOrThrow();
 
     // 2. Get file diff stats

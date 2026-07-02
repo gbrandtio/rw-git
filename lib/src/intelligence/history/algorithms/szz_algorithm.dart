@@ -37,9 +37,13 @@ class SzzAlgorithm {
       r'extract(ed)?|inline(d)?)\b',
       caseSensitive: false);
 
-  /// `git blame -l` line shape: `<40-char hash> (<author> <iso-strict date>`.
+  /// `git blame -l` line shape:
+  /// `[^]<hash>[ <file>] (<author> <iso-strict date> <lineno>)`.
+  /// A `^` prefix marks a boundary commit (git shortens the hash by one hex
+  /// digit to keep the column width); the optional filename column appears
+  /// when `-C -C` attributes the line to content moved from another file.
   static final RegExp _blameLinePattern = RegExp(
-      r'^([a-f0-9]{40})\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+');
+      r'^(\^?[a-f0-9]{39,40})(?:\s+(.+?))?\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+\d+\)');
 
   /// Identifies bug introductions across the repository history:
   /// 1. Find bug-fix commits via keyword heuristics (positive/negative
@@ -194,11 +198,24 @@ class SzzAlgorithm {
             .where((l) => l.trim().isNotEmpty);
         for (final blameLine in blameLines) {
           final blameMatch = _blameLinePattern.firstMatch(blameLine);
-          if (blameMatch == null) continue;
+          if (blameMatch == null) {
+            // --date=iso-strict is pinned above, so every line must match;
+            // silently skipping would drop bug attributions and quietly
+            // corrupt the analysis.
+            throw GitOutputParseException(
+              offendingLine: blameLine,
+              reason: 'does not match the git blame -l --date=iso-strict '
+                  'format',
+            );
+          }
 
-          final introHash = blameMatch.group(1)!;
-          final author = blameMatch.group(2)!.trim();
-          final introDate = GitDateTime.parse(blameMatch.group(3)!).utc;
+          // Strip the boundary marker before handing the hash back to git:
+          // in rev syntax a leading `^` means exclusion, not boundary.
+          final rawHash = blameMatch.group(1)!;
+          final introHash =
+              rawHash.startsWith('^') ? rawHash.substring(1) : rawHash;
+          final author = blameMatch.group(3)!.trim();
+          final introDate = GitDateTime.parse(blameMatch.group(4)!).utc;
 
           // RA-SZZ commit filter: skip introducing commits that are
           // themselves refactorings. An unknown subject keeps the

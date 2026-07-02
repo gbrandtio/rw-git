@@ -108,6 +108,127 @@ void main() {
     });
 
     test(
+        'parses -C -C filename columns and boundary (^) hashes instead of '
+        'silently dropping them', () async {
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+            '-i',
+            '--no-merges',
+            '--format=format:%H%x09%aI%x09%s'
+          ],
+          '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
+
+      mockRunner.mockResult(
+          'git',
+          ['rev-parse', '0123456789abcdef0123456789abcdef01234567^'],
+          '1111222233334444555566667777888899990000\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'diff',
+            '-M',
+            '-w',
+            '--ignore-blank-lines',
+            '1111222233334444555566667777888899990000',
+            '0123456789abcdef0123456789abcdef01234567'
+          ],
+          '--- a/test_file.dart\n+++ b/test_file.dart\n@@ -5,2 +5,0 @@\n- deleted_line_1\n- deleted_line_2\n');
+
+      // Line 5: -C -C attributed the line to content moved from another
+      // file, so blame inserts a filename column between hash and paren.
+      // Line 6: boundary commit — `^` prefix and a 39-char hash.
+      mockRunner.mockResult(
+          'git',
+          [
+            'blame',
+            '--date=iso-strict',
+            '-l',
+            '-w',
+            '-C',
+            '-C',
+            '-M',
+            '-L',
+            '5,6',
+            '1111222233334444555566667777888899990000',
+            '--',
+            'test_file.dart'
+          ],
+          'fedcba9876543210fedcba9876543210fedcba98 lib/moved_from.dart (Author Name 2023-01-01T12:00:00+00:00 5) deleted_line_1\n'
+              '^edcba9876543210fedcba9876543210fedcba98 (Other Author 2022-12-31T08:00:00+02:00 6) deleted_line_2\n');
+
+      final matches = await szz.execute('./test_dir');
+
+      expect(matches.length, 2);
+      expect(matches[0].introducingCommitHash,
+          'fedcba9876543210fedcba9876543210fedcba98');
+      expect(matches[0].introducingAuthor, 'Author Name');
+      // Boundary marker stripped: `^` means exclusion in git rev syntax.
+      expect(matches[1].introducingCommitHash,
+          'edcba9876543210fedcba9876543210fedcba98');
+      expect(matches[1].introducingAuthor, 'Other Author');
+    });
+
+    test('throws GitOutputParseException on a malformed blame line', () async {
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+            '-i',
+            '--no-merges',
+            '--format=format:%H%x09%aI%x09%s'
+          ],
+          '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
+
+      mockRunner.mockResult(
+          'git',
+          ['rev-parse', '0123456789abcdef0123456789abcdef01234567^'],
+          '1111222233334444555566667777888899990000\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'diff',
+            '-M',
+            '-w',
+            '--ignore-blank-lines',
+            '1111222233334444555566667777888899990000',
+            '0123456789abcdef0123456789abcdef01234567'
+          ],
+          '--- a/test_file.dart\n+++ b/test_file.dart\n@@ -5,1 +5,0 @@\n- deleted_line_1\n');
+
+      // A humanized date (e.g. from a stray --date override) must fail loud
+      // rather than silently dropping the attribution.
+      mockRunner.mockResult(
+          'git',
+          [
+            'blame',
+            '--date=iso-strict',
+            '-l',
+            '-w',
+            '-C',
+            '-C',
+            '-M',
+            '-L',
+            '5,5',
+            '1111222233334444555566667777888899990000',
+            '--',
+            'test_file.dart'
+          ],
+          'fedcba9876543210fedcba9876543210fedcba98 (Author Name Sun Jan 1 12:00:00 2023 5) deleted_line_1\n');
+
+      expect(
+        () => szz.execute('./test_dir'),
+        throwsA(isA<GitOutputParseException>().having(
+            (e) => e.offendingLine, 'offendingLine', contains('fedcba98'))),
+      );
+    });
+
+    test(
         'RA-SZZ line filter: a deleted line that re-appears as an added line '
         'is a move, not a fix, and is excluded from blame', () async {
       mockRunner.mockResult(

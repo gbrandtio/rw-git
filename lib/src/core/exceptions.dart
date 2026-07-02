@@ -50,6 +50,20 @@ class GitExecutableNotFoundException extends RwGitException {
         );
 }
 
+class GitOutputParseException extends RwGitException {
+  /// The raw git stdout line that failed to parse.
+  final String offendingLine;
+
+  GitOutputParseException({
+    required this.offendingLine,
+    String? reason,
+    super.originalException,
+  }) : super(
+          message: 'Failed to parse git output line: "$offendingLine"'
+              '${reason != null ? ' ($reason)' : ''}',
+        );
+}
+
 class GitMergeConflictException extends RwGitException {
   GitMergeConflictException({super.exitCode, super.stderr})
       : super(

@@ -36,10 +36,18 @@ void main() {
     final longOutput = List.generate(20000, (i) => 'a').join('');
 
     test('BlameCommand isolate', () async {
-      final runner = _MockRunner(longOutput);
+      // Valid blame lines long enough (>10000 chars) to trigger the isolate
+      // path; parseBlame now throws on malformed lines, so arbitrary filler
+      // no longer works here.
+      final longBlameOutput = List.generate(
+              200,
+              (i) =>
+                  '1234abcd (Author 2021-01-01 00:00:00 +0000 ${i + 1}) some line content')
+          .join('\n');
+      final runner = _MockRunner(longBlameOutput);
       final cmd = BlameCommand(runner);
       final res = await cmd.run('/test');
-      expect(res, isNotNull);
+      expect(res.lines.length, 200);
     });
 
     test('DiffCommand isolate', () async {

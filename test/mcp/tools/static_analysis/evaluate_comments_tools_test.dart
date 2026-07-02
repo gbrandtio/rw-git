@@ -11,7 +11,7 @@ void main() {
     '-n',
     '500',
     '-p',
-    '--format=%H||%an||%ad||%s',
+    '--format=%H||%an||%aI||%s',
   ];
 
   const sampleDiff = '+++ b/test.dart\n'

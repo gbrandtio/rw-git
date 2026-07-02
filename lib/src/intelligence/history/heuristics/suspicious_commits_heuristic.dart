@@ -15,7 +15,7 @@ class SuspiciousCommitsHeuristic {
   /// and scanning both the commit message and added code in the diff.
   Future<List<String>> findSuspiciousCommits(String directory,
       {String? limit}) async {
-    final args = ['log', '-p', '--format=%H||%an||%ad||%s'];
+    final args = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
@@ -37,7 +37,7 @@ class SuspiciousCommitsHeuristic {
       if (line.contains('||') &&
           !line.startsWith('+') &&
           !line.startsWith('-')) {
-        // This is likely a commit header: %H||%an||%ad||%s
+        // This is likely a commit header: %H||%an||%aI||%s
         final parts = line.split('||');
         if (parts.length >= 2) {
           currentCommitHeader = line;
@@ -84,7 +84,7 @@ class SuspiciousCommitsHeuristic {
   /// Extracts added or modified comments from the diff, along with context.
   Future<List<Map<String, dynamic>>> extractChangedComments(String directory,
       {String? limit}) async {
-    final logArgs = ['log', '-p', '--format=%H||%an||%ad||%s'];
+    final logArgs = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       logArgs.insert(1, '-n');
       logArgs.insert(2, limit);

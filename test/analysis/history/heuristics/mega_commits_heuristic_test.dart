@@ -43,7 +43,7 @@ void main() {
     test('detects mega commits', () async {
       mockRunner.mockResult(
           'git',
-          ['log', '--shortstat', '--format=%H||%an||%ad||%s'],
+          ['log', '--shortstat', '--format=%H||%an||%aI||%s'],
           'hash1||Alice||2023-01-01T12:00:00Z||msg1\n 25 files changed, 500 insertions(+), 50 deletions(-)\n');
 
       final results =
@@ -55,7 +55,7 @@ void main() {
 
     test('handles empty git log', () async {
       mockRunner.mockResult(
-          'git', ['log', '--shortstat', '--format=%H||%an||%ad||%s'], '');
+          'git', ['log', '--shortstat', '--format=%H||%an||%aI||%s'], '');
       final results =
           await heuristic.findMegaCommits('./test', lineThreshold: 100);
       expect(results, isEmpty);

@@ -103,7 +103,7 @@ void main() {
     });
 
     test('blame returns blame string', () async {
-      mockRunner.setMockResult('git', ['blame', 'file.txt'], 0,
+      mockRunner.setMockResult('git', ['blame', '--date=iso', 'file.txt'], 0,
           '1234abcd (Author 2021-01-01 00:00:00 +0000 1) content', '');
       final result =
           (await rwGit.blame('my_dir', extraArgs: ['file.txt'])).getOrThrow();

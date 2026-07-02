@@ -80,7 +80,7 @@ class AnalyzePrDiffTool implements McpTool {
     // 3. Scan for secrets in the PR range
     final secretsRaw = (await gitQuery.run(
       directory,
-      ['log', '-p', '--format=%H||%an||%ad||%s', '$base..$head'],
+      ['log', '-p', '--format=%H||%an||%aI||%s', '$base..$head'],
     ))
         .getOrThrow();
 

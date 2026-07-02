@@ -156,4 +156,39 @@ void main() {
           shortLogDto.authorName, "Ioannis Brant-Ioannidis (Some Extra Words)");
     });
   });
+
+  group('parseBlame', () {
+    test('preserves the UTC offset of the blame timestamp', () {
+      final stdout =
+          '93f2f810 (Ioannis 2026-06-29 00:00:00 +0400 1) some content';
+      final blame = RwGitParser.parseBlame(stdout);
+
+      expect(blame.lines.length, 1);
+      // 00:00 at +04:00 is 20:00 UTC on the previous day; stripping the
+      // offset would have produced 2026-06-29T00:00:00Z instead.
+      expect(
+          blame.lines.first.date.toUtc(), DateTime.utc(2026, 6, 28, 20, 0, 0));
+    });
+
+    test('parses boundary-commit lines (^-prefixed hash)', () {
+      final stdout = '^1234abc (Author 2021-01-01 10:30:00 -0500 3) x = 1;';
+      final blame = RwGitParser.parseBlame(stdout);
+
+      expect(blame.lines.single.commitHash, '^1234abc');
+      expect(blame.lines.single.lineNumber, 3);
+      expect(
+          blame.lines.single.date.toUtc(), DateTime.utc(2021, 1, 1, 15, 30, 0));
+    });
+
+    test('throws GitOutputParseException on a malformed line', () {
+      final stdout =
+          '93f2f810 (Ioannis Sun Jun 29 00:00:00 2026 1) some content';
+
+      expect(
+        () => RwGitParser.parseBlame(stdout),
+        throwsA(isA<GitOutputParseException>().having(
+            (e) => e.offendingLine, 'offendingLine', contains('93f2f810'))),
+      );
+    });
+  });
 }
