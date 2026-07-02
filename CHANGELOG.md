@@ -1,3 +1,66 @@
+# 3.0.10
+- **FEAT (Intelligence):** Upgraded the SZZ implementation from MA-SZZ to
+  **RA-SZZ** (Refactoring-Aware SZZ — Neto et al., SANER 2018), removing the
+  future-work note in `doc/tools/history/find_bugs_by_developer.md`. Two new
+  refactoring guards: deleted lines whose content re-appears among the fix
+  commit's added lines are treated as moved code and excluded from blame
+  (lines under 8 normalized characters are exempt — boilerplate recurs
+  naturally, threshold in `raSzzMovedLineMinimumLength`); and attributions
+  whose introducing commit subject matches refactoring keywords are
+  discarded (subjects fetched once per commit and cached; unresolvable
+  subjects fail open). Both are lexical, language-agnostic stand-ins for
+  RefDiff's AST-based operation detection — the same trade-off as
+  `analyze_refactoring`. Affects `analyze_bug_hotspots` and
+  `find_bugs_by_developer`; blame now targets only surviving deleted lines
+  (grouped into contiguous ranges) instead of whole pre-image hunk spans.
+- **REFACTOR/FEAT (MCP):** `generate_changelog` now delegates its fix
+  enrichment to the shared `SzzAlgorithm` core instead of an inline mini-SZZ
+  that lacked the MA-SZZ flags and all RA-SZZ guards. `SzzAlgorithm` gained a
+  public per-commit entry point (`traceFixCommit`) so tools that select fix
+  commits themselves reuse the exact same pipeline; the class doc now states
+  it is the package's single SZZ implementation. **BREAKING (output):** each
+  `bug_introducing_commits` entry is now an object with `introducing_commit`
+  (full 40-char hash), `introduced_date`, and `days_bug_lived` — the
+  temporal-context contract `doc/tools/history/generate_changelog.md` always
+  documented — instead of a bare abbreviated-hash string.
+- **CHORE (Models):** Removed the dead `BugIntroductionDto`
+  (`lib/src/models/bug_introduction_dto.dart`) — unexported, untested, and
+  unused since the SZZ pipeline moved to `SzzMatch`; it still carried the
+  misleading `timeTakenToFixInHours` name.
+- **BREAKING (Intelligence/MCP):** Renamed the SZZ "time to fix" metrics to
+  **bug lifetime**, reported in **days**. The metric measures the span from
+  the bug-introducing commit to the bug-fixing commit (Kim & Whitehead,
+  *How long did it take to fix bugs?*, MSR 2006 — median lifetimes of
+  100–200 days are normal), not the effort spent fixing — labelling it
+  "time to fix" in hours made every report read as thousands of hours of
+  fix effort. `BugHotspotDto` fields and JSON keys are now
+  `*_average_bug_lifetime_in_days`; `find_bugs_by_developer` returns
+  `bug_lifetime_in_days` (fractional days) instead of `time_to_fix_in_hours`;
+  the `BugHotspotClassifier` metric/evidence keys and
+  `doc/INTERPRETATION_GUIDE.md` follow (ADR-0010 process). The severity bands
+  are unchanged — they are relative (1–2x / >2x the repository's own
+  average), so the unit change alters no classification.
+- **FEAT (MCP):** Per-tool offload thresholds (ADR-0011), resolving the
+  single-global-threshold trade-off recorded in ADR-0001.
+  `McpToolFileOffloadDecorator` takes an `offloadThresholdBytes` override,
+  wired from the `perToolOffloadThresholdBytes` map in
+  `lib/src/constants.dart`: report meta-tools offload above 4 KiB (their
+  offload summary already carries the findings inline), `get_stats` and
+  `get_commits_between` stay inline up to 16 KiB (their output is consumed
+  whole), everything else keeps the 8 KiB default. The advertised
+  `(>NKB offloaded to disk.)` note now reflects each tool's actual gate.
+- **FEAT (MCP):** Structured logging with host-controlled verbosity
+  (ADR-0012). Library logging now flows through the `RwGitLogger` facade
+  (still mirrored to `dart:developer`); the server advertises the `logging`
+  capability, handles `logging/setLevel` (invalid levels rejected as
+  JSON-RPC invalid params), and forwards events as `notifications/message`
+  filtered by the host-selected minimum level (default: `warning`).
+  `GitCommand` start/finish events are `debug`, failures are `error`.
+- **DOCS (Process):** `AGENTS.md` Rule 13 forbids future-work statements
+  ("will be implemented in the future", "planned", "TODO") in documents;
+  deferred capabilities must be raised with the user and either implemented
+  or recorded as an explicit decision.
+
 # 3.0.9
 - **DOCS (Tools):** Brought `doc/tools/` back in sync with the registered tool surface: merged the three stale comment-tool documents into `doc/tools/static_analysis/evaluate_comments.md`, folded `analyze_code_quality_with_authors.md` into `analyze_code_quality.md` (the `includeAuthors: true` section), added the five missing report meta-tool documents under `doc/tools/reports/`, and added `doc/tools/system/read_report_slice.md`. `README.md` now lists the report meta-tools, the merged `evaluate_comments` tool, and `read_report_slice`.
 - **TEST (Docs sync):** Added `test/mcp/tools_docs_sync_test.dart`, asserting bidirectionally that every tool registered in `server_registry.dart` has a matching `doc/tools/**/<name>.md` and vice versa; `AGENTS.md` now codifies the matching Tool Documentation Sync rule and restates the coverage requirement in terms of the `coverage.yml` CI gate.
