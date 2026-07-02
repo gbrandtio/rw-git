@@ -8,22 +8,29 @@ class BugHotspotDto {
   /// Total number of bug-fixing commits analyzed.
   final int totalFixCommitsAnalyzed;
 
-  /// The average time taken to fix bugs in the repository (in hours).
-  final double globalAverageTimeToFixInHours;
+  /// The average bug lifetime across the repository, in days.
+  ///
+  /// SZZ measures the span from the bug-*introducing* commit to the
+  /// bug-*fixing* commit ("bug lifetime" in the SZZ literature), not the
+  /// effort spent fixing once the bug was noticed. Lifetimes of weeks or
+  /// months are normal for mature repositories.
+  final double globalAverageBugLifetimeInDays;
 
-  /// The average time taken to fix bugs per file (in hours).
-  final Map<String, double> fileAverageTimeToFixInHours;
+  /// The average bug lifetime per file, in days (see
+  /// [globalAverageBugLifetimeInDays] for the semantics).
+  final Map<String, double> fileAverageBugLifetimeInDays;
 
-  /// The average time taken to fix bugs introduced by specific authors (in hours).
-  final Map<String, double> authorAverageTimeToFixInHours;
+  /// The average lifetime of bugs introduced by each author, in days (see
+  /// [globalAverageBugLifetimeInDays] for the semantics).
+  final Map<String, double> authorAverageBugLifetimeInDays;
 
   BugHotspotDto({
     required this.fileHotspots,
     required this.authorHotspots,
     required this.totalFixCommitsAnalyzed,
-    required this.globalAverageTimeToFixInHours,
-    required this.fileAverageTimeToFixInHours,
-    required this.authorAverageTimeToFixInHours,
+    required this.globalAverageBugLifetimeInDays,
+    required this.fileAverageBugLifetimeInDays,
+    required this.authorAverageBugLifetimeInDays,
   });
 
   Map<String, dynamic> toJson() {
@@ -31,9 +38,9 @@ class BugHotspotDto {
       'file_hotspots': fileHotspots,
       'author_hotspots': authorHotspots,
       'total_fix_commits_analyzed': totalFixCommitsAnalyzed,
-      'global_average_time_to_fix_in_hours': globalAverageTimeToFixInHours,
-      'file_average_time_to_fix_in_hours': fileAverageTimeToFixInHours,
-      'author_average_time_to_fix_in_hours': authorAverageTimeToFixInHours,
+      'global_average_bug_lifetime_in_days': globalAverageBugLifetimeInDays,
+      'file_average_bug_lifetime_in_days': fileAverageBugLifetimeInDays,
+      'author_average_bug_lifetime_in_days': authorAverageBugLifetimeInDays,
     };
   }
 }

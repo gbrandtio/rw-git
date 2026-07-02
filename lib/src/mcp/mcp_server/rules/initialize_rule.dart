@@ -24,6 +24,7 @@ class InitializeRule implements McpRule {
         'tools': {'listChanged': false},
         'resources': {'listChanged': false},
         'prompts': {'listChanged': false},
+        'logging': {},
       },
       'serverInfo': {'name': 'rw_git_mcp', 'version': rwGitMcpVersion}
     });

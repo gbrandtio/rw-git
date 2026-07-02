@@ -46,5 +46,12 @@ void main() {
     final res = await BugHotspotsHeuristic(MockProcessRunner())
         .calculateBugHotspots('./');
     expect(res.fileHotspots, isNotEmpty);
+    // Introduced 2023-01-01T12:00Z, fixed 2023-01-02T12:00Z: the SZZ bug
+    // lifetime is exactly one day. The metric must be expressed in days so
+    // that months-long lifetimes read as such instead of as thousands of
+    // hours of "fix time".
+    expect(res.globalAverageBugLifetimeInDays, 1.0);
+    expect(res.fileAverageBugLifetimeInDays['file1.dart'], 1.0);
+    expect(res.authorAverageBugLifetimeInDays['Target'], 1.0);
   });
 }

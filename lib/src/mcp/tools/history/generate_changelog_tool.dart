@@ -1,25 +1,28 @@
 import 'dart:convert';
 import 'dart:isolate';
 import '../../../../rw_git.dart';
+import '../../../constants.dart';
 import '../../../vcs/git_query.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// generate_changelog_tool.dart
-/// Generates a structured changelog from commit
-/// messages. Uses SZZ to link bug fixes to their introducing
-/// commits, and includes structural file impact for LLM summarization.
+/// Generates a structured changelog from commit messages. Uses the shared
+/// RA-SZZ core ([SzzAlgorithm.traceFixCommit]) to link bug fixes to their
+/// introducing commits, and includes structural file impact for LLM
+/// summarization.
 
 class GenerateChangelogTool implements McpTool {
   final GitQuery gitQuery;
+  final SzzAlgorithm szzAlgorithm;
 
-  GenerateChangelogTool(this.gitQuery);
+  GenerateChangelogTool(this.gitQuery, this.szzAlgorithm);
 
   @override
   String get name => 'generate_changelog';
 
   @override
   String get description => 'Generates a structured changelog between two tags '
-      'or commits. Enriches the output with SZZ algorithm '
+      'or commits. Enriches the output with RA-SZZ algorithm '
       'results (linking fixes to bug-introducing commits) '
       'and structural impact (changed files) for deep '
       'LLM summarization. '
@@ -176,58 +179,27 @@ class GenerateChangelogTool implements McpTool {
         .toList();
   }
 
-  Future<List<String>> _runSzzForCommit(String directory, String commit) async {
-    final introducing = <String>{};
+  /// Links a fix commit to its introducing commits via the shared RA-SZZ
+  /// core, then flattens the per-line matches into one entry per introducing
+  /// commit with the temporal context the changelog contract documents
+  /// (`introduced_date`, `days_bug_lived`).
+  Future<List<Map<String, dynamic>>> _runSzzForCommit(
+      String directory, String commit) async {
+    final matches = await szzAlgorithm.traceFixCommit(directory, commit);
 
-    final parentRes = await gitQuery.run(directory, ['rev-parse', '$commit^']);
-    if (parentRes.isFailure) return [];
-    final parent = parentRes.getOrThrow().trim();
-    if (parent.isEmpty) return [];
-
-    final diffRes = await gitQuery.run(directory, ['diff', parent, commit]);
-    if (diffRes.isFailure) return [];
-
-    final diffOutput = diffRes.getOrThrow().split('\n');
-    String currentFile = '';
-
-    for (final line in diffOutput) {
-      if (line.startsWith('--- a/')) {
-        currentFile = line.substring(6).trim();
-      } else if (line.startsWith('@@ ') &&
-          currentFile.isNotEmpty &&
-          currentFile != '/dev/null') {
-        final parts = line.split(' ');
-        if (parts.length < 2) continue;
-        final minusPart = parts[1]; // -start,count
-        if (!minusPart.startsWith('-')) continue;
-
-        final minusParts = minusPart.substring(1).split(',');
-        final start = int.tryParse(minusParts[0]) ?? 0;
-        final count =
-            minusParts.length > 1 ? (int.tryParse(minusParts[1]) ?? 1) : 1;
-
-        if (count > 0 && start > 0) {
-          final end = start + count - 1;
-          final blameRes = await gitQuery.run(directory,
-              ['blame', '-e', '-L', '$start,$end', parent, '--', currentFile]);
-          if (blameRes.isSuccess) {
-            final blameLines =
-                blameRes.getOrThrow().split('\n').where((l) => l.isNotEmpty);
-            for (final bLine in blameLines) {
-              final match = RegExp(r'^([a-f0-9]+)\s+').firstMatch(bLine);
-              if (match != null) {
-                final blamedHash = match.group(1)!;
-                // Exclude uncommitted changes or all zeros
-                if (!blamedHash.startsWith('00000000')) {
-                  introducing.add(blamedHash);
-                }
-              }
-            }
-          }
-        }
-      }
+    final byIntroducingHash = <String, Map<String, dynamic>>{};
+    for (final match in matches) {
+      byIntroducingHash.putIfAbsent(match.introducingCommitHash, () {
+        final daysBugLived =
+            match.fixingDate.difference(match.introducingDate).inMinutes /
+                minutesPerDay;
+        return {
+          'introducing_commit': match.introducingCommitHash,
+          'introduced_date': match.introducingDate.toIso8601String(),
+          'days_bug_lived': double.parse(daysBugLived.toStringAsFixed(2)),
+        };
+      });
     }
-
-    return introducing.toList();
+    return byIntroducingHash.values.toList();
   }
 }

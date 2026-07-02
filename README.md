@@ -111,6 +111,18 @@ and efficiently.
 interact directly with your git repositories over standard I/O using 
 JSON-RPC 2.0.
 
+The server advertises the MCP `logging` capability: hosts control how much
+diagnostic detail they receive (git command timings, failures) by calling
+`logging/setLevel` with an RFC 5424 level (`debug` … `emergency`). By default
+only `warning` and above are forwarded as `notifications/message`, keeping
+the stdio channel quiet.
+
+Large tool outputs are offloaded to `.rw_git/reports/` instead of being
+returned inline. The size gate is per tool: report meta-tools offload above
+4 KiB (their summaries already carry the findings inline), compact history
+tools (`get_stats`, `get_commits_between`) stay inline up to 16 KiB, and all
+other tools use the 8 KiB default.
+
 ### Available MCP Tools
 
 We provide a comprehensive suite of tools mapped directly to solving 
@@ -130,7 +142,8 @@ already-classified payload (`summary`, `top_findings`, `compound_findings`):
 **Dev Metrics & Technical Debt:**
 - `analyze_code_quality`: Identifies code smells and technical debt. Pass
   `includeAuthors: true` to correlate metrics with authors.
-- `analyze_bug_hotspots`: Calculates bug hotspots using the SZZ algorithm.
+- `analyze_bug_hotspots`: Calculates bug hotspots using the
+  refactoring-aware SZZ algorithm (RA-SZZ).
 - `analyze_bus_factor`: Calculates the Bus Factor (Truck Factor).
 - `analyze_logical_coupling`: Detects implicitly coupled files.
 - `analyze_code_volatility`: Predicts defect-prone files via historical churn.
@@ -144,7 +157,8 @@ already-classified payload (`summary`, `top_findings`, `compound_findings`):
 - `calculate_universal_lexical_metrics`: Calculates Maintainability Index.
 
 **Project Management Metrics:**
-- `find_bugs_by_developer`: Finds bugs introduced by specific developers (SZZ).
+- `find_bugs_by_developer`: Finds bugs introduced by specific developers
+  (RA-SZZ).
 - `analyze_commit_velocity`: Computes time-series commit velocity.
 - `analyze_release_delta`: Analyzes changes and impact between release tags.
 - `get_stats`: Retrieves exact Git statistics (insertions, deletions).

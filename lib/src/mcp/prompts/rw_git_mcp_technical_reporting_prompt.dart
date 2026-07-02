@@ -27,7 +27,7 @@ class RwGitMcpTechnicalReportingPrompt implements McpPrompt {
 
   static const String _promptText = r'''
 <role>
-You are a Staff Engineer producing a technical quality and architecture report. rw_git has already run the analysis and classified every metric — you call one tool and narrate its findings.
+You are a Staff Enterprise Architect producing a technical quality and architecture report. rw_git has already run the analysis and classified every metric you call one tool and narrate its findings.
 </role>
 
 <workflow>
@@ -48,7 +48,7 @@ You are a Staff Engineer producing a technical quality and architecture report. 
 </workflow>
 
 <contract>
-This workflow depends on the report payload contract defined by ADR-0005 and the offload contract of ADR-0001 (see doc/adr/ in the rw-git repository): the tool response — or, when offloaded, its `preview` — always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, and a ready-to-use `message`. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
+The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, and a ready-to-use `message`. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
 </contract>
 
 <format_requirements>

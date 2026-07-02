@@ -5,6 +5,7 @@ import '../../rw_git.dart';
 import '../constants.dart';
 import 'mcp_server/mcp_request_context.dart';
 import 'mcp_server/rules/initialize_rule.dart';
+import 'mcp_server/rules/logging_set_level_rule.dart';
 import 'mcp_server/rules/mcp_rule.dart';
 import 'mcp_server/rules/notifications_initialized_rule.dart';
 import 'mcp_server/rules/ping_rule.dart';
@@ -46,11 +47,17 @@ class McpServer {
       outputSink: this.outputSink,
       toolsPageSize: toolsPageSize,
     );
+    // Forward the library's structured log events to the connected host as
+    // notifications/message, filtered by the host-selected minimum level
+    // (ADR-0012).
+    RwGitLogger.instance.listener = (level, message, error) =>
+        _context.sendLogNotification(level, message, error: error);
     // Order mirrors the original if-else dispatch chain.
     _rules = [
       InitializeRule(),
       NotificationsInitializedRule(),
       PingRule(),
+      LoggingSetLevelRule(),
       ResourcesListRule(),
       ResourcesReadRule(),
       PromptsListRule(),

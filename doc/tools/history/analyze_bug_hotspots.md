@@ -6,18 +6,19 @@ Answers: "Which files and which authors are most associated with bugs across the
 
 ## Algorithm
 
-Runs the same **MA-SZZ pipeline** as `find_bugs_by_developer` but aggregates across all developers and all files in the repository:
+Runs the same **RA-SZZ pipeline** (refactoring-aware SZZ, layered on MA-SZZ whitespace filtering) as `find_bugs_by_developer` but aggregates across all developers and all files in the repository:
 
 1. Identify all bug-fix commits using the positive/negative keyword filter
 2. For each fix commit, extract deleted lines using `git diff -M -w --ignore-blank-lines <parent> <fix>`
-3. Blame each deleted line range on the parent to find introducing commits
-4. Aggregate per **file**:
+3. Exclude refactoring changes (RA-SZZ, see `find_bugs_by_developer.md` Phases 3 and 5): deleted lines that re-appear as added lines in the same commit (moved code), and attributions whose introducing commit is itself a refactoring
+4. Blame each surviving deleted line range on the parent to find introducing commits
+5. Aggregate per **file**:
    - `bug_introduction_count` — how many bugs were introduced into this file
-   - `average_time_to_fix_hours` — mean of `(fix_date − introducing_date).inHours` across all bugs in this file
-5. Aggregate per **author**:
+   - `average_bug_lifetime_in_days` — mean of `(fix_date − introducing_date)` in fractional days across all bugs in this file. This is the SZZ *bug lifetime* (how long the bug existed in the codebase before being fixed), not the effort spent producing the fix; lifetimes of weeks or months are normal (Kim & Whitehead, MSR 2006)
+6. Aggregate per **author**:
    - `bugs_introduced` — total bugs attributed to this author
-6. Sort files descending by `bug_introduction_count`; sort authors descending by `bugs_introduced`
-7. Return top-N files and top-N authors
+7. Sort files descending by `bug_introduction_count`; sort authors descending by `bugs_introduced`
+8. Return top-N files and top-N authors
 
 ## Academic Foundation
 
@@ -38,6 +39,16 @@ Runs the same **MA-SZZ pipeline** as `find_bugs_by_developer` but aggregates acr
 **Key claim:** MA-SZZ (whitespace-filtered) produces significantly more reliable file-level rankings than vanilla SZZ. Without whitespace filtering, style-reformatting commits pollute the hotspot list with false attributions.
 
 **How rw-git uses it:** The `-w --ignore-blank-lines` diff flags ensure that file hotspot rankings reflect genuine bug-introducing changes, not cosmetic reformatting.
+
+---
+
+### Neto, Brito, David, Cogo, Leite, Murta & Coelho (2018) — *The Impact of Refactoring Changes on the SZZ Algorithm*
+
+**Published in:** SANER, IEEE
+
+**Key claim:** SZZ's false positive rate is reducible by a further 10–20% when refactoring changes are excluded from attribution: lines touched only because code moved are not bug introductions, and commits that merely restructure code are not bug origins.
+
+**How rw-git uses it:** The shared RA-SZZ pipeline excludes deleted lines that re-appear as added lines in the same fix commit (moved code) and discards attributions whose introducing commit is itself a refactoring, so hotspot counts reflect genuine defect injections rather than code motion (see `find_bugs_by_developer.md` for the full phase description).
 
 ---
 

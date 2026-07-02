@@ -102,6 +102,112 @@ void main() {
           containsPair('resources', anything));
     });
 
+    test('initialize advertises the logging capability', () async {
+      server.start();
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 1,
+        'method': 'initialize',
+      });
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+      expect(response['result']['capabilities'],
+          containsPair('logging', anything));
+    });
+
+    test('logging/setLevel rejects an unknown level as invalid params',
+        () async {
+      server.start();
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 7,
+        'method': 'logging/setLevel',
+        'params': {'level': 'verbose'},
+      });
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+      expect(response['error']['code'], -32602);
+      expect(response['error']['message'], contains('verbose'));
+    });
+
+    test(
+        'library log events reach the host as notifications/message once '
+        'the host lowers the level via logging/setLevel', () async {
+      server.start();
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 8,
+        'method': 'logging/setLevel',
+        'params': {'level': 'debug'},
+      });
+
+      final lines = outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter());
+      final collected = <String>[];
+      final subscription = lines.listen(collected.add);
+
+      // Wait for the setLevel acknowledgement, then emit a debug event the
+      // way GitCommand does.
+      while (collected.isEmpty) {
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+      }
+      RwGitLogger.instance.debug('Executing GitCommand: TestCommand');
+      await outputSink.flush();
+      while (collected.length < 2) {
+        await Future<void>.delayed(const Duration(milliseconds: 1));
+      }
+      await subscription.cancel();
+
+      final ack = jsonDecode(collected[0]) as Map<String, dynamic>;
+      expect(ack['id'], 8);
+      expect(ack['result'], isEmpty);
+
+      final notification = jsonDecode(collected[1]) as Map<String, dynamic>;
+      expect(notification['method'], 'notifications/message');
+      expect(notification['params']['level'], 'debug');
+      expect(notification['params']['logger'], 'rw_git');
+      expect(notification['params']['data']['message'],
+          contains('Executing GitCommand'));
+    });
+
+    test(
+        'debug events are suppressed at the default warning level so an '
+        'idle host is not flooded', () async {
+      server.start();
+
+      // A debug event before any logging/setLevel call must be dropped;
+      // the next real response proves nothing was written before it.
+      RwGitLogger.instance.debug('should be suppressed');
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 9,
+        'method': 'ping',
+      });
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+      expect(response['id'], 9);
+      expect(response.containsKey('method'), isFalse);
+    });
+
     test('responds to ping', () async {
       server.start();
       sendInput({

@@ -336,6 +336,47 @@ void main() {
       expect(await File(specificPath).exists(), isFalse);
     });
 
+    test(
+        'per-tool threshold: a lower gate offloads payloads the global '
+        'default would keep inline', () async {
+      // MockSmallTool's payload is well under the 8 KiB global default, so a
+      // decorator with a 16-byte gate must offload it: the per-tool value,
+      // not the global constant, decides (ADR-0011).
+      final aggressiveDecorator = McpToolFileOffloadDecorator(MockSmallTool(),
+          offloadThresholdBytes: 16);
+
+      final result = jsonDecode(await aggressiveDecorator.execute({
+        'directory': tempDir.path,
+      })) as Map<String, dynamic>;
+
+      expect(result['status'], equals('success'));
+      expect(result['file'], isNotNull);
+    });
+
+    test(
+        'per-tool threshold: a higher gate keeps payloads inline that the '
+        'global default would offload', () async {
+      // MockTool's ~9 KB payload exceeds the 8 KiB global default but not a
+      // 32 KiB per-tool gate, so it must be returned inline.
+      final relaxedDecorator =
+          McpToolFileOffloadDecorator(MockTool(), offloadThresholdBytes: 32768);
+
+      final resultString = await relaxedDecorator.execute({
+        'directory': tempDir.path,
+      });
+
+      expect(resultString, contains('massive JSON payload'));
+      final reportsDir = Directory(p.join(tempDir.path, '.rw_git', 'reports'));
+      expect(await reportsDir.exists(), isFalse);
+    });
+
+    test('description advertises the per-tool threshold, not the global one',
+        () {
+      final relaxedDecorator =
+          McpToolFileOffloadDecorator(MockTool(), offloadThresholdBytes: 16384);
+      expect(relaxedDecorator.description, contains('>16KB'));
+    });
+
     test('includes a structural preview in the offload summary', () async {
       final structuredDecorator =
           McpToolFileOffloadDecorator(MockStructuredTool());

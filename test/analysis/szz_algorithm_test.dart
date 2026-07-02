@@ -107,6 +107,198 @@ void main() {
           '0123456789abcdef0123456789abcdef01234567');
     });
 
+    test(
+        'RA-SZZ line filter: a deleted line that re-appears as an added line '
+        'is a move, not a fix, and is excluded from blame', () async {
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '-n',
+            '500',
+            '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+            '-i',
+            '--no-merges',
+            '--format=format:%H%x09%aI%x09%s'
+          ],
+          '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
+
+      mockRunner.mockResult(
+          'git',
+          ['rev-parse', '0123456789abcdef0123456789abcdef01234567^'],
+          '1111222233334444555566667777888899990000\n');
+
+      // Line 5 is moved (identical content re-added, modulo indentation);
+      // line 6 is a genuine bug-removing deletion. Only line 6 may be
+      // blamed — attributing the moved line would blame the wrong commit.
+      mockRunner.mockResult(
+          'git',
+          [
+            'diff',
+            '-M',
+            '-w',
+            '--ignore-blank-lines',
+            '1111222233334444555566667777888899990000',
+            '0123456789abcdef0123456789abcdef01234567'
+          ],
+          '--- a/test_file.dart\n'
+              '+++ b/test_file.dart\n'
+              '@@ -5,2 +5,1 @@\n'
+              '-  validateInput(rawArguments);\n'
+              '-  buggyOffByOne(index + 1);\n'
+              '+    validateInput(rawArguments);\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'blame',
+            '--date=iso-strict',
+            '-l',
+            '-w',
+            '-C',
+            '-C',
+            '-M',
+            '-L',
+            '6,6',
+            '1111222233334444555566667777888899990000',
+            '--',
+            'test_file.dart'
+          ],
+          'fedcba9876543210fedcba9876543210fedcba98 (Author Name 2023-01-01T12:00:00+00:00 6) buggyOffByOne(index + 1);\n');
+
+      final matches = await szz.execute('./test_dir', limit: '500');
+
+      expect(matches.length, 1);
+      expect(matches.first.introducingCommitHash,
+          'fedcba9876543210fedcba9876543210fedcba98');
+    });
+
+    test(
+        'RA-SZZ line filter keeps short boilerplate deletions: a re-added '
+        '"}" is no evidence of a move', () async {
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '-n',
+            '500',
+            '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+            '-i',
+            '--no-merges',
+            '--format=format:%H%x09%aI%x09%s'
+          ],
+          '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
+
+      mockRunner.mockResult(
+          'git',
+          ['rev-parse', '0123456789abcdef0123456789abcdef01234567^'],
+          '1111222233334444555566667777888899990000\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'diff',
+            '-M',
+            '-w',
+            '--ignore-blank-lines',
+            '1111222233334444555566667777888899990000',
+            '0123456789abcdef0123456789abcdef01234567'
+          ],
+          '--- a/test_file.dart\n'
+              '+++ b/test_file.dart\n'
+              '@@ -5 +5,1 @@\n'
+              '-}\n'
+              '+}\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'blame',
+            '--date=iso-strict',
+            '-l',
+            '-w',
+            '-C',
+            '-C',
+            '-M',
+            '-L',
+            '5,5',
+            '1111222233334444555566667777888899990000',
+            '--',
+            'test_file.dart'
+          ],
+          'fedcba9876543210fedcba9876543210fedcba98 (Author Name 2023-01-01T12:00:00+00:00 5) }\n');
+
+      final matches = await szz.execute('./test_dir', limit: '500');
+
+      expect(matches.length, 1);
+    });
+
+    test(
+        'RA-SZZ commit filter: an introducing commit whose subject is a '
+        'refactoring is discarded — the buggy code predates it', () async {
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '-n',
+            '500',
+            '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+            '-i',
+            '--no-merges',
+            '--format=format:%H%x09%aI%x09%s'
+          ],
+          '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
+
+      mockRunner.mockResult(
+          'git',
+          ['rev-parse', '0123456789abcdef0123456789abcdef01234567^'],
+          '1111222233334444555566667777888899990000\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'diff',
+            '-M',
+            '-w',
+            '--ignore-blank-lines',
+            '1111222233334444555566667777888899990000',
+            '0123456789abcdef0123456789abcdef01234567'
+          ],
+          '--- a/test_file.dart\n+++ b/test_file.dart\n@@ -5 +5,0 @@\n- deleted_line_1\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'blame',
+            '--date=iso-strict',
+            '-l',
+            '-w',
+            '-C',
+            '-C',
+            '-M',
+            '-L',
+            '5,5',
+            '1111222233334444555566667777888899990000',
+            '--',
+            'test_file.dart'
+          ],
+          'fedcba9876543210fedcba9876543210fedcba98 (Author Name 2023-01-01T12:00:00+00:00 5) deleted_line_1\n');
+
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '-1',
+            '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
+            'fedcba9876543210fedcba9876543210fedcba98'
+          ],
+          'fedcba9876543210fedcba9876543210fedcba98\tAuthor Name\tauthor@x.com\t2023-01-01T12:00:00Z\trefactor: extract validation helpers\n');
+
+      final matches = await szz.execute('./test_dir', limit: '500');
+
+      expect(matches, isEmpty);
+    });
+
     test('execute handles custom positiveRegex and negativeRegex correctly',
         () async {
       mockRunner.mockResult(

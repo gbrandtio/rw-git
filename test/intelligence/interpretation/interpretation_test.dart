@@ -123,9 +123,9 @@ void main() {
         fileHotspots: {'crit': 1, 'elev': 1, 'hot': 5},
         authorHotspots: const {},
         totalFixCommitsAnalyzed: 7,
-        globalAverageTimeToFixInHours: 10,
-        fileAverageTimeToFixInHours: {'crit': 100, 'elev': 15},
-        authorAverageTimeToFixInHours: const {},
+        globalAverageBugLifetimeInDays: 10,
+        fileAverageBugLifetimeInDays: {'crit': 100, 'elev': 15},
+        authorAverageBugLifetimeInDays: const {},
       );
       final byFile = {for (final f in fc.fromBugHotspots(dto)) f.subject: f};
       expect(byFile['crit']!.severity, Severity.critical);
@@ -303,9 +303,9 @@ void main() {
           fileHotspots: {'lib/x.dart': 5},
           authorHotspots: const {},
           totalFixCommitsAnalyzed: 5,
-          globalAverageTimeToFixInHours: 10,
-          fileAverageTimeToFixInHours: {'lib/x.dart': 100},
-          authorAverageTimeToFixInHours: const {},
+          globalAverageBugLifetimeInDays: 10,
+          fileAverageBugLifetimeInDays: {'lib/x.dart': 100},
+          authorAverageBugLifetimeInDays: const {},
         )),
         ...fc.fromOwnership(const ChurnMetricsWithAuthorsDto(
           fileChurn: {

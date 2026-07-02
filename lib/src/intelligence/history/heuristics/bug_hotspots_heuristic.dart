@@ -1,3 +1,4 @@
+import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/core/process_runner.dart';
 import 'package:rw_git/src/models/bug_hotspot_dto.dart';
 import '../algorithms/szz_algorithm.dart';
@@ -18,40 +19,45 @@ class BugHotspotsHeuristic {
 
     final fileHotspots = <String, int>{};
     final authorHotspots = <String, int>{};
-    final fileTime = <String, List<int>>{};
-    final authorTime = <String, List<int>>{};
+    final fileLifetimes = <String, List<double>>{};
+    final authorLifetimes = <String, List<double>>{};
     final uniqueFixCommits = <String>{};
-    int totalFixTime = 0;
-    int fixTimeCount = 0;
+    double totalLifetimeDays = 0;
+    int lifetimeCount = 0;
 
     for (final match in matches) {
-      final hours =
-          match.fixingDate.difference(match.introducingDate).inHours.abs();
+      // SZZ bug lifetime: introducing commit → fixing commit. Minutes are
+      // converted to fractional days because lifetimes routinely span weeks
+      // or months; whole-hour truncation would be false precision.
+      final lifetimeDays =
+          match.fixingDate.difference(match.introducingDate).inMinutes.abs() /
+              minutesPerDay;
 
       uniqueFixCommits.add(match.fixingCommitHash);
 
       fileHotspots[match.filePath] = (fileHotspots[match.filePath] ?? 0) + 1;
-      fileTime.putIfAbsent(match.filePath, () => []).add(hours);
+      fileLifetimes.putIfAbsent(match.filePath, () => []).add(lifetimeDays);
 
       final author = match.introducingAuthor;
       authorHotspots[author] = (authorHotspots[author] ?? 0) + 1;
-      authorTime.putIfAbsent(author, () => []).add(hours);
+      authorLifetimes.putIfAbsent(author, () => []).add(lifetimeDays);
 
-      totalFixTime += hours;
-      fixTimeCount++;
+      totalLifetimeDays += lifetimeDays;
+      lifetimeCount++;
     }
 
-    final globalAvg = fixTimeCount > 0 ? totalFixTime / fixTimeCount : 0.0;
+    final globalAvg =
+        lifetimeCount > 0 ? totalLifetimeDays / lifetimeCount : 0.0;
 
     final fileAvg = <String, double>{};
-    for (final entry in fileTime.entries) {
-      final sum = entry.value.fold<int>(0, (a, b) => a + b);
+    for (final entry in fileLifetimes.entries) {
+      final sum = entry.value.fold<double>(0, (a, b) => a + b);
       fileAvg[entry.key] = sum / entry.value.length;
     }
 
     final authorAvg = <String, double>{};
-    for (final entry in authorTime.entries) {
-      final sum = entry.value.fold<int>(0, (a, b) => a + b);
+    for (final entry in authorLifetimes.entries) {
+      final sum = entry.value.fold<double>(0, (a, b) => a + b);
       authorAvg[entry.key] = sum / entry.value.length;
     }
 
@@ -59,9 +65,9 @@ class BugHotspotsHeuristic {
       fileHotspots: fileHotspots,
       authorHotspots: authorHotspots,
       totalFixCommitsAnalyzed: uniqueFixCommits.length,
-      globalAverageTimeToFixInHours: globalAvg,
-      fileAverageTimeToFixInHours: fileAvg,
-      authorAverageTimeToFixInHours: authorAvg,
+      globalAverageBugLifetimeInDays: globalAvg,
+      fileAverageBugLifetimeInDays: fileAvg,
+      authorAverageBugLifetimeInDays: authorAvg,
     );
   }
 }

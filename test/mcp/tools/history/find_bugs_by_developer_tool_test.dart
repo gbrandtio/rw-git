@@ -180,7 +180,11 @@ void main() {
       expect(bug['introducing_commit'],
           'fedcba9876543210fedcba9876543210fedcba98');
       expect(bug['fixing_commit'], '0123456789abcdef0123456789abcdef01234567');
-      expect(bug['time_to_fix_in_hours'], 24);
+      // Introduced 2023-01-01T12:00Z, fixed 2023-01-02T12:00Z: the SZZ bug
+      // lifetime is exactly one day. Reporting days (not hours) is the
+      // contract that keeps LLM report narration from misreading the span
+      // as fix effort.
+      expect(bug['bug_lifetime_in_days'], 1.0);
     });
   });
 }

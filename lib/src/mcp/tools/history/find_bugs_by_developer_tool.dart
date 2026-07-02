@@ -16,7 +16,7 @@ class FindBugsByDeveloperTool implements McpTool {
   @override
   String get description =>
       'Finds bugs introduced by code written by a specific developer. '
-      'It uses the SZZ algorithm to trace bug-fixing commits back to their introducing commits. '
+      'It uses the refactoring-aware SZZ algorithm (RA-SZZ) to trace bug-fixing commits back to their introducing commits. '
       'Returns the details of the introducing commit alongside the commits that fixed it.';
 
   @override
@@ -97,8 +97,12 @@ class FindBugsByDeveloperTool implements McpTool {
                 'file': b.filePath,
                 'introducing_commit': b.introducingCommitHash,
                 'fixing_commit': b.fixingCommitHash,
-                'time_to_fix_in_hours':
-                    b.fixingDate.difference(b.introducingDate).inHours,
+                // SZZ bug lifetime (introducing commit → fixing commit), not
+                // the effort spent on the fix once the bug was noticed.
+                'bug_lifetime_in_days': double.parse(
+                    (b.fixingDate.difference(b.introducingDate).inMinutes /
+                            minutesPerDay)
+                        .toStringAsFixed(2)),
               })
           .toList(),
     });

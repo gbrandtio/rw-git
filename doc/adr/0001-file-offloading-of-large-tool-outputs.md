@@ -6,6 +6,9 @@
 - **Related**: [ADR-0002](0002-mcp-tool-metadata-decorator.md),
   [ADR-0005](0005-server-side-interpretation-and-report-meta-tools.md),
   [ADR-0006](0006-targeted-retrieval-of-offloaded-reports.md)
+- **Amended by**: [ADR-0011](0011-per-tool-offload-thresholds.md) — the
+  single-global-threshold trade-off below is superseded by per-tool
+  thresholds; the offload mechanism itself is unchanged.
 
 ## Context
 
@@ -138,3 +141,5 @@ can target a slice without first reading the whole file.
   meta-tools' inline findings (ADR-0005), exist to steer against this.
 - **Trade-off**: the 8 KiB threshold is a single global constant. It is a
   deliberate simplification; per-tool thresholds were rejected as premature.
+  *(Superseded by [ADR-0011](0011-per-tool-offload-thresholds.md), which
+  introduces per-tool thresholds while keeping 8 KiB as the default.)*

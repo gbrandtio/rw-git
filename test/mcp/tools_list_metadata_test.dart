@@ -42,6 +42,17 @@ void main() {
       }
     });
 
+    test(
+        'per-tool offload thresholds are wired into the advertised '
+        'descriptions', () {
+      // ADR-0011: report meta-tools offload aggressively, compact history
+      // tools stay inline longer, everything else keeps the 8 KiB default.
+      // The advertised description is the contract the model sees.
+      expect(byName('generate_pm_report')['description'], contains('>4KB'));
+      expect(byName('get_stats')['description'], contains('>16KB'));
+      expect(byName('analyze_bug_hotspots')['description'], contains('>8KB'));
+    });
+
     test('a stable-shape tool advertises an outputSchema', () {
       final schema =
           byName('analyze_bus_factor')['outputSchema'] as Map<String, dynamic>?;

@@ -98,6 +98,19 @@ Conformance > taste inside the codebase. If you think a convention is harmful, s
 ### Rule 12: Variable, classes, interfaces, constants naming
 - You **must** give extended, descriptive, easily readable and understandable names to variables, classes, functions, constants, interfaces.
 
+### Rule 13: No future-work statements in documentation (FORBIDDEN)
+- It is **FORBIDDEN** to write forward-looking commitments in any document
+(README, CHANGELOG, ADRs, tool docs, code comments): phrases like "will be
+implemented in the future", "planned", "future work", "the next maturation
+step", or "TODO".
+- When you identify a capability that seems worth deferring, you **must ask
+the user** whether it should be implemented now or explicitly documented as a
+decision (e.g., as a rejected alternative with its rationale in an ADR). Do
+not silently record it as a promise.
+- Rationale: undated promises rot silently — nothing tracks them, and readers
+cannot tell an intention from a contract. A decision record or an
+implementation are both verifiable; a "later" is not.
+
 ---
 
 ## Required Agent Workflow

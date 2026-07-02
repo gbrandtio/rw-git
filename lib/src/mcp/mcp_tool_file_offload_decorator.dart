@@ -11,7 +11,7 @@ import 'utils/mcp_argument_extensions.dart';
 /// This enforces a mandatory default behavior: large JSON responses are written
 /// to disk (either to an auto-generated file or an LLM-provided `output_file`)
 /// instead of being returned to the LLM, keeping the context window pristine.
-/// Responses smaller than [offloadSizeThresholdBytes] are returned inline
+/// Responses smaller than [offloadThresholdBytes] are returned inline
 /// instead, since offloading them would only add a wasted file-read round
 /// trip. The LLM can explicitly opt out by passing `return_full_json: true`.
 class McpToolFileOffloadDecorator implements McpTool {
@@ -22,19 +22,28 @@ class McpToolFileOffloadDecorator implements McpTool {
   /// `read_report_slice` path).
   final ResourceRegistry? resources;
 
+  /// Size gate for this specific tool (ADR-0011). Defaults to the global
+  /// [offloadSizeThresholdBytes]; the registry supplies per-tool overrides
+  /// from [perToolOffloadThresholdBytes].
+  final int offloadThresholdBytes;
+
   /// Upper bound on how many pre-classified findings are echoed into the
   /// offload preview to keep an offloaded report actionable without bloating
   /// the inline summary.
   static const int _previewFindingsLimit = 8;
 
-  McpToolFileOffloadDecorator(this._inner, {this.resources});
+  McpToolFileOffloadDecorator(
+    this._inner, {
+    this.resources,
+    this.offloadThresholdBytes = offloadSizeThresholdBytes,
+  });
 
   @override
   String get name => _inner.name;
 
   @override
   String get description => '${_inner.description} '
-      '(>${offloadSizeThresholdBytes ~/ 1024}KB offloaded to disk.)';
+      '(>${offloadThresholdBytes ~/ 1024}KB offloaded to disk.)';
 
   @override
   Map<String, dynamic> get inputSchema {
@@ -159,7 +168,7 @@ class McpToolFileOffloadDecorator implements McpTool {
     // For small payloads with no explicit output_file request, returning
     // inline avoids a wasted file-write + file-read round trip.
     if ((providedOutputFile == null || providedOutputFile.trim().isEmpty) &&
-        utf8.encode(rawOutput).length < offloadSizeThresholdBytes) {
+        utf8.encode(rawOutput).length < offloadThresholdBytes) {
       return rawOutput;
     }
 

@@ -6,7 +6,8 @@ Answers: "Which bugs did a specific developer introduce, and how long did each o
 
 ## Algorithm
 
-Implements the **MA-SZZ algorithm** (Modified Annotated SZZ) filtered to a single author.
+Implements the **RA-SZZ algorithm** (Refactoring-Aware SZZ), layered on the
+MA-SZZ whitespace filtering, filtered to a single author.
 
 **Phase 1 — Bug-fix commit identification:**
 
@@ -22,21 +23,29 @@ For each fix commit, run:
 ```
 git diff -M -w --ignore-blank-lines <parent_hash> <fix_hash>
 ```
-Parse the unified diff to extract deleted lines from `@@ -start,count @@` hunks. The `-w` (ignore whitespace) and `--ignore-blank-lines` flags suppress whitespace-only changes — the core MA-SZZ improvement that reduces false positives by approximately 30%.
+Parse the unified diff to extract deleted lines (with their pre-image line numbers) from `@@` hunks. The `-w` (ignore whitespace) and `--ignore-blank-lines` flags suppress whitespace-only changes — the core MA-SZZ improvement that reduces false positives by approximately 30%.
 
-**Phase 3 — Blame attribution:**
+**Phase 3 — Refactoring line filter (RA-SZZ):**
 
-For each deleted line range in each changed file:
+A deleted line whose whitespace-normalized content re-appears among the same commit's added lines (in any file — moves cross files) was **moved by a refactoring**, not removed by the fix; it is excluded from blame. Lines shorter than 8 normalized characters (`}`, `return;`, `else {`) are exempt from this exclusion: such boilerplate recurs naturally and a match on it is not evidence of movement. This is a lexical, language-agnostic stand-in for RefDiff's AST-based refactoring-operation detection used by the original RA-SZZ.
+
+**Phase 4 — Blame attribution:**
+
+Surviving deleted lines are grouped into contiguous ranges (one `git blame` call per range):
 ```
 git blame --date=iso-strict -l -w -C -C -M -L <start>,<end> <parent_hash> -- <file>
 ```
 - `-w` ignores whitespace in blame
 - `-C -C -M` follow code copies and renames across files
-- `-L` restricts blame to the deleted line range
+- `-L` restricts blame to the surviving deleted line range
 
 Parse blame output to extract the introducing commit hash, author name, and date.
 
-**Phase 4 — Developer filtering:**
+**Phase 5 — Refactoring commit filter (RA-SZZ):**
+
+Fetch the introducing commit's subject (`git log -1`, cached per hash). If it matches the refactoring keyword pattern (`refactor|rewrite|rename|restructure|reformat|format|style|clean|cleanup|move|extract|inline`), the attribution is **discarded**: the buggy code predates the refactoring, so blaming the refactoring author would be a false attribution. An unresolvable subject keeps the attribution (fail open, preserving recall).
+
+**Phase 6 — Developer filtering:**
 
 Retain only blame results where the introducing author name matches the queried developer name (case-insensitive substring match).
 
@@ -44,7 +53,7 @@ Retain only blame results where the introducing author name matches the queried 
 - Introducing commit hash and date
 - Fix commit hash and date
 - Affected file path
-- Time-to-fix in hours: `(fix_date − introducing_date).inHours`
+- Bug lifetime in days: `(fix_date − introducing_date)` in fractional days — the time the bug existed in the codebase before being fixed (SZZ bug lifetime), not the effort spent producing the fix
 
 ## Academic Foundation
 
@@ -74,7 +83,7 @@ Retain only blame results where the introducing author name matches the queried 
 
 **Key claim:** SZZ's false positive rate is further reducible by 10–20% if refactoring commits are excluded from the "fix" candidate set before running blame. The RA-SZZ and L-SZZ variants implement this.
 
-**How rw-git uses it:** The current implementation uses the negative keyword filter (`refactor|style|...`) as a lightweight proxy for RA-SZZ's full AST-diff-based refactoring detection. Full RA-SZZ integration is the next maturation step.
+**How rw-git uses it:** Three refactoring guards implement the RA-SZZ variant: the negative keyword filter excludes refactoring commits from the fix-candidate set (Phase 1); the moved-line filter excludes deleted lines that re-appear as added lines (Phase 3); and the refactoring-commit filter discards attributions whose introducing commit is itself a refactoring (Phase 5). rw-git is language-agnostic, so the line and commit filters are lexical heuristics standing in for RefDiff's AST-diff-based operation detection — the same trade-off documented for `analyze_refactoring`.
 
 ---
 

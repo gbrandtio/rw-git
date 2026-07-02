@@ -4,8 +4,8 @@ import '../../../constants.dart';
 import '../../utils/mcp_argument_extensions.dart';
 
 /// analyze_bug_hotspots_tool.dart
-/// Implements the SZZ Algorithm to identify files and authors
-/// historically responsible for introducing bugs.
+/// Implements the refactoring-aware SZZ algorithm (RA-SZZ) to identify files
+/// and authors historically responsible for introducing bugs.
 class AnalyzeBugHotspotsTool implements McpTool {
   final ProcessRunner runner;
 
@@ -15,11 +15,13 @@ class AnalyzeBugHotspotsTool implements McpTool {
   String get name => 'analyze_bug_hotspots';
 
   @override
-  String get description => 'Identifies Bug Hotspots using the SZZ algorithm. '
-      'It finds recent bug-fix commits, uses git blame on deleted lines '
-      'to find the original commit that introduced the bug, and tracks '
-      'the files and authors most responsible for bugs. Use this to flag '
-      'high-risk files during PR reviews.';
+  String get description =>
+      'Identifies Bug Hotspots using the refactoring-aware SZZ algorithm '
+      '(RA-SZZ). It finds recent bug-fix commits, uses git blame on deleted '
+      'lines (excluding refactoring changes) to find the original commit '
+      'that introduced the bug, and tracks the files and authors most '
+      'responsible for bugs. Use this to flag high-risk files during PR '
+      'reviews.';
 
   @override
   Map<String, dynamic> get inputSchema => {
@@ -54,15 +56,15 @@ class AnalyzeBugHotspotsTool implements McpTool {
 
     return jsonEncode({
       'total_fix_commits_analyzed': hotspots.totalFixCommitsAnalyzed,
-      'global_average_time_to_fix_in_hours':
-          hotspots.globalAverageTimeToFixInHours,
+      'global_average_bug_lifetime_in_days':
+          hotspots.globalAverageBugLifetimeInDays,
       'top_bug_hotspot_files': sortedFiles
           .take(15)
           .map((e) => {
                 'file': e.key,
                 'bug_introductions': e.value,
-                'average_time_to_fix_in_hours':
-                    hotspots.fileAverageTimeToFixInHours[e.key] ?? 0.0,
+                'average_bug_lifetime_in_days':
+                    hotspots.fileAverageBugLifetimeInDays[e.key] ?? 0.0,
               })
           .toList(),
       'top_bug_hotspot_authors': sortedAuthors
@@ -70,13 +72,14 @@ class AnalyzeBugHotspotsTool implements McpTool {
           .map((e) => {
                 'author': e.key,
                 'bug_introductions': e.value,
-                'average_time_to_fix_in_hours':
-                    hotspots.authorAverageTimeToFixInHours[e.key] ?? 0.0,
+                'average_bug_lifetime_in_days':
+                    hotspots.authorAverageBugLifetimeInDays[e.key] ?? 0.0,
               })
           .toList(),
       'analysis_hints': [
         'If a PR modifies a file listed in top_bug_hotspot_files, apply extreme scrutiny, as this file is historically fragile.',
         'If the current author is listed in top_bug_hotspot_authors, ensure they have requested appropriate reviews.',
+        'bug_lifetime measures introducing commit to fixing commit (SZZ), not the effort spent on the fix; lifetimes of weeks or months are normal.',
       ]
     });
   }

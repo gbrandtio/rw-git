@@ -1,9 +1,9 @@
-import 'dart:developer' as developer;
 import 'package:path/path.dart' as p;
 
 import 'exceptions.dart';
 import 'process_runner.dart';
 import 'result.dart';
+import 'rw_git_logger.dart';
 
 /// ----------------------------------------------------------------------------
 /// git_command.dart
@@ -31,9 +31,11 @@ abstract class GitCommand<T> {
     // 3.2 Security: Path validation to prevent directory traversal
     final sanitizedDir = p.normalize(directory);
 
-    // 3.1 Observability: Track execution time and log
+    // 3.1 Observability: Track execution time and log. Per-command
+    // start/finish events are debug-level so an MCP host only receives them
+    // after opting in via logging/setLevel; failures are error-level.
     final stopwatch = Stopwatch()..start();
-    developer.log('Executing GitCommand: $runtimeType', name: 'rw_git');
+    RwGitLogger.instance.debug('Executing GitCommand: $runtimeType');
 
     // 3.3 Extensibility: Hooks
     await onBeforeRun(sanitizedDir, extraArgs);
@@ -43,22 +45,19 @@ abstract class GitCommand<T> {
       final value = await run(sanitizedDir,
           extraArgs: extraArgs, streamOutput: streamOutput);
       stopwatch.stop();
-      developer.log(
-          'Command $runtimeType completed in ${stopwatch.elapsedMilliseconds}ms',
-          name: 'rw_git');
+      RwGitLogger.instance.debug(
+          'Command $runtimeType completed in ${stopwatch.elapsedMilliseconds}ms');
       result = Success(value);
     } on RwGitException catch (e) {
       stopwatch.stop();
-      developer.log(
+      RwGitLogger.instance.error(
           'Command $runtimeType failed in ${stopwatch.elapsedMilliseconds}ms with exit code ${e.exitCode}',
-          name: 'rw_git',
           error: e);
       result = Failure(e);
     } catch (e) {
       stopwatch.stop();
-      developer.log(
+      RwGitLogger.instance.error(
           'Command $runtimeType failed unexpectedly in ${stopwatch.elapsedMilliseconds}ms',
-          name: 'rw_git',
           error: e);
       result = Failure(RwGitException(
           message: 'Unexpected error executing git command',

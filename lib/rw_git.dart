@@ -19,6 +19,7 @@ export 'src/models/git/git_blame_line.dart';
 export 'src/core/exceptions.dart';
 export 'src/core/git_date_time.dart';
 export 'src/core/process_runner.dart';
+export 'src/core/rw_git_logger.dart';
 export 'src/core/network/http_client.dart';
 export 'src/core/network/http_interceptor.dart';
 export 'src/core/network/retry_interceptor.dart';

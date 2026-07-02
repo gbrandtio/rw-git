@@ -25,7 +25,7 @@ class Finding {
   /// the compound-finding correlator to line findings up across tools.
   final String subject;
 
-  /// The metric name, e.g. `file_average_time_to_fix_in_hours`.
+  /// The metric name, e.g. `file_average_bug_lifetime_in_days`.
   final String metric;
 
   /// The raw metric value (number or string) behind the band.

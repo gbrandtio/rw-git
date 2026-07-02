@@ -84,8 +84,8 @@ void main() async {
       await BugHotspotsHeuristic(runner).calculateBugHotspots(dir);
   print("Total fix commits analyzed: "
       "${bugHotspots.totalFixCommitsAnalyzed}");
-  print("Global average time to fix: "
-      "${bugHotspots.globalAverageTimeToFixInHours.toStringAsFixed(1)} hours\n");
+  print("Global average bug lifetime: "
+      "${bugHotspots.globalAverageBugLifetimeInDays.toStringAsFixed(1)} days\n");
 
   // 8. Churn: how much a file/class/block has changed over its history.
   final churn = await ChurnHeuristic(runner).calculateChurn(dir);

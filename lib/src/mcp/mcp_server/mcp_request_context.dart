@@ -11,11 +11,34 @@ class McpRequestContext {
   final IOSink outputSink;
   final int? toolsPageSize;
 
+  /// Minimum severity forwarded to the host as `notifications/message`
+  /// (ADR-0012). Defaults to warning so an idle host is not flooded with
+  /// per-command debug events; hosts opt into more via `logging/setLevel`.
+  McpLogLevel minimumLogLevel = McpLogLevel.warning;
+
   McpRequestContext({
     required this.registry,
     required this.outputSink,
     this.toolsPageSize,
   });
+
+  /// Emits an MCP `notifications/message` for [level] when it clears
+  /// [minimumLogLevel]; silently drops it otherwise, as the host asked.
+  void sendLogNotification(McpLogLevel level, String message, {Object? error}) {
+    if (level.index < minimumLogLevel.index) return;
+    outputSink.writeln(jsonEncode({
+      'jsonrpc': '2.0',
+      'method': 'notifications/message',
+      'params': {
+        'level': level.wireName,
+        'logger': RwGitLogger.loggerName,
+        'data': {
+          'message': message,
+          if (error != null) 'error': error.toString(),
+        },
+      },
+    }));
+  }
 
   void sendResponse(dynamic id, Map<String, dynamic> result) {
     outputSink.writeln(jsonEncode({

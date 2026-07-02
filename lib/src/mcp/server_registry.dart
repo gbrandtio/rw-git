@@ -1,4 +1,6 @@
+import '../constants.dart';
 import '../core/process_runner.dart';
+import '../intelligence/history/algorithms/szz_algorithm.dart';
 import '../vcs/git_query.dart';
 import '../vcs/rw_git_facade.dart';
 import 'mcp_registry.dart';
@@ -95,7 +97,11 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
 
   void offloadedRo(McpTool inner, {Map<String, dynamic>? outputSchema}) =>
       registerReadOnly(
-          McpToolFileOffloadDecorator(inner, resources: registry.resources),
+          McpToolFileOffloadDecorator(inner,
+              resources: registry.resources,
+              // Per-tool size gate (ADR-0011); global default when unlisted.
+              offloadThresholdBytes: perToolOffloadThresholdBytes[inner.name] ??
+                  offloadSizeThresholdBytes),
           outputSchema: outputSchema);
 
   void mutating(McpTool tool) =>
@@ -163,7 +169,9 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(PredictMergeConflictsTool(processRunner));
   offloadedRo(AnalyzeCommitVelocityTool(processRunner));
   offloadedRo(AnalyzeDependencyDriftTool(processRunner));
-  offloadedRo(GenerateChangelogTool(gitQuery));
+  // Shares the single RA-SZZ core with the other SZZ-backed tools so
+  // changelog bug linkage cannot drift from hotspot/developer attribution.
+  offloadedRo(GenerateChangelogTool(gitQuery, SzzAlgorithm(processRunner)));
   offloadedRo(AuditComplianceTool(processRunner));
   offloadedRo(AnalyzeFileOwnershipTool(processRunner, gitQuery));
   offloadedRo(AnalyzeDartAstQualityTool(gitQuery));

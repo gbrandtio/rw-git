@@ -1,18 +1,51 @@
 import 'package:rw_git/rw_git.dart';
+import 'package:rw_git/src/constants.dart';
 
 /// ----------------------------------------------------------------------------
 /// szz_algorithm.dart
 /// ----------------------------------------------------------------------------
-/// Core reusable implementation of the SZZ algorithm.
+/// Core reusable implementation of the RA-SZZ algorithm (Refactoring-Aware
+/// SZZ — Neto et al., *The Impact of Refactoring Changes on the SZZ
+/// Algorithm*, SANER 2018), layered on the MA-SZZ whitespace filtering of
+/// da Costa et al. (ICSME 2017).
+///
+/// This class is the single SZZ implementation in the package. Every tool
+/// that links bug-fix commits to their introducing commits
+/// (`analyze_bug_hotspots`, `find_bugs_by_developer`, `generate_changelog`)
+/// must go through [execute] or [traceFixCommit]; re-implementing the
+/// fix→introducing tracing elsewhere would silently fork the attribution
+/// accuracy the RA-SZZ/MA-SZZ guards provide.
 class SzzAlgorithm {
   final ProcessRunner runner;
 
   SzzAlgorithm(this.runner);
 
-  /// Implements the SZZ Algorithm to identify Bug Introductions.
-  /// 1. Finds recent bug-fix commits using heuristics.
-  /// 2. Finds deleted lines in those commits.
-  /// 3. Uses `git blame` to find the original author/commit that introduced the bug.
+  /// Commit metadata (subject, author date) looked up once per commit and
+  /// reused across the instance: hot introducing commits recur across many
+  /// fix commits. Keyed by directory + hash so one instance can safely
+  /// serve multiple repositories.
+  final Map<String, _CommitMetadata?> _commitMetadataCache = {};
+
+  /// Commit subjects that describe refactorings rather than behaviour
+  /// changes. Used as a lightweight stand-in for RefDiff's AST-based
+  /// refactoring-operation detection: rw_git is language-agnostic, so
+  /// AST differencing is not available (the same trade-off as
+  /// `RefactoringDetectionAlgorithm`).
+  static final RegExp _refactoringSubjectPattern = RegExp(
+      r'\b(refactor(ing|ed)?|rewrite|rewrote|rename(d|s)?|restructure(d)?|'
+      r'reformat(ted)?|format(ting)?|style|clean|cleanup|clean-up|move(d)?|'
+      r'extract(ed)?|inline(d)?)\b',
+      caseSensitive: false);
+
+  /// `git blame -l` line shape: `<40-char hash> (<author> <iso-strict date>`.
+  static final RegExp _blameLinePattern = RegExp(
+      r'^([a-f0-9]{40})\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+');
+
+  /// Identifies bug introductions across the repository history:
+  /// 1. Find bug-fix commits via keyword heuristics (positive/negative
+  ///    filters).
+  /// 2. Trace each fix commit to its introducing commits via the shared
+  ///    RA-SZZ core (see [traceFixCommit] for the per-commit pipeline).
   Future<List<SzzMatch>> execute(
     String directory, {
     String? limit,
@@ -75,107 +108,259 @@ class SzzAlgorithm {
     }
 
     final matches = <SzzMatch>[];
-
     for (final fixInfo in fixCommits) {
-      final commit = fixInfo.hash;
-      final fixDate = fixInfo.date;
+      matches.addAll(await _traceIntroducingCommits(
+          directory, fixInfo.hash, fixInfo.date));
+    }
+    return matches;
+  }
 
-      // Get parent of fix commit
-      final parentRes = await runner.run('git', ['rev-parse', '$commit^'],
-          workingDirectory: directory);
-      if (parentRes.exitCode != 0) continue;
-      final parent = parentRes.stdout?.toString().trim() ?? '';
-      if (parent.isEmpty) continue;
+  /// Traces a single, already-identified bug-fix commit to its introducing
+  /// commits through the shared RA-SZZ core. Entry point for tools that
+  /// select fix commits themselves (e.g. `generate_changelog`, which
+  /// classifies them via Conventional Commits instead of the keyword
+  /// heuristics in [execute]).
+  ///
+  /// Returns an empty list when [fixCommitHash] cannot be resolved: a
+  /// missing commit cannot be diffed or blamed either.
+  Future<List<SzzMatch>> traceFixCommit(
+      String directory, String fixCommitHash) async {
+    final metadata = await _commitMetadata(directory, fixCommitHash);
+    if (metadata == null) return [];
+    final fixDate = GitDateTime.parse(metadata.isoAuthorDate).utc;
+    return _traceIntroducingCommits(directory, fixCommitHash, fixDate);
+  }
 
-      // MA-SZZ: ignore whitespace and blank-line changes to avoid attributing
-      // cosmetic edits as bug introductions (da Costa et al., 2017).
-      final diffRes = await runner.run(
-          'git', ['diff', '-M', '-w', '--ignore-blank-lines', parent, commit],
-          workingDirectory: directory);
-      if (diffRes.exitCode != 0) continue;
-      final diffOutput = (diffRes.stdout?.toString() ?? '').split('\n');
+  /// The shared RA-SZZ core for one fix commit:
+  /// 1. Extract deleted lines from the whitespace-filtered diff against the
+  ///    parent (MA-SZZ).
+  /// 2. RA-SZZ line filter: discard deleted lines whose content re-appears
+  ///    among the same commit's added lines — code moved by a refactoring,
+  ///    not a bug-removing deletion.
+  /// 3. `git blame` the surviving lines on the parent to find the
+  ///    introducing commit and author.
+  /// 4. RA-SZZ commit filter: discard attributions whose introducing commit
+  ///    is itself a refactoring commit — the buggy code predates it, so
+  ///    blaming the refactoring author would be a false attribution.
+  Future<List<SzzMatch>> _traceIntroducingCommits(
+      String directory, String commit, DateTime fixDate) async {
+    final matches = <SzzMatch>[];
 
-      String currentFile = '';
-      for (final line in diffOutput) {
-        if (line.startsWith('--- a/')) {
-          currentFile = line.substring(6).trim();
-        } else if (line.startsWith('@@ ') &&
-            currentFile.isNotEmpty &&
-            currentFile != '/dev/null') {
-          final parts = line.split(' ');
-          if (parts.length > 1) {
-            final minusPart = parts[1]; // -start,count
-            if (minusPart.startsWith('-')) {
-              final minusParts = minusPart.substring(1).split(',');
-              final start = int.tryParse(minusParts[0]) ?? 0;
-              final count = minusParts.length > 1
-                  ? (int.tryParse(minusParts[1]) ?? 1)
-                  : 1;
+    // Get parent of fix commit
+    final parentRes = await runner.run('git', ['rev-parse', '$commit^'],
+        workingDirectory: directory);
+    if (parentRes.exitCode != 0) return matches;
+    final parent = parentRes.stdout?.toString().trim() ?? '';
+    if (parent.isEmpty) return matches;
 
-              if (count > 0 && start > 0) {
-                final end = start + count - 1;
-                final blameRes = await runner.run(
-                    'git',
-                    [
-                      'blame',
-                      '--date=iso-strict',
-                      '-l', // long hash
-                      '-w', // ignore whitespace
-                      '-C', '-C', '-M', // detect moves and copies
-                      '-L',
-                      '$start,$end',
-                      parent,
-                      '--',
-                      currentFile
-                    ],
-                    workingDirectory: directory);
+    // MA-SZZ: ignore whitespace and blank-line changes to avoid attributing
+    // cosmetic edits as bug introductions (da Costa et al., 2017).
+    final diffRes = await runner.run(
+        'git', ['diff', '-M', '-w', '--ignore-blank-lines', parent, commit],
+        workingDirectory: directory);
+    if (diffRes.exitCode != 0) return matches;
 
-                if (blameRes.exitCode == 0) {
-                  final blameLines = (blameRes.stdout?.toString() ?? '')
-                      .split('\n')
-                      .where((l) => l.trim().isNotEmpty);
-                  for (final bLine in blameLines) {
-                    // Match the long hash and author
-                    // format: hash (Author Name ...
-                    final match = RegExp(
-                            r'^([a-f0-9]{40})\s+.*?\(<([^>]+)>|\((.*?)\s+\d{4}-')
-                        .firstMatch(bLine);
-                    if (match != null) {
-                      // We skip parsing to BugIntroductionDto since it is only needed for the tool
-                      // parse author depending on format, blame sometimes outputs (<email> or (Author Name Date)
-                      // wait, let's use standard blame -l output:
-                      // hash (Author Name 2023-01-01 12:00:00 +0000 1) line content
-                      // a simpler regex: ^([a-f0-9]{40})\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+
-                      final authorMatch = RegExp(
-                              r'^([a-f0-9]{40})\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+')
-                          .firstMatch(bLine);
-                      if (authorMatch != null) {
-                        final introHash = authorMatch.group(1)!;
-                        final author = authorMatch.group(2)!.trim();
-                        final dateStr = authorMatch.group(3)!;
-                        final introDate = GitDateTime.parse(dateStr).utc;
+    final commitDiff = _parseUnifiedDiff(diffRes.stdout?.toString() ?? '');
 
-                        matches.add(SzzMatch(
-                          introducingCommitHash: introHash,
-                          introducingDate: introDate,
-                          introducingAuthor: author,
-                          fixingCommitHash: commit,
-                          fixingDate: fixDate,
-                          filePath: currentFile,
-                        ));
-                      }
-                    }
-                  }
-                }
-              }
-            }
+    for (final entry in commitDiff.deletedLinesByFile.entries) {
+      final filePath = entry.key;
+
+      // RA-SZZ line filter: a deleted line whose content re-appears among
+      // the commit's added lines was moved, not fixed (Neto et al., 2018).
+      final survivingLines = entry.value
+          .where((deleted) => !commitDiff.isMovedLine(deleted.content))
+          .toList();
+
+      for (final range in _contiguousRanges(survivingLines)) {
+        final blameRes = await runner.run(
+            'git',
+            [
+              'blame',
+              '--date=iso-strict',
+              '-l', // long hash
+              '-w', // ignore whitespace
+              '-C', '-C', '-M', // detect moves and copies
+              '-L',
+              '${range.start},${range.end}',
+              parent,
+              '--',
+              filePath
+            ],
+            workingDirectory: directory);
+        if (blameRes.exitCode != 0) continue;
+
+        final blameLines = (blameRes.stdout?.toString() ?? '')
+            .split('\n')
+            .where((l) => l.trim().isNotEmpty);
+        for (final blameLine in blameLines) {
+          final blameMatch = _blameLinePattern.firstMatch(blameLine);
+          if (blameMatch == null) continue;
+
+          final introHash = blameMatch.group(1)!;
+          final author = blameMatch.group(2)!.trim();
+          final introDate = GitDateTime.parse(blameMatch.group(3)!).utc;
+
+          // RA-SZZ commit filter: skip introducing commits that are
+          // themselves refactorings. An unknown subject keeps the
+          // attribution — failing open preserves recall.
+          final introMetadata = await _commitMetadata(directory, introHash);
+          final subject = introMetadata?.subject;
+          if (subject != null && _refactoringSubjectPattern.hasMatch(subject)) {
+            continue;
           }
+
+          matches.add(SzzMatch(
+            introducingCommitHash: introHash,
+            introducingDate: introDate,
+            introducingAuthor: author,
+            fixingCommitHash: commit,
+            fixingDate: fixDate,
+            filePath: filePath,
+          ));
         }
       }
     }
 
     return matches;
   }
+
+  /// Fetches (and caches) the subject and author date of [hash]. Returns
+  /// null when the commit cannot be resolved, so callers decide the failure
+  /// semantics (keep the attribution for the RA-SZZ commit filter; skip the
+  /// trace entirely for [traceFixCommit]).
+  Future<_CommitMetadata?> _commitMetadata(
+      String directory, String hash) async {
+    final cacheKey = '$directory@$hash';
+    if (_commitMetadataCache.containsKey(cacheKey)) {
+      return _commitMetadataCache[cacheKey];
+    }
+
+    final res = await runner.run('git',
+        ['log', '-1', '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s', hash],
+        workingDirectory: directory);
+
+    _CommitMetadata? metadata;
+    if (res.exitCode == 0) {
+      final parts = (res.stdout?.toString() ?? '').trim().split('\t');
+      if (parts.length >= 5) {
+        metadata = _CommitMetadata(
+          isoAuthorDate: parts[3],
+          subject: parts.sublist(4).join('\t'),
+        );
+      }
+    }
+    _commitMetadataCache[cacheKey] = metadata;
+    return metadata;
+  }
+
+  /// Groups [sortedDeletedLines] (ascending by line number) into contiguous
+  /// line ranges so each surviving block costs one `git blame -L` call.
+  static List<_LineRange> _contiguousRanges(
+      List<_DeletedLine> sortedDeletedLines) {
+    final ranges = <_LineRange>[];
+    for (final deleted in sortedDeletedLines) {
+      if (ranges.isNotEmpty && ranges.last.end == deleted.lineNumber - 1) {
+        ranges.last.end = deleted.lineNumber;
+      } else {
+        ranges.add(_LineRange(deleted.lineNumber, deleted.lineNumber));
+      }
+    }
+    return ranges;
+  }
+
+  /// Parses a unified diff into per-file deleted lines (with their line
+  /// numbers in the pre-image) and the commit-wide set of added-line
+  /// contents used for RA-SZZ moved-line detection.
+  static _CommitDiff _parseUnifiedDiff(String diffOutput) {
+    final deletedLinesByFile = <String, List<_DeletedLine>>{};
+    final normalizedAddedLines = <String>{};
+
+    String currentFile = '';
+    int oldLineNumber = 0;
+    bool inHunk = false;
+
+    final hunkHeaderPattern = RegExp(r'^@@ -(\d+)(?:,(\d+))? \+');
+
+    for (final line in diffOutput.split('\n')) {
+      if (line.startsWith('diff --git')) {
+        inHunk = false;
+        currentFile = '';
+      } else if (line.startsWith('--- ')) {
+        inHunk = false;
+        currentFile = line.startsWith('--- a/') ? line.substring(6).trim() : '';
+      } else if (line.startsWith('+++ ')) {
+        // The pre-image path from `--- a/` is the blame target; nothing to do.
+      } else if (line.startsWith('@@ ')) {
+        final header = hunkHeaderPattern.firstMatch(line);
+        if (header != null && currentFile.isNotEmpty) {
+          oldLineNumber = int.parse(header.group(1)!);
+          inHunk = true;
+        } else {
+          inHunk = false;
+        }
+      } else if (inHunk) {
+        if (line.startsWith(r'\')) {
+          // "\ No newline at end of file" — annotation, not content.
+        } else if (line.startsWith('-')) {
+          deletedLinesByFile
+              .putIfAbsent(currentFile, () => [])
+              .add(_DeletedLine(oldLineNumber, line.substring(1)));
+          oldLineNumber++;
+        } else if (line.startsWith('+')) {
+          normalizedAddedLines.add(_normalizeLineContent(line.substring(1)));
+        } else {
+          oldLineNumber++;
+        }
+      }
+    }
+
+    return _CommitDiff(deletedLinesByFile, normalizedAddedLines);
+  }
+
+  static String _normalizeLineContent(String content) =>
+      content.replaceAll(RegExp(r'\s+'), ' ').trim();
+}
+
+/// One fix commit's parsed diff: what was deleted (per file, with pre-image
+/// line numbers) and what was added anywhere in the commit.
+class _CommitDiff {
+  final Map<String, List<_DeletedLine>> deletedLinesByFile;
+  final Set<String> _normalizedAddedLines;
+
+  _CommitDiff(this.deletedLinesByFile, this._normalizedAddedLines);
+
+  /// A deleted line "moved" when its normalized content re-appears among the
+  /// commit's added lines (any file — moves cross files). Lines shorter than
+  /// [raSzzMovedLineMinimumLength] are boilerplate that recurs naturally, so
+  /// a match on them is not evidence of movement.
+  bool isMovedLine(String content) {
+    final normalized = SzzAlgorithm._normalizeLineContent(content);
+    return normalized.length >= raSzzMovedLineMinimumLength &&
+        _normalizedAddedLines.contains(normalized);
+  }
+}
+
+/// Subject and author date of a commit, cached for the RA-SZZ commit filter
+/// and for resolving fix dates in [SzzAlgorithm.traceFixCommit].
+class _CommitMetadata {
+  final String isoAuthorDate;
+  final String subject;
+
+  _CommitMetadata({required this.isoAuthorDate, required this.subject});
+}
+
+class _DeletedLine {
+  final int lineNumber;
+  final String content;
+
+  _DeletedLine(this.lineNumber, this.content);
+}
+
+class _LineRange {
+  final int start;
+  int end;
+
+  _LineRange(this.start, this.end);
 }
 
 class _FixCommitInfo {
