@@ -144,6 +144,31 @@ void main() {
       expect(parsed['trend'], 'accelerating');
     });
 
+    test('classifies burnout using the author\'s own UTC offset, not raw UTC',
+        () async {
+      final log = [
+        // 22:00 local (author's own +08:00 offset) -> burnout.
+        // The same instant is 14:00 UTC, which would NOT be burnout under a
+        // naive UTC-hour comparison. Asserting burnout_commits == 1 proves
+        // classification uses authorLocal, not raw UTC.
+        'aaa||Alice||2024-01-01T22:00:00+08:00',
+      ].join('\n');
+
+      final runner = _MockRunner(log);
+      final tool = AnalyzeCommitVelocityTool(runner);
+
+      final result = await tool.execute({
+        'directory': '/test',
+        'granularity': 'week',
+      });
+      final parsed = jsonDecode(result) as Map<String, dynamic>;
+
+      expect(parsed['total_burnout_commits'], 1);
+      final series = parsed['time_series'] as List;
+      expect(series.length, 1);
+      expect((series.first as Map)['burnout_commits'], 1);
+    });
+
     test('detects decelerating trend', () async {
       final log = [
         'aaa||Alice||2024-01-01T10:00:00+00:00',
