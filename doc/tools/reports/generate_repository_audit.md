@@ -29,7 +29,7 @@ Shared by all five report meta-tools (advertised via the compact `_reportOutputS
 
 - `report_type` — which report was generated
 - `summary` — finding counts by severity
-- `top_findings` — ranked array; each finding carries `severity`, `subject`, `band`, `metric`, `value`, and a ready-to-use `message`
+- `top_findings` — ranked array; each finding carries `severity`, `subject`, `band`, `metric`, `value`, a ready-to-use `message`, and a compact `basis` citation tag naming the research behind the band (e.g. `Truck-factor estimation (Avelino et al. 2016)`). The offloaded full report additionally carries a per-finding `rationale` — a one-to-two-sentence explanation of why the metric predicts risk, with the citation; the offload preview strips `rationale` to protect its token budget.
 - `compound_findings` — cross-tool correlated risks, the highest-priority items
 
 If the payload exceeds the offload threshold ([ADR-0001](../../adr/0001-file-offloading-of-large-tool-outputs.md)), the offload `preview` still carries `summary`/`top_findings`/`compound_findings`, so the report stays actionable inline without a second file read.

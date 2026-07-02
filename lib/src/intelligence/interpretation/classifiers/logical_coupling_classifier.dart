@@ -16,6 +16,17 @@ import '../severity.dart';
 class LogicalCouplingClassifier {
   const LogicalCouplingClassifier();
 
+  /// Compact citation tag carried inline on every finding.
+  static const String researchBasis =
+      'Co-change logical coupling (Gall et al. 1998; Zimmermann et al. 2004)';
+
+  /// Fuller research rationale carried only in the offloaded full report.
+  static const String researchRationale =
+      'Files that repeatedly change together are logically coupled even '
+      'without a static dependency (Gall et al., ICSM 1998); co-change '
+      'history predicts where a change must propagate next (Zimmermann et '
+      'al., ICSE 2004).';
+
   List<Finding> classify(List<LogicalCouplingDto> pairs) {
     final findings = <Finding>[];
     for (final pair in pairs) {
@@ -45,6 +56,8 @@ class LogicalCouplingClassifier {
         metric: 'co_change_confidence',
         value: double.parse((confidence * 100).toStringAsFixed(2)),
         band: band,
+        basis: researchBasis,
+        rationale: researchRationale,
         message: '$normalizedPathA and $normalizedPathB change together '
             '$pct% of the time'
             '${crossModule ? ' across module boundaries' : ''} '

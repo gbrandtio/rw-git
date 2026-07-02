@@ -1,4 +1,14 @@
 # 3.1.0
+- **FEAT (Intelligence, research visibility):** Every classified `Finding`
+  now carries its academic grounding in the payload: a compact `basis`
+  citation tag (e.g. `Truck-factor estimation (Avelino et al. 2016)`) that
+  rides inline in every report preview, and a fuller one-to-two-sentence
+  `rationale` with the citation that lives only in the offloaded full
+  report (the offload preview strips it, `previewStrippedFindingKeys`).
+  All ten classifiers and all four compound-risk rules own their citation
+  constants (`researchBasis` / `researchRationale`); citations resolve in
+  `doc/tools/REFERENCES.md`. Previously the research backing the bands was
+  documented but never visible in any tool response.
 - **FEAT (MCP, spec compliance):** `tools/call` now returns
   `structuredContent` alongside the standard text block for every tool that
   advertises an `outputSchema`, as MCP 2025-06-18 specifies (a declared

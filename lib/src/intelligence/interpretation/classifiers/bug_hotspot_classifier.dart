@@ -19,6 +19,18 @@ import '../severity.dart';
 class BugHotspotClassifier {
   const BugHotspotClassifier();
 
+  /// Compact citation tag carried inline on every finding.
+  static const String researchBasis =
+      'RA-SZZ bug attribution (Śliwerski 2005; Neto 2018; Kim & Whitehead '
+      '2006)';
+
+  /// Fuller research rationale carried only in the offloaded full report.
+  static const String researchRationale =
+      'Bug-introducing commits are traced from fix commits with the '
+      'refactoring-aware SZZ algorithm (Śliwerski et al., MSR 2005; Neto et '
+      'al., SANER 2018); lifetimes of 100-200 days are normal, so bands are '
+      'relative to the repository average (Kim & Whitehead, MSR 2006).';
+
   List<Finding> classify(BugHotspotDto dto) {
     final global = dto.globalAverageBugLifetimeInDays;
     final decileThreshold =
@@ -74,6 +86,8 @@ class BugHotspotClassifier {
         metric: metric,
         value: value,
         band: band,
+        basis: researchBasis,
+        rationale: researchRationale,
         message: 'Bug hotspot $normalized: $count bug-fix commit(s)'
             '${lifetimeDays != null ? ', avg bug lifetime ${lifetimeDays.toStringAsFixed(1)}d' : ''}'
             ' (global avg ${global.toStringAsFixed(1)}d).',

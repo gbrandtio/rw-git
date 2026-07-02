@@ -84,7 +84,14 @@ class MockFindingsTool implements McpTool {
     return jsonEncode({
       'summary': {'Critical': 1},
       'top_findings': [
-        {'severity': 'Critical', 'subject': 'lib/x.dart', 'message': 'bad'},
+        {
+          'severity': 'Critical',
+          'subject': 'lib/x.dart',
+          'message': 'bad',
+          'basis': 'Churn (Nagappan & Ball 2005)',
+          'rationale': 'Churn predicts defect density (Nagappan & Ball, '
+              'ICSE 2005).',
+        },
       ],
       'compound_findings': [],
       'padding': 'x' * 9000,
@@ -171,6 +178,13 @@ void main() {
       final firstFinding = topFindings.first as Map<String, dynamic>;
       expect(firstFinding['severity'], 'Critical');
       expect(preview.containsKey('summary'), isTrue);
+
+      // The compact citation tag rides inline; the verbose rationale stays
+      // only in the offloaded file so the preview keeps its token savings.
+      expect(firstFinding['basis'], contains('Nagappan'));
+      expect(firstFinding.containsKey('rationale'), isFalse);
+      final offloadedFile = File(result['file'] as String);
+      expect(await offloadedFile.readAsString(), contains('rationale'));
     });
 
     test('writes to auto-generated file by default and returns summary',

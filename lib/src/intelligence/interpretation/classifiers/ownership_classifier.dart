@@ -18,6 +18,17 @@ class OwnershipClassifier {
   /// Files whose top author holds less than this share are treated as healthy.
   static const double _minShare = 0.30;
 
+  /// Compact citation tag carried inline on every finding.
+  static const String researchBasis =
+      'Ownership concentration and defects (Bird et al. 2011)';
+
+  /// Fuller research rationale carried only in the offloaded full report.
+  static const String researchRationale =
+      'Components dominated by a single author accumulate knowledge no '
+      'reviewer shares, and ownership structure measurably affects defect '
+      'rates (Bird et al., FSE 2011) — the per-file analogue of a low bus '
+      'factor.';
+
   List<Finding> classify(ChurnMetricsWithAuthorsDto dto) {
     final findings = <Finding>[];
     dto.fileChurn.forEach((file, stats) {
@@ -47,6 +58,8 @@ class OwnershipClassifier {
         metric: 'single_author_ownership',
         value: double.parse((share * 100).toStringAsFixed(2)),
         band: band,
+        basis: researchBasis,
+        rationale: researchRationale,
         message: '${top.key} owns $pct% of changes to $normalized.',
         evidence: {
           'top_author': top.key,

@@ -17,6 +17,39 @@ import 'severity.dart';
 class CompoundFindingCorrelator {
   const CompoundFindingCorrelator();
 
+  /// Rule 1 — hotspot owned by a single author.
+  static const String tribalKnowledgeBasis =
+      'Ownership x defect density (Bird et al. 2011; Śliwerski 2005)';
+  static const String tribalKnowledgeRationale =
+      'Single-owner components measurably accumulate more defects (Bird et '
+      'al., FSE 2011); when SZZ attribution also marks the file a bug '
+      'hotspot, the buggiest code depends on knowledge no one else holds.';
+
+  /// Rule 2 — complexity outlier that also churns.
+  static const String complexityChurnBasis =
+      'Churn x complexity defect risk (Nagappan & Ball 2005; McCabe 1976)';
+  static const String complexityChurnRationale =
+      'Churn predicts defect density (Nagappan & Ball, ICSE 2005) and '
+      'complexity multiplies the chance each change goes wrong (McCabe, '
+      '1976); their intersection is the prime defect-injection site.';
+
+  /// Rule 3 — strong coupling across declared modules.
+  static const String crossModuleCouplingBasis =
+      'Cross-module co-change smell (Gall et al. 1998; Garcia et al. 2009)';
+  static const String crossModuleCouplingRationale =
+      'Co-change coupling that crosses declared module boundaries is an '
+      'architectural bad smell (Gall et al., ICSM 1998; Garcia, Oliveira & '
+      'Murta, SBES 2009): the real structure has drifted from the intended '
+      'one.';
+
+  /// Rule 4 — exposed secret alongside stale dependencies.
+  static const String staleDependencySecretBasis =
+      'Secret leakage x supply chain (Meli et al. 2019; Ohm et al. 2020)';
+  static const String staleDependencySecretRationale =
+      'A credential in a dependency manifest or config (Meli et al., USENIX '
+      'Security 2019) combined with major-version-stale dependencies '
+      'widens the supply-chain attack surface (Ohm et al., DIMVA 2020).';
+
   List<Finding> correlate(List<Finding> findings) {
     final byCategory = <String, List<Finding>>{};
     for (final f in findings) {
@@ -51,6 +84,8 @@ class CompoundFindingCorrelator {
               'hotspot owned almost entirely by '
               '${owner.evidence['top_author']}.',
           sources: const ['analyze_bug_hotspots', 'analyze_file_ownership'],
+          basis: tribalKnowledgeBasis,
+          rationale: tribalKnowledgeRationale,
           evidence: {'bug_hotspot': _ref(hotspot), 'ownership': _ref(owner)},
         ));
       }
@@ -69,6 +104,8 @@ class CompoundFindingCorrelator {
           message: 'Prime defect-injection risk: ${cx.subject} is a complexity '
               'outlier that also churns frequently.',
           sources: const ['analyze_code_quality'],
+          basis: complexityChurnBasis,
+          rationale: complexityChurnRationale,
           evidence: {'complexity': _ref(cx), 'churn': _ref(churn)},
         ));
       }
@@ -87,6 +124,8 @@ class CompoundFindingCorrelator {
               '${c.evidence['file_b']} are strongly coupled across module '
               'boundaries.',
           sources: const ['analyze_logical_coupling'],
+          basis: crossModuleCouplingBasis,
+          rationale: crossModuleCouplingRationale,
           evidence: c.evidence,
           severity: Severity.high,
         ));
@@ -111,6 +150,8 @@ class CompoundFindingCorrelator {
               'detect_secrets_in_commits',
               'analyze_dependency_drift',
             ],
+            basis: staleDependencySecretBasis,
+            rationale: staleDependencySecretRationale,
             evidence: {
               'secret': _ref(secret),
               'stale_dependencies': staleDeps.map((d) => d.subject).toList(),
@@ -138,6 +179,8 @@ class CompoundFindingCorrelator {
     required String band,
     required String message,
     required List<String> sources,
+    required String basis,
+    required String rationale,
     required Map<String, dynamic> evidence,
     Severity severity = Severity.critical,
   }) {
@@ -150,6 +193,8 @@ class CompoundFindingCorrelator {
       value: sources.length,
       band: band,
       message: message,
+      basis: basis,
+      rationale: rationale,
       evidence: {'sources': sources, ...evidence},
     );
   }

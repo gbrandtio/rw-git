@@ -140,7 +140,10 @@ engineering management and code quality challenges.
 
 Each runs the relevant analyses server-side, applies every severity band and
 cross-tool compound-risk rule in Dart, and returns a small, ranked,
-already-classified payload (`summary`, `top_findings`, `compound_findings`):
+already-classified payload (`summary`, `top_findings`, `compound_findings`).
+Every finding names the research behind its band in a compact `basis` tag
+(e.g. `Truck-factor estimation (Avelino et al. 2016)`), with a fuller
+per-finding `rationale` in the offloaded full report:
 - `generate_repository_audit`: High-level deep audit (technical + security).
 - `generate_technical_report`: Code quality, technical debt, architecture.
 - `generate_security_report`: Secrets, compliance, dependency freshness.

@@ -56,6 +56,13 @@ const int reportToolOffloadThresholdBytes = 4096;
 /// model would immediately fetch in full anyway.
 const int compactHistoryToolOffloadThresholdBytes = 16384;
 
+/// Finding keys stripped from the bounded findings echoed into an offload
+/// preview. The compact `basis` citation stays inline; the fuller
+/// `rationale` lives only in the offloaded full report, since repeating a
+/// two-sentence explanation per finding would erode the preview's token
+/// savings.
+const List<String> previewStrippedFindingKeys = ['rationale'];
+
 /// Inline hint attached to every offload summary. Kept deliberately short:
 /// it is re-sent on every offloaded call, so each character is a recurring
 /// token cost. The full offload contract lives once in

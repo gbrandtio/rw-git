@@ -17,6 +17,16 @@ import '../severity.dart';
 class ChurnClassifier {
   const ChurnClassifier();
 
+  /// Compact citation tag carried inline on every finding.
+  static const String researchBasis =
+      'Relative churn predicts defect density (Nagappan & Ball 2005)';
+
+  /// Fuller research rationale carried only in the offloaded full report.
+  static const String researchRationale =
+      'Relative code churn is a strong predictor of system defect density '
+      '(Nagappan & Ball, ICSE 2005); top-decile change frequency marks the '
+      'files where new defects are most likely to be injected.';
+
   List<Finding> classify(ChurnMetricsDto dto) {
     final churn = dto.fileChurn;
     if (churn.isEmpty) return const [];
@@ -35,6 +45,8 @@ class ChurnClassifier {
         metric: 'file_churn',
         value: count,
         band: 'top-decile change frequency',
+        basis: researchBasis,
+        rationale: researchRationale,
         message: '$normalized changed $count times (top-decile churn).',
         evidence: {
           'file_churn': count,

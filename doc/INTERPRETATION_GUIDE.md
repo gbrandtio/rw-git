@@ -12,6 +12,14 @@
 > The bands are implemented in `lib/src/intelligence/interpretation/` (see
 > `classifiers/` and `compound_finding_correlator.dart`).
 
+Every classified finding carries its academic grounding in the payload: a
+compact `basis` citation tag (always present, inline in the offload preview)
+and a fuller `rationale` sentence with the citation (offloaded full report
+only — the preview strips it to protect its token budget). The strings are
+classifier-owned constants (`researchBasis` / `researchRationale` in
+`lib/src/intelligence/interpretation/classifiers/`), and the citations
+resolve in [`doc/tools/REFERENCES.md`](tools/REFERENCES.md).
+
 Tool outputs are raw metrics with no built-in verdict — apply the bands below to
 turn numbers into findings. Where an absolute industry standard exists, use it;
 where a metric is repo-specific (e.g. raw keyword-count complexity), compare it
@@ -23,12 +31,18 @@ against that repo's own distribution instead of inventing an absolute cutoff.
 - Top contributor 30–50% → **Moderate**.
 - < 30% → Healthy distribution.
 
-## Bug hotspots & time-to-fix (`analyze_bug_hotspots`)
-- A file's `file_average_time_to_fix_in_hours` > 2x
-  `global_average_time_to_fix_in_hours` → **Critical**.
+## Bug hotspots & bug lifetime (`analyze_bug_hotspots`)
+- A file's `file_average_bug_lifetime_in_days` > 2x
+  `global_average_bug_lifetime_in_days` → **Critical**.
 - 1–2x global average → **Elevated**.
-- Files in the top decile of `file_hotspots` counts → hotspot regardless of fix
-  time.
+- Files in the top decile of `file_hotspots` counts → hotspot regardless of bug
+  lifetime.
+- **Semantics**: SZZ measures the span from the bug-*introducing* commit to the
+  bug-*fixing* commit — the bug's lifetime — not the effort spent fixing it
+  once noticed. Median lifetimes of one to several hundred days are normal
+  (Kim & Whitehead, *How long did it take to fix bugs?*, MSR 2006), which is
+  why the metric is reported in days and the bands are relative to the
+  repository's own average rather than absolute cutoffs.
 
 ## Code complexity (`analyze_code_quality`, `calculate_universal_lexical_metrics`, `analyze_dart_ast_quality`)
 - `file_complexity` is a raw keyword count, not a normalized score — compare each
