@@ -124,4 +124,86 @@ void main() {
     final res = await firstResponse();
     expect(res['error']['code'], -32002);
   });
+
+  Future<Map<String, dynamic>> callTool(
+      McpRegistry registry, String toolName) async {
+    makeServer(registry).start();
+    send({
+      'jsonrpc': '2.0',
+      'id': 1,
+      'method': 'tools/call',
+      'params': {'name': toolName, 'arguments': <String, dynamic>{}}
+    });
+    return firstResponse();
+  }
+
+  test(
+      'tools/call returns structuredContent alongside text when the tool '
+      'advertises an outputSchema (MCP 2025-06-18)', () async {
+    final registry = McpRegistry()
+      ..registerTool(McpToolWithMetadata(_JsonPayloadTool(), outputSchema: {
+        'type': 'object',
+        'properties': {
+          'answer': {'type': 'integer'}
+        },
+      }));
+
+    final res = await callTool(registry, 'json_payload');
+    final result = res['result'] as Map<String, dynamic>;
+    // The text block stays for backward compatibility...
+    expect((result['content'] as List).first['text'], contains('42'));
+    // ...and the same payload is delivered machine-readable.
+    final structured = result['structuredContent'] as Map<String, dynamic>;
+    expect(structured['answer'], 42);
+  });
+
+  test('tools/call omits structuredContent when no outputSchema is declared',
+      () async {
+    final registry = McpRegistry()..registerTool(_JsonPayloadTool());
+
+    final res = await callTool(registry, 'json_payload');
+    final result = res['result'] as Map<String, dynamic>;
+    expect(result.containsKey('structuredContent'), isFalse);
+    expect((result['content'] as List).first['text'], contains('42'));
+  });
+
+  test(
+      'tools/call omits structuredContent for non-object output even when a '
+      'schema is declared', () async {
+    final registry = McpRegistry()
+      ..registerTool(McpToolWithMetadata(_MarkdownTool(), outputSchema: const {
+        'type': 'object',
+        'properties': <String, dynamic>{},
+      }));
+
+    final res = await callTool(registry, 'markdown_tool');
+    final result = res['result'] as Map<String, dynamic>;
+    expect(result.containsKey('structuredContent'), isFalse);
+    expect((result['content'] as List).first['text'], contains('# Heading'));
+  });
+}
+
+/// Returns a small JSON object, the shape a schema-declaring tool promises.
+class _JsonPayloadTool implements McpTool {
+  @override
+  String get name => 'json_payload';
+  @override
+  String get description => 'stub';
+  @override
+  Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}};
+  @override
+  Future<String> execute(Map<String, dynamic> args) async =>
+      jsonEncode({'answer': 42});
+}
+
+/// Returns non-JSON text, like get_rw_git_documentation.
+class _MarkdownTool implements McpTool {
+  @override
+  String get name => 'markdown_tool';
+  @override
+  String get description => 'stub';
+  @override
+  Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}};
+  @override
+  Future<String> execute(Map<String, dynamic> args) async => '# Heading';
 }

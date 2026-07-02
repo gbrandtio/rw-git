@@ -47,3 +47,4 @@ Where an ADR touches those areas, it links back to the governing document.
 | [0010](0010-interpretation-threshold-change-process.md) | Interpretation thresholds: code is the source of truth, guide follows | Accepted |
 | [0011](0011-per-tool-offload-thresholds.md) | Per-tool offload thresholds for large tool outputs | Accepted |
 | [0012](0012-structured-logging-and-mcp-log-level-control.md) | Structured logging facade and MCP log-level control | Accepted |
+| [0013](0013-structured-tool-results-and-output-schema-policy.md) | Structured tool results and the `outputSchema` advertisement policy | Accepted |

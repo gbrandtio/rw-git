@@ -1,4 +1,20 @@
 # 3.1.0
+- **FEAT (MCP, spec compliance):** `tools/call` now returns
+  `structuredContent` alongside the standard text block for every tool that
+  advertises an `outputSchema`, as MCP 2025-06-18 specifies (a declared
+  schema promises structured output). Non-JSON payloads fall back to
+  text-only.
+- **PERF/BREAKING (MCP, tools/list):** `outputSchema` is now advertised only
+  where the shape is stable, compact, and drives `structuredContent`
+  (ADR-0013): the five report meta-tools, the tiny git-operation results,
+  `get_stats`, `is_git_repository`, `fetch_tags`, and
+  `calculate_universal_lexical_metrics`. The ~21 broad-but-shallow bespoke
+  schemas added in the previous release are removed — the offload `preview`
+  already conveys that structure at response time for free. The serialized
+  `tools/list` payload drops from ~41,000 to ~35,635 bytes (~11,500 → ~9,900
+  tokens); the regression budget
+  (`test/mcp/tools_list_size_test.dart`) tightens from 48,000 to 40,000
+  bytes.
 - **PERF/BREAKING (MCP, offload preview):** The offload summary's `preview`
   now carries a single `structure` map (`key -> 'array(<n>)' | 'object' |
   <scalar type>`) instead of the redundant `top_level_keys` /

@@ -135,77 +135,17 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(GenerateCodeReviewReportTool(processRunner),
       outputSchema: _reportOutputSchema);
 
-  // Stable, compact shapes are advertised below via `outputSchema:` so a
-  // model knows an offloaded file's structure without reading it first.
-  // `get_rw_git_documentation` (returns Markdown, not JSON), `read_report_slice`
-  // (three mutually-exclusive shapes depending on path/error), and
-  // `analyze_dart_ast_quality` (three mutually-exclusive early-exit shapes plus
-  // a dynamic per-file map) are deliberately left without one — their output
-  // doesn't have a single stable shape a compact schema could usefully pin down.
-  offloadedRo(AnalyzeCodeQualityTool(processRunner, gitQuery), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'suspicious_commits': {'type': 'array'},
-      'mega_commits': {'type': 'array'},
-      'total_commits': {'type': 'integer'},
-      'high_churn_files': {'type': 'array'},
-      'top_churned_classes': {'type': 'array'},
-      'top_churned_blocks': {'type': 'array'},
-      'advanced_metrics': {'type': 'object'},
-      'analysis_hints': {'type': 'array'},
-      'commit_log': {'type': 'string'},
-      'code_diff': {'type': 'string'},
-    },
-  });
-  offloadedRo(AnalyzeBugHotspotsTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'total_fix_commits_analyzed': {'type': 'integer'},
-      'global_average_bug_lifetime_in_days': {'type': 'number'},
-      'top_bug_hotspot_files': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'file': {'type': 'string'},
-            'bug_introductions': {'type': 'integer'},
-            'average_bug_lifetime_in_days': {'type': 'number'},
-          },
-        },
-      },
-      'top_bug_hotspot_authors': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'author': {'type': 'string'},
-            'bug_introductions': {'type': 'integer'},
-            'average_bug_lifetime_in_days': {'type': 'number'},
-          },
-        },
-      },
-      'analysis_hints': {'type': 'array'},
-    },
-  });
-  offloadedRo(FindBugsByDeveloperTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'author_analyzed': {'type': 'string'},
-      'bugs_introduced_count': {'type': 'integer'},
-      'bug_introductions': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'file': {'type': 'string'},
-            'introducing_commit': {'type': 'string'},
-            'fixing_commit': {'type': 'string'},
-            'bug_lifetime_in_days': {'type': 'number'},
-          },
-        },
-      },
-    },
-  });
+  // outputSchema policy (ADR-0013): a schema is advertised only where the
+  // shape is stable, compact, and drives `structuredContent` — the report
+  // meta-tools, tiny git-operation results, and a handful of fixed-shape
+  // tools. Every schema byte is a fixed cost each conversation pays in
+  // tools/list (budget enforced by test/mcp/tools_list_size_test.dart), so
+  // broad-but-shallow schemas that merely enumerate top-level keys are
+  // deliberately not advertised; the offload `preview` already conveys that
+  // structure at response time for free.
+  offloadedRo(AnalyzeCodeQualityTool(processRunner, gitQuery));
+  offloadedRo(AnalyzeBugHotspotsTool(processRunner));
+  offloadedRo(FindBugsByDeveloperTool(processRunner));
   registerReadOnly(GetRwGitDocumentationTool(registry));
   registerReadOnly(ReadReportSliceTool());
   mutating(InitRepositoryTool(git), outputSchema: _successOutputSchema);
@@ -232,24 +172,7 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
       'tags': {'type': 'array'},
     },
   });
-  offloadedRo(GetCommitsBetweenTool(git), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'commits': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'hash': {'type': 'string'},
-            'authorName': {'type': 'string'},
-            'authorEmail': {'type': 'string'},
-            'date': {'type': 'string'},
-            'message': {'type': 'string'},
-          },
-        },
-      },
-    },
-  });
+  offloadedRo(GetCommitsBetweenTool(git));
   offloadedRo(GetStatsTool(git, gitQuery), outputSchema: const {
     'type': 'object',
     'properties': {
@@ -259,235 +182,27 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
       'stats_by_extension': {'type': 'object'},
     },
   });
-  offloadedRo(GetContributionsByAuthorTool(git), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'contributions': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'authorName': {'type': 'string'},
-            'numberOfContributions': {'type': 'integer'},
-          },
-        },
-      },
-    },
-  });
+  offloadedRo(GetContributionsByAuthorTool(git));
   mutating(CloneSpecificBranchTool(git), outputSchema: _successOutputSchema);
-  offloadedRo(AnalyzeReleaseDeltaTool(gitQuery, processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'total_commits': {'type': 'integer'},
-      'total_insertions': {'type': 'integer'},
-      'total_deletions': {'type': 'integer'},
-      'files_changed': {'type': 'integer'},
-      'active_contributors': {'type': 'integer'},
-      'top_modified_files': {'type': 'array'},
-      'authors_breakdown': {'type': 'object'},
-      'commits': {'type': 'array'},
-    },
-  });
-  offloadedRo(AnalyzeBusFactorTool(processRunner, git), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'bus_factor': {'type': 'integer'},
-      'total_developers_analyzed': {'type': 'integer'},
-      'top_contributors': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'author': {'type': 'string'},
-            'contributions': {'type': 'integer'},
-            'percentage': {'type': 'string'},
-          },
-        },
-      },
-    },
-  });
-  offloadedRo(AnalyzeLogicalCouplingTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'commits_analyzed': {'type': 'string'},
-      'coupled_pairs_found': {'type': 'integer'},
-      'logical_coupling': {'type': 'array'},
-    },
-  });
-  offloadedRo(AnalyzeCodeVolatilityTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'commits_analyzed': {'type': 'string'},
-      'highly_volatile_files_found': {'type': 'integer'},
-      'top_volatile_files': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'file_path': {'type': 'string'},
-            'total_changes': {'type': 'integer'},
-            'unique_authors': {'type': 'integer'},
-            'volatility_score': {'type': 'string'},
-          },
-        },
-      },
-    },
-  });
-  offloadedRo(AnalyzeRefactoringTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'commits_analyzed': {'type': 'string'},
-      'refactorings_detected': {'type': 'integer'},
-      'refactoring_commits': {'type': 'array'},
-    },
-  });
-  offloadedRo(EvaluateCommentsTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'status': {'type': 'string'},
-      'message': {'type': 'string'},
-      'aspects': {'type': 'array'},
-      'evaluation_criteria': {'type': 'object'},
-      'changed_comments': {'type': 'array'},
-    },
-  });
-  offloadedRo(DetectSecretsTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'secrets_found': {'type': 'integer'},
-      'message': {'type': 'string'},
-      'findings': {'type': 'array'},
-    },
-  });
-  offloadedRo(AnalyzePrDiffTool(processRunner, gitQuery), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'total_files_changed': {'type': 'integer'},
-      'overall_risk_level': {'type': 'string'},
-      'changed_files': {'type': 'array'},
-    },
-  });
-  offloadedRo(PredictMergeConflictsTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'merge_base': {'type': 'string'},
-      'risk_level': {'type': 'string'},
-      'logical_conflicting_files_count': {'type': 'integer'},
-      'logical_conflicting_files': {'type': 'array'},
-      'textual_conflicting_files_count': {'type': 'integer'},
-      'textual_conflicting_files': {'type': 'array'},
-      'files_only_on_a': {'type': 'array'},
-      'files_only_on_b': {'type': 'array'},
-    },
-  });
-  offloadedRo(AnalyzeCommitVelocityTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'total_commits': {'type': 'integer'},
-      'average_per_period': {'type': 'number'},
-      'trend': {'type': 'string'},
-      'velocity_slope': {'type': 'number'},
-      'gini_coefficient': {'type': 'number'},
-      'total_burnout_commits': {'type': 'integer'},
-      'granularity': {'type': 'string'},
-      'time_series': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'period': {'type': 'string'},
-            'total_commits': {'type': 'integer'},
-            'burnout_commits': {'type': 'integer'},
-            'authors': {'type': 'object'},
-          },
-        },
-      },
-      'anomalies': {
-        'type': 'array',
-        'items': {
-          'type': 'object',
-          'properties': {
-            'period': {'type': 'string'},
-            'total_commits': {'type': 'integer'},
-          },
-        },
-      },
-    },
-  });
-  offloadedRo(AnalyzeDependencyDriftTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'ecosystems': {'type': 'array'},
-      'total_dependencies': {'type': 'integer'},
-      'total_floating': {'type': 'integer'},
-      'missing_lock_files': {'type': 'integer'},
-      'overall_risk': {'type': 'string'},
-      'freshness_summary': {'type': 'object'},
-    },
-  });
+  offloadedRo(AnalyzeReleaseDeltaTool(gitQuery, processRunner));
+  offloadedRo(AnalyzeBusFactorTool(processRunner, git));
+  offloadedRo(AnalyzeLogicalCouplingTool(processRunner));
+  offloadedRo(AnalyzeCodeVolatilityTool(processRunner));
+  offloadedRo(AnalyzeRefactoringTool(processRunner));
+  offloadedRo(EvaluateCommentsTool(processRunner));
+  offloadedRo(DetectSecretsTool(processRunner));
+  offloadedRo(AnalyzePrDiffTool(processRunner, gitQuery));
+  offloadedRo(PredictMergeConflictsTool(processRunner));
+  offloadedRo(AnalyzeCommitVelocityTool(processRunner));
+  offloadedRo(AnalyzeDependencyDriftTool(processRunner));
   // Shares the single RA-SZZ core with the other SZZ-backed tools so
   // changelog bug linkage cannot drift from hotspot/developer attribution.
-  offloadedRo(GenerateChangelogTool(gitQuery, SzzAlgorithm(processRunner)),
-      outputSchema: const {
-        'type': 'object',
-        'properties': {
-          'total_commits': {'type': 'integer'},
-          'contributors': {'type': 'array'},
-          'features': {'type': 'array'},
-          'fixes': {'type': 'array'},
-          'breaking_changes': {'type': 'array'},
-          'other': {'type': 'array'},
-          'raw_log': {'type': 'string'},
-        },
-      });
-  offloadedRo(AuditComplianceTool(processRunner), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'total_commits_scanned': {'type': 'integer'},
-      'total_violations': {'type': 'integer'},
-      'unsigned_commits': {'type': 'array'},
-      'empty_message_commits': {'type': 'array'},
-      'unrecognized_author_commits': {'type': 'array'},
-      'non_conventional_commits': {'type': 'array'},
-    },
-  });
-  offloadedRo(AnalyzeFileOwnershipTool(processRunner, gitQuery),
-      outputSchema: const {
-        'type': 'object',
-        'properties': {
-          'codeowners_found': {'type': 'boolean'},
-          'total_files_analyzed': {'type': 'integer'},
-          'drift_count': {'type': 'integer'},
-          'unowned_files': {'type': 'array'},
-          'files': {'type': 'array'},
-        },
-      });
+  offloadedRo(GenerateChangelogTool(gitQuery, SzzAlgorithm(processRunner)));
+  offloadedRo(AuditComplianceTool(processRunner));
+  offloadedRo(AnalyzeFileOwnershipTool(processRunner, gitQuery));
   offloadedRo(AnalyzeDartAstQualityTool(gitQuery));
-  offloadedRo(AnalyzeArchitectureDriftTool(gitQuery), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'total_commits_analyzed': {'type': 'integer'},
-      'commits_with_drift': {'type': 'integer'},
-      'coupling_ratio': {'type': 'number'},
-      'coupling_density': {'type': 'number'},
-      'coupling_matrix': {'type': 'object'},
-      'architectural_smells': {'type': 'array'},
-      'drift_commits': {'type': 'array'},
-    },
-  });
-  offloadedRo(AnalyzeCleanCodeTool(), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'file': {'type': 'string'},
-      'total_lines': {'type': 'integer'},
-      'max_indentation_level': {'type': 'integer'},
-      'long_lines': {'type': 'integer'},
-      'magic_numbers': {'type': 'integer'},
-      'duplicate_lines': {'type': 'integer'},
-      'clean_code_issues': {'type': 'array'},
-      'risk_level': {'type': 'string'},
-    },
-  });
+  offloadedRo(AnalyzeArchitectureDriftTool(gitQuery));
+  offloadedRo(AnalyzeCleanCodeTool());
   offloadedRo(CalculateUniversalLexicalMetricsTool(), outputSchema: const {
     'type': 'object',
     'properties': {

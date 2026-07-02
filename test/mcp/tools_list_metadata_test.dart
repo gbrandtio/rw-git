@@ -53,12 +53,53 @@ void main() {
       expect(byName('analyze_bug_hotspots')['description'], contains('>8KB'));
     });
 
-    test('a stable-shape tool advertises an outputSchema', () {
-      final schema =
-          byName('analyze_bus_factor')['outputSchema'] as Map<String, dynamic>?;
-      expect(schema, isNotNull);
-      expect(schema!['type'], 'object');
-      expect((schema['properties'] as Map).containsKey('bus_factor'), isTrue);
+    test(
+        'outputSchema is advertised only for stable shapes that drive '
+        'structuredContent (ADR-0013)', () {
+      // Report meta-tools and a handful of fixed-shape tools carry a schema.
+      for (final name in [
+        'generate_repository_audit',
+        'generate_technical_report',
+        'generate_security_report',
+        'generate_pm_report',
+        'generate_code_review_report',
+        'get_stats',
+        'is_git_repository',
+        'fetch_tags',
+        'calculate_universal_lexical_metrics',
+        'init_repository',
+        'clone_repository',
+      ]) {
+        final schema = byName(name)['outputSchema'] as Map<String, dynamic>?;
+        expect(schema, isNotNull, reason: '$name should advertise a schema');
+        expect(schema!['type'], 'object', reason: name);
+      }
+
+      // Analysis tools whose broad shape the offload preview already conveys
+      // at response time must not pay the fixed tools/list cost of a schema.
+      for (final name in [
+        'analyze_bus_factor',
+        'analyze_bug_hotspots',
+        'analyze_code_quality',
+        'analyze_commit_velocity',
+        'detect_secrets_in_commits',
+        'analyze_dart_ast_quality',
+        'read_report_slice',
+        'get_rw_git_documentation',
+      ]) {
+        expect(byName(name).containsKey('outputSchema'), isFalse,
+            reason: '$name must not advertise an outputSchema');
+      }
+    });
+
+    test('report meta-tool schema pins the classified-findings contract', () {
+      final schema = byName('generate_technical_report')['outputSchema']
+          as Map<String, dynamic>;
+      final properties = schema['properties'] as Map;
+      expect(
+          properties.keys,
+          containsAll(
+              ['report_type', 'summary', 'top_findings', 'compound_findings']));
     });
   });
 }

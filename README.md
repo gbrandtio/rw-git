@@ -111,6 +111,11 @@ and efficiently.
 interact directly with your git repositories over standard I/O using 
 JSON-RPC 2.0.
 
+Tools that advertise an `outputSchema` (the report meta-tools and a handful
+of fixed-shape tools, per ADR-0013) return their payload as MCP
+`structuredContent` alongside the standard text block, so standards-aware
+clients get machine-readable results without parsing the text.
+
 The server advertises the MCP `logging` capability: hosts control how much
 diagnostic detail they receive (git command timings, failures) by calling
 `logging/setLevel` with an RFC 5424 level (`debug` … `emergency`). By default

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import '../../../../rw_git.dart';
 import '../../../constants.dart';
 import '../mcp_request_context.dart';
@@ -30,12 +32,32 @@ class ToolsCallRule implements McpRule {
 
     try {
       final resultText = await tool.execute(args);
-      ctx.sendToolResult(id, resultText);
+      ctx.sendToolResult(id, resultText,
+          structuredContent: _structuredContentFor(tool, resultText));
     } on RwGitException catch (e) {
       ctx.sendError(id, jsonRpcServerError,
           'Git error (code ${e.exitCode}): ${e.message}\\n${e.stderr}');
     } catch (e) {
       ctx.sendError(id, jsonRpcServerError, 'Tool execution error: $e');
+    }
+  }
+
+  /// Decodes [resultText] into `structuredContent` only for tools that
+  /// advertise an `outputSchema` (MCP 2025-06-18: a declared schema promises
+  /// structured output). Non-JSON or non-object payloads yield null so the
+  /// client falls back to the text content block.
+  Map<String, dynamic>? _structuredContentFor(McpTool tool, String resultText) {
+    // Widen to Object so the type test can promote to the metadata mixin,
+    // which is not a subtype of McpTool.
+    final Object candidate = tool;
+    if (candidate is! McpToolMetadata || candidate.outputSchema == null) {
+      return null;
+    }
+    try {
+      final decoded = jsonDecode(resultText);
+      return decoded is Map<String, dynamic> ? decoded : null;
+    } on FormatException {
+      return null;
     }
   }
 }

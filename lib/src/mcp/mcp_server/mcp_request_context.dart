@@ -48,14 +48,21 @@ class McpRequestContext {
     }));
   }
 
-  void sendToolResult(dynamic id, String text) {
+  /// Sends a `tools/call` result. [text] is always delivered as the standard
+  /// text content block; [structuredContent] is additionally attached when a
+  /// tool advertises an `outputSchema`, per MCP 2025-06-18 (tools declaring a
+  /// schema should return machine-readable structured output alongside the
+  /// text for backward compatibility).
+  void sendToolResult(dynamic id, String text,
+      {Map<String, dynamic>? structuredContent}) {
     outputSink.writeln(jsonEncode({
       'jsonrpc': '2.0',
       'id': id,
       'result': {
         'content': [
           {'type': 'text', 'text': text}
-        ]
+        ],
+        if (structuredContent != null) 'structuredContent': structuredContent,
       }
     }));
   }
