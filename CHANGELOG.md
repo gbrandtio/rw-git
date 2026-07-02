@@ -1,15 +1,15 @@
 # 3.0.10
 - **FEAT (Intelligence):** Upgraded the SZZ implementation from MA-SZZ to
-  **RA-SZZ** (Refactoring-Aware SZZ — Neto et al., SANER 2018), removing the
+  **RA-SZZ** (Refactoring-Aware SZZ: Neto et al., SANER 2018), removing the
   future-work note in `doc/tools/history/find_bugs_by_developer.md`. Two new
   refactoring guards: deleted lines whose content re-appears among the fix
   commit's added lines are treated as moved code and excluded from blame
-  (lines under 8 normalized characters are exempt — boilerplate recurs
+  (lines under 8 normalized characters are exempt and boilerplate recurs
   naturally, threshold in `raSzzMovedLineMinimumLength`); and attributions
   whose introducing commit subject matches refactoring keywords are
   discarded (subjects fetched once per commit and cached; unresolvable
   subjects fail open). Both are lexical, language-agnostic stand-ins for
-  RefDiff's AST-based operation detection — the same trade-off as
+  RefDiff's AST-based operation detection which is the same trade-off as
   `analyze_refactoring`. Affects `analyze_bug_hotspots` and
   `find_bugs_by_developer`; blame now targets only surviving deleted lines
   (grouped into contiguous ranges) instead of whole pre-image hunk spans.
@@ -24,14 +24,14 @@
   temporal-context contract `doc/tools/history/generate_changelog.md` always
   documented — instead of a bare abbreviated-hash string.
 - **CHORE (Models):** Removed the dead `BugIntroductionDto`
-  (`lib/src/models/bug_introduction_dto.dart`) — unexported, untested, and
+  (`lib/src/models/bug_introduction_dto.dart`) because it is unexported, untested, and
   unused since the SZZ pipeline moved to `SzzMatch`; it still carried the
   misleading `timeTakenToFixInHours` name.
 - **BREAKING (Intelligence/MCP):** Renamed the SZZ "time to fix" metrics to
   **bug lifetime**, reported in **days**. The metric measures the span from
   the bug-introducing commit to the bug-fixing commit (Kim & Whitehead,
-  *How long did it take to fix bugs?*, MSR 2006 — median lifetimes of
-  100–200 days are normal), not the effort spent fixing — labelling it
+  *How long did it take to fix bugs?*, MSR 2006 - median lifetimes of
+  100–200 days are normal), not the effort spent fixing - labelling it
   "time to fix" in hours made every report read as thousands of hours of
   fix effort. `BugHotspotDto` fields and JSON keys are now
   `*_average_bug_lifetime_in_days`; `find_bugs_by_developer` returns
