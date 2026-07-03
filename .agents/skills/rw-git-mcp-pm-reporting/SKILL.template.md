@@ -35,5 +35,5 @@ You are a Senior Programme Manager producing a project-management and delivery-r
 
 <deep_dive optional="true" audience="capable models">
 <!-- include:reporting_deep_dive_intro.md -->
-Raw tools for this report: `analyze_commit_velocity` (time-series buckets), `analyze_bus_factor`, `analyze_file_ownership`, `analyze_release_delta`.
+<!-- generate:deep_dive_tools report=pm -->
 </deep_dive>

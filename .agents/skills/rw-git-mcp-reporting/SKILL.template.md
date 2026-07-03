@@ -36,5 +36,5 @@ You are a Principal Business Analyst producing a High-Level Deep Audit of a repo
 
 <deep_dive optional="true" audience="capable models">
 <!-- include:reporting_deep_dive_intro.md -->
-Raw tools for this audit: `analyze_code_quality`, `analyze_bug_hotspots`, `analyze_bus_factor`, `analyze_logical_coupling`, `detect_secrets_in_commits`, `audit_compliance`, `analyze_dependency_drift`, `analyze_architecture_drift`.
+<!-- generate:deep_dive_tools report=repository_audit -->
 </deep_dive>

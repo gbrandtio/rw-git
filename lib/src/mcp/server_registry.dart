@@ -32,7 +32,6 @@ import 'tools/architecture/analyze_refactoring_tool.dart';
 import 'tools/static_analysis/evaluate_comments_tool.dart';
 import 'tools/security/detect_secrets_tool.dart';
 import 'tools/history/analyze_pr_diff_tool.dart';
-import 'tools/history/predict_merge_conflicts_tool.dart';
 import 'tools/history/analyze_commit_velocity_tool.dart';
 import 'tools/architecture/analyze_dependency_drift_tool.dart';
 import 'tools/history/generate_changelog_tool.dart';
@@ -202,7 +201,6 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(EvaluateCommentsTool(processRunner));
   offloadedRo(DetectSecretsTool(processRunner));
   offloadedRo(AnalyzePrDiffTool(processRunner, gitQuery));
-  offloadedRo(PredictMergeConflictsTool(processRunner));
   offloadedRo(AnalyzeCommitVelocityTool(processRunner));
   offloadedRo(AnalyzeDependencyDriftTool(processRunner));
   // Shares the single RA-SZZ core with the other SZZ-backed tools so

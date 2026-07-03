@@ -49,3 +49,4 @@ Where an ADR touches those areas, it links back to the governing document.
 | [0012](0012-structured-logging-and-mcp-log-level-control.md) | Structured logging facade and MCP log-level control | Accepted |
 | [0013](0013-structured-tool-results-and-output-schema-policy.md) | Structured tool results and the `outputSchema` advertisement policy | Accepted |
 | [0014](0014-report-grade-lexical-metrics-bounding.md) | Report-grade lexical metrics via bounded top-churn sampling | Accepted |
+| [0015](0015-report-tool-source-of-truth-and-structured-hints.md) | Report tool source-of-truth map and structured, uncapped report hints | Accepted |

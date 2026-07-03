@@ -51,15 +51,6 @@ class CompoundFindingCorrelator {
       'is the strongest single defect-injection predictor the report can '
       'compute.';
 
-  /// Rule 6 — predicted merge conflict on a known bug hotspot.
-  static const String conflictHotspotBasis =
-      'Merge conflict x bug hotspot (Brun et al. 2011; Śliwerski 2005)';
-  static const String conflictHotspotRationale =
-      'A predicted merge conflict (Brun et al., FSE 2011) on a file with '
-      'SZZ-attributed bug density (Śliwerski et al., MSR 2005) risks '
-      'resolving the conflict incorrectly in precisely the code that '
-      'breeds bugs.';
-
   /// Rule 4 — exposed secret alongside stale dependencies.
   static const String staleDependencySecretBasis =
       'Secret leakage x supply chain (Meli et al. 2019; Ohm et al. 2020)';
@@ -200,28 +191,6 @@ class CompoundFindingCorrelator {
           basis: realComplexityChurnBasis,
           rationale: realComplexityChurnRationale,
           evidence: {'lexical_complexity': _ref(lexical), 'churn': _ref(churn)},
-        ));
-      }
-    }
-
-    // Rule 6: a predicted merge conflict landing on a known bug hotspot.
-    for (final conflict in of('conflictRisk')) {
-      final hotspot = onSubject('bugHotspot', conflict.subject);
-      if (hotspot != null) {
-        compounds.add(_compound(
-          subject: conflict.subject,
-          metric: 'conflict_x_bug_hotspot',
-          band: 'merge conflict predicted on a bug hotspot',
-          message: 'High-stakes merge: ${conflict.subject} is expected to '
-              'conflict and is already a bug hotspot.',
-          sources: const ['predict_merge_conflicts', 'analyze_bug_hotspots'],
-          basis: conflictHotspotBasis,
-          rationale: conflictHotspotRationale,
-          evidence: {
-            'conflict_risk': _ref(conflict),
-            'bug_hotspot': _ref(hotspot),
-          },
-          severity: Severity.high,
         ));
       }
     }

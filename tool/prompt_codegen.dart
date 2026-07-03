@@ -11,6 +11,8 @@
 /// disagree about what "in sync" means.
 library;
 
+import 'package:rw_git/src/intelligence/interpretation/report_tool_sources.dart';
+
 /// The skill names that have a corresponding MCP prompt. `rw-git-mcp-installation`
 /// is intentionally excluded — it is a human setup guide, not an agent workflow.
 const List<String> promptSkillNames = [
@@ -151,6 +153,41 @@ String expandIncludes(
     String template, String Function(String relativePath) readPartial) {
   return template.replaceAllMapped(includeMarkerPattern,
       (match) => readPartial(match.group(1)!).trimRight());
+}
+
+/// Matches a generation marker in a `SKILL.template.md`, e.g.
+/// `<!-- generate:deep_dive_tools report=technical -->`. Unlike
+/// [includeMarkerPattern], the substituted content is derived from Dart data
+/// ([reportToolSources]) rather than a static partial file, so it needs its
+/// own directive name and report-type parameter.
+final RegExp generateMarkerPattern =
+    RegExp(r'<!--\s*generate:(\w+)\s+report=(\w+)\s*-->');
+
+/// Expands every `<!-- generate:directive report=reportType -->` marker in
+/// [template] by calling [render] with the directive name and report type.
+/// Pure — mirrors [expandIncludes], so a typo'd `report=` value fails loudly
+/// through whatever [render] throws rather than emitting nothing.
+String expandGenerated(String template,
+    String Function(String directive, String reportType) render) {
+  return template.replaceAllMapped(generateMarkerPattern,
+      (match) => render(match.group(1)!, match.group(2)!).trimRight());
+}
+
+/// Renders the `<deep_dive>` raw-tool list for [reportType] from
+/// [reportToolSources]: one prose line naming every tool that feeds that
+/// report, in map order. Every listed tool is a `toolHintsCatalog` key, so
+/// calling it directly surfaces its own `pair_with` guidance (via
+/// `McpToolHintsDecorator`) without needing to duplicate that prose here.
+String renderDeepDiveTools(String reportType) {
+  final tools = reportToolSources[reportType];
+  if (tools == null) {
+    throw FormatException(
+        'Unknown report type in generate:deep_dive_tools marker: '
+        '$reportType. Known types: ${reportToolSources.keys.join(', ')}.');
+  }
+
+  final entries = tools.map((tool) => '`$tool`');
+  return 'Raw tools for this report: ${entries.join(', ')}.';
 }
 
 /// The notice inserted into every generated `SKILL.md` so a contributor

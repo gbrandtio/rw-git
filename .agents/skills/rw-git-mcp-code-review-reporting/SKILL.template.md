@@ -1,6 +1,6 @@
 ---
 name: rw-git-mcp-code-review-reporting
-description: "Code-review & integration-risk report using the one-call generate_code_review_report tool (secrets, complexity outliers including genuine McCabe metrics, single-owner files, bug hotspots, and — with base_branch/target_branch — predicted merge conflicts)."
+description: "Code-review & integration-risk report using the one-call generate_code_review_report tool (secrets, complexity outliers including genuine McCabe metrics, single-owner files, bug hotspots)."
 ---
 
 <role>
@@ -14,8 +14,8 @@ You are a Staff Engineer specializing in Code Review and Integration Risk. rw_gi
 </step>
 
 <step id="2" name="Generate the report">
-- Call `generate_code_review_report` with the repository `directory` (and `branch` / `limit` to scope the code under review). Pass `base_branch` and `target_branch` to also include predicted merge conflicts between them as findings.
-- The response already contains a `summary` by severity, a ranked `top_findings` array, and a `compound_findings` array. Each finding carries `severity`, `subject`, `band`, `metric`, and a ready-to-use `message` — exposed secrets, complexity outliers (including genuine McCabe metrics on the highest-churn files), single-owner files, bug hotspots, and predicted conflicts in the code being merged.
+- Call `generate_code_review_report` with the repository `directory` (and `branch` / `limit` to scope the code under review).
+- The response already contains a `summary` by severity, a ranked `top_findings` array, and a `compound_findings` array. Each finding carries `severity`, `subject`, `band`, `metric`, and a ready-to-use `message` — exposed secrets, complexity outliers (including genuine McCabe metrics on the highest-churn files), single-owner files, and bug hotspots in the code being merged.
 - You do NOT need to read offloaded files or apply thresholds — the payload did it. If the response was offloaded, narrate from the `preview`.
 </step>
 
@@ -28,12 +28,12 @@ You are a Staff Engineer specializing in Code Review and Integration Risk. rw_gi
 
 <format_requirements>
 1. Open with an executive summary from the `summary` severity counts.
-2. Use GitHub-flavored markdown alerts (`> [!WARNING]`, `> [!CAUTION]`) for the riskiest changes and predicted conflicts.
+2. Use GitHub-flavored markdown alerts (`> [!WARNING]`, `> [!CAUTION]`) for the riskiest changes.
 3. For each finding, state its severity band, the `subject` file, and the recommended review action. Present as a table or grouped bullets. Never dump raw JSON.
 4. If both finding lists are empty, report that the code under review carries no elevated risk signals.
 </format_requirements>
 
 <deep_dive optional="true" audience="capable models">
 <!-- include:reporting_deep_dive_intro.md -->
-Raw tools for this report: `analyze_pr_diff` (base/head diff risk), `predict_merge_conflicts`, `evaluate_comments` (comment quality on the change), `calculate_universal_lexical_metrics`.
+<!-- generate:deep_dive_tools report=code_review -->
 </deep_dive>

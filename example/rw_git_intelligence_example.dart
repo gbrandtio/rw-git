@@ -104,28 +104,11 @@ void main() async {
   print("Average commits per period: "
       "${velocity.averagePerPeriod.toStringAsFixed(2)}\n");
 
-  // 10. Conflict risk: files touched by both sides of two divergent
-  // branches, which are likely to merge-conflict.
-  final branches = (await rwGit.branch(dir, extraArgs: ["-a"]))
-      .getOrThrow()
-      .where((b) => !b.name.contains("->"))
-      .toList();
-  if (branches.length >= 2) {
-    final branchA = branches[0].name;
-    final branchB = branches[1].name;
-    final conflictRisk = await ConflictRiskHeuristic(runner)
-        .findConflictRiskFiles(dir, branchA, branchB);
-    print("Conflict-risk files between $branchA and $branchB: "
-        "${conflictRisk.length}\n");
-  } else {
-    print("Skipping conflict risk demo: fewer than 2 branches available.\n");
-  }
-
-  // 11. Mega commits: unusually large commits that are hard to review.
+  // 10. Mega commits: unusually large commits that are hard to review.
   final megaCommits = await MegaCommitsHeuristic(runner).findMegaCommits(dir);
   print("Mega commits found: ${megaCommits.length}\n");
 
-  // 12. Suspicious commits: messages/patterns that hint at low-quality or
+  // 11. Suspicious commits: messages/patterns that hint at low-quality or
   // risky changes.
   final suspiciousCommits =
       await SuspiciousCommitsHeuristic(runner).findSuspiciousCommits(dir);
@@ -135,7 +118,7 @@ void main() async {
   // Security
   // ---------------------------------------------------------------------
 
-  // 13. Compliance: unsigned, empty-message, unrecognized-author and
+  // 12. Compliance: unsigned, empty-message, unrecognized-author and
   // non-conventional commits.
   final compliance = await ComplianceScanner(runner).scanComplianceIssues(dir);
   print("Commits scanned for compliance: "
@@ -143,7 +126,7 @@ void main() async {
   print("Non-conventional commits: "
       "${compliance.nonConventionalCommits.length}\n");
 
-  // 14. Dependency manifests: declared dependencies per ecosystem, and
+  // 13. Dependency manifests: declared dependencies per ecosystem, and
   // whether they are version-pinned.
   final manifests =
       await DependencyManifestParser(runner).parseDependencyManifests(dir);
@@ -154,7 +137,7 @@ void main() async {
   }
   print("");
 
-  // 15. Secrets: credentials/keys accidentally committed to history.
+  // 14. Secrets: credentials/keys accidentally committed to history.
   final secrets = await SecretsScanner(runner).findSecrets(dir);
   print("Potential secrets found in history: ${secrets.length}\n");
 
@@ -162,7 +145,7 @@ void main() async {
   // Static analysis
   // ---------------------------------------------------------------------
 
-  // 16. Dart AST analysis: imports, public API surface and method
+  // 15. Dart AST analysis: imports, public API surface and method
   // invocations for a single Dart file. CleanArchitecture is a .NET
   // repository, so we analyze a small inline Dart snippet instead.
   const sampleDartSource = '''

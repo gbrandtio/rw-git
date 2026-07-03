@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:rw_git/src/intelligence/interpretation/report_tool_sources.dart';
 import 'package:test/test.dart';
 
 import '../../tool/prompt_codegen.dart';
@@ -8,7 +9,8 @@ import '../../tool/prompt_codegen.dart';
 /// axes:
 ///   1. every `.agents/skills/<name>/SKILL.md` must equal its
 ///      `SKILL.template.md` expanded with the shared partials in
-///      `.agents/skills/_shared/` (plus the generated-file notice);
+///      `.agents/skills/_shared/` and the `generate:` markers rendered from
+///      [reportToolSources] (plus the generated-file notice);
 ///   2. every MCP prompt Dart file in `lib/src/mcp/prompts/` must match the
 ///      expanded template's name/description/body.
 /// If either drifts, run `dart run tool/sync_prompts.dart` to regenerate.
@@ -16,9 +18,18 @@ void main() {
   String readPartial(String relativePath) =>
       File('.agents/skills/_shared/$relativePath').readAsStringSync();
 
-  String expandedTemplate(String skillName) => expandIncludes(
-      File('.agents/skills/$skillName/SKILL.template.md').readAsStringSync(),
-      readPartial);
+  String renderGenerated(String directive, String reportType) =>
+      switch (directive) {
+        'deep_dive_tools' => renderDeepDiveTools(reportType),
+        _ => throw FormatException('Unknown generate directive: $directive'),
+      };
+
+  String expandedTemplate(String skillName) => expandGenerated(
+      expandIncludes(
+          File('.agents/skills/$skillName/SKILL.template.md')
+              .readAsStringSync(),
+          readPartial),
+      renderGenerated);
 
   group('SKILL.md files are generated from their templates', () {
     for (final skillName in promptSkillNames) {
@@ -106,6 +117,54 @@ void main() {
           expandIncludes('plain', (_) => fail('must not be called')), 'plain');
     });
   });
+
+  group('generated deep-dive tool lists are catalog-native', () {
+    test(
+        'every reporting skill\'s deep_dive tool list matches '
+        'reportToolSources exactly, in order', () {
+      for (final entry in _skillReportTypes.entries) {
+        final expanded = expandedTemplate(entry.key);
+        final expectedTools = reportToolSources[entry.value]!;
+        final expectedLine =
+            'Raw tools for this report: ${expectedTools.map((t) => '`$t`').join(', ')}.';
+
+        expect(expanded, contains(expectedLine),
+            reason: '${entry.key} deep_dive tool list must be generated '
+                'from reportToolSources[\'${entry.value}\']');
+      }
+    });
+
+    test('every report type used by a skill exists in reportToolSources', () {
+      for (final reportType in _skillReportTypes.values) {
+        expect(reportToolSources.containsKey(reportType), isTrue,
+            reason: 'reportToolSources is missing report type $reportType');
+      }
+    });
+
+    test('expandGenerated throws on an unknown report type', () {
+      expect(() => renderDeepDiveTools('not_a_real_report_type'),
+          throwsA(isA<FormatException>()));
+    });
+
+    test('expandGenerated throws on an unknown directive', () {
+      expect(
+          () => expandGenerated(
+              '<!-- generate:not_a_directive report=technical -->',
+              renderGenerated),
+          throwsA(isA<FormatException>()));
+    });
+  });
 }
 
 const _anySkill = 'rw-git-mcp-reporting';
+
+/// Maps each reporting skill to the `reportType` its generated `<deep_dive>`
+/// tool list must be sourced from — the same string `ReportOrchestrator`
+/// returns as `ReportPayload.reportType` for that report.
+const Map<String, String> _skillReportTypes = {
+  'rw-git-mcp-reporting': 'repository_audit',
+  'rw-git-mcp-technical-reporting': 'technical',
+  'rw-git-mcp-pm-reporting': 'pm',
+  'rw-git-mcp-security-reporting': 'security',
+  'rw-git-mcp-code-review-reporting': 'code_review',
+};

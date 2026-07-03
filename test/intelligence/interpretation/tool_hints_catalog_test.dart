@@ -8,10 +8,13 @@ import 'package:test/test.dart';
 /// `test/intelligence/interpretation/finding_basis_test.dart` for the
 /// equivalent contract on per-finding `basis`/`rationale`.
 void main() {
-  /// Recurring token cost per hint: a value this high already synthesizes
-  /// several citations into one claim (D6) — beyond this, growth should be
-  /// split into a new, distinct hint rather than one ballooning string.
-  const int maximumHintLengthInCharacters = 600;
+  /// Hints are deliberately expanded, outcome-facing prose with no
+  /// stylistic length target — a calling model should get a complete,
+  /// physically-worded explanation, not a citation-stuffed fragment. This
+  /// ceiling is a safety net only, to catch an accidental bug (e.g. a
+  /// string duplicated or concatenated with itself), not to constrain how
+  /// much a hint is allowed to say.
+  const int maximumHintLengthInCharacters = 3000;
 
   const int maximumHintsPerTool = 6;
 
@@ -84,7 +87,8 @@ void main() {
             reason: '$name has ${all.length} hints, exceeding the budget');
         for (final hint in all) {
           expect(hint.length, lessThanOrEqualTo(maximumHintLengthInCharacters),
-              reason: '$name hint exceeds the inline token budget: $hint');
+              reason: '$name hint exceeds the safety-net length ceiling — '
+                  'check for accidental duplication: $hint');
         }
       });
 

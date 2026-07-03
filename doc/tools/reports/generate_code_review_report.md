@@ -2,18 +2,17 @@
 
 ## Business Logic
 
-Answers: "What should a reviewer scrutinise before merging this code?" A one-call code-review risk report covering exposed secrets, complexity outliers (both the diff-keyword proxy and genuine McCabe cyclomatic complexity / maintainability index on the highest-churn files), single-owner files, bug hotspots, and — when `base_branch` and `target_branch` are supplied — predicted merge conflicts between them. Pre-classified and ranked so the reviewer (or the reviewing agent) can go straight to the riskiest files.
+Answers: "What should a reviewer scrutinise before merging this code?" A one-call code-review risk report covering exposed secrets, complexity outliers (both the diff-keyword proxy and genuine McCabe cyclomatic complexity / maintainability index on the highest-churn files), single-owner files, and bug hotspots. Pre-classified and ranked so the reviewer (or the reviewing agent) can go straight to the riskiest files.
 
-This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpretation-and-report-meta-tools.md)): classification and correlation happen in deterministic Dart, not in the LLM. For diff-specific detail, the raw `analyze_pr_diff` and `predict_merge_conflicts` tools remain the deep-dive path; `evaluate_comments` covers comment quality on the change.
+This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpretation-and-report-meta-tools.md)): classification and correlation happen in deterministic Dart, not in the LLM. For diff-specific detail, the raw `analyze_pr_diff` tool remains the deep-dive path; `evaluate_comments` covers comment quality on the change.
 
 ## Algorithm
 
 1. `ReportOrchestrator.codeReviewReport` runs the review-relevant analyses server-side (secrets scanning on the given `branch`/range, complexity, churn, ownership concentration, bug hotspots via SZZ), reusing the existing library-first algorithms.
 2. The `BoundedLexicalMetricsSampler` (ADR-0014) computes genuine McCabe cyclomatic complexity and the maintainability index for the top-churn files only, so runtime stays bounded.
-3. When both `base_branch` and `target_branch` are provided, `ConflictRiskHeuristic` predicts merge conflicts between them (textual conflicts via `git merge-tree` band High; logical overlaps Elevated).
-4. Per-metric classifiers map each DTO into severity-banded `Finding`s using the bands in [`doc/INTERPRETATION_GUIDE.md`](../../INTERPRETATION_GUIDE.md).
-5. The `CompoundFindingCorrelator` escalates co-occurring risks in the code being merged — including genuine-McCabe-outlier × churn (Critical) and predicted-conflict × bug-hotspot (High).
-6. Findings are ranked most-severe first and returned as a bounded `ReportPayload`.
+3. Per-metric classifiers map each DTO into severity-banded `Finding`s using the bands in [`doc/INTERPRETATION_GUIDE.md`](../../INTERPRETATION_GUIDE.md).
+4. The `CompoundFindingCorrelator` escalates co-occurring risks in the code being merged — including genuine-McCabe-outlier × churn (Critical).
+5. Findings are ranked most-severe first and returned as a bounded `ReportPayload`.
 
 ## Parameters
 
@@ -22,8 +21,6 @@ This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpreta
 | `directory` | yes | The local repository path. |
 | `branch` | no | Branch or commit range to scan for secrets. Defaults to current HEAD. |
 | `limit` | no | Max recent commits to analyze (default: 500, see `defaultCommitLimit` in `lib/src/constants.dart`). |
-| `base_branch` | no | Merge target branch; enables conflict prediction when `target_branch` is also set. |
-| `target_branch` | no | Branch under review, compared against `base_branch` for conflict prediction. |
 
 ## Output Contract
 
@@ -31,4 +28,4 @@ Shared by all five report meta-tools — see [generate_repository_audit.md](gene
 
 ## Foundations
 
-Bands and compound-risk rules: [`doc/INTERPRETATION_GUIDE.md`](../../INTERPRETATION_GUIDE.md). Underlying metrics inherit the academic foundations of the raw tools (`detect_secrets_in_commits`, `analyze_code_quality`, `analyze_file_ownership`, `analyze_bug_hotspots`, `calculate_universal_lexical_metrics`, `predict_merge_conflicts`); see their documents under `doc/tools/`.
+Bands and compound-risk rules: [`doc/INTERPRETATION_GUIDE.md`](../../INTERPRETATION_GUIDE.md). Underlying metrics inherit the academic foundations of the raw tools (`detect_secrets_in_commits`, `analyze_code_quality`, `analyze_file_ownership`, `analyze_bug_hotspots`, `calculate_universal_lexical_metrics`); see their documents under `doc/tools/`.

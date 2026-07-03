@@ -45,8 +45,15 @@ void main(List<String> args) {
       exit(2);
     }
 
-    final expanded =
+    final withIncludes =
         expandIncludes(templateFile.readAsStringSync(), readPartial);
+    final expanded = expandGenerated(
+        withIncludes,
+        (directive, reportType) => switch (directive) {
+              'deep_dive_tools' => renderDeepDiveTools(reportType),
+              _ => throw FormatException('Unknown generate directive: '
+                  '$directive'),
+            });
     final doc = parseSkill(expanded);
     if (!bodyIsRawSafe(doc.body)) {
       stderr.writeln("$skillName: body contains \"'''\" which cannot be "

@@ -36,5 +36,5 @@ You are a Staff Enterprise Architect producing a technical quality and architect
 
 <deep_dive optional="true" audience="capable models">
 <!-- include:reporting_deep_dive_intro.md -->
-Raw tools for this report: `analyze_code_quality`, `analyze_logical_coupling`, `analyze_code_volatility`, `analyze_refactoring`, `calculate_universal_lexical_metrics` (per-file NPath/ABC/Halstead/cognitive detail).
+<!-- generate:deep_dive_tools report=technical -->
 </deep_dive>

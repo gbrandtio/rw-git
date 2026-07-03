@@ -1,10 +1,9 @@
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
-/// Compound Rules 5 and 6: the cross-tool joins introduced with the
-/// report-grade lexical metrics and conflict prediction. Rule 5 is the
-/// strongest defect predictor the report computes (genuine McCabe outlier
-/// that also churns); Rule 6 flags merges into bug-breeding code.
+/// Compound Rule 5: the cross-tool join introduced with report-grade lexical
+/// metrics — the strongest defect predictor the report computes (genuine
+/// McCabe outlier that also churns).
 void main() {
   const fc = FindingClassifier();
   const correlator = CompoundFindingCorrelator();
@@ -57,27 +56,5 @@ void main() {
         correlator.correlate([...elevatedOnly, ...churnOn('lib/x.dart')]).where(
             (c) => c.metric == 'real_complexity_x_churn'),
         isEmpty);
-  });
-
-  test('Rule 6: predicted conflict on a bug hotspot is a High compound', () {
-    final conflict = fc.fromConflictRisk({
-      'textual_conflicting_files': ['lib/hot.dart'],
-      'conflicting_files': [],
-    });
-    final hotspot = fc.fromBugHotspots(BugHotspotDto(
-      fileHotspots: {'lib/hot.dart': 5},
-      authorHotspots: const {},
-      totalFixCommitsAnalyzed: 5,
-      globalAverageBugLifetimeInDays: 10,
-      fileAverageBugLifetimeInDays: {'lib/hot.dart': 100},
-      authorAverageBugLifetimeInDays: const {},
-    ));
-
-    final compounds = correlator.correlate([...conflict, ...hotspot]);
-    final compound =
-        compounds.singleWhere((c) => c.metric == 'conflict_x_bug_hotspot');
-    expect(compound.severity, Severity.high);
-    expect(compound.subject, 'lib/hot.dart');
-    expect(compound.basis, contains('Brun'));
   });
 }

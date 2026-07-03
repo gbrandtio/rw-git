@@ -13,7 +13,6 @@ export 'intelligence/history/heuristics/advanced_metrics_heuristic.dart';
 export 'intelligence/history/heuristics/bug_hotspots_heuristic.dart';
 export 'intelligence/history/heuristics/churn_heuristic.dart';
 export 'intelligence/history/heuristics/commit_velocity_heuristic.dart';
-export 'intelligence/history/heuristics/conflict_risk_heuristic.dart';
 export 'intelligence/history/heuristics/mega_commits_heuristic.dart';
 export 'intelligence/history/heuristics/suspicious_commits_heuristic.dart';
 export 'intelligence/interpretation.dart';

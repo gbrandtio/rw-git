@@ -166,7 +166,6 @@ per-finding `rationale` in the offloaded full report:
 - `analyze_refactoring`: Detects structural refactorings and simplifications.
 - `analyze_file_ownership`: Cross-references CODEOWNERS with git blame history.
 - `analyze_pr_diff`: Analyzes PR diffs for risk signals like high churn.
-- `predict_merge_conflicts`: Identifies files modified on multiple branches.
 - `analyze_dart_ast_quality`: Performs deep AST-level analysis of Dart files.
 - `analyze_architecture_drift`: Detects architectural drift (cross-layer).
 - `analyze_clean_code`: Language-agnostic clean code heuristic analysis.
@@ -215,7 +214,11 @@ from a canonical `SKILL.template.md` (shared boilerplate lives once in
 (see below). Every workflow serves both model classes: the default path is
 the compact one-call narrate-the-report flow for small/local models, and a
 trailing `<deep_dive>` section routes capable models to the raw analysis
-tools plus `read_report_slice` drill-down:
+tools plus `read_report_slice` drill-down. Each `<deep_dive>` tool list is
+itself generated from the same `toolHintsCatalog`/`pair_with` data that
+drives raw-tool hints (see ADR-0015), so the report's `hints`, its
+deep-dive routing, and a raw tool's own hints can never diverge from one
+another:
 
 - `rw-git-mcp-reporting`: High-level Deep Audit orchestrating the most critical
   tools across health, security, architecture, and ecosystem; routes to the
@@ -226,8 +229,8 @@ tools plus `read_report_slice` drill-down:
   knowledge distribution for engineering managers.
 - `rw-git-mcp-security-reporting`: Secret scanning, dependency drift, and commit
   signature/compliance auditing.
-- `rw-git-mcp-code-review-reporting`: PR diff risk, merge-conflict prediction,
-  and AI-generated comment evaluation.
+- `rw-git-mcp-code-review-reporting`: PR diff risk and AI-generated comment
+  evaluation.
 
 ### Installing Agent Skills
 
@@ -333,7 +336,6 @@ Available classes (all in `package:rw_git/rw_git.dart`):
 | `BugHotspotsHeuristic` | `BugHotspotDto` |
 | `ChurnHeuristic` | `ChurnMetricsDto` / `ChurnMetricsWithAuthorsDto` |
 | `CommitVelocityHeuristic` | `CommitVelocityDto` |
-| `ConflictRiskHeuristic` | `Map<String, List<String>>` |
 | `MegaCommitsHeuristic` | `List<String>` |
 | `SuspiciousCommitsHeuristic` | `List<String>` |
 | `ComplianceScanner` | `ComplianceReportDto` |

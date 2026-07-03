@@ -56,7 +56,6 @@ export 'src/mcp/tools/history/analyze_code_volatility_tool.dart';
 export 'src/mcp/tools/architecture/analyze_refactoring_tool.dart';
 export 'src/mcp/tools/static_analysis/evaluate_comments_tool.dart';
 export 'src/mcp/tools/history/analyze_pr_diff_tool.dart';
-export 'src/mcp/tools/history/predict_merge_conflicts_tool.dart';
 export 'src/mcp/tools/history/analyze_commit_velocity_tool.dart';
 export 'src/mcp/tools/architecture/analyze_dependency_drift_tool.dart';
 export 'src/mcp/tools/history/generate_changelog_tool.dart';

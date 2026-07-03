@@ -35,5 +35,5 @@ You are a Staff Cybersecurity Engineer specializing in Application Security and 
 
 <deep_dive optional="true" audience="capable models">
 <!-- include:reporting_deep_dive_intro.md -->
-Raw tools for this report: `detect_secrets_in_commits`, `audit_compliance`, `analyze_dependency_drift` (per-ecosystem manifest detail).
+<!-- generate:deep_dive_tools report=security -->
 </deep_dive>

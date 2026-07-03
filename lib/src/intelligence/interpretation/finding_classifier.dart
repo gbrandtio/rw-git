@@ -26,7 +26,6 @@ import 'classifiers/commit_hygiene_classifier.dart';
 import 'classifiers/commit_velocity_classifier.dart';
 import 'classifiers/compliance_classifier.dart';
 import 'classifiers/complexity_classifier.dart';
-import 'classifiers/conflict_risk_classifier.dart';
 import 'classifiers/dependency_classifier.dart';
 import 'classifiers/lexical_complexity_classifier.dart';
 import 'classifiers/logical_coupling_classifier.dart';
@@ -75,9 +74,6 @@ class FindingClassifier {
 
   List<Finding> fromCommitVelocity(CommitVelocityDto dto) =>
       const CommitVelocityClassifier().classify(dto);
-
-  List<Finding> fromConflictRisk(Map<String, List<String>> conflictRisk) =>
-      const ConflictRiskClassifier().classify(conflictRisk);
 
   List<Finding> fromMegaCommits(List<String> megaCommits) =>
       const CommitHygieneClassifier().classifyMegaCommits(megaCommits);

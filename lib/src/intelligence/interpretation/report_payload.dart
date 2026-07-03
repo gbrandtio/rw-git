@@ -8,12 +8,8 @@
 library;
 
 import 'finding.dart';
+import 'report_hints.dart';
 import 'tool_hints_catalog.dart';
-
-/// Upper bound on how many tool-level hints a report aggregates. Reports
-/// compose many analyses, so this keeps the composed set bounded regardless
-/// of how many distinct tools contributed findings.
-const int _maxReportHints = 6;
 
 /// A ranked, size-bounded report payload.
 class ReportPayload {
@@ -27,8 +23,10 @@ class ReportPayload {
   /// entries of the tools that produced [topFindings]/[compoundFindings].
   /// Complements per-finding `basis`/`rationale`: a hint here applies to the
   /// whole analysis (e.g. a caveat about SZZ false-positive rates), not to
-  /// one specific observed value.
-  final List<String> hints;
+  /// one specific observed value. Every distinct interpretation/caveat/
+  /// pair_with string contributed by a contributing tool's catalog entry is
+  /// included — a caveat never shadows that same tool's pair_with entry.
+  final ReportHints hints;
 
   const ReportPayload({
     required this.reportType,
@@ -36,7 +34,7 @@ class ReportPayload {
     required this.compoundFindings,
     required this.summaryBySeverity,
     required this.metadata,
-    this.hints = const [],
+    this.hints = const ReportHints(),
   });
 
   /// Ranks and bounds [findings] and correlated [compounds] into a payload
@@ -69,34 +67,41 @@ class ReportPayload {
       compoundFindings: boundedCompoundFindings,
       summaryBySeverity: summary,
       metadata: metadata,
-      hints: _selectHints([...boundedCompoundFindings, ...boundedTopFindings]),
+      hints:
+          _aggregateHints([...boundedCompoundFindings, ...boundedTopFindings]),
     );
   }
 
-  /// Picks one hint per distinct finding `source` (the tool that produced
-  /// it), preferring a caveat, then a pair_with suggestion, then an
-  /// interpretation threshold — the same priority the offload preview uses
-  /// (highest decision value per token first). Deduped and capped at
-  /// [_maxReportHints] since a report composes many analyses.
-  static List<String> _selectHints(List<Finding> findings) {
-    final sources = findings.map((f) => f.source).toSet();
-    final selected = <String>[];
+  /// Aggregates every distinct finding `source` (the tool that produced it)
+  /// with a [toolHintsCatalog] entry into a [ReportHints], collecting *all*
+  /// three categories per tool rather than picking one — so a caveat can
+  /// never crowd out that same tool's pair_with suggestion. Sources are
+  /// iterated in a fixed, alphabetically sorted order so the resulting lists
+  /// are deterministic regardless of `Set` iteration order. Deliberately
+  /// uncapped: a report composes many analyses, and each one's guidance is
+  /// worth surfacing in full rather than truncated.
+  static ReportHints _aggregateHints(List<Finding> findings) {
+    final sortedSources = findings.map((f) => f.source).toSet().toList()
+      ..sort();
 
-    for (final source in sources) {
+    final interpretation = <String>[];
+    final caveats = <String>[];
+    final pairWith = <String>[];
+
+    for (final source in sortedSources) {
       final catalogHints = toolHintsCatalog[source];
       if (catalogHints == null) continue;
 
-      final pick = catalogHints.caveats.isNotEmpty
-          ? catalogHints.caveats.first
-          : catalogHints.pairWith.isNotEmpty
-              ? catalogHints.pairWith.first
-              : catalogHints.interpretation.isNotEmpty
-                  ? catalogHints.interpretation.first
-                  : null;
-      if (pick != null) selected.add(pick);
+      interpretation.addAll(catalogHints.interpretation);
+      caveats.addAll(catalogHints.caveats);
+      pairWith.addAll(catalogHints.pairWith);
     }
 
-    return selected.toSet().take(_maxReportHints).toList();
+    return ReportHints(
+      interpretation: interpretation.toSet().toList(),
+      caveats: caveats.toSet().toList(),
+      pairWith: pairWith.toSet().toList(),
+    );
   }
 
   /// Ranks by severity (desc), then compound-first, then numeric magnitude.
@@ -124,6 +129,6 @@ class ReportPayload {
                 'Narrate each using its severity, subject, band, and message; '
                 'no further interpretation, statistics, or cross-referencing '
                 'is required.',
-        if (hints.isNotEmpty) 'hints': hints,
+        if (!hints.isEmpty) 'hints': hints.toJson(),
       };
 }

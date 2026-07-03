@@ -18,7 +18,6 @@ import 'package:rw_git/src/intelligence/history/heuristics/advanced_metrics_heur
 import 'package:rw_git/src/intelligence/history/heuristics/bug_hotspots_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/churn_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/commit_velocity_heuristic.dart';
-import 'package:rw_git/src/intelligence/history/heuristics/conflict_risk_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/mega_commits_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/suspicious_commits_heuristic.dart';
 import 'package:rw_git/src/intelligence/architecture/bus_factor_algorithm.dart';
@@ -124,15 +123,11 @@ class ReportOrchestrator {
 
   /// Code-review report: risk signals for code under review — exposed secrets,
   /// bug hotspots, single-owner files, complexity outliers (both the diff
-  /// proxy and genuine McCabe metrics on the highest-churn files), and, when
-  /// [baseBranch] and [targetBranch] are both provided, predicted merge
-  /// conflicts between them.
+  /// proxy and genuine McCabe metrics on the highest-churn files).
   Future<ReportPayload> codeReviewReport(
     String directory, {
     String? limit,
     String? branch,
-    String? baseBranch,
-    String? targetBranch,
   }) async {
     final lim = limit ?? defaultCommitLimit;
     final advanced = await AdvancedMetricsHeuristic(runner)
@@ -148,13 +143,6 @@ class ReportOrchestrator {
     final lexicalMetrics = await const BoundedLexicalMetricsSampler()
         .sampleTopChurnFiles(directory, churn.fileChurn);
 
-    final conflictFindings = <Finding>[];
-    if (baseBranch != null && targetBranch != null) {
-      final conflictRisk = await ConflictRiskHeuristic(runner)
-          .findConflictRiskFiles(directory, baseBranch, targetBranch);
-      conflictFindings.addAll(_classifier.fromConflictRisk(conflictRisk));
-    }
-
     final findings = <Finding>[
       ..._classifier.fromSecrets(secrets),
       ..._classifier.fromComplexity(advanced),
@@ -162,17 +150,12 @@ class ReportOrchestrator {
       ..._classifier.fromOwnership(churnAuthors),
       ..._classifier.fromBugHotspots(hotspots),
       ..._classifier.fromChurn(churn),
-      ...conflictFindings,
     ];
     return ReportPayload.fromFindings(
       reportType: 'code_review',
       findings: findings,
       compounds: _correlator.correlate(findings),
-      metadata: {
-        'directory': directory,
-        'commit_limit': lim,
-        'conflict_prediction_ran': baseBranch != null && targetBranch != null,
-      },
+      metadata: {'directory': directory, 'commit_limit': lim},
     );
   }
 

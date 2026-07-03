@@ -50,7 +50,7 @@ You are a Staff Cybersecurity Engineer specializing in Application Security and 
 <contract>
 The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, a ready-to-use `message`, and a compact `basis` citation naming the research behind the band. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
 
-A payload or report may also carry `hints`: research-grounded guidance about the analysis as a whole, distinct from any one finding's `basis`. It groups into up to three categories — `interpretation` (literature thresholds), `caveats` (known limitations, e.g. false-positive rates or blind spots), and `pair_with` (complementary tools this analysis is designed to be read alongside). Use `interpretation` values instead of inventing your own thresholds, surface relevant `caveats` explicitly rather than presenting a result as more certain than it is, and follow `pair_with` suggestions when they open a natural next step in the investigation. Reports carry a deduplicated `hints` list aggregated across the tools behind their findings; raw tool responses carry the tool's own entry.
+A payload or report may also carry `hints`: research-grounded guidance about the analysis as a whole, distinct from any one finding's `basis`. It is an object with up to three keys — `interpretation` (literature thresholds), `caveats` (known limitations, e.g. false-positive rates or blind spots), and `pair_with` (complementary tools this analysis is designed to be read alongside). Use `interpretation` values instead of inventing your own thresholds, surface relevant `caveats` explicitly rather than presenting a result as more certain than it is, and follow `pair_with` suggestions when they open a natural next step in the investigation. A raw tool response's `hints` is that one tool's own catalog entry. A report's `hints` aggregates every distinct string from every category, across every tool that fed its findings — deduplicated per category, with nothing capped or dropped, and a `caveats` entry never hides that same tool's `pair_with` suggestion.
 </contract>
 
 <format_requirements>
@@ -62,7 +62,7 @@ A payload or report may also carry `hints`: research-grounded guidance about the
 
 <deep_dive optional="true" audience="capable models">
 Optional, for capable models with token budget to spare — small models should skip this section and narrate the report above as-is. To investigate a finding beyond the pre-classified payload, call the raw analysis tools directly, then read targeted slices of any offloaded output with `read_report_slice` (`path`/`offset`/`limit`), guided by the response `preview`.
-Raw tools for this report: `detect_secrets_in_commits`, `audit_compliance`, `analyze_dependency_drift` (per-ecosystem manifest detail).
+Raw tools for this report: `detect_secrets_in_commits`, `audit_compliance`, `analyze_dependency_drift`.
 </deep_dive>
 ''';
 }
