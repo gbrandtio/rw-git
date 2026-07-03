@@ -1,4 +1,18 @@
 # 3.1.0
+- **FIX (MCP transport, notification replies):** `McpServer` no longer
+  replies to unrecognized JSON-RPC notifications (messages with no `id`
+  field, e.g. `notifications/cancelled`, `notifications/roots/list_changed`,
+  `notifications/progress`). Previously, any notification not matched by a
+  rule fell through to the generic `Method not found` error path, which
+  serialized `id: null` since the incoming message had no `id` key at all —
+  producing `{"jsonrpc":"2.0","id":null,"error":{...}}`, a message that is
+  neither a valid JSON-RPC response nor request and that MCP clients reject
+  outright, taking the server offline from the client's perspective. Per
+  JSON-RPC 2.0, notifications must never receive a reply; `_handleRequest`
+  (`lib/src/mcp/mcp_server.dart`) now checks `request.containsKey('id')` and
+  silently drops (logging to `errorSink` only) any unmatched notification,
+  while unmatched requests still receive the `Method not found` error as
+  before.
 - **BREAKING (Reports, structured hints):** `hints` in every
   `generate_*_report` response changes from a flat string array to an
   object with `interpretation`/`caveats`/`pair_with` keys, mirroring the

@@ -61,6 +61,34 @@ void main() {
     expect(res['result']['protocolVersion'], '2024-11-05');
   });
 
+  test(
+      'unrecognized notification (no id) is silently dropped, not replied '
+      'to with id: null', () async {
+    makeServer(McpRegistry()).start();
+    send({
+      'jsonrpc': '2.0',
+      'method': 'notifications/roots/list_changed',
+    });
+    send({
+      'jsonrpc': '2.0',
+      'id': 1,
+      'method': 'initialize',
+      'params': {'protocolVersion': '2024-11-05'},
+    });
+    // The notification must not have produced any output: the first line on
+    // the stream is the initialize response, not a malformed error reply.
+    final res = await firstResponse();
+    expect(res['result']['protocolVersion'], '2024-11-05');
+  });
+
+  test('unrecognized request (has id) still gets Method not found', () async {
+    makeServer(McpRegistry()).start();
+    send({'jsonrpc': '2.0', 'id': 1, 'method': 'totally/unknown'});
+    final res = await firstResponse();
+    expect(res['id'], 1);
+    expect(res['error']['code'], -32601);
+  });
+
   test('tools/list paginates with an opaque nextCursor', () async {
     final registry = McpRegistry();
     for (var i = 0; i < 5; i++) {

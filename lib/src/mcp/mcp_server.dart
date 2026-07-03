@@ -96,6 +96,14 @@ class McpServer {
         return;
       }
     }
+
+    if (!request.containsKey('id')) {
+      // JSON-RPC notifications must never receive a reply, even an error
+      // one: replying with `id: null` produces a message that is neither a
+      // valid request nor a valid response, and MCP clients reject it.
+      errorSink.writeln('Ignoring unhandled notification: $method');
+      return;
+    }
     _context.sendError(id, jsonRpcMethodNotFound, 'Method not found: $method');
   }
 }
