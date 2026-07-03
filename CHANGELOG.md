@@ -1,4 +1,4 @@
-# 3.1.0
+# 3.1.1
 - **FIX (MCP transport, notification replies):** `McpServer` no longer
   replies to unrecognized JSON-RPC notifications (messages with no `id`
   field, e.g. `notifications/cancelled`, `notifications/roots/list_changed`,
@@ -13,6 +13,8 @@
   silently drops (logging to `errorSink` only) any unmatched notification,
   while unmatched requests still receive the `Method not found` error as
   before.
+
+# 3.1.0
 - **BREAKING (Reports, structured hints):** `hints` in every
   `generate_*_report` response changes from a flat string array to an
   object with `interpretation`/`caveats`/`pair_with` keys, mirroring the
