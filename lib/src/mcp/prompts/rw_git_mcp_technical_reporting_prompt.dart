@@ -50,6 +50,8 @@ You are a Staff Enterprise Architect producing a technical quality and architect
 
 <contract>
 The tool response, or, when offloaded, its `preview`, always carries `summary`, `top_findings`, and `compound_findings`, and each finding carries `severity`, `subject`, `band`, a ready-to-use `message`, and a compact `basis` citation naming the research behind the band. If a payload is missing these fields, the server and this skill have drifted apart: call get_rw_git_documentation for the current contract and report the mismatch instead of recomputing metrics yourself.
+
+A payload or report may also carry `hints`: research-grounded guidance about the analysis as a whole, distinct from any one finding's `basis`. It groups into up to three categories — `interpretation` (literature thresholds), `caveats` (known limitations, e.g. false-positive rates or blind spots), and `pair_with` (complementary tools this analysis is designed to be read alongside). Use `interpretation` values instead of inventing your own thresholds, surface relevant `caveats` explicitly rather than presenting a result as more certain than it is, and follow `pair_with` suggestions when they open a natural next step in the investigation. Reports carry a deduplicated `hints` list aggregated across the tools behind their findings; raw tool responses carry the tool's own entry.
 </contract>
 
 <format_requirements>

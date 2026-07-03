@@ -8,6 +8,12 @@
 library;
 
 import 'finding.dart';
+import 'tool_hints_catalog.dart';
+
+/// Upper bound on how many tool-level hints a report aggregates. Reports
+/// compose many analyses, so this keeps the composed set bounded regardless
+/// of how many distinct tools contributed findings.
+const int _maxReportHints = 6;
 
 /// A ranked, size-bounded report payload.
 class ReportPayload {
@@ -17,12 +23,20 @@ class ReportPayload {
   final Map<String, int> summaryBySeverity;
   final Map<String, dynamic> metadata;
 
+  /// Research-grounded guidance aggregated from the [toolHintsCatalog]
+  /// entries of the tools that produced [topFindings]/[compoundFindings].
+  /// Complements per-finding `basis`/`rationale`: a hint here applies to the
+  /// whole analysis (e.g. a caveat about SZZ false-positive rates), not to
+  /// one specific observed value.
+  final List<String> hints;
+
   const ReportPayload({
     required this.reportType,
     required this.topFindings,
     required this.compoundFindings,
     required this.summaryBySeverity,
     required this.metadata,
+    this.hints = const [],
   });
 
   /// Ranks and bounds [findings] and correlated [compounds] into a payload
@@ -45,13 +59,44 @@ class ReportPayload {
       ..sort(_rank);
     final rankedCompounds = compounds.toList()..sort(_rank);
 
+    final boundedTopFindings = singletons.take(maxTopFindings).toList();
+    final boundedCompoundFindings =
+        rankedCompounds.take(maxCompoundFindings).toList();
+
     return ReportPayload(
       reportType: reportType,
-      topFindings: singletons.take(maxTopFindings).toList(),
-      compoundFindings: rankedCompounds.take(maxCompoundFindings).toList(),
+      topFindings: boundedTopFindings,
+      compoundFindings: boundedCompoundFindings,
       summaryBySeverity: summary,
       metadata: metadata,
+      hints: _selectHints([...boundedCompoundFindings, ...boundedTopFindings]),
     );
+  }
+
+  /// Picks one hint per distinct finding `source` (the tool that produced
+  /// it), preferring a caveat, then a pair_with suggestion, then an
+  /// interpretation threshold — the same priority the offload preview uses
+  /// (highest decision value per token first). Deduped and capped at
+  /// [_maxReportHints] since a report composes many analyses.
+  static List<String> _selectHints(List<Finding> findings) {
+    final sources = findings.map((f) => f.source).toSet();
+    final selected = <String>[];
+
+    for (final source in sources) {
+      final catalogHints = toolHintsCatalog[source];
+      if (catalogHints == null) continue;
+
+      final pick = catalogHints.caveats.isNotEmpty
+          ? catalogHints.caveats.first
+          : catalogHints.pairWith.isNotEmpty
+              ? catalogHints.pairWith.first
+              : catalogHints.interpretation.isNotEmpty
+                  ? catalogHints.interpretation.first
+                  : null;
+      if (pick != null) selected.add(pick);
+    }
+
+    return selected.toSet().take(_maxReportHints).toList();
   }
 
   /// Ranks by severity (desc), then compound-first, then numeric magnitude.
@@ -79,5 +124,6 @@ class ReportPayload {
                 'Narrate each using its severity, subject, band, and message; '
                 'no further interpretation, statistics, or cross-referencing '
                 'is required.',
+        if (hints.isNotEmpty) 'hints': hints,
       };
 }

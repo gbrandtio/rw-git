@@ -102,6 +102,12 @@ const int aggregateFindingEvidenceSampleSize = 5;
 /// savings.
 const List<String> previewStrippedFindingKeys = ['rationale'];
 
+/// Upper bound on how many `hints` entries (caveats first, then pair_with,
+/// then interpretation) are echoed into the offload preview. The full set
+/// stays available in the offloaded file; this keeps the recurring inline
+/// cost of the preview bounded on every large-payload call.
+const int previewHintsLimit = 3;
+
 /// Inline hint attached to every offload summary. Kept deliberately short:
 /// it is re-sent on every offloaded call, so each character is a recurring
 /// token cost. The full offload contract lives once in

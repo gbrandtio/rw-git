@@ -23,31 +23,31 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
       '`includeCommitLog: true` for a compact commit log. '
       'For a complete guide, invoke the get_rw_git_documentation tool.';
 
+  // Static, citation-backed guidance (SRP/OCP violation signals, mega-commit
+  // thresholds, ownership bands) lives in toolHintsCatalog and is spliced in
+  // by McpToolHintsDecorator. Only the argument-conditional hints below stay
+  // here, emitted under the same `hints` shape so the decorator unions
+  // rather than overwrites them.
   @override
   Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff,
       {bool includeAuthors = false}) {
-    final hints = [
-      'Use the co_change_matrix to detect Single Responsibility Principle (SRP) violations. If a file frequently co-changes across multiple unrelated domains or features, it acts as a God Class.',
-      'Use method_churn to detect Open/Closed Principle (OCP) violations. Methods modified in almost every branch violate OCP.',
-      'Use the co_change_matrix to predict Blast Radius. If a PR modifies file A, check if file A historically co-changes with file B. If B is missing from the PR, flag it as a potential omission.',
-      'Use architecture_distribution to track Architecture Drift. If recent commits heavily skew the historical distribution of commits across top-level directories, flag a potential architectural boundary violation.',
-      'Use file_complexity to identify technical debt based on control flow keyword density.',
-    ];
+    final interpretation = <String>[];
     if (includeAuthors) {
-      hints.add(
+      interpretation.add(
         'Assess author concentration: files heavily modified by a single '
         'author (see the per-author breakdown) may indicate knowledge silos.',
       );
     }
     if (includeCodeDiff) {
-      hints.add(
+      interpretation.add(
         'Review the code diffs for obvious code smells, '
         'anti-patterns, or technical debt introduced in '
         'the recent commits.',
       );
     }
+    if (interpretation.isEmpty) return {};
     return {
-      'analysis_hints': hints,
+      'hints': {'interpretation': interpretation},
     };
   }
 

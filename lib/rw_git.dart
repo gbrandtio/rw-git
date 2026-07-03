@@ -33,6 +33,7 @@ export 'src/mcp/mcp_resources.dart';
 export 'src/mcp/server_registry.dart';
 export 'src/mcp/mcp_tool.dart';
 export 'src/mcp/mcp_tool_file_offload_decorator.dart';
+export 'src/mcp/mcp_tool_hints_decorator.dart';
 export 'src/mcp/mcp_tool_metadata_decorator.dart';
 export 'src/mcp/tools/static_analysis/analyze_code_quality_tool.dart';
 export 'src/mcp/tools/system/get_rw_git_documentation_tool.dart';

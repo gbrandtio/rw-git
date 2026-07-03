@@ -56,6 +56,8 @@ Every finding already carries `severity`, `subject`, `band`, and `message`. Narr
 ## 3. Interpreting raw metrics
 The report tools in section 1 apply all severity bands automatically. If you call the raw tools directly, classify their numbers using the bands and the four cross-tool compound-risk rules in **doc/INTERPRETATION_GUIDE.md** (bus factor, bug hotspots, complexity vs repo median, logical coupling, architecture drift, dependency freshness, compliance). Never report a raw metric without stating its severity band.
 
+Many payloads also carry a `hints` object (`interpretation`, `caveats`, `pair_with`): research-grounded thresholds, known limitations, and complementary-tool suggestions for that analysis as a whole. Use them instead of inventing thresholds and surface relevant caveats rather than presenting a result as more certain than it is.
+
 ## 4. Available Tools
 
 $toolsMarkdown

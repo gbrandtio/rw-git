@@ -99,6 +99,37 @@ class MockFindingsTool implements McpTool {
   }
 }
 
+/// Emits a payload carrying a `hints` object (as [McpToolHintsDecorator]
+/// would produce) large enough to offload.
+class MockHintedTool implements McpTool {
+  @override
+  String get name => 'mock_hinted_tool';
+
+  @override
+  String get description => 'A mock tool that emits research hints.';
+
+  @override
+  Map<String, dynamic> get inputSchema => {
+        'type': 'object',
+        'properties': {
+          'directory': {'type': 'string'}
+        },
+        'required': ['directory'],
+      };
+
+  @override
+  Future<String> execute(Map<String, dynamic> arguments) async {
+    return jsonEncode({
+      'hints': {
+        'interpretation': ['i1', 'i2'],
+        'caveats': ['c1'],
+        'pair_with': ['p1'],
+      },
+      'padding': 'x' * 9000,
+    });
+  }
+}
+
 class MockStructuredTool implements McpTool {
   @override
   String get name => 'mock_structured_tool';
@@ -412,6 +443,33 @@ void main() {
       expect(preview.containsKey('top_level_keys'), isFalse);
       expect(preview.containsKey('array_lengths'), isFalse);
       expect(preview.containsKey('value_types'), isFalse);
+    });
+
+    test(
+        'preview carries hints capped at previewHintsLimit, caveats first, '
+        'then pair_with, then interpretation', () async {
+      final hintedDecorator = McpToolFileOffloadDecorator(MockHintedTool());
+
+      final resultString = await hintedDecorator.execute({
+        'directory': tempDir.path,
+      });
+
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+      final preview = result['preview'] as Map<String, dynamic>;
+      final hints = preview['hints'] as List<dynamic>;
+
+      expect(hints.length, previewHintsLimit);
+      expect(hints, ['c1', 'p1', 'i1']);
+    });
+
+    test('preview omits hints when the payload carries none', () async {
+      final resultString = await decorator.execute({
+        'directory': tempDir.path,
+      });
+
+      final result = jsonDecode(resultString) as Map<String, dynamic>;
+      final preview = result['preview'] as Map<String, dynamic>;
+      expect(preview.containsKey('hints'), isFalse);
     });
 
     test('offload summary hint is the short centralized constant', () async {

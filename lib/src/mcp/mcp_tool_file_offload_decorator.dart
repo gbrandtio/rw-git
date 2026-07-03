@@ -86,6 +86,7 @@ class McpToolFileOffloadDecorator implements McpTool {
       // the decorator stays schema-agnostic and just forwards known keys.
       if (decoded is Map) {
         _carryFindings(decoded, preview);
+        _carryHints(decoded, preview);
       }
 
       return preview;
@@ -114,6 +115,27 @@ class McpToolFileOffloadDecorator implements McpTool {
                 : finding)
             .toList();
       }
+    }
+  }
+
+  /// Copies a bounded, priority-ordered slice of [decoded]'s `hints` object
+  /// (from [McpToolHintsDecorator]) into [preview] as a flat list, capped at
+  /// [previewHintsLimit]. Caveats lead (highest decision value per token),
+  /// then pair_with (drives the next tool call), then interpretation
+  /// thresholds (the full set stays one `read_report_slice` away). Purely a
+  /// passthrough, mirroring [_carryFindings]'s schema-agnostic convention.
+  void _carryHints(Map decoded, Map<String, dynamic> preview) {
+    final hints = decoded['hints'];
+    if (hints is! Map) return;
+
+    final prioritized = <String>[
+      for (final category in const ['caveats', 'pair_with', 'interpretation'])
+        if (hints[category] is List)
+          ...List<String>.from((hints[category] as List).whereType<String>()),
+    ];
+
+    if (prioritized.isNotEmpty) {
+      preview['hints'] = prioritized.take(previewHintsLimit).toList();
     }
   }
 

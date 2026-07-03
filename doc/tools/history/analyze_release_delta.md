@@ -21,7 +21,7 @@ All sub-analyses run in parallel across Dart Isolates:
 
 **Published in:** WCRE, IEEE
 
-**Key claim:** Release-scoped change analysis — studying what changed between two release tags — is the most tractable unit of study for change propagation and impact prediction. Inter-release change deltas are more actionable than commit-by-commit analysis because they represent a coherent unit of work.
+**Key claim:** Release-scoped change analysis studying what changed between two release tags is the most tractable unit of study for change propagation and impact prediction. Inter-release change deltas are more actionable than commit-by-commit analysis because they represent a coherent unit of work.
 
 **How rw-git uses it:** The tag-bounded scope (`<tag1>..<tag2>`) is the direct application of this principle. All sub-analyses are scoped to the release interval.
 
@@ -43,7 +43,7 @@ All sub-analyses run in parallel across Dart Isolates:
 
 **Key claim:** Bug introductions can be identified from the commit history. Knowing how many bugs were introduced within a specific release interval gives a quality signal for that release.
 
-**How rw-git uses it:** The SZZ-derived `bug_introductions` count in the delta output gives engineering leaders a quantitative quality signal alongside the change volume metrics — not just "how much changed" but "how many bugs were introduced."
+**How rw-git uses it:** The SZZ-derived `bug_introductions` count in the delta output gives engineering leaders a quantitative quality signal alongside the change volume metrics, not just "how much changed" but "how many bugs were introduced."
 
 ---
 
@@ -53,4 +53,4 @@ All sub-analyses run in parallel across Dart Isolates:
 
 **Key claim:** Total lines changed in a release interval is predictive of post-release defect density. Larger releases have proportionally more defects.
 
-**How rw-git uses it:** The `total_insertions + total_deletions` aggregate from `git diff --shortstat` is a release-level churn metric that contextualises the bug introduction count — a large churn count with few SZZ-attributed bugs is a positive signal; a small churn with many bugs is alarming.
+**How rw-git uses it:** The `total_insertions + total_deletions` aggregate from `git diff --shortstat` is a release-level churn metric that contextualises the bug introduction count. A large churn count with few SZZ-attributed bugs is a positive signal; a small churn with many bugs is alarming.

@@ -1,11 +1,13 @@
 import '../constants.dart';
 import '../core/process_runner.dart';
 import '../intelligence/history/algorithms/szz_algorithm.dart';
+import '../intelligence/interpretation/tool_hints_catalog.dart';
 import '../vcs/git_query.dart';
 import '../vcs/rw_git_facade.dart';
 import 'mcp_registry.dart';
 import 'mcp_tool.dart';
 import 'mcp_tool_file_offload_decorator.dart';
+import 'mcp_tool_hints_decorator.dart';
 import 'mcp_tool_metadata_decorator.dart';
 
 import 'tools/static_analysis/analyze_code_quality_tool.dart';
@@ -104,9 +106,17 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
       registry.registerTool(McpToolWithMetadata(tool,
           annotations: _readOnly, outputSchema: outputSchema));
 
+  // Splices research-grounded ToolHints into a tool's payload when the
+  // catalog has an entry for it; a no-op passthrough otherwise. Applied
+  // before offloading so hints ride in inline responses, persist into the
+  // offloaded full file, and remain visible to the preview builder.
+  McpTool withHints(McpTool inner) => toolHintsCatalog.containsKey(inner.name)
+      ? McpToolHintsDecorator(inner)
+      : inner;
+
   void offloadedRo(McpTool inner, {Map<String, dynamic>? outputSchema}) =>
       registerReadOnly(
-          McpToolFileOffloadDecorator(inner,
+          McpToolFileOffloadDecorator(withHints(inner),
               resources: registry.resources,
               // Per-tool size gate (ADR-0011); global default when unlisted.
               offloadThresholdBytes: perToolOffloadThresholdBytes[inner.name] ??

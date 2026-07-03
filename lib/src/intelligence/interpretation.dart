@@ -12,3 +12,5 @@ export 'interpretation/report_orchestrator.dart';
 export 'interpretation/report_payload.dart';
 export 'interpretation/repo_stats.dart';
 export 'interpretation/severity.dart';
+export 'interpretation/tool_hints.dart';
+export 'interpretation/tool_hints_catalog.dart';

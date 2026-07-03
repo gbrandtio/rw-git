@@ -76,11 +76,6 @@ class AnalyzeBugHotspotsTool implements McpTool {
                     hotspots.authorAverageBugLifetimeInDays[e.key] ?? 0.0,
               })
           .toList(),
-      'analysis_hints': [
-        'If a PR modifies a file listed in top_bug_hotspot_files, apply extreme scrutiny, as this file is historically fragile.',
-        'If the current author is listed in top_bug_hotspot_authors, ensure they have requested appropriate reviews.',
-        'bug_lifetime measures introducing commit to fixing commit (SZZ), not the effort spent on the fix; lifetimes of weeks or months are normal.',
-      ]
     });
   }
 }

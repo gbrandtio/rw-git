@@ -46,7 +46,7 @@ Files are returned sorted descending by `final_score`. Risk categories: < 0.3 = 
 
 **Published in:** ICSM, IEEE
 
-**Key claim:** Large changes (high insertion + deletion counts) have more defects per line than small targeted changes. The relationship is non-linear — very large commits are disproportionately risky.
+**Key claim:** Large changes (high insertion + deletion counts) have more defects per line than small targeted changes. The relationship is non-linear i.e., very large commits are disproportionately risky.
 
 **How rw-git uses it:** Change magnitude (30% weight) is the change-size risk signal, normalised within the PR so that the largest changed file scores 1.0.
 
@@ -56,7 +56,7 @@ Files are returned sorted descending by `final_score`. Risk categories: < 0.3 = 
 
 **Published in:** SANER, IEEE
 
-**Key claim:** When a file has a bus factor of 1 (one developer holds most of the knowledge), changes to that file by other developers carry higher risk — the reviewer lacks the context to catch subtle errors.
+**Key claim:** When a file has a bus factor of 1 (one developer holds most of the knowledge), changes to that file by other developers carry higher risk as the reviewer lacks the context to catch subtle errors.
 
 **How rw-git uses it:** The bus factor exposure dimension (20% weight) converts file-level bus factor into a risk score. A file with bus factor 1 scores 1.0 on this dimension; a file with bus factor 5 scores near 0.
 
