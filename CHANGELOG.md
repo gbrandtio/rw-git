@@ -1,4 +1,44 @@
 # 3.1.0
+- **BREAKING (Reports, structured hints):** `hints` in every
+  `generate_*_report` response changes from a flat string array to an
+  object with `interpretation`/`caveats`/`pair_with` keys, mirroring the
+  shape `ToolHints.toJson()` already used for raw single-tool calls. The
+  previous aggregation (`ReportPayload._selectHints`) picked **one** string
+  total per contributing tool — a caveat always won over a pair_with
+  suggestion for the same tool — and hard-capped the combined list at 6,
+  regardless of how many analyses fed the report (`generate_repository_audit`
+  unions ~13). The new aggregation (`ReportPayload._aggregateHints`) collects
+  every distinct interpretation/caveat/pair_with string from every
+  contributing tool's `toolHintsCatalog` entry, deduplicated per category
+  and deliberately uncapped, so a pair_with suggestion can never be
+  crowded out by that same tool's own caveat.
+- **FEAT (Skills, catalog-native deep dives):** Each reporting skill's
+  `<deep_dive>` raw-tool list is now generated from a new
+  `reportToolSources` map (`lib/src/intelligence/interpretation/
+  report_tool_sources.dart`) via a `<!-- generate:deep_dive_tools
+  report=... -->` marker in `SKILL.template.md`, instead of hand-written
+  prose. The prose had already drifted from what each report actually
+  runs: technical-reporting's list omitted `analyze_file_ownership` (used);
+  pm-reporting's omitted `analyze_bug_hotspots` (used) and listed
+  `analyze_release_delta` (never called); code-review-reporting's listed
+  `analyze_pr_diff`/`evaluate_comments` (never called) and omitted
+  `analyze_code_quality`/`detect_secrets_in_commits`/
+  `analyze_bug_hotspots`/`analyze_file_ownership` (all used); the top-level
+  audit skill's listed `analyze_architecture_drift` (never called). A new
+  test (`report_tool_sources_test.dart`) statically cross-checks the map
+  against `ReportOrchestrator`'s actual classifier calls per report, and
+  `prompts_sync_test.dart` asserts every generated deep-dive list matches
+  the map exactly, so this class of drift can no longer recur silently.
+- **REMOVED (predict_merge_conflicts):** The `predict_merge_conflicts` tool,
+  `ConflictRiskHeuristic`, and `ConflictRiskClassifier` are deleted, along
+  with the `base_branch`/`target_branch` parameters of
+  `generate_code_review_report` that existed solely to feed it. It was the
+  only report-feeding tool whose contribution was fully opt-in (only ran
+  when both branch parameters were supplied) and relied on purely textual
+  `git merge-tree` three-way merge prediction, which the tool's own catalog
+  entry already documented as missing/flagging conflicts at a substantial
+  rate. Compound Rule 6 (predicted conflict × bug hotspot) is removed with
+  it.
 - **FEAT (Skills, depth escalation):** Each of the five reporting skills
   gains a short trailing `<deep_dive optional="true" audience="capable
   models">` section: the default path stays the compact one-call
