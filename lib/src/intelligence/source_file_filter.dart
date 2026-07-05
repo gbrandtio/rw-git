@@ -49,10 +49,25 @@ class SourceFileFilter {
   /// Basenames (lower-case) that are definitely not source code regardless
   /// of extension — mostly extensionless repo prose and VCS/tooling config.
   static const Set<String> nonSourceBasenames = {
-    'license', 'licence', 'notice', 'copying', 'authors', 'contributors',
-    'changelog', 'readme', 'codeowners', 'owners', 'version',
-    '.gitignore', '.gitattributes', '.gitmodules', '.editorconfig',
-    '.npmignore', '.dockerignore', '.pubignore', '.env',
+    'license',
+    'licence',
+    'notice',
+    'copying',
+    'authors',
+    'contributors',
+    'changelog',
+    'readme',
+    'codeowners',
+    'owners',
+    'version',
+    '.gitignore',
+    '.gitattributes',
+    '.gitmodules',
+    '.editorconfig',
+    '.npmignore',
+    '.dockerignore',
+    '.pubignore',
+    '.env',
   };
 
   /// True when [path] may be source code: its extension and basename are
