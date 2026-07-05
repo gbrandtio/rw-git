@@ -22,4 +22,46 @@ void main() {
     expect(result.invocations, contains('print'));
     expect(result.toJson()['api_signatures'], isNotEmpty);
   });
+
+  group('detectImportCyclesInSources', () {
+    final analyzer = DartAstAnalyzer();
+
+    test('finds a cycle through relative and same-package imports', () {
+      final cycles = analyzer.detectImportCyclesInSources({
+        'lib/src/a.dart': "import 'b.dart';\nclass A {}",
+        'lib/src/b.dart': "import 'package:demo/src/a.dart';\nclass B {}",
+      }, packageName: 'demo');
+
+      expect(cycles, hasLength(1));
+      expect(cycles.single.toSet(), {'lib/src/a.dart', 'lib/src/b.dart'});
+    });
+
+    test('resolves ../ imports against the importing file directory', () {
+      final cycles = analyzer.detectImportCyclesInSources({
+        'lib/src/deep/a.dart': "import '../b.dart';\nclass A {}",
+        'lib/src/b.dart': "import 'deep/a.dart';\nclass B {}",
+      });
+
+      expect(cycles, hasLength(1));
+    });
+
+    test('acyclic imports and foreign packages produce no cycles', () {
+      final cycles = analyzer.detectImportCyclesInSources({
+        'lib/a.dart': "import 'dart:io';\nimport 'package:test/test.dart';\n"
+            "import 'b.dart';\nclass A {}",
+        'lib/b.dart': 'class B {}',
+      }, packageName: 'demo');
+
+      expect(cycles, isEmpty);
+    });
+
+    test('unparseable sources are skipped, not fatal', () {
+      final cycles = analyzer.detectImportCyclesInSources({
+        'lib/broken.dart': 'class {{{',
+        'lib/ok.dart': 'class Ok {}',
+      });
+
+      expect(cycles, isEmpty);
+    });
+  });
 }

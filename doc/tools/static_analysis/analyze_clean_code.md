@@ -20,9 +20,11 @@ Five checks run on the raw file content:
    ```
    Flag if count > 10. Threshold: unnamed integer constants are a readability and maintainability hazard.
 
-5. **Duplicate lines** — build a frequency map of all non-blank, trimmed lines. Count excess occurrences (frequency − 1) for any line appearing more than once. Flag if any duplicate exists. Threshold: any repeated non-blank line is a potential copy-paste smell.
+5. **Duplicate lines** — build a frequency map of all non-blank, trimmed lines longer than 5 characters (so recurring language boilerplate such as `}` is not counted). Count excess occurrences (frequency − 1) for any line appearing more than once. Flag as a clean-code issue when duplicates exceed 10% of the file's lines (Type-1 cloning, Koschke 2007).
 
 **Risk classification:** 0 issues = low risk; 1 issue = medium; 2+ issues = high.
+
+The analysis core is the library-first `CleanCodeAnalyzer` (ADR-0005), shared with the technical, code-review, and audit report meta-tools, which run it automatically on the bounded top-churn sample (ADR-0014) and classify the results (any crossed heuristic → Elevated; 3+ heuristics agreeing → High).
 
 ## Academic Foundation
 

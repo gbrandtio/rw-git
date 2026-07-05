@@ -246,6 +246,25 @@ void main() {
       expect(response['result']['resources'], isEmpty);
     });
 
+    test('responds to resources/templates/list', () async {
+      server.start();
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 100,
+        'method': 'resources/templates/list',
+      });
+
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
+
+      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+      expect(response['id'], 100);
+      expect(response['result']['resourceTemplates'], isEmpty);
+    });
+
     test('responds to prompts/list', () async {
       server.start();
       sendInput({

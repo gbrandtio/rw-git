@@ -8,6 +8,7 @@ export 'interpretation/compound_finding_correlator.dart';
 export 'interpretation/finding.dart';
 export 'interpretation/finding_classifier.dart';
 export 'interpretation/path_key.dart';
+export 'interpretation/refactoring_target_ranker.dart';
 export 'interpretation/report_hints.dart';
 export 'interpretation/report_orchestrator.dart';
 export 'interpretation/report_payload.dart';

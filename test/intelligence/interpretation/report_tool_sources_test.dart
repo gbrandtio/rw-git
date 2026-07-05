@@ -57,7 +57,8 @@ void main() {
     final reportMethodSignatures = <String, List<String>>{
       'technical': [
         'Future<ReportPayload> technicalReport(',
-        'Future<List<Finding>> _technicalFindings(',
+        'Future<TechnicalAnalysis> _technicalFindings(',
+        'Future<List<List<String>>> _detectImportCycles(',
       ],
       'security': [
         'Future<ReportPayload> securityReport(',
@@ -67,7 +68,8 @@ void main() {
       'code_review': ['Future<ReportPayload> codeReviewReport('],
       'repository_audit': [
         'Future<ReportPayload> repositoryAudit(',
-        'Future<List<Finding>> _technicalFindings(',
+        'Future<TechnicalAnalysis> _technicalFindings(',
+        'Future<List<List<String>>> _detectImportCycles(',
         'Future<List<Finding>> _securityFindings(',
       ],
     };
@@ -108,4 +110,7 @@ const Map<String, String> _toolMarkers = {
   'analyze_dependency_drift': 'DependencyFreshnessChecker',
   'analyze_bus_factor': 'BusFactorAlgorithm',
   'analyze_commit_velocity': 'CommitVelocityHeuristic',
+  'analyze_architecture_drift': 'ArchitectureDriftAlgorithm',
+  'analyze_clean_code': 'CleanCodeAnalyzer',
+  'analyze_dart_ast_quality': 'DartAstAnalyzer',
 };

@@ -120,24 +120,16 @@ void main() {
 
   group('generated deep-dive tool lists are catalog-native', () {
     test(
-        'every reporting skill\'s deep_dive tool list matches '
-        'reportToolSources exactly, in order', () {
-      for (final entry in _skillReportTypes.entries) {
-        final expanded = expandedTemplate(entry.key);
-        final expectedTools = reportToolSources[entry.value]!;
+        'the consolidated skill carries a deep_dive tool list for every '
+        'report type, each matching reportToolSources exactly, in order', () {
+      final expanded = expandedTemplate(_anySkill);
+      for (final entry in reportToolSources.entries) {
         final expectedLine =
-            'Raw tools for this report: ${expectedTools.map((t) => '`$t`').join(', ')}.';
+            'Raw tools for this report: ${entry.value.map((t) => '`$t`').join(', ')}.';
 
         expect(expanded, contains(expectedLine),
-            reason: '${entry.key} deep_dive tool list must be generated '
-                'from reportToolSources[\'${entry.value}\']');
-      }
-    });
-
-    test('every report type used by a skill exists in reportToolSources', () {
-      for (final reportType in _skillReportTypes.values) {
-        expect(reportToolSources.containsKey(reportType), isTrue,
-            reason: 'reportToolSources is missing report type $reportType');
+            reason: '$_anySkill must carry a deep_dive tool list generated '
+                'from reportToolSources[\'${entry.key}\']');
       }
     });
 
@@ -157,14 +149,3 @@ void main() {
 }
 
 const _anySkill = 'rw-git-mcp-reporting';
-
-/// Maps each reporting skill to the `reportType` its generated `<deep_dive>`
-/// tool list must be sourced from — the same string `ReportOrchestrator`
-/// returns as `ReportPayload.reportType` for that report.
-const Map<String, String> _skillReportTypes = {
-  'rw-git-mcp-reporting': 'repository_audit',
-  'rw-git-mcp-technical-reporting': 'technical',
-  'rw-git-mcp-pm-reporting': 'pm',
-  'rw-git-mcp-security-reporting': 'security',
-  'rw-git-mcp-code-review-reporting': 'code_review',
-};

@@ -17,8 +17,7 @@ class GenerateCodeReviewReportTool implements McpTool {
   String get description =>
       'One-call code-review risk report: secrets, complexity outliers, '
       'single-owner files, bug hotspots in the code under review. Returns '
-      'pre-classified, ranked findings. Use analyze_pr_diff for '
-      'diff-specific detail.';
+      'pre-classified, ranked findings.';
 
   @override
   Map<String, dynamic> get inputSchema => {

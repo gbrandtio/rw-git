@@ -7,10 +7,12 @@
 library;
 
 import 'package:rw_git/src/models/advanced_code_quality_dto.dart';
+import 'package:rw_git/src/models/architecture_drift_dto.dart';
 import 'package:rw_git/src/models/bug_hotspot_dto.dart';
 import 'package:rw_git/src/models/bus_factor_dto.dart';
 import 'package:rw_git/src/models/churn_metrics_dto.dart';
 import 'package:rw_git/src/models/churn_metrics_with_authors_dto.dart';
+import 'package:rw_git/src/models/clean_code_metrics_dto.dart';
 import 'package:rw_git/src/models/code_volatility_dto.dart';
 import 'package:rw_git/src/models/commit_velocity_dto.dart';
 import 'package:rw_git/src/models/compliance_report_dto.dart';
@@ -19,10 +21,13 @@ import 'package:rw_git/src/models/file_lexical_metrics_dto.dart';
 import 'package:rw_git/src/models/logical_coupling_dto.dart';
 import 'package:rw_git/src/models/refactoring_dto.dart';
 
+import 'classifiers/architecture_drift_classifier.dart';
 import 'classifiers/bug_hotspot_classifier.dart';
 import 'classifiers/bus_factor_classifier.dart';
 import 'classifiers/churn_classifier.dart';
+import 'classifiers/clean_code_classifier.dart';
 import 'classifiers/commit_hygiene_classifier.dart';
+import 'classifiers/dart_ast_classifier.dart';
 import 'classifiers/commit_velocity_classifier.dart';
 import 'classifiers/compliance_classifier.dart';
 import 'classifiers/complexity_classifier.dart';
@@ -71,6 +76,15 @@ class FindingClassifier {
 
   List<Finding> fromLexicalMetrics(List<FileLexicalMetricsDto> files) =>
       const LexicalComplexityClassifier().classify(files);
+
+  List<Finding> fromImportCycles(List<List<String>> cycles) =>
+      const DartAstClassifier().classifyImportCycles(cycles);
+
+  List<Finding> fromCleanCode(List<CleanCodeMetricsDto> files) =>
+      const CleanCodeClassifier().classify(files);
+
+  List<Finding> fromArchitectureDrift(ArchitectureDriftDto dto) =>
+      const ArchitectureDriftClassifier().classify(dto);
 
   List<Finding> fromCommitVelocity(CommitVelocityDto dto) =>
       const CommitVelocityClassifier().classify(dto);

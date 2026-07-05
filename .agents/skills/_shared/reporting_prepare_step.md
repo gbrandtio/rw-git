@@ -1,1 +1,1 @@
-- If the repository is remote, clone it first (`clone_repository` or `clone_specific_branch`); if local, confirm it with `is_git_repository`.
+- If the repository is remote, clone it first (`clone_repository` or `clone_specific_branch`); if local, confirm it with `is_git_repository`. Use `checkout_branch` when the goal targets a specific branch (typical for a code review).

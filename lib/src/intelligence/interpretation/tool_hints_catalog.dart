@@ -108,6 +108,13 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'architecture was never meant to cross — is a sign that how the '
           'system is actually built is pulling away from why it was '
           'designed that way in the first place (Perry & Wolf 1992).',
+      'Two repo-level ratios summarise the drift commits: coupling_ratio, '
+          'the share of analyzed commits that cross layer boundaries — '
+          'above roughly 15% the declared boundaries are no longer '
+          'containing change (Perry & Wolf 1992) — and coupling_density, '
+          'the fraction of possible layer pairs that co-change at all; '
+          'above one half the architecture behaves as an entangled whole '
+          'rather than independent layers (Garcia et al. 2009).',
     ],
     caveats: [
       'The density figure this tool reports is a practical estimate of how '
@@ -192,6 +199,12 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'that also sits in a project with a low overall bus factor '
           'represents the single highest-priority knowledge risk in the '
           'codebase.',
+      'Pair with analyze_bug_hotspots: a file with three or more minor '
+          'contributors (each under 5% of its changes) that is also a bug '
+          'hotspot combines Bird et al.\'s strongest ownership-structure '
+          'defect signal with SZZ\'s strongest history signal — the report '
+          'meta-tools escalate exactly this join, and it deserves the same '
+          'priority when reading the raw outputs side by side.',
     ],
   ),
 
@@ -326,35 +339,11 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'velocity concentration traces back to one specific person under '
           'pressure (crunch) or is spread structurally across the team '
           '(a silo).',
-    ],
-  ),
-
-  'analyze_pr_diff': ToolHints(
-    interpretation: [
-      'This tool\'s overall risk score is deliberately built from several '
-          'independent signals rather than any single one, because no '
-          'individual metric reliably dominates defect prediction across '
-          'different projects — combining signals consistently outperforms '
-          'trusting one measurement alone (Lessmann et al. 2008). A change '
-          'that touches a lot of code is disproportionately, not just '
-          'proportionately, riskier than a small one (Mockus & Votta 2000); '
-          'a change that touches files with a history of frequent defects '
-          'inherits that history\'s risk (Nagappan & Ball 2005); a change '
-          'that touches files few people understand well inherits '
-          'continuity risk; and a change that exposes a secret is treated '
-          'as risky on its own regardless of anything else, since secrets '
-          'leak far more often through pull requests than through direct '
-          'pushes (Meli et al. 2019). A low overall score describes a '
-          'change that is small, well-understood, and clean across all of '
-          'these dimensions at once; a high score means at least one '
-          'dimension stood out enough to dominate the read.',
-    ],
-    pairWith: [
-      'When this tool\'s output shows bus-factor exposure driving the '
-          'score, follow up with a direct analyze_bus_factor look at the '
-          'touched files — the composite number tells you exposure exists, '
-          'not which specific person or files are at stake (Avelino et al. '
-          '2016).',
+      'Pair with analyze_bug_hotspots when the burnout share is high: '
+          'commits written outside regular working hours are measurably '
+          'buggier (Eyolfson, Tan & Lam 2011), so sustained off-hours work '
+          'co-occurring with active bug hotspots means the delivery-health '
+          'problem and the defect problem are reinforcing each other.',
     ],
   ),
 
@@ -476,9 +465,8 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'logic (Mockus & Votta 2000).',
     ],
     pairWith: [
-      'Feeds directly into analyze_release_delta and analyze_pr_diff, both '
-          'of which use this tool\'s churn figures as one of the inputs to '
-          'their own risk assessments.',
+      'Feeds directly into analyze_release_delta, which uses this tool\'s '
+          'churn figures as one of the inputs to its own risk assessment.',
     ],
   ),
 
@@ -565,10 +553,10 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'point (Raemaekers et al. 2012).',
     ],
     pairWith: [
-      'Pair with analyze_pr_diff before merging any pull request that '
-          'changes a public Dart signature — that tool\'s composite risk '
-          'score has no visibility into AST-level signature breakage on '
-          'its own.',
+      'Pair with generate_code_review_report before merging any pull '
+          'request that changes a public Dart signature — the report\'s '
+          'classified findings have no visibility into AST-level signature '
+          'breakage on their own.',
     ],
   ),
 

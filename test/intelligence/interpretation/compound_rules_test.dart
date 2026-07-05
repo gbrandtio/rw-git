@@ -12,7 +12,11 @@ void main() {
         FileLexicalMetricsDto(
             filePath: subject,
             cyclomaticComplexity: 30,
-            maintainabilityIndex: 90),
+            maintainabilityIndex: 90,
+            abcScore: 0,
+            npathComplexity: 1,
+            cognitiveComplexity: 0,
+            halsteadDeliveredBugs: 0),
       ]);
 
   List<Finding> churnOn(String subject) => fc.fromChurn(ChurnMetricsDto(
@@ -50,7 +54,11 @@ void main() {
       const FileLexicalMetricsDto(
           filePath: 'lib/x.dart',
           cyclomaticComplexity: 15,
-          maintainabilityIndex: 90),
+          maintainabilityIndex: 90,
+          abcScore: 0,
+          npathComplexity: 1,
+          cognitiveComplexity: 0,
+          halsteadDeliveredBugs: 0),
     ]);
     expect(
         correlator.correlate([...elevatedOnly, ...churnOn('lib/x.dart')]).where(

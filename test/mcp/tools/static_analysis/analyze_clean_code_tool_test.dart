@@ -46,14 +46,16 @@ void main() {
     test('detects long lines, deep nesting, and file length', () async {
       final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
       final tempFile = File('${tempDir.path}/test_clean_code.dart');
-      final lines = List.generate(350, (i) => 'void main() {}');
+      // Unique lines so the duplicate-line heuristic stays silent and the
+      // test isolates length, nesting, and long-line detection.
+      final lines = List.generate(350, (i) => 'void uniqueMethod$i() {}');
       // Add a very long line
       lines[0] = List.generate(150, (i) => 'a').join();
       // Add a deep nested line (tabs and spaces)
       lines[1] = '\t\t\t\t\t          int x = 1;';
       // Add enough long lines to trigger the longLines threshold (35 > 350 * 0.1)
       for (int i = 2; i < 40; i++) {
-        lines[i] = List.generate(150, (i) => 'b').join();
+        lines[i] = 'x$i = "${List.generate(150, (i) => 'b').join()}";';
       }
 
       await tempFile.writeAsString(lines.join('\n'));
@@ -74,7 +76,8 @@ void main() {
     test('detects medium risk', () async {
       final tempDir = Directory.systemTemp.createTempSync('clean_code_test_');
       final tempFile = File('${tempDir.path}/test_clean_code_medium.dart');
-      final lines = List.generate(350, (i) => 'void main() {}');
+      // Unique lines: only the file-length heuristic should fire.
+      final lines = List.generate(350, (i) => 'void uniqueMethod$i() {}');
       await tempFile.writeAsString(lines.join('\n'));
 
       final result = await tool.execute({

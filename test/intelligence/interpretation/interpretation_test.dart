@@ -167,6 +167,27 @@ void main() {
         isEmpty,
       );
     });
+
+    test('non-source files are excluded from findings and the median', () {
+      // The keyword proxy matches prose, so CHANGELOG.md would otherwise
+      // both get flagged and inflate the repo median for real code.
+      final dto = AdvancedCodeQualityDto(
+        fileComplexity: {
+          'CHANGELOG.md': 900,
+          'f1': 10,
+          'f2': 10,
+          'f3': 10,
+          'big': 30,
+        },
+        coChangeMatrix: const {},
+        methodChurn: const {},
+        architectureDistribution: const {},
+      );
+      final byFile = {for (final f in fc.fromComplexity(dto)) f.subject: f};
+      expect(byFile.containsKey('CHANGELOG.md'), isFalse);
+      // Median over source files only (10), so 'big' is > 2x → high.
+      expect(byFile['big']!.severity, Severity.high);
+    });
   });
 
   group('ChurnClassifier', () {

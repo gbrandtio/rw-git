@@ -8,6 +8,7 @@
 library;
 
 import 'finding.dart';
+import 'refactoring_target_ranker.dart';
 import 'report_hints.dart';
 import 'tool_hints_catalog.dart';
 
@@ -18,6 +19,12 @@ class ReportPayload {
   final List<Finding> compoundFindings;
   final Map<String, int> summaryBySeverity;
   final Map<String, dynamic> metadata;
+
+  /// Tornhill hotspot prioritization: files ranked by churn percentile x
+  /// complexity percentile (Tornhill 2015; Ostrand, Weyuker & Bell 2004),
+  /// the ordered "refactor these first" answer. Empty for reports without
+  /// both churn and complexity signals (pm, security).
+  final List<RefactoringTarget> refactoringTargets;
 
   /// Research-grounded guidance aggregated from the [toolHintsCatalog]
   /// entries of the tools that produced [topFindings]/[compoundFindings].
@@ -34,6 +41,7 @@ class ReportPayload {
     required this.compoundFindings,
     required this.summaryBySeverity,
     required this.metadata,
+    this.refactoringTargets = const [],
     this.hints = const ReportHints(),
   });
 
@@ -45,6 +53,7 @@ class ReportPayload {
     required List<Finding> findings,
     required List<Finding> compounds,
     Map<String, dynamic> metadata = const {},
+    List<RefactoringTarget> refactoringTargets = const [],
     int maxTopFindings = 8,
     int maxCompoundFindings = 5,
   }) {
@@ -67,6 +76,7 @@ class ReportPayload {
       compoundFindings: boundedCompoundFindings,
       summaryBySeverity: summary,
       metadata: metadata,
+      refactoringTargets: refactoringTargets,
       hints:
           _aggregateHints([...boundedCompoundFindings, ...boundedTopFindings]),
     );
@@ -75,13 +85,21 @@ class ReportPayload {
   /// Aggregates every distinct finding `source` (the tool that produced it)
   /// with a [toolHintsCatalog] entry into a [ReportHints], collecting *all*
   /// three categories per tool rather than picking one — so a caveat can
-  /// never crowd out that same tool's pair_with suggestion. Sources are
-  /// iterated in a fixed, alphabetically sorted order so the resulting lists
-  /// are deterministic regardless of `Set` iteration order. Deliberately
-  /// uncapped: a report composes many analyses, and each one's guidance is
-  /// worth surfacing in full rather than truncated.
+  /// never crowd out that same tool's pair_with suggestion. Compound
+  /// findings join their contributing tools' names with `' + '`; those are
+  /// split back apart so each contributor's catalog entry resolves —
+  /// otherwise compounds, the highest-priority findings in the report,
+  /// would contribute no hints at all. Sources are iterated in a fixed,
+  /// alphabetically sorted order so the resulting lists are deterministic
+  /// regardless of `Set` iteration order. Deliberately uncapped: a report
+  /// composes many analyses, and each one's guidance is worth surfacing in
+  /// full rather than truncated.
   static ReportHints _aggregateHints(List<Finding> findings) {
-    final sortedSources = findings.map((f) => f.source).toSet().toList()
+    final sortedSources = findings
+        .expand((f) => f.source.split(' + '))
+        .map((source) => source.trim())
+        .toSet()
+        .toList()
       ..sort();
 
     final interpretation = <String>[];
@@ -123,6 +141,12 @@ class ReportPayload {
         'summary': summaryBySeverity,
         'top_findings': topFindings.map((f) => f.toJson()).toList(),
         'compound_findings': compoundFindings.map((f) => f.toJson()).toList(),
+        if (refactoringTargets.isNotEmpty)
+          'refactoring_targets': {
+            'basis': RefactoringTargetRanker.researchBasis,
+            'targets':
+                refactoringTargets.map((target) => target.toJson()).toList(),
+          },
         'metadata': metadata,
         'guidance':
             'Findings are already classified into severity bands and ranked. '

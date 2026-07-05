@@ -4,6 +4,8 @@
 
 Answers: "Are our architectural layers leaking into each other?" Detects commits that simultaneously modify two or more logical architectural layers (e.g., UI + data access, presentation + domain), indicating coupling violations, leaky abstractions, or missing boundary enforcement. Also classifies the coupling pattern into named architectural smells.
 
+The analysis core is the library-first `ArchitectureDriftAlgorithm` (ADR-0005), shared with the technical report and audit meta-tools, which run it automatically over layers inferred from the churned file paths (`inferLayerPatterns`: generic source containers descended, test/doc/build directories excluded, top layers by file count) and classify the results — God Component and Hub-Like Dependency band High, Scattered Functionality Moderate, and coupling ratio > 15% / coupling density > 50% band Elevated. Raw-tool callers keep full control via `layer_patterns`.
+
 ## Algorithm
 
 1. **Commit and file extraction:**

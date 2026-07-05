@@ -31,7 +31,6 @@ import 'tools/history/analyze_code_volatility_tool.dart';
 import 'tools/architecture/analyze_refactoring_tool.dart';
 import 'tools/static_analysis/evaluate_comments_tool.dart';
 import 'tools/security/detect_secrets_tool.dart';
-import 'tools/history/analyze_pr_diff_tool.dart';
 import 'tools/history/analyze_commit_velocity_tool.dart';
 import 'tools/architecture/analyze_dependency_drift_tool.dart';
 import 'tools/history/generate_changelog_tool.dart';
@@ -48,10 +47,6 @@ import 'tools/reports/generate_code_review_report_tool.dart';
 import 'tools/reports/generate_repository_audit_tool.dart';
 
 import 'prompts/rw_git_mcp_reporting_prompt.dart';
-import 'prompts/rw_git_mcp_code_review_reporting_prompt.dart';
-import 'prompts/rw_git_mcp_pm_reporting_prompt.dart';
-import 'prompts/rw_git_mcp_security_reporting_prompt.dart';
-import 'prompts/rw_git_mcp_technical_reporting_prompt.dart';
 
 /// server_registry.dart
 ///
@@ -200,7 +195,6 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(AnalyzeRefactoringTool(processRunner));
   offloadedRo(EvaluateCommentsTool(processRunner));
   offloadedRo(DetectSecretsTool(processRunner));
-  offloadedRo(AnalyzePrDiffTool(processRunner, gitQuery));
   offloadedRo(AnalyzeCommitVelocityTool(processRunner));
   offloadedRo(AnalyzeDependencyDriftTool(processRunner));
   // Shares the single RA-SZZ core with the other SZZ-backed tools so
@@ -226,10 +220,6 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   });
 
   registry.registerPrompt(RwGitMcpReportingPrompt());
-  registry.registerPrompt(RwGitMcpCodeReviewReportingPrompt());
-  registry.registerPrompt(RwGitMcpPmReportingPrompt());
-  registry.registerPrompt(RwGitMcpSecurityReportingPrompt());
-  registry.registerPrompt(RwGitMcpTechnicalReportingPrompt());
 
   return registry;
 }

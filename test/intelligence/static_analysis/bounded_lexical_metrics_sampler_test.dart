@@ -108,6 +108,20 @@ int classify(int a, int b) {
     expect(metrics, isEmpty);
   });
 
+  test('non-source files never occupy the bounded sample', () async {
+    await writeSource('CHANGELOG.md', '# if for while, a prose file\n');
+    await writeSource('lib/code.dart', branchySource);
+
+    final metrics = await sampler.sampleTopChurnFiles(
+      tempDir.path,
+      {'CHANGELOG.md': 100, 'lib/code.dart': 1},
+      maxFiles: 1,
+    );
+
+    // The single slot goes to the source file, not the hotter prose file.
+    expect(metrics.single.filePath, 'lib/code.dart');
+  });
+
   test('returns empty for empty churn', () async {
     expect(await sampler.sampleTopChurnFiles(tempDir.path, const {}), isEmpty);
   });

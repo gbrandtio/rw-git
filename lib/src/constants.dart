@@ -16,7 +16,7 @@ const List<String> supportedMcpProtocolVersions = [
 
 /// Server version advertised in the MCP `initialize` handshake. Keep in sync
 /// with the `version` field in `pubspec.yaml`.
-const String rwGitMcpVersion = '3.1.1';
+const String rwGitMcpVersion = '3.2.0';
 
 /// JSON-RPC 2.0 error codes used by the MCP server. Per the JSON-RPC
 /// specification these are all negative; MCP-specific server errors live in
@@ -78,6 +78,118 @@ const int mccabeCriticalCyclomaticComplexityThreshold = 50;
 /// recalibration): >= 85 highly maintainable, 65-85 moderate, < 65 low.
 const double maintainabilityIndexModerateBandThreshold = 85;
 const double maintainabilityIndexLowBandThreshold = 65;
+
+/// ABC score bands (Fitzpatrick, 1997): the vector magnitude of
+/// assignments, branches, and conditions. Above 15 a unit warrants review;
+/// above 30 it needs refactoring.
+const double abcScoreElevatedThreshold = 15;
+const double abcScoreHighThreshold = 30;
+
+/// NPath acyclic-path bands (Nejmeh, CACM 1988): above 200 paths a unit is
+/// effectively untestable by path coverage; above 1000 the combinatorial
+/// explosion makes reasoning about all behaviours impractical.
+const int npathElevatedThreshold = 200;
+const int npathHighThreshold = 1000;
+
+/// Cognitive complexity bands (Campbell, SonarSource 2018): unlike McCabe,
+/// weights nesting — above 15 a unit is hard to understand, above 25 it
+/// actively resists comprehension.
+const int cognitiveComplexityElevatedThreshold = 15;
+const int cognitiveComplexityHighThreshold = 25;
+
+/// Halstead delivered-bugs estimate (Halstead, 1977: volume / 3000) above
+/// which a file's latent-defect estimate is flagged.
+const double halsteadDeliveredBugsElevatedThreshold = 2.0;
+
+/// Bird et al. (FSE 2011) minor-contributor rule: an author holding less
+/// than this share of a file's changes is a minor contributor, and files
+/// touched by many of them are measurably more defect-prone.
+const double birdMinorContributorShareThreshold = 0.05;
+
+/// Minimum count of minor contributors on one file before the Bird
+/// minor-contributor finding fires.
+const int birdMinorContributorMinimumCount = 3;
+
+/// Minimum number of single-owner bug-hotspot files attributed to one
+/// author before the author-level knowledge-loss compound fires (Avelino
+/// et al. 2016; Fritz et al. 2010).
+const int knowledgeLossMinimumFiles = 2;
+
+/// Upper bound on the ranked `refactoring_targets` list in report payloads
+/// (Tornhill 2015 hotspot prioritization): churn-percentile x
+/// complexity-percentile, most valuable refactoring candidates first.
+const int maxRefactoringTargets = 5;
+
+/// Minimum churn-percentile x complexity-percentile product for a file to
+/// qualify as a refactoring target; below this the file is either rarely
+/// changed or simple enough that refactoring it buys little.
+const double refactoringTargetMinimumRiskScore = 0.25;
+
+/// Clean-code heuristics (Martin 2008; Fowler 1999). A file longer than
+/// this indicates a probable Single Responsibility violation.
+const int cleanCodeFileLengthThreshold = 300;
+
+/// Indentation levels at or above this depth are "arrow code" that resists
+/// comprehension and testing (Martin 2008).
+const int cleanCodeNestingDepthThreshold = 5;
+
+/// Line length above which readability degrades.
+const int cleanCodeLongLineLength = 120;
+
+/// Share of long lines in a file above which readability is flagged.
+const double cleanCodeLongLineShareThreshold = 0.1;
+
+/// Magic-number literal count above which a file is flagged (Fowler 1999).
+const int cleanCodeMagicNumberThreshold = 10;
+
+/// Duplicate non-blank lines are only counted when longer than this, so
+/// recurring language boilerplate (`}`, `return;`) is not read as cloning.
+const int cleanCodeDuplicateLineMinimumLength = 5;
+
+/// Share of a file's lines that are duplicates above which Type-1 cloning
+/// is flagged (Koschke 2007).
+const double cleanCodeDuplicateLineShareThreshold = 0.1;
+
+/// Number of spaces one indentation level represents when measuring
+/// nesting depth (tabs count as one level).
+const int cleanCodeIndentationUnitSpaces = 4;
+
+/// Clean-code issue count at or above which a file's finding escalates
+/// from Elevated to High: multiple independent heuristics agreeing is a
+/// stronger maintainability signal than any single one.
+const int cleanCodeHighSeverityIssueCount = 3;
+
+/// Architectural smell thresholds (Garcia, Oliveira & Murta 2009). A layer
+/// appearing in more than this share of drift commits is a God Component.
+const double godComponentDriftShareThreshold = 0.5;
+
+/// Hub-Like Dependency detection is only meaningful with at least this many
+/// declared layers; below it every layer trivially couples with "half" the
+/// others.
+const int hubLikeDependencyMinimumLayers = 4;
+
+/// A drift commit touching at least this many layers at once contributes to
+/// the Scattered Functionality smell.
+const int scatteredFunctionalityLayerCount = 3;
+
+/// Share of analyzed commits violating layer boundaries above which the
+/// repository's architecture is drifting (aligned with the ~15% drift
+/// signal in the interpretation guide; Perry & Wolf 1992).
+const double couplingRatioElevatedThreshold = 0.15;
+
+/// Fraction of possible layer pairs coupled at least once above which the
+/// architecture is entangled rather than layered (Garcia et al. 2009).
+const double couplingDensityElevatedThreshold = 0.5;
+
+/// Upper bound on layers inferred from repository structure for the
+/// report-grade architecture-drift analysis, keeping the coupling matrix
+/// and its findings bounded on monorepos with many top-level directories.
+const int maxInferredArchitectureLayers = 8;
+
+/// Minimum distinct inferred layers required to run report-grade
+/// architecture-drift analysis; a single-layer repository has no boundaries
+/// to violate.
+const int minInferredArchitectureLayers = 2;
 
 /// Author-concentration Gini coefficient above which delivery depends on
 /// too few people (Gini 1912 applied to commit inequality).

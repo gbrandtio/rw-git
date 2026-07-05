@@ -4,6 +4,7 @@
 /// them directly without running the MCP server.
 library;
 
+export 'intelligence/architecture/architecture_drift_algorithm.dart';
 export 'intelligence/architecture/bus_factor_algorithm.dart';
 export 'intelligence/architecture/logical_coupling_algorithm.dart';
 export 'intelligence/architecture/refactoring_detection_algorithm.dart';
@@ -22,5 +23,7 @@ export 'intelligence/security/dependency_freshness_checker.dart';
 export 'intelligence/security/registry_adapters.dart';
 export 'intelligence/security/semver_compare.dart';
 export 'intelligence/security/secrets_scanner.dart';
+export 'intelligence/source_file_filter.dart';
+export 'intelligence/static_analysis/clean_code_analyzer.dart';
 export 'intelligence/static_analysis/dart/dart_ast_analyzer.dart';
 export 'intelligence/static_analysis/metrics/bounded_lexical_metrics_sampler.dart';

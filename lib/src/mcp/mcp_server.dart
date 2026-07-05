@@ -13,6 +13,7 @@ import 'mcp_server/rules/prompts_get_rule.dart';
 import 'mcp_server/rules/prompts_list_rule.dart';
 import 'mcp_server/rules/resources_list_rule.dart';
 import 'mcp_server/rules/resources_read_rule.dart';
+import 'mcp_server/rules/resources_templates_list_rule.dart';
 import 'mcp_server/rules/tools_call_rule.dart';
 import 'mcp_server/rules/tools_list_rule.dart';
 
@@ -60,6 +61,7 @@ class McpServer {
       LoggingSetLevelRule(),
       ResourcesListRule(),
       ResourcesReadRule(),
+      ResourcesTemplatesListRule(),
       PromptsListRule(),
       PromptsGetRule(),
       ToolsListRule(),

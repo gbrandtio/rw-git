@@ -73,7 +73,6 @@ void main() {
       'analyze_bug_hotspots',
       'analyze_code_volatility',
       'analyze_commit_velocity',
-      'analyze_pr_diff',
       'analyze_release_delta',
       'find_bugs_by_developer',
       'generate_changelog',
@@ -152,5 +151,60 @@ void main() {
       compounds: const [],
     ).toJson();
     expect(withoutHints.containsKey('hints'), isFalse);
+  });
+
+  test(
+      'compound findings contribute hints: their joined source string is '
+      'split back into catalog keys', () {
+    // A compound's source is 'tool_a + tool_b' — before the split fix,
+    // that string matched no catalog key and compounds (the highest-
+    // priority findings) contributed no hints at all.
+    final payload = ReportPayload.fromFindings(
+      reportType: 'technical',
+      findings: const [],
+      compounds: [
+        findingFrom('analyze_bug_hotspots + analyze_file_ownership'),
+      ],
+    );
+
+    final bugHotspots = toolHintsCatalog['analyze_bug_hotspots']!;
+    final ownership = toolHintsCatalog['analyze_file_ownership']!;
+    for (final s in [
+      ...bugHotspots.interpretation,
+      ...ownership.interpretation
+    ]) {
+      expect(payload.hints.interpretation, contains(s));
+    }
+  });
+
+  test('toJson emits refactoring_targets with basis only when non-empty', () {
+    const target = RefactoringTarget(
+      filePath: 'lib/hot.dart',
+      riskScore: 0.9,
+      churn: 42,
+      churnPercentile: 0.95,
+      complexityMetric: 'cyclomatic_complexity',
+      complexityValue: 30,
+      complexityPercentile: 0.95,
+    );
+    final withTargets = ReportPayload.fromFindings(
+      reportType: 'technical',
+      findings: const [],
+      compounds: const [],
+      refactoringTargets: const [target],
+    ).toJson();
+
+    final targetsJson = withTargets['refactoring_targets'] as Map;
+    expect(targetsJson['basis'], contains('Tornhill'));
+    final targetJson =
+        (targetsJson['targets'] as List).single as Map<String, dynamic>;
+    expect(targetJson['file_path'], 'lib/hot.dart');
+
+    final withoutTargets = ReportPayload.fromFindings(
+      reportType: 'pm',
+      findings: const [],
+      compounds: const [],
+    ).toJson();
+    expect(withoutTargets.containsKey('refactoring_targets'), isFalse);
   });
 }

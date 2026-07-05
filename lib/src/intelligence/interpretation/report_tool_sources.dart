@@ -5,9 +5,10 @@
 /// `ReportPayload.reportType`) to the ordered list of [toolHintsCatalog] keys
 /// / MCP tool names whose classifiers feed that report's findings in
 /// `ReportOrchestrator`. This is the single source of truth consulted by
-/// `tool/prompt_codegen.dart` to generate each reporting skill's `<deep_dive>`
-/// raw-tool list, so that list can never drift from what the report actually
-/// runs — see `test/intelligence/interpretation/report_tool_sources_test.dart`
+/// `tool/prompt_codegen.dart` to generate the reporting skill's per-report
+/// `<deep_dive>` raw-tool lists, so those lists can never drift from what
+/// each report actually runs — see
+/// `test/intelligence/interpretation/report_tool_sources_test.dart`
 /// for the drift guard against `ReportOrchestrator`'s real classifier calls.
 ///
 /// Order matters: it drives the order tools are listed in generated
@@ -23,6 +24,9 @@ const Map<String, List<String>> reportToolSources = {
     'analyze_code_volatility',
     'calculate_universal_lexical_metrics',
     'analyze_refactoring',
+    'analyze_architecture_drift',
+    'analyze_clean_code',
+    'analyze_dart_ast_quality',
   ],
   'security': [
     'detect_secrets_in_commits',
@@ -41,6 +45,8 @@ const Map<String, List<String>> reportToolSources = {
     'analyze_bug_hotspots',
     'analyze_file_ownership',
     'calculate_universal_lexical_metrics',
+    'analyze_clean_code',
+    'analyze_refactoring',
   ],
   'repository_audit': [
     'analyze_bus_factor',
@@ -50,7 +56,11 @@ const Map<String, List<String>> reportToolSources = {
     'analyze_code_volatility',
     'calculate_universal_lexical_metrics',
     'analyze_refactoring',
+    'analyze_architecture_drift',
+    'analyze_clean_code',
+    'analyze_dart_ast_quality',
     'analyze_file_ownership',
+    'analyze_commit_velocity',
     'detect_secrets_in_commits',
     'audit_compliance',
     'analyze_dependency_drift',

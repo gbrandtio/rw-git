@@ -10,6 +10,8 @@
 /// ever losing a raw finding (a secret must never be hidden by a correlation).
 library;
 
+import 'package:rw_git/src/constants.dart';
+
 import 'finding.dart';
 import 'severity.dart';
 
@@ -58,6 +60,34 @@ class CompoundFindingCorrelator {
       'A credential in a dependency manifest or config (Meli et al., USENIX '
       'Security 2019) combined with major-version-stale dependencies '
       'widens the supply-chain attack surface (Ohm et al., DIMVA 2020).';
+
+  /// Rule 6 — author-level knowledge-loss risk.
+  static const String knowledgeLossBasis =
+      'Truck factor x hotspots (Avelino 2016; Fritz 2010; Mockus 2002)';
+  static const String knowledgeLossRationale =
+      'When one author solely owns several bug-hotspot files at once, their '
+      'departure orphans the buggiest code in the repository — truck-factor '
+      'analysis (Avelino et al. 2016), degree-of-knowledge modelling (Fritz '
+      'et al. 2010), and expertise studies (Mockus & Herbsleb 2002) all '
+      'identify this as the costliest knowledge to lose.';
+
+  /// Rule 7 — many minor contributors on a bug hotspot.
+  static const String minorContributorsHotspotBasis =
+      'Minor contributors x hotspot (Bird et al. 2011; Śliwerski 2005)';
+  static const String minorContributorsHotspotRationale =
+      'Bird et al. (FSE 2011) found minor-contributor count the strongest '
+      'ownership-structure defect predictor; on a file SZZ already marks a '
+      'bug hotspot, continued shallow edits compound the injection risk.';
+
+  /// Rule 8 — sustained burnout-window work alongside active bug hotspots.
+  static const String burnoutBugIntroductionBasis =
+      'Burnout x bug introduction (Claes et al. 2018; Eyolfson et al. 2011)';
+  static const String burnoutBugIntroductionRationale =
+      'Sustained nights-and-weekends work is the historical signature of '
+      'crunch (Claes, Mens & Grosjean, ICSE 2018), and commits written in '
+      'off-hours are measurably buggier (Eyolfson, Tan & Lam, MSR 2011). '
+      'When the repository simultaneously shows active bug hotspots, the '
+      'delivery-health problem and the defect problem reinforce each other.';
 
   List<Finding> correlate(List<Finding> findings) {
     final byCategory = <String, List<Finding>>{};
@@ -193,6 +223,88 @@ class CompoundFindingCorrelator {
           evidence: {'lexical_complexity': _ref(lexical), 'churn': _ref(churn)},
         ));
       }
+    }
+
+    // Rule 6: one author solely owning several bug-hotspot files → author-
+    // level knowledge-loss risk (the aggregate view Rule 1 gives per file).
+    final hotspotFilesByOwner = <String, List<String>>{};
+    for (final owner in of('ownership')) {
+      if (owner.metric != 'single_author_ownership') continue;
+      if (owner.severity.rank < Severity.critical.rank) continue;
+      if (onSubject('bugHotspot', owner.subject) == null) continue;
+      final author = owner.evidence['top_author'];
+      if (author is! String) continue;
+      hotspotFilesByOwner.putIfAbsent(author, () => []).add(owner.subject);
+    }
+    for (final entry in hotspotFilesByOwner.entries) {
+      if (entry.value.length < knowledgeLossMinimumFiles) continue;
+      final files = entry.value..sort();
+      compounds.add(_compound(
+        subject: entry.key,
+        metric: 'knowledge_loss_risk',
+        band: '>= $knowledgeLossMinimumFiles single-owner bug hotspots',
+        message: 'Knowledge-loss risk: if ${entry.key} leaves, '
+            '${files.length} bug-hotspot files they almost solely own go '
+            'dark: ${files.join(', ')}.',
+        sources: const ['analyze_file_ownership', 'analyze_bug_hotspots'],
+        basis: knowledgeLossBasis,
+        rationale: knowledgeLossRationale,
+        evidence: {'author': entry.key, 'at_risk_files': files},
+      ));
+    }
+
+    // Rule 7: many minor contributors on a file SZZ marks a bug hotspot →
+    // Bird's strongest ownership-structure defect signal, compounded.
+    for (final owner in of('ownership')) {
+      if (owner.metric != 'minor_contributor_count') continue;
+      final hotspot = onSubject('bugHotspot', owner.subject);
+      if (hotspot != null) {
+        compounds.add(_compound(
+          subject: owner.subject,
+          metric: 'minor_contributors_x_hotspot',
+          band: 'many minor contributors on a bug hotspot',
+          message: 'Defect-proneness risk: ${owner.subject} is a bug hotspot '
+              'edited by ${owner.evidence['minor_contributor_count']} minor '
+              'contributors, each without deep context.',
+          sources: const ['analyze_file_ownership', 'analyze_bug_hotspots'],
+          basis: minorContributorsHotspotBasis,
+          rationale: minorContributorsHotspotRationale,
+          evidence: {'ownership': _ref(owner), 'bug_hotspot': _ref(hotspot)},
+          severity: Severity.high,
+        ));
+      }
+    }
+
+    // Rule 8: sustained burnout-window work (High) co-occurring with active
+    // bug hotspots → the delivery-health and defect problems reinforce each
+    // other. Repo-level co-occurrence, deliberately not a per-commit causal
+    // attribution (SZZ dates are UTC-normalized; burnout is wall-clock).
+    final burnout = of('velocity')
+        .where((v) =>
+            v.metric == 'burnout_commit_share' &&
+            v.severity.rank >= Severity.high.rank)
+        .toList();
+    final activeHotspots = of('bugHotspot')
+        .where((h) => h.severity.rank >= Severity.elevated.rank)
+        .toList();
+    if (burnout.isNotEmpty && activeHotspots.isNotEmpty) {
+      compounds.add(_compound(
+        subject: 'repository',
+        metric: 'burnout_x_bug_introduction',
+        band: 'sustained off-hours work alongside active bug hotspots',
+        message: 'Compounding risk: over the analyzed window the team works '
+            'heavily outside regular hours while '
+            '${activeHotspots.length} bug hotspot(s) are active — off-hours '
+            'commits are measurably buggier.',
+        sources: const ['analyze_commit_velocity', 'analyze_bug_hotspots'],
+        basis: burnoutBugIntroductionBasis,
+        rationale: burnoutBugIntroductionRationale,
+        evidence: {
+          'burnout': _ref(burnout.first),
+          'active_bug_hotspots': activeHotspots.map((h) => h.subject).toList(),
+        },
+        severity: Severity.high,
+      ));
     }
 
     return compounds;

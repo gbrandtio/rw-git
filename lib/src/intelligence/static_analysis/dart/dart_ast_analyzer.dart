@@ -180,4 +180,59 @@ class DartAstAnalyzer {
 
     return _tarjanScc(graph);
   }
+
+  /// Parses [dartSources] (repo-relative path -> source text) and detects
+  /// circular import chains among them via Tarjan's SCC (Tarjan 1972).
+  ///
+  /// Unlike [detectImportCycles], import URIs are first resolved to
+  /// repo-relative paths so both relative imports and same-package
+  /// `package:` imports (rewritten to `lib/...` when [packageName] is
+  /// given) participate in the graph. Used by the report meta-tools on the
+  /// bounded top-churn sample; sources that fail to parse are skipped
+  /// rather than failing the report.
+  List<List<String>> detectImportCyclesInSources(
+    Map<String, String> dartSources, {
+    String? packageName,
+  }) {
+    final fileImports = <String, List<String>>{};
+    for (final entry in dartSources.entries) {
+      final List<String> rawImports;
+      try {
+        rawImports = analyzeFile(entry.key, entry.value).imports;
+      } catch (_) {
+        continue;
+      }
+      fileImports[entry.key] = rawImports
+          .map((uri) => _resolveImportToRepoPath(entry.key, uri, packageName))
+          .whereType<String>()
+          .toList();
+    }
+    return _tarjanScc(fileImports);
+  }
+
+  /// Resolves an import [uri] declared in [importingFile] to a
+  /// repo-relative path, or null when it cannot point inside the repo
+  /// (SDK imports, other packages).
+  static String? _resolveImportToRepoPath(
+      String importingFile, String uri, String? packageName) {
+    if (uri.startsWith('dart:')) return null;
+    if (uri.startsWith('package:')) {
+      if (packageName == null) return null;
+      final prefix = 'package:$packageName/';
+      if (!uri.startsWith(prefix)) return null;
+      return 'lib/${uri.substring(prefix.length)}';
+    }
+    // Relative import: resolve against the importing file's directory.
+    final baseSegments = importingFile.split('/')..removeLast();
+    for (final segment in uri.split('/')) {
+      if (segment == '.' || segment.isEmpty) continue;
+      if (segment == '..') {
+        if (baseSegments.isEmpty) return null;
+        baseSegments.removeLast();
+      } else {
+        baseSegments.add(segment);
+      }
+    }
+    return baseSegments.join('/');
+  }
 }

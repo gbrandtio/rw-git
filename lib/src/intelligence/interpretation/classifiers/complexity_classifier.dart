@@ -5,6 +5,7 @@ library;
 
 import 'package:rw_git/src/models/advanced_code_quality_dto.dart';
 
+import '../../source_file_filter.dart';
 import '../finding.dart';
 import '../path_key.dart';
 import '../repo_stats.dart';
@@ -28,7 +29,13 @@ class ComplexityClassifier {
       'repository\'s own median rather than an absolute cut-off.';
 
   List<Finding> classify(AdvancedCodeQualityDto dto) {
-    final complexities = dto.fileComplexity;
+    // The keyword proxy matches English prose too, so non-source files
+    // (SourceFileFilter) are dropped before the median: they are not valid
+    // complexity subjects and would skew the repo-relative band for code.
+    final complexities = <String, int>{
+      for (final entry in dto.fileComplexity.entries)
+        if (SourceFileFilter.isSource(entry.key)) entry.key: entry.value,
+    };
     if (complexities.isEmpty) return const [];
     final median = RepoStats.median(complexities.values);
     if (median <= 0) return const [];

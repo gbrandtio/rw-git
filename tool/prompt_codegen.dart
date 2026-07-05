@@ -13,14 +13,13 @@ library;
 
 import 'package:rw_git/src/intelligence/interpretation/report_tool_sources.dart';
 
-/// The skill names that have a corresponding MCP prompt. `rw-git-mcp-installation`
-/// is intentionally excluded — it is a human setup guide, not an agent workflow.
+/// The skill names that have a corresponding MCP prompt. The single
+/// `rw-git-mcp-reporting` skill covers every report type via its
+/// report-selection table and per-report deep-dive subsections;
+/// `rw-git-mcp-installation` is intentionally excluded — it is a human
+/// setup guide, not an agent workflow.
 const List<String> promptSkillNames = [
   'rw-git-mcp-reporting',
-  'rw-git-mcp-technical-reporting',
-  'rw-git-mcp-pm-reporting',
-  'rw-git-mcp-security-reporting',
-  'rw-git-mcp-code-review-reporting',
 ];
 
 /// A parsed SKILL.md: its frontmatter `name`/`description` and markdown body.

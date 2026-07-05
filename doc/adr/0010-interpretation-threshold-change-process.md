@@ -23,8 +23,8 @@ worst outcome: the report tools would classify one way while raw-tool users
 classify another, producing contradictory findings from the same repository.
 
 The *Quality* business rule in `AGENTS.md` additionally requires that
-algorithms and thresholds be backed by research — a threshold change is a
-domain-knowledge change, not a tuning knob.
+algorithms and thresholds be backed by research. Thus, a threshold change is a
+domain-knowledge change, and must be attributed to research.
 
 ## Decision
 
@@ -35,8 +35,7 @@ domain-knowledge change, not a tuning knob.
   compound-risk rule must, in the same commit:
   1. change the classifier (or correlator) and its unit tests;
   2. update the matching band in `doc/INTERPRETATION_GUIDE.md`;
-  3. state the justification — an academic source or an explicit empirical
-     rationale — in the guide entry and the `CHANGELOG.md` entry.
+  3. state the justification, deriving from an academic source or an explicit empirical rationale, in the guide entry and the `CHANGELOG.md` entry.
 - **New or changed thresholds are expressed as named constants**, not inline
   literals, per the *Constants and Defaults* guardrail, so a change is a
   one-site edit the guide can reference by name. Existing inline literals in
@@ -49,12 +48,12 @@ domain-knowledge change, not a tuning knob.
 ## Consequences
 
 - **Positive**: report meta-tools and raw-tool users can no longer diverge
-  silently — a threshold change that skips the guide is a review-visible
+  silently. A threshold change that skips the guide is a review-visible
   process violation with a defined resolution (code wins).
 - **Positive**: every band carries a justification trail, preserving the
   research-backed quality rule as thresholds evolve.
 - **Negative / trade-off**: prose and code still require manual
   synchronisation; the process makes drift detectable and attributable rather
   than impossible. Generating the guide from the classifier constants was
-  considered and rejected for now — the prose carries context (rationale,
+  considered and rejected for now. The prose carries context (rationale,
   caveats, examples) that constants cannot express.
