@@ -138,22 +138,29 @@ engineering management and code quality challenges.
 
 **One-Call Report Meta-Tools (recommended starting point):**
 
-Each runs the relevant analyses server-side, applies every severity band and
-cross-tool compound-risk rule in Dart, and returns a small, ranked,
-already-classified payload (`summary`, `top_findings`, `compound_findings`).
-Every finding names the research behind its band in a compact `basis` tag
-(e.g. `Truck-factor estimation (Avelino et al. 2016)`), with a fuller
-per-finding `rationale` in the offloaded full report:
+Each runs the relevant analyses server-side (independent analyses run
+concurrently), applies every severity band and cross-tool compound-risk rule
+in Dart, and returns a small, ranked, already-classified payload (`summary`,
+`top_findings`, `compound_findings`, and — where churn and complexity both
+apply — a ranked Tornhill `refactoring_targets` list). Every finding names
+the research behind its band in a compact `basis` tag (e.g. `Truck-factor
+estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale` in
+the offloaded full report:
 - `generate_repository_audit`: High-level deep audit (technical + security +
-  commit hygiene).
+  delivery cadence + commit hygiene).
 - `generate_technical_report`: Code quality, technical debt, architecture —
-  including genuine McCabe complexity / maintainability index on top-churn
-  files and refactoring-aware churn discounting.
+  the full genuine lexical suite (McCabe, maintainability index, ABC, NPath,
+  cognitive complexity, Halstead delivered-bugs) on top-churn files,
+  clean-code heuristics, architecture drift over inferred layers, Dart
+  import cycles, and refactoring-aware churn discounting.
 - `generate_security_report`: Secrets, compliance, dependency freshness.
-- `generate_pm_report`: Knowledge concentration, delivery bottlenecks, and
-  delivery cadence (velocity trend, author concentration, burnout signals).
-- `generate_code_review_report`: Risk signals for code under review; pass
-  `base_branch`/`target_branch` to include predicted merge conflicts.
+- `generate_pm_report`: Knowledge concentration (including the Bird
+  minor-contributor signal and author-level knowledge-loss risk), delivery
+  bottlenecks, and delivery cadence (velocity trend, author concentration,
+  burnout signals).
+- `generate_code_review_report`: Risk signals for code under review —
+  secrets, the genuine lexical suite, clean-code heuristics, ownership
+  structure, bug hotspots — with refactoring-explained churn discounted.
 
 **Dev Metrics & Technical Debt:**
 - `analyze_code_quality`: Identifies code smells and technical debt. Pass
@@ -165,7 +172,6 @@ per-finding `rationale` in the offloaded full report:
 - `analyze_code_volatility`: Predicts defect-prone files via historical churn.
 - `analyze_refactoring`: Detects structural refactorings and simplifications.
 - `analyze_file_ownership`: Cross-references CODEOWNERS with git blame history.
-- `analyze_pr_diff`: Analyzes PR diffs for risk signals like high churn.
 - `analyze_dart_ast_quality`: Performs deep AST-level analysis of Dart files.
 - `analyze_architecture_drift`: Detects architectural drift (cross-layer).
 - `analyze_clean_code`: Language-agnostic clean code heuristic analysis.
@@ -207,30 +213,24 @@ per-finding `rationale` in the offloaded full report:
 
 ### Available Prompts
 
-The server exposes native MCP Prompts that hand the agent a ready-made,
-token-efficient workflow for a specific reporting goal. Each is generated
-from a canonical `SKILL.template.md` (shared boilerplate lives once in
+The server exposes one native MCP Prompt that hands the agent a ready-made,
+token-efficient workflow for every reporting goal. It is generated from a
+canonical `SKILL.template.md` (shared boilerplate lives once in
 `.agents/skills/_shared/`), which also produces the matching agent skill
-(see below). Every workflow serves both model classes: the default path is
+(see below). The workflow serves both model classes: the default path is
 the compact one-call narrate-the-report flow for small/local models, and a
 trailing `<deep_dive>` section routes capable models to the raw analysis
-tools plus `read_report_slice` drill-down. Each `<deep_dive>` tool list is
-itself generated from the same `toolHintsCatalog`/`pair_with` data that
-drives raw-tool hints (see ADR-0015), so the report's `hints`, its
-deep-dive routing, and a raw tool's own hints can never diverge from one
-another:
+tools plus `read_report_slice` drill-down, with one tool list per report
+type. Each `<deep_dive>` tool list is itself generated from the same
+`toolHintsCatalog`/`pair_with` data that drives raw-tool hints (see
+ADR-0015), so the report's `hints`, its deep-dive routing, and a raw tool's
+own hints can never diverge from one another:
 
-- `rw-git-mcp-reporting`: High-level Deep Audit orchestrating the most critical
-  tools across health, security, architecture, and ecosystem; routes to the
-  specialized prompts below for focused deep-dives.
-- `rw-git-mcp-technical-reporting`: Code quality, technical debt, and
-  architectural integrity (AST analysis, hotspots, drift).
-- `rw-git-mcp-pm-reporting`: Team velocity, contributions, release deltas, and
-  knowledge distribution for engineering managers.
-- `rw-git-mcp-security-reporting`: Secret scanning, dependency drift, and commit
-  signature/compliance auditing.
-- `rw-git-mcp-code-review-reporting`: PR diff risk and AI-generated comment
-  evaluation.
+- `rw-git-mcp-reporting`: one consolidated reporting workflow with a
+  goal-to-tool selection table covering all five report types — full
+  repository audit, technical debt and architecture, project management and
+  knowledge risk, security and compliance, and code review — plus
+  per-report-type deep-dive raw-tool lists.
 
 ### Installing Agent Skills
 
@@ -243,9 +243,9 @@ npx @gbrandtio/rw-git-mcp install-skills
 *(Or `rw-git-mcp install-skills` if installed globally)*
 
 This extracts skills to `./.agents/skills/rw-git-mcp/` for local agent usage.
-The bundled skills are the five reporting workflows listed under **Available
-Prompts**, plus `rw-git-mcp-installation`, a step-by-step setup guide for
-Claude Desktop, Cursor, and other MCP clients.
+The bundled skills are the consolidated `rw-git-mcp-reporting` workflow listed
+under **Available Prompts**, plus `rw-git-mcp-installation`, a step-by-step
+setup guide for Claude Desktop, Cursor, and other MCP clients.
 
 ### Connecting MCP with Agents
 

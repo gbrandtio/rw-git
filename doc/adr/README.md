@@ -50,3 +50,5 @@ Where an ADR touches those areas, it links back to the governing document.
 | [0013](0013-structured-tool-results-and-output-schema-policy.md) | Structured tool results and the `outputSchema` advertisement policy | Accepted |
 | [0014](0014-report-grade-lexical-metrics-bounding.md) | Report-grade lexical metrics via bounded top-churn sampling | Accepted |
 | [0015](0015-report-tool-source-of-truth-and-structured-hints.md) | Report tool source-of-truth map and structured, uncapped report hints | Accepted |
+| [0016](0016-consolidate-reporting-skills-into-one.md) | Consolidate the five reporting skills/prompts into one | Accepted |
+| [0017](0017-deep-report-orchestration-and-ranked-prioritization.md) | Deep report orchestration and ranked hotspot prioritization | Accepted |
