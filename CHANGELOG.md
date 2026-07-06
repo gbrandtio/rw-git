@@ -1,3 +1,88 @@
+# 3.2.0
+- **BREAKING (MCP surface, prompts):** The five reporting prompts/skills are
+  consolidated into the single `rw-git-mcp-reporting` prompt and agent skill.
+  `rw-git-mcp-technical-reporting`, `rw-git-mcp-pm-reporting`,
+  `rw-git-mcp-security-reporting`, and `rw-git-mcp-code-review-reporting`
+  no longer appear in `prompts/list`; the consolidated workflow carries a
+  goal-to-tool selection table and one generated `<deep_dive>` raw-tool list
+  per report type (sourced from `reportToolSources`, ADR-0015). The five
+  templates were one workflow parameterized on persona and tool name;
+  clients pinned to a removed prompt name must switch to
+  `rw-git-mcp-reporting`. The npm package's bundled skills follow
+  automatically via its `prepack` copy of `.agents/skills`.
+- **BREAKING (MCP surface, tools):** `analyze_pr_diff` is removed — its
+  composite score duplicated signals the report meta-tools now classify
+  individually (churn, hotspot history, ownership, secrets), and its
+  remaining references had already drifted. All stale
+  `predict_merge_conflicts` leftovers (interpretation-guide compound rule,
+  tool-description mentions) are purged with it.
+- **FEAT (Reports, full lexical suite):** The bounded top-churn sampler
+  (ADR-0014) now computes the complete research-backed complexity suite —
+  ABC score (Fitzpatrick 1997), NPath (Nejmeh 1988), cognitive complexity
+  (Campbell 2018), and the Halstead delivered-bugs estimate (Halstead
+  1977) — alongside McCabe and the maintainability index.
+  `lexicalComplexity` findings carry the worst-banding metric with the full
+  suite in evidence; bands are named constants per ADR-0010.
+- **FEAT (Reports, new signal sources):** Three analyses that previously fed
+  no report are now classified into the technical report and audit (clean
+  code additionally into the code review report): architecture drift over
+  layers inferred from churned file paths (God Component / Hub-Like
+  Dependency / Scattered Functionality plus coupling ratio/density bands —
+  Garcia et al. 2009; Perry & Wolf 1992), clean-code heuristics on the same
+  bounded sample (Martin 2008; Fowler 1999; Koschke 2007, including a new
+  duplicate-lines issue in `analyze_clean_code` itself), and Tarjan
+  import-cycle detection on Dart repositories (Tarjan 1972; Lakhotia 1993).
+  The drift and clean-code analyses were extracted from their MCP tools
+  into library-first algorithms (`ArchitectureDriftAlgorithm`,
+  `CleanCodeAnalyzer`) per ADR-0005; the tools are now thin wrappers with
+  unchanged wire formats.
+- **FEAT (Reports, ranked refactoring targets):** Report payloads with both
+  churn and complexity signals (technical, code review, audit) gain an
+  additive `refactoring_targets` field: files ranked by churn percentile x
+  complexity percentile (genuine McCabe where sampled, else the
+  repo-relative proxy, each percentiled within its own population) —
+  Tornhill's hotspot prioritization (Tornhill 2015; Ostrand, Weyuker & Bell
+  2004), capped at 5 with a 0.25 minimum product.
+- **FIX (Reports, source-only complexity scope):** Complexity
+  interpretation is now scoped to source-code files via the new
+  `SourceFileFilter` (a denylist of definitely-not-code files — prose,
+  config, lockfiles, media; unknown extensions still pass, so no
+  unprofiled language is silently dropped). Hotspot analysis is defined
+  over source files (Tornhill 2015), but the control-flow keyword proxy
+  matches English prose ("if", "for", "while"), so a constantly-churning
+  `CHANGELOG.md` could top `refactoring_targets` and skew the
+  repo-median complexity band. The filter applies in the interpretation
+  layer only — `RefactoringTargetRanker` (all percentile populations),
+  the complexity classifier's repo median, and the bounded top-churn
+  sample (ADR-0014), which no longer spends slots lexing prose; raw
+  tools such as `analyze_code_quality` still report `file_complexity`
+  for every file unfiltered.
+- **FEAT (Reports, new compound rules):** Three research-backed correlator
+  rules join the existing five: author-level knowledge-loss risk (one
+  author solely owning 2+ bug-hotspot files → Critical; Avelino 2016;
+  Fritz 2010; Mockus & Herbsleb 2002), minor-contributors x hotspot (High;
+  Bird et al. 2011 x Śliwerski 2005), and burnout x bug-introduction
+  co-occurrence (High; Claes 2018; Eyolfson, Tan & Lam 2011 — deliberately
+  a repo-level co-occurrence, since SZZ dates are UTC-normalized while the
+  burnout window is author wall-clock). The ownership classifier gains
+  Bird's minor-contributor finding (3+ contributors each under 5% share →
+  Elevated). The audit now also runs commit velocity so the burnout rule
+  can fire there.
+- **FIX (Reports, orchestration):** One churn computation per report (the
+  per-author breakdown carries the plain totals — previously technical and
+  code-review ran two `git log -p` passes); the code-review report now
+  applies the RA-SZZ refactoring-context downgrade it was missing;
+  independent analyses run concurrently; and compound findings finally
+  contribute report `hints` (their joined `"a + b"` source string is split
+  back into catalog keys — previously compounds, the highest-priority
+  findings, contributed no hints at all).
+- **DOCS (Hints & guide):** `tool_hints_catalog` enriched with the new
+  report bands and cross-tool joins (ownership x hotspot, burnout x
+  hotspot, drift entanglement ratios); `doc/INTERPRETATION_GUIDE.md` gains
+  sections for every new band and compound rule; `doc/tools/REFERENCES.md`
+  drops its dangling `TOOLS_ACADEMIC_FOUNDATIONS.md` links and section
+  column and adds Eyolfson, Tan & Lam (MSR 2011).
+
 # 3.1.1
 - **FIX (MCP transport, notification replies):** `McpServer` no longer
   replies to unrecognized JSON-RPC notifications (messages with no `id`
