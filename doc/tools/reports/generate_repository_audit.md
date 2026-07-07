@@ -2,7 +2,11 @@
 
 ## Business Logic
 
-Answers: "What are the most important risks in this repository, across every axis at once?" A one-call, high-level deep audit combining the technical, security, and delivery dimensions in a single pass (e.g. a complexity outlier that also churns heavily, a stale major dependency whose config also leaks a secret, an author whose departure would orphan several bug hotspots, or sustained off-hours work alongside active hotspots).
+Answers: "What are the most important risks in this repository, across every axis at once?". A one-call, high-level deep audit combining the technical, security, and delivery dimensions in a single pass. For example:
+- A complexity outlier that also churns heavily
+- A stale major dependency whose config also leaks a secret
+- An author whose departure would orphan several bug hotspots
+- Sustained off-hours work alongside active hotspots.
 
 This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpretation-and-report-meta-tools.md)): interpretation, correlation, and ranking happen in deterministic Dart, not in the LLM. A small/local model produces a complete, band-classified, ranked report from a single tool call instead of orchestrating ~10 raw tools, reading offloaded files, and applying the interpretation guide itself.
 
