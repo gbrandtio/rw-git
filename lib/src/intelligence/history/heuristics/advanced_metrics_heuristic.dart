@@ -14,11 +14,17 @@ class AdvancedMetricsHeuristic {
   /// approximations, co-change matrices, method churn, and architectural
   /// distribution.
   Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
-      {String? limit}) async {
+      {String? limit, String? since, String? until}) async {
     final args = ['log', '-p', '--format=COMMIT:%H'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
+    }
+    if (since != null) {
+      args.add('--since=$since');
+    }
+    if (until != null) {
+      args.add('--until=$until');
     }
 
     final result = await runner.run(

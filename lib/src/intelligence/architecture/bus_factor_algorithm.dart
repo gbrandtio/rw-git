@@ -18,12 +18,20 @@ class BusFactorAlgorithm {
   Future<BusFactorDto> execute(
     String directory, {
     String? limit,
+    String? since,
+    String? until,
     double knowledgeThreshold = 0.50, // 50% of contributions
   }) async {
     final args = ['log', '--format=%an'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
+    }
+    if (since != null) {
+      args.add('--since=$since');
+    }
+    if (until != null) {
+      args.add('--until=$until');
     }
 
     final result = await runner.run('git', args, workingDirectory: directory);

@@ -11,6 +11,7 @@ import 'package:test/test.dart';
 /// change to either is a deliberate ADR-0010 act.
 class _MockGitQuery implements GitQuery {
   final String logOutput;
+  List<String>? lastArgs;
 
   _MockGitQuery(this.logOutput);
 
@@ -18,8 +19,10 @@ class _MockGitQuery implements GitQuery {
   Future<Result<String, RwGitException>> run(
     String directory,
     List<String> args,
-  ) async =>
-      Success(logOutput);
+  ) async {
+    lastArgs = args;
+    return Success(logOutput);
+  }
 }
 
 void main() {
@@ -46,6 +49,14 @@ void main() {
     expect(drift.driftCommits.single.layersCoupled, ['data', 'ui']);
     expect(drift.couplingMatrix['ui']!['data'], 1);
     expect(drift.couplingRatio, 0.5);
+  });
+
+  test('forwards since and until as git flags', () async {
+    final query = _MockGitQuery('');
+    await ArchitectureDriftAlgorithm(query)
+        .execute('.', layers, since: '2024-01-01', until: '2024-12-31');
+    expect(query.lastArgs, contains('--since=2024-01-01'));
+    expect(query.lastArgs, contains('--until=2024-12-31'));
   });
 
   test('empty history yields the empty result', () async {

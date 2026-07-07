@@ -97,6 +97,13 @@ it was removed entirely.
   `hints` object than before. Accepted: the alternative (an arbitrary cap)
   is exactly the mechanism that caused the pair_with-shadowing defect this
   ADR fixes.
+- **Addendum**: the offload `preview` built by `McpToolFileOffloadDecorator`
+  (`_carryHints`) originally re-capped this same prioritized hints list to
+  keep the recurring inline cost of every offloaded call bounded. That cap
+  is removed — the preview now carries the full prioritized hints list
+  (caveats, then pair_with, then interpretation), matching the uncapped
+  full-report contract above rather than reintroducing a second, smaller
+  cap on top of it.
 - **New dependency edge**: `tool/prompt_codegen.dart` (previously
   dependency-free beyond Dart core) now imports
   `package:rw_git/src/intelligence/interpretation/report_tool_sources.dart`.

@@ -53,6 +53,8 @@ class SzzAlgorithm {
   Future<List<SzzMatch>> execute(
     String directory, {
     String? limit,
+    String? since,
+    String? until,
     String? positiveRegex,
     String? negativeRegex,
   }) async {
@@ -67,6 +69,12 @@ class SzzAlgorithm {
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
+    }
+    if (since != null) {
+      args.add('--since=$since');
+    }
+    if (until != null) {
+      args.add('--until=$until');
     }
 
     final res = await runner.run('git', args, workingDirectory: directory);

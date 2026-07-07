@@ -97,8 +97,9 @@ class McpToolFileOffloadDecorator implements McpTool {
 
   /// Copies a bounded slice of already-classified findings from [decoded] into
   /// [preview] when present, so an offloaded report remains actionable inline.
-  /// Verbose per-finding keys ([previewStrippedFindingKeys]) are dropped from
-  /// the copies — they stay available in the offloaded file.
+  /// Each finding is carried in full, including `rationale` — the offload
+  /// preview is meant to be actionable on its own without a second read of
+  /// the offloaded file.
   void _carryFindings(Map decoded, Map<String, dynamic> preview) {
     final summary = decoded['summary'];
     if (summary is Map) preview['summary'] = summary;
@@ -106,24 +107,17 @@ class McpToolFileOffloadDecorator implements McpTool {
     for (final key in const ['top_findings', 'compound_findings']) {
       final value = decoded[key];
       if (value is List && value.isNotEmpty) {
-        preview[key] = value
-            .take(_previewFindingsLimit)
-            .map((finding) => finding is Map
-                ? (Map<String, dynamic>.from(finding)
-                  ..removeWhere((findingKey, _) =>
-                      previewStrippedFindingKeys.contains(findingKey)))
-                : finding)
-            .toList();
+        preview[key] = value.take(_previewFindingsLimit).toList();
       }
     }
   }
 
-  /// Copies a bounded, priority-ordered slice of [decoded]'s `hints` object
-  /// (from [McpToolHintsDecorator]) into [preview] as a flat list, capped at
-  /// [previewHintsLimit]. Caveats lead (highest decision value per token),
-  /// then pair_with (drives the next tool call), then interpretation
-  /// thresholds (the full set stays one `read_report_slice` away). Purely a
-  /// passthrough, mirroring [_carryFindings]'s schema-agnostic convention.
+  /// Copies the full, priority-ordered slice of [decoded]'s `hints` object
+  /// (from [McpToolHintsDecorator]) into [preview] as a flat list. Caveats
+  /// lead (highest decision value per token), then pair_with (drives the
+  /// next tool call), then interpretation thresholds — all uncapped, so the
+  /// preview carries the complete hint set. Purely a passthrough, mirroring
+  /// [_carryFindings]'s schema-agnostic convention.
   void _carryHints(Map decoded, Map<String, dynamic> preview) {
     final hints = decoded['hints'];
     if (hints is! Map) return;
@@ -135,7 +129,7 @@ class McpToolFileOffloadDecorator implements McpTool {
     ];
 
     if (prioritized.isNotEmpty) {
-      preview['hints'] = prioritized.take(previewHintsLimit).toList();
+      preview['hints'] = prioritized;
     }
   }
 

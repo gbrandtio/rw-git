@@ -72,5 +72,21 @@ void main() {
       final results = await algorithm.execute('./test');
       expect(results, isEmpty);
     });
+
+    test('forwards since/until as git flags', () async {
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '--name-only',
+            '--format=AUTHOR:%an',
+            '--since=2024-01-01',
+            '--until=2024-12-31',
+          ],
+          'AUTHOR:Alice\nfile1.dart\n');
+      final results = await algorithm.execute('./test',
+          since: '2024-01-01', until: '2024-12-31');
+      expect(results.length, 1);
+    });
   });
 }

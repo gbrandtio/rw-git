@@ -6,6 +6,8 @@ import 'package:test/test.dart';
 class _MockRunner implements ProcessRunner {
   final List<String> streamLines;
   final String runOutput;
+  List<String>? lastRunArgs;
+  List<String>? lastStreamArgs;
 
   _MockRunner({this.streamLines = const [], this.runOutput = ''});
 
@@ -16,6 +18,7 @@ class _MockRunner implements ProcessRunner {
     String? workingDirectory,
     bool streamOutput = false,
   }) async {
+    lastRunArgs = arguments;
     return ProcessResult(0, 0, runOutput, '');
   }
 
@@ -25,6 +28,7 @@ class _MockRunner implements ProcessRunner {
     List<String> arguments, {
     String? workingDirectory,
   }) async* {
+    lastStreamArgs = arguments;
     for (final line in streamLines) {
       yield line;
     }
@@ -125,6 +129,24 @@ void main() {
       final heuristic = SuspiciousCommitsHeuristic(runner);
       final comments = await heuristic.extractChangedComments('/test');
       expect(comments.isEmpty, isTrue);
+    });
+
+    test('findSuspiciousCommits forwards since/until as git flags', () async {
+      final runner = _MockRunner();
+      final heuristic = SuspiciousCommitsHeuristic(runner);
+      await heuristic.findSuspiciousCommits('/test',
+          since: '2024-01-01', until: '2024-12-31');
+      expect(runner.lastStreamArgs, contains('--since=2024-01-01'));
+      expect(runner.lastStreamArgs, contains('--until=2024-12-31'));
+    });
+
+    test('extractChangedComments forwards since/until as git flags', () async {
+      final runner = _MockRunner();
+      final heuristic = SuspiciousCommitsHeuristic(runner);
+      await heuristic.extractChangedComments('/test',
+          since: '2024-01-01', until: '2024-12-31');
+      expect(runner.lastRunArgs, contains('--since=2024-01-01'));
+      expect(runner.lastRunArgs, contains('--until=2024-12-31'));
     });
   });
 }

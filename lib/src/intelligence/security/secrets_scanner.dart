@@ -14,11 +14,17 @@ class SecretsScanner {
   /// Scans commit diffs for exposed secrets, API keys, or sensitive credentials.
   /// Offloads the heavy regex scanning to an Isolate.
   Future<List<String>> findSecrets(String directory,
-      {String? limit, String? branch}) async {
+      {String? limit, String? since, String? until, String? branch}) async {
     final args = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
+    }
+    if (since != null) {
+      args.add('--since=$since');
+    }
+    if (until != null) {
+      args.add('--until=$until');
     }
     if (branch != null && branch.isNotEmpty) {
       args.add(branch);

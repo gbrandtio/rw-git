@@ -108,6 +108,30 @@ void main() {
     });
 
     test(
+        'forwards since/until as git flags on the fix-commit selection call '
+        'only', () async {
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '-n',
+            '500',
+            '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+            '-i',
+            '--no-merges',
+            '--format=format:%H%x09%aI%x09%s',
+            '--since=2024-01-01',
+            '--until=2024-12-31',
+          ],
+          '');
+
+      final matches = await szz.execute('./test_dir',
+          limit: '500', since: '2024-01-01', until: '2024-12-31');
+
+      expect(matches, isEmpty);
+    });
+
+    test(
         'parses -C -C filename columns and boundary (^) hashes instead of '
         'silently dropping them', () async {
       mockRunner.mockResult(

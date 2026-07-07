@@ -3,9 +3,12 @@ import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
 class MockProcessRunner implements ProcessRunner {
+  List<String>? lastArgs;
+
   @override
   Future<ProcessResult> run(String ex, List<String> arg,
       {String? workingDirectory, bool streamOutput = false}) async {
+    lastArgs = arg;
     return ProcessResult(
         0,
         0,
@@ -24,5 +27,13 @@ void main() {
     final res = await AdvancedMetricsHeuristic(MockProcessRunner())
         .calculateAdvancedMetrics('./');
     expect(res.fileComplexity.length, 1);
+  });
+
+  test('AdvancedMetricsHeuristic forwards since/until as git flags', () async {
+    final runner = MockProcessRunner();
+    await AdvancedMetricsHeuristic(runner).calculateAdvancedMetrics('./',
+        since: '2024-01-01', until: '2024-12-31');
+    expect(runner.lastArgs, contains('--since=2024-01-01'));
+    expect(runner.lastArgs, contains('--until=2024-12-31'));
   });
 }

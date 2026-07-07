@@ -24,6 +24,12 @@ void main() {
         expect(props.containsKey('directory'), isTrue);
         expect((tool.inputSchema['required'] as List), contains('directory'));
       });
+
+      test('$name exposes since/until in its schema', () {
+        final props = tool.inputSchema['properties'] as Map<String, dynamic>;
+        expect(props.containsKey('since'), isTrue);
+        expect(props.containsKey('until'), isTrue);
+      });
     });
   });
 
@@ -58,6 +64,49 @@ void main() {
           await ReportOrchestrator(runner).technicalReport('./', limit: '60');
       expect(payload.reportType, 'technical');
       expect(payload.toJson()['guidance'], isA<String>());
+    });
+
+    test('technical report accepts since/until and echoes them in metadata',
+        () async {
+      final raw = await tools['generate_technical_report']!.execute({
+        'directory': './',
+        'limit': '80',
+        'since': '2024-01-01',
+        'until': '2024-12-31',
+      });
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      expect(json['report_type'], 'technical');
+      final metadata = json['metadata'] as Map<String, dynamic>;
+      expect(metadata['since'], '2024-01-01');
+      expect(metadata['until'], '2024-12-31');
+    });
+
+    test('technical report omits since/until from metadata when not supplied',
+        () async {
+      final raw = await tools['generate_technical_report']!
+          .execute({'directory': './', 'limit': '80'});
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      final metadata = json['metadata'] as Map<String, dynamic>;
+      expect(metadata.containsKey('since'), isFalse);
+      expect(metadata.containsKey('until'), isFalse);
+    });
+
+    test('technical report rejects an invalid since value', () async {
+      final raw = await tools['generate_technical_report']!.execute({
+        'directory': './',
+        'since': 'not-a-date',
+      });
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      expect(json['error'], contains('Invalid "since"'));
+    });
+
+    test('pm report rejects an invalid until value', () async {
+      final raw = await tools['generate_pm_report']!.execute({
+        'directory': './',
+        'until': 'not-a-date',
+      });
+      final json = jsonDecode(raw) as Map<String, dynamic>;
+      expect(json['error'], contains('Invalid "until"'));
     });
   });
 }

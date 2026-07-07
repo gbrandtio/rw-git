@@ -14,11 +14,17 @@ class SuspiciousCommitsHeuristic {
   /// Analyzes the commits for suspicious keywords by streaming the output
   /// and scanning both the commit message and added code in the diff.
   Future<List<String>> findSuspiciousCommits(String directory,
-      {String? limit}) async {
+      {String? limit, String? since, String? until}) async {
     final args = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
+    }
+    if (since != null) {
+      args.add('--since=$since');
+    }
+    if (until != null) {
+      args.add('--until=$until');
     }
 
     final stream = runner.runStream('git', args, workingDirectory: directory);
@@ -83,11 +89,17 @@ class SuspiciousCommitsHeuristic {
 
   /// Extracts added or modified comments from the diff, along with context.
   Future<List<Map<String, dynamic>>> extractChangedComments(String directory,
-      {String? limit}) async {
+      {String? limit, String? since, String? until}) async {
     final logArgs = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       logArgs.insert(1, '-n');
       logArgs.insert(2, limit);
+    }
+    if (since != null) {
+      logArgs.add('--since=$since');
+    }
+    if (until != null) {
+      logArgs.add('--until=$until');
     }
     final result =
         await runner.run('git', logArgs, workingDirectory: directory);

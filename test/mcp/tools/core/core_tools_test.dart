@@ -67,7 +67,9 @@ class MockRwGit implements RwGit {
   @override
   Future<Result<List<ShortLogDto>, RwGitException>> contributionsByAuthor(
           String localCheckoutDirectory,
-          {bool streamOutput = false}) async =>
+          {String? since,
+          String? until,
+          bool streamOutput = false}) async =>
       const Success([ShortLogDto(10, 'Author')]);
   @override
   Future<Result<List<GitBranch>, RwGitException>> branch(String directory,

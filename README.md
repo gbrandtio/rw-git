@@ -144,8 +144,11 @@ in Dart, and returns a small, ranked, already-classified payload (`summary`,
 `top_findings`, `compound_findings`, and — where churn and complexity both
 apply — a ranked Tornhill `refactoring_targets` list). Every finding names
 the research behind its band in a compact `basis` tag (e.g. `Truck-factor
-estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale` in
-the offloaded full report:
+estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale`
+carried inline, including in the offload preview. All five report tools also
+accept optional `since`/`until` parameters (ISO-8601 dates or git relative
+phrases, e.g. `"2024-01-01"` or `"6 months ago"`) to scope analysis to a date
+window — e.g. "generate a report for 2024" or "for the previous 6 months":
 - `generate_repository_audit`: High-level deep audit (technical + security +
   delivery cadence + commit hygiene).
 - `generate_technical_report`: Code quality, technical debt, architecture —

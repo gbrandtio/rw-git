@@ -82,9 +82,15 @@ class CliRwGit extends BaseRwGit {
   @override
   Future<Result<List<ShortLogDto>, RwGitException>> contributionsByAuthor(
       String localCheckoutDirectory,
-      {bool streamOutput = false}) {
-    return ShortlogCommand(runner)
-        .execute(localCheckoutDirectory, streamOutput: streamOutput);
+      {String? since,
+      String? until,
+      bool streamOutput = false}) {
+    final extraArgs = [
+      if (since != null) '--since=$since',
+      if (until != null) '--until=$until',
+    ];
+    return ShortlogCommand(runner).execute(localCheckoutDirectory,
+        extraArgs: extraArgs, streamOutput: streamOutput);
   }
 
   @override

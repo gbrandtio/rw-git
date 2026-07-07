@@ -20,18 +20,21 @@ class ArchitectureDriftAlgorithm {
 
   ArchitectureDriftAlgorithm(this.gitQuery);
 
-  /// Analyzes the history window ([since] date filter and/or [limit] commit
-  /// cap) of [directory], assigning each changed file to the first matching
-  /// layer in [layerRegexes] and flagging commits spanning >1 layer.
+  /// Analyzes the history window ([since]/[until] date filters and/or
+  /// [limit] commit cap) of [directory], assigning each changed file to the
+  /// first matching layer in [layerRegexes] and flagging commits spanning
+  /// >1 layer.
   Future<ArchitectureDriftDto> execute(
     String directory,
     Map<String, RegExp> layerRegexes, {
     String? since,
+    String? until,
     String? limit,
   }) async {
     final logResult = await gitQuery.run(directory, [
       'log',
       if (since != null) '--since=$since',
+      if (until != null) '--until=$until',
       if (limit != null) '-n',
       if (limit != null) limit,
       '--format=%H||%s',

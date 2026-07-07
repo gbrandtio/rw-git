@@ -9,7 +9,8 @@ class ShortlogCommand extends GitCommand<List<ShortLogDto>> {
   @override
   Future<List<ShortLogDto>> run(String directory,
       {List<String> extraArgs = const [], bool streamOutput = false}) async {
-    final result = await runner.run('git', ['shortlog', 'HEAD', '-s'],
+    final args = ['shortlog', 'HEAD', '-s', '-n', '--no-merges', ...extraArgs];
+    final result = await runner.run('git', args,
         workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
 

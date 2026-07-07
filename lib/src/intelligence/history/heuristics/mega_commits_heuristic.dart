@@ -11,11 +11,21 @@ class MegaCommitsHeuristic {
 
   /// Identifies mega-commits (e.g. ones that touch more than 500 lines or 20 files)
   Future<List<String>> findMegaCommits(String directory,
-      {int lineThreshold = 500, int fileThreshold = 20, String? limit}) async {
+      {int lineThreshold = 500,
+      int fileThreshold = 20,
+      String? limit,
+      String? since,
+      String? until}) async {
     final args = ['log', '--shortstat', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
+    }
+    if (since != null) {
+      args.add('--since=$since');
+    }
+    if (until != null) {
+      args.add('--until=$until');
     }
     final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);

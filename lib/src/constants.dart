@@ -16,7 +16,7 @@ const List<String> supportedMcpProtocolVersions = [
 
 /// Server version advertised in the MCP `initialize` handshake. Keep in sync
 /// with the `version` field in `pubspec.yaml`.
-const String rwGitMcpVersion = '3.2.0';
+const String rwGitMcpVersion = '3.3.0';
 
 /// JSON-RPC 2.0 error codes used by the MCP server. Per the JSON-RPC
 /// specification these are all negative; MCP-specific server errors live in
@@ -206,19 +206,6 @@ const int refactoringActivityNotableThreshold = 5;
 /// Sample size for evidence lists on aggregate findings (e.g. mega-commit
 /// hashes), mirroring the compliance classifier's sample bound.
 const int aggregateFindingEvidenceSampleSize = 5;
-
-/// Finding keys stripped from the bounded findings echoed into an offload
-/// preview. The compact `basis` citation stays inline; the fuller
-/// `rationale` lives only in the offloaded full report, since repeating a
-/// two-sentence explanation per finding would erode the preview's token
-/// savings.
-const List<String> previewStrippedFindingKeys = ['rationale'];
-
-/// Upper bound on how many `hints` entries (caveats first, then pair_with,
-/// then interpretation) are echoed into the offload preview. The full set
-/// stays available in the offloaded file; this keeps the recurring inline
-/// cost of the preview bounded on every large-payload call.
-const int previewHintsLimit = 3;
 
 /// Inline hint attached to every offload summary. Kept deliberately short:
 /// it is re-sent on every offloaded call, so each character is a recurring

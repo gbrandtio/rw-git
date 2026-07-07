@@ -12,6 +12,14 @@ The `--no-merges` flag excludes merge commits, which inflates counts for maintai
 
 Optional `since` and `until` parameters enable scoped queries (e.g., last 90 days, specific sprint window).
 
+## Parameters
+
+| Parameter | Required | Description |
+| --- | --- | --- |
+| `directory` | yes | The local repository path. |
+| `since` | no | Only commits after this date (ISO-8601, e.g. `2024-01-01`, or a git relative phrase, e.g. `6 months ago`). |
+| `until` | no | Only commits before this date (ISO-8601, e.g. `2024-12-31`, or a git relative phrase, e.g. `yesterday`). |
+
 ## Academic Foundation
 
 ### Crowston & Howison (2005) — *The Social Structure of Free and Open Source Software Development*

@@ -40,7 +40,9 @@ abstract class RwGit {
       {bool streamOutput = false});
   Future<Result<List<ShortLogDto>, RwGitException>> contributionsByAuthor(
       String localCheckoutDirectory,
-      {bool streamOutput = false});
+      {String? since,
+      String? until,
+      bool streamOutput = false});
   Future<Result<bool, RwGitException>> cloneSpecificBranch(
       String localDirectoryToCloneInto,
       String repository,

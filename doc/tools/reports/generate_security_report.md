@@ -2,9 +2,9 @@
 
 ## Business Logic
 
-Answers: "Is this repository leaking secrets, drifting out of compliance, or running on stale dependencies?" A one-call security report covering exposed secrets in commit history, commit compliance (signing, author domains), and — opt-in — dependency freshness. Exposed secrets are always Critical; a stale major dependency whose configuration also leaks a secret is correlated into one Critical compound finding.
+Answers: "Is this repository leaking secrets, drifting out of compliance, or running on stale dependencies?". A one-call security report covering exposed secrets in commit history, commit compliance (signing, author domains), and opt-in dependency freshness. Exposed secrets are always Critical; a stale major dependency whose configuration also leaks a secret is correlated into one Critical compound finding.
 
-This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpretation-and-report-meta-tools.md)): classification and correlation happen in deterministic Dart, not in the LLM.
+This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpretation-and-report-meta-tools.md)): classification and correlation happen via deterministic research-backed algorithms, not propagated for interpretation in the LLM.
 
 ## Algorithm
 
@@ -13,7 +13,7 @@ This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpreta
 3. The `CompoundFindingCorrelator` correlates secret + stale-dependency co-occurrences into single Critical compound findings.
 4. Findings are ranked most-severe first and returned as a bounded `ReportPayload`.
 
-Network access happens only when `check_freshness: true` is passed; the default run is fully offline.
+**Note**: Network access happens only when `check_freshness: true` is passed; the default run is fully offline.
 
 ## Parameters
 
@@ -24,10 +24,14 @@ Network access happens only when `check_freshness: true` is passed; the default 
 | `branch` | no | Branch or commit range to scan for secrets. Defaults to current HEAD. |
 | `check_freshness` | no | When `true`, performs network lookups against package registries to flag outdated dependencies. Default `false` (fully offline). |
 | `allowed_emails` | no | Comma-separated allow-list of author emails for the compliance check. |
+| `since` | no | Only commits after this date (ISO-8601, e.g. `2024-01-01`, or a git relative phrase, e.g. `6 months ago`). |
+| `until` | no | Only commits before this date (ISO-8601, e.g. `2024-12-31`, or a git relative phrase, e.g. `yesterday`). |
+
+The report can be scoped to a date window via `since`/`until`, which are forwarded verbatim to git's own `--since=`/`--until=` date parser (no natural-language date math is performed by `rw_git` itself).
 
 ## Output Contract
 
-Shared by all five report meta-tools — see [generate_repository_audit.md](generate_repository_audit.md#output-contract): `report_type`, `summary`, `top_findings`, `compound_findings`; the offload `preview` mirrors the same fields so an offloaded report stays actionable inline.
+Shared by all five report meta-tools (see [generate_repository_audit.md](generate_repository_audit.md#output-contract)): `report_type`, `summary`, `top_findings`, `compound_findings`; the offload `preview` mirrors the same fields so an offloaded report stays actionable inline.
 
 ## Foundations
 

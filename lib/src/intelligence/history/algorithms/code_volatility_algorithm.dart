@@ -18,12 +18,20 @@ class CodeVolatilityAlgorithm {
   Future<List<CodeVolatilityDto>> execute(
     String directory, {
     String? limit,
+    String? since,
+    String? until,
   }) async {
     // We need authors and files changed. `git log --name-only --format=AUTHOR:%an`
     final args = ['log', '--name-only', '--format=AUTHOR:%an'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
+    }
+    if (since != null) {
+      args.add('--since=$since');
+    }
+    if (until != null) {
+      args.add('--until=$until');
     }
 
     final result = await runner.run('git', args, workingDirectory: directory);

@@ -210,10 +210,10 @@ void main() {
       expect(firstFinding['severity'], 'Critical');
       expect(preview.containsKey('summary'), isTrue);
 
-      // The compact citation tag rides inline; the verbose rationale stays
-      // only in the offloaded file so the preview keeps its token savings.
+      // The preview carries the finding in full, including the verbose
+      // rationale, so it stays actionable without a second read.
       expect(firstFinding['basis'], contains('Nagappan'));
-      expect(firstFinding.containsKey('rationale'), isFalse);
+      expect(firstFinding['rationale'], contains('Nagappan'));
       final offloadedFile = File(result['file'] as String);
       expect(await offloadedFile.readAsString(), contains('rationale'));
     });
@@ -446,8 +446,8 @@ void main() {
     });
 
     test(
-        'preview carries hints capped at previewHintsLimit, caveats first, '
-        'then pair_with, then interpretation', () async {
+        'preview carries all hints uncapped, caveats first, then pair_with, '
+        'then interpretation', () async {
       final hintedDecorator = McpToolFileOffloadDecorator(MockHintedTool());
 
       final resultString = await hintedDecorator.execute({
@@ -458,8 +458,7 @@ void main() {
       final preview = result['preview'] as Map<String, dynamic>;
       final hints = preview['hints'] as List<dynamic>;
 
-      expect(hints.length, previewHintsLimit);
-      expect(hints, ['c1', 'p1', 'i1']);
+      expect(hints, ['c1', 'p1', 'i1', 'i2']);
     });
 
     test('preview omits hints when the payload carries none', () async {

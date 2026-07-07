@@ -11,11 +11,17 @@ class ChurnHeuristic {
   ChurnHeuristic(this.runner);
 
   Future<ChurnMetricsDto> calculateChurn(String directory,
-      {String? limit}) async {
+      {String? limit, String? since, String? until}) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
       countArgs.add('-n');
       countArgs.add(limit);
+    }
+    if (since != null) {
+      countArgs.add('--since=$since');
+    }
+    if (until != null) {
+      countArgs.add('--until=$until');
     }
     countArgs.add('HEAD');
     final commitCountResult =
@@ -28,6 +34,12 @@ class ChurnHeuristic {
     if (limit != null) {
       logArgs.insert(1, '-n');
       logArgs.insert(2, limit);
+    }
+    if (since != null) {
+      logArgs.add('--since=$since');
+    }
+    if (until != null) {
+      logArgs.add('--until=$until');
     }
 
     final stream =
@@ -73,7 +85,7 @@ class ChurnHeuristic {
   }
 
   Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(String directory,
-      {String? limit, String? since}) async {
+      {String? limit, String? since, String? until}) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
       countArgs.add('-n');
@@ -81,6 +93,9 @@ class ChurnHeuristic {
     }
     if (since != null) {
       countArgs.add('--since=$since');
+    }
+    if (until != null) {
+      countArgs.add('--until=$until');
     }
     countArgs.add('HEAD');
     final commitCountResult =
@@ -96,6 +111,9 @@ class ChurnHeuristic {
     }
     if (since != null) {
       logArgs.add('--since=$since');
+    }
+    if (until != null) {
+      logArgs.add('--until=$until');
     }
 
     final stream =
