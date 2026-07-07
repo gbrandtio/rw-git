@@ -67,8 +67,9 @@ class AnalyzeReleaseDeltaTool implements McpTool {
         .getOrThrow();
 
     // 3. Get Bug Hotspots and Advanced Metrics (Blast Radius) for context
-    final hotspots = await BugHotspotsHeuristic(runner)
-        .calculateBugHotspots(localDir, limit: defaultCommitLimit);
+    final szzMatches =
+        await SzzAlgorithm(runner).execute(localDir, limit: defaultCommitLimit);
+    final hotspots = BugHotspotsHeuristic().aggregate(szzMatches);
     final advanced = await AdvancedMetricsHeuristic(runner)
         .calculateAdvancedMetrics(localDir, limit: defaultCommitLimit);
 

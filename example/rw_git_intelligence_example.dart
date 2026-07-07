@@ -79,9 +79,8 @@ void main() async {
   print("Files with complexity scores: "
       "${advancedMetrics.fileComplexity.length}\n");
 
-  // 7. Bug hotspots: files and authors most associated with bug fixes.
-  final bugHotspots =
-      await BugHotspotsHeuristic(runner).calculateBugHotspots(dir);
+  // 7. Bug hotspots: aggregates the SZZ matches from step 5 by file/author.
+  final bugHotspots = BugHotspotsHeuristic().aggregate(szzMatches);
   print("Total fix commits analyzed: "
       "${bugHotspots.totalFixCommitsAnalyzed}");
   print("Global average bug lifetime: "

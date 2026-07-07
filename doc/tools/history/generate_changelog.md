@@ -17,7 +17,7 @@ Answers: "What is a structured, human-readable summary of this release?" Automat
    - `fix` → `fixes` bucket
    - `!:` or `BREAKING CHANGE:` in body → `breaking_changes` bucket
    - Everything else → `other` bucket
-3. **RA-SZZ enrichment** — each commit in the `fixes` bucket is traced to its introducing commits through the package's single SZZ implementation (`SzzAlgorithm.traceFixCommit`), the same MA-SZZ + RA-SZZ pipeline behind `analyze_bug_hotspots` and `find_bugs_by_developer` (see `find_bugs_by_developer.md` for the phase description). Each fix entry receives a `bug_introducing_commits` array whose entries carry `introducing_commit`, `introduced_date`, and `days_bug_lived` (fractional days from introduction to fix — the SZZ bug lifetime)
+3. **RA-SZZ enrichment** — each commit in the `fixes` bucket is traced to its introducing commits through the package's single SZZ implementation (`SzzAlgorithm.traceFixCommit`), the same MA-SZZ + RA-SZZ pipeline behind `analyze_bug_hotspots` (see `analyze_bug_hotspots.md` for the phase description). Each fix entry receives a `bug_introducing_commits` array whose entries carry `introducing_commit`, `introduced_date`, and `days_bug_lived` (fractional days from introduction to fix — the SZZ bug lifetime)
 4. **Changed files per commit:** `git show --name-only --format= <hash>` for file-level context
 5. Return structured object with four buckets and enriched metadata
 
@@ -69,4 +69,4 @@ Answers: "What is a structured, human-readable summary of this release?" Automat
 
 **Key claim:** Excluding refactoring changes from SZZ attribution removes a further 10–20% of false positives: code that merely moved is not a bug introduction.
 
-**How rw-git uses it:** Because the enrichment runs through the shared RA-SZZ core, a changelog entry never blames a refactoring commit as a bug origin — the moved-line and refactoring-commit filters (see `find_bugs_by_developer.md`) apply identically here.
+**How rw-git uses it:** Because the enrichment runs through the shared RA-SZZ core, a changelog entry never blames a refactoring commit as a bug origin — the moved-line and refactoring-commit filters (see `analyze_bug_hotspots.md`) apply identically here.

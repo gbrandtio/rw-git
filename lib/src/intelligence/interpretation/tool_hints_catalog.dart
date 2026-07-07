@@ -257,7 +257,15 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'complexity metric on its own (Zimmermann et al. 2007), and the '
           'combination of high historical bug count together with high '
           'recent churn is the single most predictive pairing available '
-          '(Nagappan & Ball 2005).',
+          '(Nagappan & Ball 2005). When scoped to a single developer via '
+          '`author`, this tool is explicitly designed to be read '
+          'non-punitively: author identity does correlate meaningfully with '
+          'where defects appear, but the research behind that finding '
+          'attributes it to which parts of the codebase a person happens to '
+          'work in — the complexity and coupling of those modules — rather '
+          'than to individual skill or carelessness (Zimmermann et al. '
+          '2007); a high count next to someone\'s name usually says more '
+          'about what they were assigned than about how they work.',
     ],
     caveats: [
       'Automatically inferring which commit introduced a given bug — known '
@@ -271,7 +279,16 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'al. 2018). Separately, seeing a bug that lived for '
           'weeks or months before being fixed is a normal part of software '
           'development, not an anomaly worth flagging on its own (Kim & '
-          'Whitehead 2006).',
+          'Whitehead 2006). The "days bug lived" figure in the '
+          'developer_bug_analysis section measures how long the inferred '
+          'defect existed in the codebase before being fixed, not how '
+          'quickly the developer who introduced or fixed it responded — it '
+          'should never be read as a measurement of someone\'s speed or '
+          'responsiveness. Before drawing any conclusion about a specific '
+          'person from that section, cross-reference against the '
+          'aggregate file hotspots — someone who happens to work in a '
+          'high-churn, high-defect file will show an inflated count for '
+          'reasons that have nothing to do with them personally.',
     ],
     pairWith: [
       'Pair with analyze_code_volatility to build a two-dimensional risk '
@@ -366,7 +383,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     caveats: [
       'The bug counts this tool reports are produced by the same '
           'commit-attribution pipeline used across the history tools, and '
-          'inherit its accuracy characteristics — see find_bugs_by_developer '
+          'inherit its accuracy characteristics — see analyze_bug_hotspots '
           'for the specific false-positive-rate caveats that apply here '
           'too.',
     ],
@@ -375,36 +392,6 @@ const Map<String, ToolHints> toolHintsCatalog = {
           'tag range, to see whether the churn driving this release\'s '
           'numbers came from production code or from tests, docs, and '
           'configuration.',
-    ],
-  ),
-
-  'find_bugs_by_developer': ToolHints(
-    interpretation: [
-      'This tool is explicitly designed to be read non-punitively. '
-          'Author identity does correlate meaningfully with where defects '
-          'appear, but the research behind that finding attributes it to '
-          'which parts of the codebase a person happens to work in — the '
-          'complexity and coupling of those modules — rather than to '
-          'individual skill or carelessness (Zimmermann et al. 2007); a '
-          'high count next to someone\'s name usually says more about what '
-          'they were assigned than about how they work. The underlying bug '
-          'attribution is filtered specifically to remove whitespace '
-          'reformatting and refactoring commits being mistaken for the true '
-          'fault-introducing change — noise that, left unfiltered, produces '
-          'a false-positive rate in the range of a quarter to two-fifths of '
-          'all attributions (da Costa et al. 2017; Neto et al. 2018).',
-    ],
-    caveats: [
-      'The "days bug lived" figure measures how long the inferred defect '
-          'existed in the codebase before being fixed, not how quickly the '
-          'developer who introduced or fixed it responded — it should never '
-          'be read as a measurement of someone\'s speed or responsiveness.',
-    ],
-    pairWith: [
-      'Cross-reference with analyze_bug_hotspots before drawing any '
-          'conclusion about a specific person — someone who happens to work '
-          'in a high-churn, high-defect file will show an inflated count '
-          'here for reasons that have nothing to do with them personally.',
     ],
   ),
 

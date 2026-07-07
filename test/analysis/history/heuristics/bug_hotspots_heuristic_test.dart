@@ -1,57 +1,80 @@
-import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
-class MockProcessRunner implements ProcessRunner {
-  @override
-  Future<ProcessResult> run(String ex, List<String> arg,
-      {String? workingDirectory, bool streamOutput = false}) async {
-    final cmd = arg.join(' ');
-    if (cmd.contains('--grep=')) {
-      return ProcessResult(
-          0,
-          0,
-          '0123456789012345678901234567890123456789\t2023-01-02T12:00:00Z\tfix\n',
-          '');
-    }
-    if (cmd.contains('rev-parse')) {
-      return ProcessResult(
-          0, 0, '1111222233334444555566667777888899990000\n', '');
-    }
-    if (cmd.contains('diff -M')) {
-      return ProcessResult(
-          0,
-          0,
-          '--- a/file1.dart\n+++ b/file1.dart\n@@ -5 +5,0 @@\n- deleted_line_1\n',
-          '');
-    }
-    if (cmd.contains('blame')) {
-      return ProcessResult(
-          0,
-          0,
-          'fedcba9876543210fedcba9876543210fedcba98 (Target 2023-01-01T12:00:00+00:00 5) deleted_line_1\n',
-          '');
-    }
-    return ProcessResult(0, 0, '', '');
-  }
-
-  @override
-  Stream<String> runStream(String ex, List<String> arg,
-          {String? workingDirectory}) =>
-      throw UnimplementedError();
-}
+SzzMatch _match({
+  required String file,
+  required String author,
+  required DateTime introducingDate,
+  required DateTime fixingDate,
+  String introducingCommitHash = 'intro',
+  String fixingCommitHash = 'fix',
+}) =>
+    SzzMatch(
+      introducingCommitHash: introducingCommitHash,
+      introducingDate: introducingDate,
+      introducingAuthor: author,
+      fixingCommitHash: fixingCommitHash,
+      fixingDate: fixingDate,
+      filePath: file,
+    );
 
 void main() {
-  test('BugHotspotsHeuristic calculates bug hotspots correctly', () async {
-    final res = await BugHotspotsHeuristic(MockProcessRunner())
-        .calculateBugHotspots('./');
-    expect(res.fileHotspots, isNotEmpty);
-    // Introduced 2023-01-01T12:00Z, fixed 2023-01-02T12:00Z: the SZZ bug
-    // lifetime is exactly one day. The metric must be expressed in days so
-    // that months-long lifetimes read as such instead of as thousands of
-    // hours of "fix time".
-    expect(res.globalAverageBugLifetimeInDays, 1.0);
-    expect(res.fileAverageBugLifetimeInDays['file1.dart'], 1.0);
-    expect(res.authorAverageBugLifetimeInDays['Target'], 1.0);
+  group('BugHotspotsHeuristic.aggregate', () {
+    test('aggregates file and author hotspots from a match list', () {
+      final matches = [
+        _match(
+          file: 'file1.dart',
+          author: 'Target',
+          introducingDate: DateTime.utc(2023, 1, 1, 12),
+          fixingDate: DateTime.utc(2023, 1, 2, 12),
+        ),
+      ];
+
+      final res = BugHotspotsHeuristic().aggregate(matches);
+
+      expect(res.fileHotspots, {'file1.dart': 1});
+      expect(res.authorHotspots, {'Target': 1});
+      expect(res.totalFixCommitsAnalyzed, 1);
+      // Introduced 2023-01-01T12:00Z, fixed 2023-01-02T12:00Z: the SZZ bug
+      // lifetime is exactly one day. The metric must be expressed in days so
+      // that months-long lifetimes read as such instead of as thousands of
+      // hours of "fix time".
+      expect(res.globalAverageBugLifetimeInDays, 1.0);
+      expect(res.fileAverageBugLifetimeInDays['file1.dart'], 1.0);
+      expect(res.authorAverageBugLifetimeInDays['Target'], 1.0);
+    });
+
+    test('returns empty aggregates for an empty match list', () {
+      final res = BugHotspotsHeuristic().aggregate(const []);
+
+      expect(res.fileHotspots, isEmpty);
+      expect(res.authorHotspots, isEmpty);
+      expect(res.totalFixCommitsAnalyzed, 0);
+      expect(res.globalAverageBugLifetimeInDays, 0.0);
+    });
+
+    test('deduplicates fix commits shared by multiple attributions', () {
+      final matches = [
+        _match(
+          file: 'file1.dart',
+          author: 'A',
+          introducingDate: DateTime.utc(2023, 1, 1),
+          fixingDate: DateTime.utc(2023, 1, 2),
+          fixingCommitHash: 'shared-fix',
+        ),
+        _match(
+          file: 'file2.dart',
+          author: 'B',
+          introducingDate: DateTime.utc(2023, 1, 1),
+          fixingDate: DateTime.utc(2023, 1, 3),
+          fixingCommitHash: 'shared-fix',
+        ),
+      ];
+
+      final res = BugHotspotsHeuristic().aggregate(matches);
+
+      expect(res.totalFixCommitsAnalyzed, 1);
+      expect(res.fileHotspots.length, 2);
+    });
   });
 }

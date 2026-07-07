@@ -74,7 +74,6 @@ void main() {
       'analyze_code_volatility',
       'analyze_commit_velocity',
       'analyze_release_delta',
-      'find_bugs_by_developer',
       'generate_changelog',
     ];
     final payload = ReportPayload.fromFindings(

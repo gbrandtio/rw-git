@@ -12,7 +12,6 @@ import 'mcp_tool_metadata_decorator.dart';
 
 import 'tools/static_analysis/analyze_code_quality_tool.dart';
 import 'tools/history/analyze_bug_hotspots_tool.dart';
-import 'tools/history/find_bugs_by_developer_tool.dart';
 import 'tools/system/get_rw_git_documentation_tool.dart';
 import 'tools/system/read_report_slice_tool.dart';
 import 'tools/core/init_repository_tool.dart';
@@ -149,7 +148,6 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   // structure at response time for free.
   offloadedRo(AnalyzeCodeQualityTool(processRunner, gitQuery));
   offloadedRo(AnalyzeBugHotspotsTool(processRunner));
-  offloadedRo(FindBugsByDeveloperTool(processRunner));
   registerReadOnly(GetRwGitDocumentationTool(registry));
   registerReadOnly(ReadReportSliceTool());
   mutating(InitRepositoryTool(git), outputSchema: _successOutputSchema);

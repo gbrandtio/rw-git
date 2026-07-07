@@ -11,10 +11,10 @@ import 'package:rw_git/src/constants.dart';
 ///
 /// This class is the single SZZ implementation in the package. Every tool
 /// that links bug-fix commits to their introducing commits
-/// (`analyze_bug_hotspots`, `find_bugs_by_developer`, `generate_changelog`)
-/// must go through [execute] or [traceFixCommit]; re-implementing the
-/// fix→introducing tracing elsewhere would silently fork the attribution
-/// accuracy the RA-SZZ/MA-SZZ guards provide.
+/// (`analyze_bug_hotspots`, including its per-developer `author` filter, and
+/// `generate_changelog`) must go through [execute] or [traceFixCommit];
+/// re-implementing the fix→introducing tracing elsewhere would silently
+/// fork the attribution accuracy the RA-SZZ/MA-SZZ guards provide.
 class SzzAlgorithm {
   final ProcessRunner runner;
 

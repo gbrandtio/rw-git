@@ -22,6 +22,7 @@ import 'package:rw_git/src/intelligence/architecture/architecture_drift_algorith
 import 'package:rw_git/src/intelligence/architecture/logical_coupling_algorithm.dart';
 import 'package:rw_git/src/intelligence/architecture/refactoring_detection_algorithm.dart';
 import 'package:rw_git/src/intelligence/history/algorithms/code_volatility_algorithm.dart';
+import 'package:rw_git/src/intelligence/history/algorithms/szz_algorithm.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/advanced_metrics_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/bug_hotspots_heuristic.dart';
 import 'package:rw_git/src/intelligence/history/heuristics/churn_heuristic.dart';
@@ -129,8 +130,9 @@ class ReportOrchestrator {
         BusFactorAlgorithm(runner).execute(directory, limit: lim);
     final churnAuthorsFuture =
         ChurnHeuristic(runner).calculateChurnWithAuthors(directory, limit: lim);
-    final hotspotsFuture = BugHotspotsHeuristic(runner)
-        .calculateBugHotspots(directory, limit: lim);
+    final hotspotsFuture = SzzAlgorithm(runner)
+        .execute(directory, limit: lim)
+        .then((matches) => BugHotspotsHeuristic().aggregate(matches));
     final velocityFuture = CommitVelocityHeuristic(runner)
         .calculateCommitVelocity(directory, limit: lim);
 
@@ -163,8 +165,9 @@ class ReportOrchestrator {
         .calculateAdvancedMetrics(directory, limit: lim);
     final churnAuthorsFuture =
         ChurnHeuristic(runner).calculateChurnWithAuthors(directory, limit: lim);
-    final hotspotsFuture = BugHotspotsHeuristic(runner)
-        .calculateBugHotspots(directory, limit: lim);
+    final hotspotsFuture = SzzAlgorithm(runner)
+        .execute(directory, limit: lim)
+        .then((matches) => BugHotspotsHeuristic().aggregate(matches));
     final secretsFuture = SecretsScanner(runner)
         .findSecrets(directory, limit: lim, branch: branch);
     final refactoringsFuture =
@@ -263,8 +266,9 @@ class ReportOrchestrator {
         .calculateAdvancedMetrics(directory, limit: lim);
     final churnAuthorsFuture =
         ChurnHeuristic(runner).calculateChurnWithAuthors(directory, limit: lim);
-    final hotspotsFuture = BugHotspotsHeuristic(runner)
-        .calculateBugHotspots(directory, limit: lim);
+    final hotspotsFuture = SzzAlgorithm(runner)
+        .execute(directory, limit: lim)
+        .then((matches) => BugHotspotsHeuristic().aggregate(matches));
     final couplingFuture =
         LogicalCouplingAlgorithm(runner).execute(directory, limit: lim);
     final volatilityFuture =

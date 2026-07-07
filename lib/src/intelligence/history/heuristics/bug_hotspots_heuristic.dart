@@ -1,5 +1,4 @@
 import 'package:rw_git/src/constants.dart';
-import 'package:rw_git/src/core/process_runner.dart';
 import 'package:rw_git/src/models/bug_hotspot_dto.dart';
 import '../algorithms/szz_algorithm.dart';
 
@@ -7,16 +6,13 @@ import '../algorithms/szz_algorithm.dart';
 /// bug_hotspots_heuristic.dart
 /// ----------------------------------------------------------------------------
 class BugHotspotsHeuristic {
-  final ProcessRunner runner;
-
-  BugHotspotsHeuristic(this.runner);
-
   /// Identifies files most frequently modified in bug-fix commits
   /// and the authors most frequently responsible for introducing bugs.
-  Future<BugHotspotDto> calculateBugHotspots(String directory,
-      {String? limit}) async {
-    final matches = await SzzAlgorithm(runner).execute(directory, limit: limit);
-
+  ///
+  /// Pure aggregation over an already-fetched [SzzAlgorithm] match list, so
+  /// callers control the single shared SZZ invocation (and any
+  /// author/regex filtering of it) without this class needing I/O access.
+  BugHotspotDto aggregate(List<SzzMatch> matches) {
     final fileHotspots = <String, int>{};
     final authorHotspots = <String, int>{};
     final fileLifetimes = <String, List<double>>{};

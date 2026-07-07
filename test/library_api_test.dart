@@ -31,8 +31,8 @@ void main() {
           '',
           '');
 
-      final result =
-          await BugHotspotsHeuristic(runner).calculateBugHotspots('.');
+      final matches = await SzzAlgorithm(runner).execute('.');
+      final result = BugHotspotsHeuristic().aggregate(matches);
 
       expect(result, isA<BugHotspotDto>());
     });

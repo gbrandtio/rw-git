@@ -166,7 +166,8 @@ the offloaded full report:
 - `analyze_code_quality`: Identifies code smells and technical debt. Pass
   `includeAuthors: true` to correlate metrics with authors.
 - `analyze_bug_hotspots`: Calculates bug hotspots using the
-  refactoring-aware SZZ algorithm (RA-SZZ).
+  refactoring-aware SZZ algorithm (RA-SZZ). Pass `author` to scope the
+  analysis to bugs introduced by a specific developer.
 - `analyze_bus_factor`: Calculates the Bus Factor (Truck Factor).
 - `analyze_logical_coupling`: Detects implicitly coupled files.
 - `analyze_code_volatility`: Predicts defect-prone files via historical churn.
@@ -178,8 +179,6 @@ the offloaded full report:
 - `calculate_universal_lexical_metrics`: Calculates Maintainability Index.
 
 **Project Management Metrics:**
-- `find_bugs_by_developer`: Finds bugs introduced by specific developers
-  (RA-SZZ).
 - `analyze_commit_velocity`: Computes time-series commit velocity.
 - `analyze_release_delta`: Analyzes changes and impact between release tags.
 - `get_stats`: Retrieves exact Git statistics (insertions, deletions).
