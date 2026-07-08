@@ -1,7 +1,7 @@
 # Consolidated Citation Index
 
 The single canonical index of every academic paper, book, and standard cited
-across rw-git's documentation. Per-tool documents (`doc/tools/**`) describe
+across `rw-git`'s documentation. Per-tool documents (`doc/tools/**`) describe
 *how* each paper is applied; this file is the authoritative list of *what* is
 cited, so a citation is corrected in one place.
 

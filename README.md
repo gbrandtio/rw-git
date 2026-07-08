@@ -12,72 +12,35 @@
 
 ## Preface
 
-Modern software teams generate a vast amount of data in their git history. 
-`rw_git` turns that raw history into actionable intelligence, empowering 
-engineering leaders to ask and answer critical business questions.
+Modern software teams generate a vast amount of data in their git history.
+`rw_git` turns that raw history into actionable intelligence that answers both interesting and critical questions. Different stakeholders have different questions, and need different data insights. This is why `rw_git` provides high quality, cost efficient answers and deep data intelligence.
 
-`rw_git` depends on strong technical foundations backed by academic research
-and published academic papers (see `doc/tools`). This means that the 
-underlying functionality and intel collection is vastly available 
-without the need of an LLM / MCP integration (which essentially means that 
-you can utilise the raw functionality with or without the MCP tools).
+All data gathering and results extraction happen in runtime, through **algorithms** that are **research-backed** by **academic papers and publications**.
 
-Different stakeholders have different requirements for data insights, which
-is the reason why `rw_git` is easily extendable, flexible and highly
-configurable.
+This enables 2 things:
+- The usage of the library by LLMs (through the MCP offering) with as less tokens burned as possible.
+- The usage of the library in a traditional sense. You can integrate and use the intelligence inside your application.
 
-**Who is this for?** Engineering leaders who need defensible answers about
-delivery risk and technical debt, platform/DevEx teams building internal tooling
-on top of repository data, security and compliance reviewers auditing commit
-history, and individual contributors who want deeper context during code review.
+**Who is this for?**
+- Engineering leaders who need defensible answers about delivery risk and technical debt.
+- Platform/DevEx teams building internal tooling on top of repository data
+- Security and compliance reviewers auditing commit history.
+- Project Managers that are analyzing risk areas (e.g., bus factor, velocity, team burnout).
+- Individual contributors who want deeper context during code review.
 
-### Why rw_git
+## Why rw_git
 
-- **Zero LLM token cost**: every metric is computed locally by deterministic
-  Dart code, not by asking an LLM to read and summarize raw `git log` output.
-  AI agents only spend tokens on the finished insight.
-- **Evidence-based, not ad hoc**: each algorithm (bug attribution via SZZ,
-  secret detection via entropy analysis, bus factor, logical coupling, and more)
-  is grounded in peer-reviewed software-engineering research, not a one-off
-  heuristic script.
-- **Library first, MCP second**: the same analyses are available as a
-  standalone Dart API and as MCP tools, so you are never locked into an
+- **Zero LLM token cost**: Every metric is computed locally by deterministic
+  algorithms, not by asking an LLM to read and summarize raw `git log` output. AI agents only spend tokens on the finished insights.
+- **Small/Local LLM-friendly**: The MCP offering is highly tuned to work well with small/local LLMs.
+- **Research backed algorithms**: Each algorithm (bug attribution via SZZ,
+  secret detection via entropy analysis, bus factor, logical coupling, and more) is grounded in peer-reviewed software-engineering research.
+- **Library first, MCP second**: The same analyses are available as a
+  standalone Dart API and as MCP tools. You are never locked into an
   agent-only workflow.
 - **Broad coverage**: 30+ tools spanning technical debt, bus factor, security
   and compliance, delivery velocity, and AI-assisted code review, instead of a
   single narrow metric.
-
-## Business Intelligence beyond engineering metrics
-
-Among a variety of questions that `rw_git` answers, below are some examples:
-
-- **Where is our technical debt accumulating?** We identify implicitly coupled 
-  files and high-churn code to highlight architectural decay and predict 
-  defect-prone areas.
-- **Are we at risk of critical knowledge loss?** We calculate the "Bus Factor" 
-  and ownership drift, showing exactly where project knowledge is concentrated 
-  in too few developers.
-- **Who introduced a bug, and why?** Using algorithms like SZZ, we trace bugs 
-  back to their origin commits, providing context on how and why defects were 
-  introduced.
-- **Is our supply chain secure and compliant?** We scan commit history for 
-  exposed secrets, unsigned commits, and dependency drift, ensuring your 
-  repository remains secure over time.
-- **Is our team's delivery velocity healthy?** We compute time-series commit 
-  velocity and analyze release deltas to track team productivity trends and 
-  delivery impact.
-
-### Zero LLM Token Consumption for Metric Extraction
-
-A key differentiator of the `rw_git` Model Context Protocol (MCP) server is its 
-**zero-cost metric generation**. The library performs the heavy lifting:
-parsing massive git histories, running algorithms like SZZ, 
-and computing metrics *entirely in runtime locally*. 
-
-When you use AI agents to analyze your repository, the LLM only consumes tokens 
-to read the finalized, highly structured insights and interact with the 
-MCP server. The underlying work of gathering and structuring insights 
-and metrics is performed during runtime, by carefully crafted algorithms.
 
 ---
 
@@ -86,7 +49,6 @@ and metrics is performed during runtime, by carefully crafted algorithms.
 - [About](#about)
 - [Model Context Protocol (MCP) Server](#model-context-protocol-mcp-server)
   - [Available MCP Tools](#available-mcp-tools)
-  - [Available Prompts](#available-prompts)
   - [Installing Agent Skills](#installing-agent-skills)
   - [Connecting MCP with Agents](#connecting-mcp-with-agents)
 - [Core Git Commands](#core-git-commands)
@@ -98,39 +60,10 @@ and metrics is performed during runtime, by carefully crafted algorithms.
 
 ## About
 
-`rw_git` is a powerful Git operations library and Model Context Protocol (MCP) 
-server designed to provide AI agents, IDEs, and developers with deep, 
-out-of-the-box metrics and data analysis. Whether you are building an automated 
-reporting pipeline or an intelligent code reviewer, `rw_git` supplies the 
-structured harness needed to perform comprehensive repository analyses safely 
-and efficiently.
+`rw_git` is a git-intelligence library and Model Context Protocol (MCP) 
+server designed to provide out-of-the-box metrics and data analysis. Whether you are building an automated reporting pipeline or an intelligent code reviewer, `rw_git` supplies the  structured harness needed to perform comprehensive repository analyses safely and efficiently.
 
 ## Model Context Protocol (MCP) Server
-
-`rw_git` ships with an embedded MCP server that allows AI agents and IDEs to 
-interact directly with your git repositories over standard I/O using 
-JSON-RPC 2.0.
-
-Tools that advertise an `outputSchema` (the report meta-tools and a handful
-of fixed-shape tools, per ADR-0013) return their payload as MCP
-`structuredContent` alongside the standard text block, so standards-aware
-clients get machine-readable results without parsing the text.
-
-The server advertises the MCP `logging` capability: hosts control how much
-diagnostic detail they receive (git command timings, failures) by calling
-`logging/setLevel` with an RFC 5424 level (`debug` … `emergency`). By default
-only `warning` and above are forwarded as `notifications/message`, keeping
-the stdio channel quiet.
-
-Large tool outputs are offloaded to `.rw_git/reports/` instead of being
-returned inline. The size gate is per tool: report meta-tools offload above
-4 KiB (their summaries already carry the findings inline), compact history
-tools (`get_stats`, `get_commits_between`) stay inline up to 16 KiB, and all
-other tools use the 8 KiB default. Each offload summary carries a compact
-`preview` (a `structure` map of top-level keys to type tags, plus any
-pre-classified findings) so targeted slices can be fetched with
-`read_report_slice` without reading the whole file.
-
 ### Available MCP Tools
 
 We provide a comprehensive suite of tools mapped directly to solving 
@@ -141,18 +74,15 @@ engineering management and code quality challenges.
 Each runs the relevant analyses server-side (independent analyses run
 concurrently), applies every severity band and cross-tool compound-risk rule
 in Dart, and returns a small, ranked, already-classified payload (`summary`,
-`top_findings`, `compound_findings`, and — where churn and complexity both
-apply — a ranked Tornhill `refactoring_targets` list). Every finding names
-the research behind its band in a compact `basis` tag (e.g. `Truck-factor
-estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale`
-carried inline, including in the offload preview. All five report tools also
-accept optional `since`/`until` parameters (ISO-8601 dates or git relative
-phrases, e.g. `"2024-01-01"` or `"6 months ago"`) to scope analysis to a date
-window — e.g. "generate a report for 2024" or "for the previous 6 months":
+`top_findings`, `compound_findings`, and (where churn and complexity both
+apply) a ranked Tornhill `refactoring_targets` list).
+
+Every finding names the research behind its band in a compact `basis` tag (e.g. `Truck-factor estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale` carried inline, including in the offload preview. 
+
+All five report tools also accept optional `since`/`until` parameters (ISO-8601 dates or git relative phrases, e.g. `"2024-01-01"` or `"6 months ago"`) to scope analysis to a date window (e.g. "generate a report for 2024" or "for the previous 6 months"):
 - `generate_repository_audit`: High-level deep audit (technical + security +
   delivery cadence + commit hygiene).
-- `generate_technical_report`: Code quality, technical debt, architecture —
-  the full genuine lexical suite (McCabe, maintainability index, ABC, NPath,
+- `generate_technical_report`: Code quality, technical debt, architecture code quality heuristics (McCabe, maintainability index, ABC, NPath,
   cognitive complexity, Halstead delivered-bugs) on top-churn files,
   clean-code heuristics, architecture drift over inferred layers, Dart
   import cycles, and refactoring-aware churn discounting.
@@ -161,9 +91,8 @@ window — e.g. "generate a report for 2024" or "for the previous 6 months":
   minor-contributor signal and author-level knowledge-loss risk), delivery
   bottlenecks, and delivery cadence (velocity trend, author concentration,
   burnout signals).
-- `generate_code_review_report`: Risk signals for code under review —
-  secrets, the genuine lexical suite, clean-code heuristics, ownership
-  structure, bug hotspots — with refactoring-explained churn discounted.
+- `generate_code_review_report`: Risk signals for code under review. This includes secrets, code analysis heuristics, clean-code heuristics, ownership
+  structure, bug hotspots with refactoring-explained churn discounted.
 
 **Dev Metrics & Technical Debt:**
 - `analyze_code_quality`: Identifies code smells and technical debt. Pass
@@ -213,31 +142,9 @@ window — e.g. "generate a report for 2024" or "for the previous 6 months":
   previously offloaded to `.rw_git/reports/`, instead of loading the entire
   file back into context.
 
-### Available Prompts
-
-The server exposes one native MCP Prompt that hands the agent a ready-made,
-token-efficient workflow for every reporting goal. It is generated from a
-canonical `SKILL.template.md` (shared boilerplate lives once in
-`.agents/skills/_shared/`), which also produces the matching agent skill
-(see below). The workflow serves both model classes: the default path is
-the compact one-call narrate-the-report flow for small/local models, and a
-trailing `<deep_dive>` section routes capable models to the raw analysis
-tools plus `read_report_slice` drill-down, with one tool list per report
-type. Each `<deep_dive>` tool list is itself generated from the same
-`toolHintsCatalog`/`pair_with` data that drives raw-tool hints (see
-ADR-0015), so the report's `hints`, its deep-dive routing, and a raw tool's
-own hints can never diverge from one another:
-
-- `rw-git-mcp-reporting`: one consolidated reporting workflow with a
-  goal-to-tool selection table covering all five report types — full
-  repository audit, technical debt and architecture, project management and
-  knowledge risk, security and compliance, and code review — plus
-  per-report-type deep-dive raw-tool lists.
-
 ### Installing Agent Skills
 
-The MCP Prompts above are also shipped as file-based agent skills. To install
-them locally:
+The MCP Prompts above are propagated through the MCP offerring also shipped as file-based agent skills. To install them locally:
 
 ```bash
 npx @gbrandtio/rw-git-mcp install-skills
@@ -245,9 +152,6 @@ npx @gbrandtio/rw-git-mcp install-skills
 *(Or `rw-git-mcp install-skills` if installed globally)*
 
 This extracts skills to `./.agents/skills/rw-git-mcp/` for local agent usage.
-The bundled skills are the consolidated `rw-git-mcp-reporting` workflow listed
-under **Available Prompts**, plus `rw-git-mcp-installation`, a step-by-step
-setup guide for Claude Desktop, Cursor, and other MCP clients.
 
 ### Connecting MCP with Agents
 
