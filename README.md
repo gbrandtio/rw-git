@@ -65,16 +65,15 @@ This enables 2 things:
 ## Model Context Protocol (MCP) Server
 ### Available MCP Tools
 
-`rw_git` provides a comprehensive suite of tools mapped directly to solving engineering management and code quality challenges.
+`rw_git` provides a comprehensive suite of tools mapped directly to solving engineering management and code quality challenges. For more information around the tools, the academic rationale as well as the cross-tool compounding see [doc/tools](doc/tools).
 
 **One-Call Report Meta-Tools (recommended starting point):**
 
 Each runs the relevant analyses server-side (independent analyses run concurrently), applies every severity band and cross-tool compound-risk rule
-in Dart, and returns a small, ranked, already-classified payload (`summary`, `top_findings`, `compound_findings`, and (where churn and complexity both apply) a ranked Tornhill `refactoring_targets` list).
+in Dart, and returns a small, ranked, already-classified payload (`summary`, `top_findings`, `compound_findings`, and (where churn and complexity both apply) a ranked Tornhill `refactoring_targets` list.
 
-Every finding names the research behind its band in a compact `basis` tag (e.g. `Truck-factor estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale` carried inline, including in the offload preview. 
+Every finding names the research behind its band in a compact `basis` tag (e.g. `Truck-factor estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale` carried inline, including in the offload preview. All five report tools also accept optional `since`/`until` parameters (ISO-8601 dates or git relative phrases, e.g. `"2024-01-01"` or `"6 months ago"`) to scope analysis to a date window (e.g. "generate a report for 2024" or "for the previous 6 months"):
 
-All five report tools also accept optional `since`/`until` parameters (ISO-8601 dates or git relative phrases, e.g. `"2024-01-01"` or `"6 months ago"`) to scope analysis to a date window (e.g. "generate a report for 2024" or "for the previous 6 months"):
 - `generate_repository_audit`: High-level deep audit (technical + security + delivery cadence + commit hygiene).
 - `generate_technical_report`: Code quality, technical debt, architecture code quality heuristics (McCabe, maintainability index, ABC, NPath, cognitive complexity, Halstead delivered-bugs) on top-churn files, clean-code heuristics, architecture drift over inferred layers, Dart import cycles, and refactoring-aware churn discounting.
 - `generate_security_report`: Secrets, compliance, dependency freshness.
