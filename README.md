@@ -35,8 +35,8 @@ This enables 2 things:
 
 ## Why rw_git
 
-- **Zero LLM token cost**: Every metric is computed locally by deterministic algorithms, not by asking an LLM to read and summarize raw `git log` output. AI agents only spend tokens on the finished insights. 
-- **Small/Local LLM-friendly**: The MCP offering is highly tuned to work well with small/local LLMs.
+- **LLM token cost**: Every metric is computed locally by deterministic algorithms, not by asking an LLM to read and summarize raw `git log` output. AI agents only spend tokens on the finished insights. 
+- **Small/Local LLMs**: The MCP offering is highly tuned to work well with small/local LLMs.
 - **Research backed algorithms**: Each algorithm (bug attribution via SZZ, secret detection via entropy analysis, bus factor, logical coupling, and more) is grounded in peer-reviewed software-engineering research.
 - **Library first, MCP second**: The same analyses are available as a standalone Dart API and as MCP tools. You are never locked into an agent-only workflow.
 - **Broad coverage**: 30+ tools spanning technical debt, bus factor, security and compliance, delivery velocity, and AI-assisted code review, instead of a single narrow metric.
