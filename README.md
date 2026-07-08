@@ -2,8 +2,8 @@
   <picture>
     <source
       media="(prefers-color-scheme: dark)"
-      srcset="branding/lockup-dark.png">
-    <img src="branding/lockup.png" alt="rw_git" width="310">
+      srcset="https://raw.githubusercontent.com/gbrandtio/rw-git/main/branding/lockup-dark.png">
+    <img src="https://raw.githubusercontent.com/gbrandtio/rw-git/main/branding/lockup.png" alt="rw_git" width="310">
   </picture>
 </p>
 <p align="center">
