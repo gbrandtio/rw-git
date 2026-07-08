@@ -24,7 +24,7 @@ publications**.
 
 This enables 2 things:
 - The usage of the library by LLMs (through the MCP offering) with as less tokens burned as possible.
-- The usage of the library in a traditional sense. You can integrate and use the intelligence inside your application.
+- The usage of the plain algorithms without any AI integration. You can call and orchestrate the researche-backed algorithms, report orchestrators and intelligence gathering directly within your code.
 
 **Who is this for?**
 - Engineering leaders who need defensible answers about delivery risk and technical debt.
