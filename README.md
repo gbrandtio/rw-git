@@ -17,45 +17,29 @@
 
 ## Preface
 
-Modern software teams generate a vast amount of data in their git history.
-`rw_git` turns that raw history into actionable intelligence that answers both
-interesting and critical questions. Different stakeholders have different
-questions, and different data-insight needs.
+Modern software teams generate a vast amount of data in their git history. `rw_git` turns that raw history into actionable intelligence that answers both interesting and critical questions. Different stakeholders have different questions, and different data-insight needs.
 
 `rw_git` provides high quality, cost efficient answers and deep data intelligence by performing all data gathering and results extraction during runtime, through **algorithms** that are **research-backed** by **academic papers and
 publications**.
 
 This enables 2 things:
-- The usage of the library by LLMs (through the MCP offering) with as less
-  tokens burned as possible.
-- The usage of the library in a traditional sense. You can integrate and use the
-  intelligence inside your application.
+- The usage of the library by LLMs (through the MCP offering) with as less tokens burned as possible.
+- The usage of the library in a traditional sense. You can integrate and use the intelligence inside your application.
 
 **Who is this for?**
-- Engineering leaders who need defensible answers about delivery risk and
-  technical debt.
+- Engineering leaders who need defensible answers about delivery risk and technical debt.
 - Platform/DevEx teams building internal tooling on top of repository data
 - Security and compliance reviewers auditing commit history.
-- Project Managers that are analyzing risk areas (e.g., bus factor, velocity,
-  team burnout).
+- Project Managers that are analyzing risk areas (e.g., bus factor, velocity, team burnout).
 - Individual contributors who want deeper context during code review.
 
 ## Why rw_git
 
-- **Zero LLM token cost**: Every metric is computed locally by deterministic
-  algorithms, not by asking an LLM to read and summarize raw `git log` output.
-  AI agents only spend tokens on the finished insights.
-- **Small/Local LLM-friendly**: The MCP offering is highly tuned to work well
-  with small/local LLMs.
-- **Research backed algorithms**: Each algorithm (bug attribution via SZZ,
-  secret detection via entropy analysis, bus factor, logical coupling, and more)
-  is grounded in peer-reviewed software-engineering research.
-- **Library first, MCP second**: The same analyses are available as a
-  standalone Dart API and as MCP tools. You are never locked into an
-  agent-only workflow.
-- **Broad coverage**: 30+ tools spanning technical debt, bus factor, security
-  and compliance, delivery velocity, and AI-assisted code review, instead of a
-  single narrow metric.
+- **Zero LLM token cost**: Every metric is computed locally by deterministic algorithms, not by asking an LLM to read and summarize raw `git log` output. AI agents only spend tokens on the finished insights. 
+- **Small/Local LLM-friendly**: The MCP offering is highly tuned to work well with small/local LLMs.
+- **Research backed algorithms**: Each algorithm (bug attribution via SZZ, secret detection via entropy analysis, bus factor, logical coupling, and more) is grounded in peer-reviewed software-engineering research.
+- **Library first, MCP second**: The same analyses are available as a standalone Dart API and as MCP tools. You are never locked into an agent-only workflow.
+- **Broad coverage**: 30+ tools spanning technical debt, bus factor, security and compliance, delivery velocity, and AI-assisted code review, instead of a single narrow metric.
 
 ---
 
@@ -75,55 +59,31 @@ This enables 2 things:
 
 ## About
 
-`rw_git` is a git-intelligence library and Model Context Protocol (MCP) 
-server designed to provide out-of-the-box metrics and data analysis. Whether you
-are building an automated reporting pipeline or an intelligent code reviewer,
-`rw_git` supplies the structured harness needed to perform comprehensive
-repository analyses safely and efficiently.
+`rw_git` is a git-intelligence library and Model Context Protocol (MCP) server designed to provide out-of-the-box metrics and data analysis. Whether you are building an automated reporting pipeline or an intelligent code reviewer,
+`rw_git` supplies the structured harness needed to perform comprehensive repository analyses safely and efficiently.
 
 ## Model Context Protocol (MCP) Server
 ### Available MCP Tools
 
-We provide a comprehensive suite of tools mapped directly to solving 
-engineering management and code quality challenges.
+`rw_git` provides a comprehensive suite of tools mapped directly to solving engineering management and code quality challenges.
 
 **One-Call Report Meta-Tools (recommended starting point):**
 
-Each runs the relevant analyses server-side (independent analyses run
-concurrently), applies every severity band and cross-tool compound-risk rule
-in Dart, and returns a small, ranked, already-classified payload (`summary`,
-`top_findings`, `compound_findings`, and (where churn and complexity both
-apply) a ranked Tornhill `refactoring_targets` list).
+Each runs the relevant analyses server-side (independent analyses run concurrently), applies every severity band and cross-tool compound-risk rule
+in Dart, and returns a small, ranked, already-classified payload (`summary`, `top_findings`, `compound_findings`, and (where churn and complexity both apply) a ranked Tornhill `refactoring_targets` list).
 
-Every finding names the research behind its band in a compact `basis` tag (e.g.
-`Truck-factor estimation (Avelino et al. 2016)`), with a fuller per-finding
-`rationale` carried inline, including in the offload preview. 
+Every finding names the research behind its band in a compact `basis` tag (e.g. `Truck-factor estimation (Avelino et al. 2016)`), with a fuller per-finding `rationale` carried inline, including in the offload preview. 
 
-All five report tools also accept optional `since`/`until` parameters (ISO-8601
-dates or git relative phrases, e.g. `"2024-01-01"` or `"6 months ago"`) to scope
-analysis to a date window (e.g. "generate a report for 2024" or "for the
-previous 6 months"):
-- `generate_repository_audit`: High-level deep audit (technical + security +
-  delivery cadence + commit hygiene).
-- `generate_technical_report`: Code quality, technical debt, architecture code
-  quality heuristics (McCabe, maintainability index, ABC, NPath,
-  cognitive complexity, Halstead delivered-bugs) on top-churn files,
-  clean-code heuristics, architecture drift over inferred layers, Dart
-  import cycles, and refactoring-aware churn discounting.
+All five report tools also accept optional `since`/`until` parameters (ISO-8601 dates or git relative phrases, e.g. `"2024-01-01"` or `"6 months ago"`) to scope analysis to a date window (e.g. "generate a report for 2024" or "for the previous 6 months"):
+- `generate_repository_audit`: High-level deep audit (technical + security + delivery cadence + commit hygiene).
+- `generate_technical_report`: Code quality, technical debt, architecture code quality heuristics (McCabe, maintainability index, ABC, NPath, cognitive complexity, Halstead delivered-bugs) on top-churn files, clean-code heuristics, architecture drift over inferred layers, Dart import cycles, and refactoring-aware churn discounting.
 - `generate_security_report`: Secrets, compliance, dependency freshness.
-- `generate_pm_report`: Knowledge concentration (including the Bird
-  minor-contributor signal and author-level knowledge-loss risk), delivery
-  bottlenecks, and delivery cadence (velocity trend, author concentration,
-  burnout signals).
-- `generate_code_review_report`: Risk signals for code under review. This
-  includes secrets, code analysis heuristics, clean-code heuristics, ownership
-  structure, bug hotspots with refactoring-explained churn discounted.
+- `generate_pm_report`: Knowledge concentration (including the Bird minor-contributor signal and author-level knowledge-loss risk), delivery bottlenecks, and delivery cadence (velocity trend, author concentration, burnout signals).
+- `generate_code_review_report`: Risk signals for code under review. This includes secrets, code analysis heuristics, clean-code heuristics, ownership structure, bug hotspots with refactoring-explained churn discounted.
 
 **Dev Metrics & Technical Debt:**
-- `analyze_code_quality`: Identifies code smells and technical debt. Pass
-  `includeAuthors: true` to correlate metrics with authors.
-- `analyze_bug_hotspots`: Calculates bug hotspots using the
-  refactoring-aware SZZ algorithm (RA-SZZ). Pass `author` to scope the
+- `analyze_code_quality`: Identifies code smells and technical debt. Pass `includeAuthors: true` to correlate metrics with authors.
+- `analyze_bug_hotspots`: Calculates bug hotspots using the refactoring-aware SZZ algorithm (RA-SZZ). Pass `author` to scope the
   analysis to bugs introduced by a specific developer.
 - `analyze_bus_factor`: Calculates the Bus Factor (Truck Factor).
 - `analyze_logical_coupling`: Detects implicitly coupled files.
@@ -169,8 +129,7 @@ previous 6 months"):
 
 ### Installing Agent Skills
 
-The MCP Prompts above are propagated through the MCP offerring also shipped as
-file-based agent skills. To install them locally:
+The MCP Prompts above are propagated through the MCP offerring also shipped as file-based agent skills. To install them locally:
 
 ```bash
 npx @gbrandtio/rw-git-mcp install-skills
@@ -191,8 +150,7 @@ npx -y @gbrandtio/rw-git-mcp
 dart pub global activate rw_git
 ```
 
-**Pre-compiled Binaries**: Download native executables from 
-[GitHub Releases](https://github.com/gbrandtio/rw-git/releases).
+**Pre-compiled Binaries**: Download native executables from [GitHub Releases](https://github.com/gbrandtio/rw-git/releases).
 
 #### Client Configurations
 
@@ -228,17 +186,14 @@ claude mcp add rw_git --scope user -- npx -y @gbrandtio/rw-git-mcp
 ## Core Git Commands
 
 `rw_git` also provides a clean, fluent Dart API for standard Git operations. 
-All commands return strongly-typed domain models wrapped in a predictable 
-`Result` pattern.
+All commands return strongly-typed domain models wrapped in a predictable  `Result` pattern.
 
 - `init`, `clone`, `checkout`, `branch`, `status`, `pull`, `diff`, `merge`, 
   `stash`, `blame`, `show`, `fetchTags`, `getCommitsBetween`, `stats`.
 
 ## Using rw-git as a Library
 
-Every analysis behind the MCP tools above is also available as a plain Dart
-class, so you can use the same algorithms without running the MCP server.
-Each class takes a `ProcessRunner` and returns a strongly-typed DTO:
+Every analysis behind the MCP tools above is also available as a plain Dart class, so you can use the same algorithms without running the MCP server. Each class takes a `ProcessRunner` and returns a strongly-typed DTO:
 
 ```dart
 import 'package:rw_git/rw_git.dart';
@@ -304,16 +259,12 @@ For full API details, see our
 
 ## Contributing
 
-Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for
-details on filing issues, proposing features, setting up a development
-environment, and our pull request workflow.
+Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on filing issues, proposing features, setting up a development environment, and pull request workflow.
 
 ## License
 
-`rw_git` is released under the [MIT License](LICENSE). See
-[CHANGELOG.md](CHANGELOG.md) for release history.
+`rw_git` is released under the [MIT License](LICENSE). See [CHANGELOG.md](CHANGELOG.md) for release history.
 
 ## Additional information
 
-Please file any issues on the 
-[github issue tracker](https://github.com/gbrandtio/rw-git/issues).
+Please file any issues on the [github issue tracker](https://github.com/gbrandtio/rw-git/issues).
