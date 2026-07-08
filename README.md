@@ -1,5 +1,17 @@
 <p align="center">
-  <img src="https://user-images.githubusercontent.com/72696535/226140405-3bd31f1e-8cbb-4506-99db-1f0abce7c3fe.png" style="width: 20%;" alt="Github logo"/>
+  <svg width="100" height="100" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+  <g fill="none" stroke="#2E3D52" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 46 H26"/>
+    <path d="M26 46 C34 46 32 34 40 34"/>
+    <path d="M26 46 H36"/>
+    <path d="M40 34 L45 40 L54 19"/>
+  </g>
+  <circle cx="10" cy="46" r="4.5" fill="#2E3D52"/>
+  <circle cx="26" cy="46" r="4.5" fill="#2E3D52"/>
+  <circle cx="40" cy="34" r="4.5" fill="#2E3D52"/>
+  <circle cx="54" cy="19" r="6" fill="#D6408F"/>
+  <circle cx="54" cy="19" r="9.5" fill="none" stroke="#D6408F" stroke-width="2" opacity=".35"/>
+</svg>
 </p>
 <p align="center">
   <img src="https://github.com/gbrandtio/rw-git/actions/workflows/dart.yml/badge.svg" alt="Github action dart.yml badge"/>
