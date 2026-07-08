@@ -20,11 +20,9 @@
 Modern software teams generate a vast amount of data in their git history.
 `rw_git` turns that raw history into actionable intelligence that answers both
 interesting and critical questions. Different stakeholders have different
-questions, and need different data insights. This is why `rw_git` provides high
-quality, cost efficient answers and deep data intelligence.
+questions, and different data-insight needs.
 
-All data gathering and results extraction happen in runtime, through
-**algorithms** that are **research-backed** by **academic papers and
+`rw_git` provides high quality, cost efficient answers and deep data intelligence by performing all data gathering and results extraction during runtime, through **algorithms** that are **research-backed** by **academic papers and
 publications**.
 
 This enables 2 things:
