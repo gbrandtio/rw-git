@@ -2,9 +2,9 @@
 
 ## Business Logic
 
-Answers: "Which files and which authors are most associated with bugs across the entire codebase?" Surfaces systemic quality problems (the 20% of files that cause 80% of bugs) so that engineering leadership can make targeted investments in refactoring, testing, and code review focus.
+Answers: "Which files and which authors are most associated with bugs across the entire codebase?". Surfaces systemic quality problems (the 20% of files that cause 80% of bugs) so that engineering leadership can make targeted investments in refactoring, testing, and code review focus.
 
-Passing the optional `author` parameter narrows the same analysis to a single developer: "Which bugs did this developer introduce, and how long did each one live before being fixed?" This mode supports targeted code review, mentoring conversations, and identifying which modules carry a developer's knowledge debt. Output is not punitive — it surfaces where extra support or pair programming is needed, not who to blame.
+Passing the optional `author` parameter narrows the same analysis to a single developer: "Which bugs did this developer introduce, and how long did each one live before being fixed?" This mode supports targeted code review, mentoring conversations, and identifying which modules carry a developer's knowledge debt. Output is not punitive and shouldn't be used to punish or target individuals. It surfaces where extra support or pair programming is needed or which subsystems / areas are the most complex and volatile, not who to blame.
 
 ## Algorithm
 
@@ -24,11 +24,11 @@ For each fix commit, run:
 ```
 git diff -M -w --ignore-blank-lines <parent_hash> <fix_hash>
 ```
-Parse the unified diff to extract deleted lines (with their pre-image line numbers) from `@@` hunks. The `-w` (ignore whitespace) and `--ignore-blank-lines` flags suppress whitespace-only changes — the core MA-SZZ improvement that reduces false positives by approximately 30%.
+Parse the unified diff to extract deleted lines (with their pre-image line numbers) from `@@` hunks. The `-w` (ignore whitespace) and `--ignore-blank-lines` flags suppress whitespace-only changes. This is the core MA-SZZ improvement over the plain SZZ that reduces false positives by approximately 30%.
 
 **Phase 3 — Refactoring line filter (RA-SZZ):**
 
-A deleted line whose whitespace-normalized content re-appears among the same commit's added lines (in any file — moves cross files) was **moved by a refactoring**, not removed by the fix; it is excluded from blame. Lines shorter than 8 normalized characters (`}`, `return;`, `else {`) are exempt from this exclusion: such boilerplate recurs naturally and a match on it is not evidence of movement. This is a lexical, language-agnostic stand-in for RefDiff's AST-based refactoring-operation detection used by the original RA-SZZ.
+A deleted line whose whitespace-normalized content re-appears among the same commit's added lines (in any file, moves cross files) was **moved by a refactoring**, not removed by the fix; it is excluded from blame. Lines shorter than 8 normalized characters (`}`, `return;`, `else {`) are exempt from this exclusion: such boilerplate recurs naturally and a match on it is not evidence of movement. This is a lexical, language-agnostic stand-in for RefDiff's AST-based refactoring-operation detection used by the original RA-SZZ.
 
 **Phase 4 — Blame attribution:**
 
@@ -49,22 +49,22 @@ Fetch the introducing commit's subject (`git log -1`, cached per hash). If it ma
 **Phase 6 — Aggregation (always) and optional developer filtering:**
 
 - Aggregate per **file**:
-  - `bug_introductions`: how many bugs were introduced into this file
-  - `average_bug_lifetime_in_days`: mean of `(fix_date − introducing_date)` in fractional days across all bugs in this file. This is the SZZ *bug lifetime* (how long the bug existed in the codebase before being fixed), not the effort spent producing the fix; lifetimes of weeks or months are normal (Kim & Whitehead, MSR 2006)
+  - `bug_introductions`: how many bugs were introduced into this file.
+  - `average_bug_lifetime_in_days`: mean of `(fix_date − introducing_date)` in fractional days across all bugs in this file. This is the SZZ *bug lifetime* (how long the bug existed in the codebase before being fixed), not the effort spent producing the fix; lifetimes of weeks or months are normal (Kim & Whitehead, MSR 2006).
 - Aggregate per **author**:
-  - `bug_introductions`: total bugs attributed to this author
-- Sort files descending by `bug_introductions`; sort authors descending by `bug_introductions`
-- Return top 15 files and top 10 authors
-- When `author` is supplied: additionally retain only blame results where the introducing author name matches the queried developer name (case-insensitive substring match), and return them in a `developer_bug_analysis` section
+  - `bug_introductions`: total bugs attributed to this author.
+- Sort files descending by `bug_introductions`; sort authors descending by `bug_introductions`.
+- Return top 15 files and top 10 authors.
+- When `author` is supplied: additionally retain only blame results where the introducing author name matches the queried developer name (case-insensitive substring match), and return them in a `developer_bug_analysis` section.
 
 **Output (always):**
 - `total_fix_commits_analyzed`, `global_average_bug_lifetime_in_days`
 - `top_bug_hotspot_files`, `top_bug_hotspot_authors`
 
 **Output (only when `author` is supplied), per bug in `developer_bug_analysis.bug_introductions`:**
-- Introducing commit hash and fixing commit hash
-- Affected file path
-- Bug lifetime in days: `(fix_date − introducing_date)` in fractional days — the time the bug existed in the codebase before being fixed (SZZ bug lifetime), not the effort spent producing the fix
+- Introducing commit hash and fixing commit hash.
+- Affected file path.
+- Bug lifetime in days: `(fix_date − introducing_date)` in fractional days. This refers to the time the bug existed in the codebase before being fixed (SZZ bug lifetime), not the effort spent producing the fix.
 
 ## Academic Foundation
 
@@ -94,7 +94,7 @@ Fetch the introducing commit's subject (`git log -1`, cached per hash). If it ma
 
 **Key claim:** SZZ's false positive rate is further reducible by 10–20% when refactoring changes are excluded from attribution: lines touched only because code moved are not bug introductions, and commits that merely restructure code are not bug origins.
 
-**How rw-git uses it:** Three refactoring guards implement the RA-SZZ variant: the negative keyword filter excludes refactoring commits from the fix-candidate set (Phase 1); the moved-line filter excludes deleted lines that re-appear as added lines (Phase 3); and the refactoring-commit filter discards attributions whose introducing commit is itself a refactoring (Phase 5). rw-git is language-agnostic, so the line and commit filters are lexical heuristics standing in for RefDiff's AST-diff-based operation detection — the same trade-off documented for `analyze_refactoring`.
+**How rw-git uses it:** Three refactoring guards implement the RA-SZZ variant: the negative keyword filter excludes refactoring commits from the fix-candidate set (Phase 1); the moved-line filter excludes deleted lines that re-appear as added lines (Phase 3); and the refactoring-commit filter discards attributions whose introducing commit is itself a refactoring (Phase 5). `rw-git` is language-agnostic, so the line and commit filters are lexical heuristics standing in for RefDiff's AST-diff-based operation detection. This is the same trade-off documented for `analyze_refactoring`.
 
 ---
 
@@ -112,7 +112,7 @@ Fetch the introducing commit's subject (`git log -1`, cached per hash). If it ma
 
 **Published in:** ESEC/FSE, ACM
 
-**Key claim:** Author identity is a statistically significant feature in defect prediction models. Certain developers — not due to skill level but due to the complexity of the modules they own — contribute disproportionately to defect density.
+**Key claim:** Author identity is a statistically significant feature in defect prediction models. Certain developers, not due to skill level but due to the complexity of the modules they own, contribute disproportionately to defect density.
 
 **How rw-git uses it:** The `author`-scoped `developer_bug_analysis` section enables engineering leaders to distinguish module-driven defect patterns (a symptom of bad ownership assignment) from developer-driven patterns (a symptom of mentoring needs), rather than reading a raw per-author count as a performance signal.
 

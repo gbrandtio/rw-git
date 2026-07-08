@@ -2,15 +2,15 @@
 
 ## Business Logic
 
-Answers: "How much code changed between these two releases, and in which languages?" Provides language-stratified change volume — insertions and deletions per file extension — enabling scope estimation, release sizing, and language-specific effort analysis.
+Answers: "How much code changed between these two releases, and in which languages?". Provides language-stratified change volume, insertions and deletions per file extension enabling scope estimation, release sizing, and language-specific effort analysis.
 
 ## Algorithm
 
-1. `git diff --shortstat <ref1> <ref2>` — aggregate total insertions, deletions, and files changed
-2. `git diff --stat <ref1> <ref2>` — per-file breakdown with insertion and deletion counts
-3. Group per-file stats by file extension using regex: extract the extension from each file path
-4. Aggregate `insertions` and `deletions` per extension group
-5. Return: aggregate totals + per-extension breakdown sorted descending by total lines changed
+1. `git diff --shortstat <ref1> <ref2>` aggregate total insertions, deletions, and files changed.
+2. `git diff --stat <ref1> <ref2>` per-file breakdown with insertion and deletion counts.
+3. Group per-file stats by file extension using regex: extract the extension from each file path.
+4. Aggregate `insertions` and `deletions` per extension group.
+5. Return: aggregate totals + per-extension breakdown sorted descending by total lines changed.
 
 Special grouping: files without extensions (e.g., `Makefile`, `Dockerfile`) are grouped under `no_extension`.
 
@@ -22,7 +22,7 @@ Special grouping: files without extensions (e.g., `Makefile`, `Dockerfile`) are 
 
 **Key claim:** Lines of code (LOC) is the most widely available and practically useful scope metric for software project estimation. Despite its limitations, LOC remains the only metric derivable from version history without additional tooling.
 
-**How rw-git uses it:** The insertion + deletion count from `git diff --stat` is a LOC-change metric — the delta form of LOC that avoids the "more code = more work" conflation by measuring change volume, not total size.
+**How rw-git uses it:** The insertion + deletion count from `git diff --stat` is a LOC-change metric. The delta form of LOC that avoids the "more code = more work" conflation by measuring change volume, not total size.
 
 ---
 

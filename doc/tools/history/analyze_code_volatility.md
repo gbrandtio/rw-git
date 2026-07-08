@@ -8,14 +8,14 @@ Answers: "Which files are most at risk of containing latent defects, even if no 
 
 **ChurnHeuristic** processes the full repository history:
 
-1. `git log --name-only --format=%H||%an --no-merges` to parse each commit's changed file list and author
+1. `git log --name-only --format=%H||%an --no-merges` to parse each commit's changed file list and author.
 2. For each file path accumulate:
-   - `change_frequency`: number of distinct commits that modified this file
-   - `author_set`: set of unique author names who committed to this file
-3. Compute `author_count = author_set.length`
-4. Compute **volatility score**: `score = change_frequency × author_count`
-   - Multiplicative: a file changed 100 times by one author scores lower than a file changed 50 times by 10 authors
-5. Sort all files descending by `score`; return the top 50
+   - `change_frequency`: number of distinct commits that modified this file.
+   - `author_set`: set of unique author names who committed to this file.
+3. Compute `author_count = author_set.length`.
+4. Compute **volatility score**: `score = change_frequency × author_count`.
+   - Multiplicative: a file changed 100 times by one author scores lower than a file changed 50 times by 10 authors.
+5. Sort all files descending by `score`; return the top 50.
 
 ## Academic Foundation
 
@@ -43,7 +43,7 @@ Answers: "Which files are most at risk of containing latent defects, even if no 
 
 **Published in:** Empirical Software Engineering, Springer
 
-**Key claim:** Adding developer count per module as a feature to defect prediction models significantly improves prediction accuracy. Files touched by many developers have higher defect density independent of their churn rate — diffusion of responsibility, inconsistent conventions, and implicit coupling are the mechanisms.
+**Key claim:** Adding developer count per module as a feature to defect prediction models significantly improves prediction accuracy. Files touched by many developers have higher defect density independent of their churn rate.Diffusion of responsibility, inconsistent conventions, and implicit coupling are the mechanisms.
 
 **How rw-git uses it:** `author_count` is the second dimension of the volatility score, directly implementing this paper's finding. The multiplicative combination means both dimensions must be elevated for a file to rank highly.
 

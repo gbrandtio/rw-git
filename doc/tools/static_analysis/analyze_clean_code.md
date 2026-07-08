@@ -2,25 +2,25 @@
 
 ## Business Logic
 
-Answers: "Does this file respect clean code principles at the surface level?" A fast, language-agnostic first-pass quality gate that any developer can run on any file. Checks five structural signals that correlate with Single Responsibility Principle violations, poor readability, and copy-paste-driven development.
+Answers: "Does this file respect clean code principles at the surface level?". A fast, language-agnostic first-pass quality gate that any developer can run on any file. Checks five structural signals that correlate with Single Responsibility Principle violations, poor readability, and copy-paste-driven development.
 
 ## Algorithm
 
 Five checks run on the raw file content:
 
-1. **File length** — count total non-empty lines. Flag if > 300 lines. Threshold: large files tend to violate SRP by doing too many things.
+1. **File length**: count total non-empty lines. Flag if > 300 lines. Threshold: large files tend to violate SRP by doing too many things.
 
-2. **Indentation depth** — scan each line's leading whitespace, convert to indentation levels (tab = 1 level; 4 spaces = 1 level). Flag if `max_indentation_level ≥ 5`. Threshold: deeply nested code (arrow code / callback hell) has exponentially more execution paths than flat code.
+2. **Indentation depth**: scan each line's leading whitespace, convert to indentation levels (tab = 1 level; 4 spaces = 1 level). Flag if `max_indentation_level ≥ 5`. Threshold: deeply nested code (arrow code / callback hell) has exponentially more execution paths than flat code.
 
-3. **Long lines** — count lines > 120 characters. Flag if > 10% of lines exceed this threshold. Threshold: long lines indicate complex expressions, missing extractions, or deeply nested closures that should be decomposed.
+3. **Long lines**: count lines > 120 characters. Flag if > 10% of lines exceed this threshold. Threshold: long lines indicate complex expressions, missing extractions, or deeply nested closures that should be decomposed.
 
-4. **Magic numbers** — strip comment regions using a comment-stripping regex, then count integer literals with absolute value > 1 in remaining lines using:
+4. **Magic numbers**: strip comment regions using a comment-stripping regex, then count integer literals with absolute value > 1 in remaining lines using:
    ```
    \b(?!0\b|1\b)\d+\b
    ```
    Flag if count > 10. Threshold: unnamed integer constants are a readability and maintainability hazard.
 
-5. **Duplicate lines** — build a frequency map of all non-blank, trimmed lines longer than 5 characters (so recurring language boilerplate such as `}` is not counted). Count excess occurrences (frequency − 1) for any line appearing more than once. Flag as a clean-code issue when duplicates exceed 10% of the file's lines (Type-1 cloning, Koschke 2007).
+5. **Duplicate lines**: build a frequency map of all non-blank, trimmed lines longer than 5 characters (so recurring language boilerplate such as `}` is not counted). Count excess occurrences (frequency − 1) for any line appearing more than once. Flag as a clean-code issue when duplicates exceed 10% of the file's lines (Type-1 cloning, Koschke 2007).
 
 **Risk classification:** 0 issues = low risk; 1 issue = medium; 2+ issues = high.
 

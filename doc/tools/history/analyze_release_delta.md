@@ -2,18 +2,18 @@
 
 ## Business Logic
 
-Answers: "What changed between version X and version Y, and how risky was that change?" Provides a structured release brief: commit count, aggregate line delta, active contributor count, top-touched files, bug introductions within the delta, and blast radius. Used to populate release notes, inform go/no-go decisions, and satisfy audit requirements.
+Answers: "What changed between version X and version Y, and how risky was that change?". Provides a structured release brief: commit count, aggregate line delta, active contributor count, top-touched files, bug introductions within the delta, and blast radius. Used to populate release notes, inform go/no-go decisions, and satisfy audit requirements.
 
 ## Algorithm
 
 All sub-analyses run in parallel across Dart Isolates:
 
-1. **Commit enumeration:** `git log <tag1>..<tag2> --format=%H||%an||%aI||%s --no-merges` → structured commit list
-2. **Aggregate delta:** `git diff --shortstat <tag1> <tag2>` → total insertions, deletions, files changed
-3. **Per-file touch frequency:** `git log --name-only <tag1>..<tag2>` → file touch count map → top 10 most-modified files
-4. **Active contributors:** unique author names in the commit range
-5. **Bug introductions (SZZ):** BugHotspotsHeuristic scoped to the commit range → bug-introducing commits and affected files within the delta
-6. **Blast radius:** number of unique files touched in the range as a proxy for change surface area
+1. **Commit enumeration:** `git log <tag1>..<tag2> --format=%H||%an||%aI||%s --no-merges` → structured commit list.
+2. **Aggregate delta:** `git diff --shortstat <tag1> <tag2>` → total insertions, deletions, files changed.
+3. **Per-file touch frequency:** `git log --name-only <tag1>..<tag2>` → file touch count map → top 10 most-modified files.
+4. **Active contributors:** unique author names in the commit range.
+5. **Bug introductions (SZZ):** `BugHotspotsHeuristic` scoped to the commit range → bug-introducing commits and affected files within the delta.
+6. **Blast radius:** number of unique files touched in the range as a proxy for change surface area.
 
 ## Academic Foundation
 
@@ -43,7 +43,7 @@ All sub-analyses run in parallel across Dart Isolates:
 
 **Key claim:** Bug introductions can be identified from the commit history. Knowing how many bugs were introduced within a specific release interval gives a quality signal for that release.
 
-**How rw-git uses it:** The SZZ-derived `bug_introductions` count in the delta output gives engineering leaders a quantitative quality signal alongside the change volume metrics, not just "how much changed" but "how many bugs were introduced."
+**How rw-git uses it:** The SZZ-derived `bug_introductions` count in the delta output gives engineering leaders a quantitative quality signal alongside the change volume metrics. Meaning that it doesn't simply answer "how much changed" but "how many bugs were introduced."
 
 ---
 

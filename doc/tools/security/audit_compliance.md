@@ -2,7 +2,7 @@
 
 ## Business Logic
 
-Answers: "Does our commit history meet our governance policies?" Scans for unsigned commits, empty messages, commits from unrecognised authors, and non-Conventional Commits format — the core compliance requirements in regulated industries (SOC 2, ISO 27001, financial services, government contracting). Enables automated policy enforcement without a pre-receive hook.
+Answers: "Does our commit history meet our governance policies?" Scans for unsigned commits, empty messages, commits from unrecognised authors, and non-Conventional Commits format describes the core compliance requirements in regulated industries (SOC 2, ISO 27001, financial services, government contracting). Enables automated policy enforcement without a pre-receive hook.
 
 ## Algorithm
 
@@ -13,14 +13,14 @@ git log --format=%H||%G?||%ae||%an||%aI||%s [--since=<date>] [--until=<date>]
 ```
 
 Field meanings:
-- `%G?` — GPG signature status: `G` (good), `B` (bad), `U` (unknown key), `N` (no signature), `E` (expired key), `X` (expired signature), `Y` (expired key good sig), `R` (revoked key)
-- `%ae` — author email
-- `%s` — commit subject (first line of message)
+- `%G?`: GPG signature status: `G` (good), `B` (bad), `U` (unknown key), `N` (no signature), `E` (expired key), `X` (expired signature), `Y` (expired key good sig), `R` (revoked key).
+- `%ae`: Author email.
+- `%s`: Commit subject (first line of message).
 
 Four violation checks per commit:
 
 **1. Unsigned commits:**
-`%G?` is not `G` (good) and not `E` (expired — still cryptographically signed). Reports: commit hash, author name, email, date, GPG status code.
+`%G?` is not `G` (good) and not `E` (expired but still cryptographically signed). Reports: commit hash, author name, email, date, GPG status code.
 
 **2. Empty messages:**
 Subject (`%s`) is empty or contains only whitespace. Reports: commit hash, author, date.
@@ -35,7 +35,7 @@ Subject does not match:
 ```
 Reports: commit hash, author, date, actual subject.
 
-Additionally exposes `parseConventionalCommits()` for use by `generate_changelog` — same parser, reused for structured changelog generation.
+Additionally exposes `parseConventionalCommits()` for use by `generate_changelog` where it is reused for structured changelog generation.
 
 ## Academic Foundation
 
@@ -53,7 +53,7 @@ Additionally exposes `parseConventionalCommits()` for use by `generate_changelog
 
 **Published by:** National Institute of Standards and Technology
 
-**Key claim:** SSDF Practice PO.3.2 requires that all code changes be attributable to an authenticated identity (code signing). Practice PS.1.1 requires audit trail integrity — every code change must be traceable to an authorised developer. GPG-signed commits are the git-native mechanism for both requirements.
+**Key claim:** SSDF Practice PO.3.2 requires that all code changes be attributable to an authenticated identity (code signing). Practice PS.1.1 requires audit trail integrity: every code change must be traceable to an authorised developer. GPG-signed commits are the git-native mechanism for both requirements.
 
 **How rw-git uses it:** The unsigned commit check directly targets SSDF PO.3.2 and PS.1.1. The `allowedEmails` check targets PS.1.1 by verifying that committing authors are members of the authorised developer set.
 
@@ -61,7 +61,7 @@ Additionally exposes `parseConventionalCommits()` for use by `generate_changelog
 
 ### ISO/IEC 27001:2022 — Annex A, Control A.8.15 (Logging)
 
-**Key claim:** Information security logs must be protected against tampering and unauthorised modification. For source code repositories, cryptographic commit signatures provide tamper evidence — a backdated or injected commit is detectable because it cannot carry a valid GPG signature from the claimed time.
+**Key claim:** Information security logs must be protected against tampering and unauthorised modification. For source code repositories, cryptographic commit signatures provide tamper evidence. This makes a backdated or injected commit detectable because it cannot carry a valid GPG signature from the claimed time.
 
 **How rw-git uses it:** GPG signature verification (`%G?` = `G`) is the git implementation of ISO 27001 A.8.15 tamper evidence. The audit report gives compliance teams the data to demonstrate signature coverage.
 
@@ -83,4 +83,4 @@ Additionally exposes `parseConventionalCommits()` for use by `generate_changelog
 
 **Key claim:** Structured commit practices (meaningful messages, conventional formats, atomic commits) correlate with lower defect density and better release predictability. Projects with clear commit hygiene practices have more reliable release timelines.
 
-**How rw-git uses it:** The Conventional Commits compliance check is not only a governance requirement — it is a quality signal. Projects with high CC compliance tend to produce cleaner changelogs, more reliable semantic version bumps, and less confusion during incident postmortems.
+**How rw-git uses it:** The Conventional Commits compliance check serves as a governance requirement as well as a quality signal. Projects with high CC compliance tend to produce cleaner changelogs, more reliable semantic version bumps, and less confusion during incident postmortems.

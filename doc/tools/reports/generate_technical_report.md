@@ -12,7 +12,10 @@ This is a **report meta-tool** ([ADR-0005](../../adr/0005-server-side-interpreta
 2. One bounded top-churn sample (`BoundedLexicalMetricsSampler`, ADR-0014) feeds the full genuine lexical suite (McCabe, maintainability index, ABC, NPath, cognitive complexity, Halstead delivered-bugs), the clean-code heuristics, and (only on Dart repositories) Tarjan import-cycle detection. Churn is already computed, so this costs no extra git calls and report runtime stays bounded.
 3. Per-metric classifiers map each analysis DTO into severity-banded `Finding`s using the bands in [`doc/INTERPRETATION_GUIDE.md`](../../INTERPRETATION_GUIDE.md). The diff-keyword complexity proxy stays repo-relative, while the genuine lexical metrics use their standard absolute bands.
 4. A refactoring-aware pass (the RA-SZZ insight) downgrades churn/volatility findings one band when the file's changes are explained by detected refactorings, and surfaces notable refactoring activity as a tech-debt-paydown signal.
-5. The `CompoundFindingCorrelator` applies cross-tool AND-rules — e.g. a complexity outlier that also churns heavily is escalated as a defect-injection risk; a genuine McCabe outlier that churns is the strongest such signal; many minor contributors on a bug hotspot compounds Bird's ownership signal with SZZ's history signal.
+5. The `CompoundFindingCorrelator` applies cross-tool AND-rules. For example:
+    - A complexity outlier that also churns heavily is escalated as a defect-injection risk.
+    - A genuine McCabe outlier that churns is the strongest such signal.
+    - Many minor contributors on a bug hotspot compounds Bird's ownership signal with SZZ's history signal.
 6. Findings are ranked most-severe first and returned as a bounded `ReportPayload`, together with the ranked Tornhill `refactoring_targets` list (churn percentile × complexity percentile).
 
 ## Parameters

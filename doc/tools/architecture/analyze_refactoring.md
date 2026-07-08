@@ -2,21 +2,21 @@
 
 ## Business Logic
 
-Answers: "When did the team refactor, and what did they restructure?" Tracking refactoring activity over time reveals whether technical debt is being paid down, whether refactoring is dangerously bundled with features (a risk pattern), and whether renames indicate intentional architectural evolution.
+Answers: "When did the team refactor, and what did they restructure?". Tracking refactoring activity over time reveals whether technical debt is being paid down, whether refactoring is dangerously bundled with features (a risk pattern), and whether renames indicate intentional architectural evolution.
 
 ## Algorithm
 
 **RefactoringDetectionAlgorithm** uses three complementary heuristics:
 
 1. **Keyword detection:**
-   `git log --format=%H||%s --no-merges` — match commit subjects against:
+   `git log --format=%H||%s --no-merges`: match commit subjects against:
    ```
    refactor|rewrite|restructure|clean|cleanup|extract|rename|move|reorganize|simplify|decouple
    ```
    (case-insensitive)
 
 2. **Rename detection:**
-   `git log -M --name-status --no-merges` — the `-M` flag activates git's similarity-based rename detector (default threshold: 50% content similarity). Lines beginning with `R` in the name-status output indicate detected renames.
+   `git log -M --name-status --no-merges`: the `-M` flag activates git's similarity-based rename detector (default threshold: 50% content similarity). Lines beginning with `R` in the name-status output indicate detected renames.
 
 3. **Simplification ratio:**
    `git log --shortstat --no-merges` and for each commit, compute:

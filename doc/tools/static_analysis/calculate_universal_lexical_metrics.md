@@ -2,7 +2,7 @@
 
 ## Business Logic
 
-Answers: "How complex is this file, and will it be easy to maintain?" Provides seven orthogonal complexity dimensions for any source file in any programming language, using a single FSM-based lexer as the computational engine. No language-specific parser is required — the lexer tokenises source into a universal token stream that all seven algorithms operate on.
+Answers: "How complex is this file, and will it be easy to maintain?". Provides seven orthogonal complexity dimensions for any source file in any programming language, using a single FSM-based lexer as the computational engine. No language-specific parser is required since the lexer tokenises source into a universal token stream that all seven algorithms operate on.
 
 ## Algorithm
 
@@ -29,7 +29,7 @@ Each addition represents one new independent execution path. Base value 1 repres
 
 **Formula:** `NPath = 2^#{decision_points}`
 
-Decision points are control-flow keywords that add new acyclic execution paths. `else` and `catch` are excluded because they do not add new paths — they handle the path already opened by their corresponding `if` or `try`. Clamped at `1 << 30` (~1 billion) to prevent integer overflow.
+Decision points are control-flow keywords that add new acyclic execution paths. `else` and `catch` are excluded because they do not add new paths rather they handle the path already opened by their corresponding `if` or `try`. Clamped at `1 << 30` (~1 billion) to prevent integer overflow.
 
 **Thresholds:** NPath > 200 (≈ 8 decisions) = more test cases than a team can realistically write.
 
@@ -51,17 +51,17 @@ Three counts extracted from the token stream:
 ### 4. Halstead Metrics (Halstead, 1977)
 
 From the token stream:
-- n₁ = unique operator types; n₂ = unique operand types
-- N₁ = total operator occurrences; N₂ = total operand occurrences
+- n₁ = unique operator types; n₂ = unique operand types.
+- N₁ = total operator occurrences; N₂ = total operand occurrences.
 
 **Derived metrics:**
 - `vocabulary = n₁ + n₂`
 - `length = N₁ + N₂`
-- `volume = length × log₂(vocabulary)` — information content in bits
-- `difficulty = (n₁ / 2) × (N₂ / n₂)` — error-proneness
-- `effort = difficulty × volume` — cognitive effort to implement
-- `time_to_implement = effort / 18` — estimated implementation time in seconds
-- `delivered_bugs = volume / 3000` — estimated bugs delivered
+- `volume = length × log₂(vocabulary)`: information content in bits
+- `difficulty = (n₁ / 2) × (N₂ / n₂)`: error-proneness
+- `effort = difficulty × volume`: cognitive effort to implement
+- `time_to_implement = effort / 18`: estimated implementation time in seconds
+- `delivered_bugs = volume / 3000`: estimated bugs delivered
 
 ---
 
@@ -111,9 +111,9 @@ where V = Halstead volume, G = cyclomatic complexity, LOC = source lines of code
 
 **Published in:** Communications of the ACM (CACM)
 
-**Key claim:** NPath counts the number of acyclic execution paths through a function — a number that grows exponentially with branching depth. Functions with NPath > 200 are statistically associated with significantly higher field defect rates. NPath is stricter than CC because it captures the combinatorial explosion of test cases required by nested branching.
+**Key claim:** NPath counts the number of acyclic execution paths through a function, a number that grows exponentially with branching depth. Functions with NPath > 200 are statistically associated with significantly higher field defect rates. NPath is stricter than CC because it captures the "combinatorial explosion" of test cases required by nested branching.
 
-**How rw-git uses it:** `2^decisions` is an approximation of the exact NPath formula that avoids summing path products per construct. For standard structured programs it produces equivalent results. The `1 << 30` cap prevents nonsensical values for functions with extreme nesting.
+**How rw-git uses it:** `2^decisions` is an approximation of the exact NPath formula that avoids summing path products per construct. For standard structured programs it produces equivalent results. The `1 << 30` (~1 billion) cap prevents nonsensical values for functions with extreme nesting.
 
 ---
 
@@ -133,7 +133,7 @@ where V = Halstead volume, G = cyclomatic complexity, LOC = source lines of code
 
 **Key claim:** Software has measurable information-theoretic properties derivable from operator and operand counts alone. Volume, Difficulty, Effort, and Delivered Bugs are derived metrics that predict implementation time and defect density without executing the program. Halstead's Bug metric (`Volume / 3000`) has been repeatedly validated against industrial defect data.
 
-**How rw-git uses it:** The `delivered_bugs` estimate is the most practically useful Halstead output — it gives an upper-bound estimate of how many bugs a function of that volume is likely to contain, independent of testing.
+**How rw-git uses it:** The `delivered_bugs` estimate is the most practically useful Halstead output. It gives an upper-bound estimate of how many bugs a function of that volume is likely to contain, independent of testing.
 
 ---
 
@@ -141,7 +141,7 @@ where V = Halstead volume, G = cyclomatic complexity, LOC = source lines of code
 
 **Published by:** SonarSource (White paper)
 
-**Key claim:** Cyclomatic Complexity treats all branches as equally difficult to understand. Human comprehension studies show that nesting multiplies difficulty — a condition 4 levels deep is much harder to reason about than 4 sequential conditions. Cognitive Complexity adds a nesting depth penalty, producing scores that better correlate with human code-reading time.
+**Key claim:** Cyclomatic Complexity treats all branches as equally difficult to understand. Human comprehension studies show that nesting multiplies difficulty. For example, a condition 4 levels deep is much harder to reason about than 4 sequential conditions. Cognitive Complexity adds a nesting depth penalty, producing scores that better correlate with human code-reading time.
 
 **How rw-git uses it:** Cognitive Complexity is computed alongside CC to provide both perspectives: CC is the testability metric; Cognitive is the readability metric. A function can score low on CC but high on Cognitive (flat but many logical operators) or vice versa.
 

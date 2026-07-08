@@ -2,40 +2,46 @@
 
 ## Business Logic
 
-Answers: "What breaks if we merge this Dart change?" Performs deep semantic analysis of up to 10 changed Dart files: dependency graph extraction, public API signature diff, dead code candidate identification, and import cycle detection. Scoped to a 10-file maximum to prevent performance degradation in large PRs.
+Answers: "What breaks if we merge this Dart change?". Performs deep semantic analysis of up to 10 changed Dart files: 
+- Dependency graph extraction
+- Public API signature diff
+- Dead code candidate identification
+- Import cycle detection.
+
+Scoped to a 10-file maximum to prevent performance degradation in large PRs.
 
 ## Algorithm
 
 **DartAstAnalyzer** using `dart:analyzer` (the Dart SDK's official parser):
 
-**Step 1 — Changed file identification:**
+**Step 1: Changed file identification:**
 ```
 git merge-base <base> <target>
 git diff --name-only <merge_base> <target>
 ```
 Filter to `.dart` files. Abort if > 10 files (scope constraint).
 
-**Step 2 — AST parsing (per file, in a Dart Isolate):**
+**Step 2: AST parsing (per file, in a Dart Isolate):**
 `parseString(content: source, throwIfDiagnostics: false)` from `package:analyzer/dart/analysis/utilities.dart` produces a full `CompilationUnit` AST.
 
-**Step 3 — AST visitor (`RecursiveAstVisitor<void>`):**
+**Step 3: AST visitor (`RecursiveAstVisitor<void>`):**
 Walks the AST collecting:
-- `visitImportDirective` — import URIs → `imports` list
-- `visitClassDeclaration` — class names → `api_signatures`
-- `visitMethodDeclaration` — public methods (no `_` prefix) → `api_signatures`; private → `internal_methods`
-- `visitFunctionDeclaration` — top-level functions
-- `visitMethodInvocation` — `{target: [method, ...]}` dependency graph; all method names → `invocations`
+- `visitImportDirective`: import URIs → `imports` list.
+- `visitClassDeclaration`: class names → `api_signatures`.
+- `visitMethodDeclaration`: public methods (no `_` prefix) → `api_signatures`; private → `internal_methods`.
+- `visitFunctionDeclaration`: top-level functions.
+- `visitMethodInvocation`: `{target: [method, ...]}` dependency graph; all method names → `invocations`.
 
-**Step 4 — Import cycle detection (Tarjan's SCC):**
+**Step 4: Import cycle detection (Tarjan's SCC):**
 Build a directed graph from the `imports` map collected across all analyzed files. Run **Tarjan's Strongly Connected Components algorithm**:
-- DFS with a discovery-time stack and a "low-link" value per node
-- When `lowlink[v] == disc[v]`, v is the root of an SCC
-- Pop the stack to get all nodes in the SCC
-- SCCs of size > 1 are circular import chains → reported in `import_cycles`
+- DFS with a discovery-time stack and a "low-link" value per node.
+- When `lowlink[v] == disc[v]`, v is the root of an SCC.
+- Pop the stack to get all nodes in the SCC.
+- SCCs of size > 1 are circular import chains → reported in `import_cycles`.
 
-**Output per file:** `api_signatures`, `internal_methods`, `dependencies` graph, `invocations`, `imports`
+**Output per file:** `api_signatures`, `internal_methods`, `dependencies` graph, `invocations`, `imports`.
 
-**Output global:** `import_cycles` list (each cycle is a list of file paths forming a cycle)
+**Output global:** `import_cycles` list (each cycle is a list of file paths forming a cycle).
 
 ## Academic Foundation
 
@@ -43,7 +49,7 @@ Build a directed graph from the `imports` map collected across all analyzed file
 
 **Published in:** Addison-Wesley
 
-**Key claim:** Abstract Syntax Trees are the canonical internal representation for semantic analysis of source code. All non-trivial code analysis — type checking, dead code detection, dependency analysis — requires an AST rather than token-level processing.
+**Key claim:** Abstract Syntax Trees are the canonical internal representation for semantic analysis of source code. All non-trivial code analysis (type checking, dead code detection, dependency analysis) requires an AST rather than token-level processing.
 
 **How rw-git uses it:** The decision to use `dart:analyzer`'s `parseString()` (which produces a full typed AST) rather than the FSM lexer is justified by this principle: the analyses performed (dependency graphs, import tracking, API signatures) require AST-level structural information that the FSM lexer cannot provide.
 
@@ -53,7 +59,7 @@ Build a directed graph from the `imports` map collected across all analyzed file
 
 **Published in:** SIAM Journal on Computing
 
-**Key claim:** Strongly Connected Components (SCCs) of a directed graph can be identified in O(V + E) time using a single DFS pass with a discovery-time stack. Nodes in the same SCC can mutually reach each other — in an import graph, this means they form a circular dependency cycle.
+**Key claim:** Strongly Connected Components (SCCs) of a directed graph can be identified in O(V + E) time using a single DFS pass with a discovery-time stack. Nodes in the same SCC can mutually reach each other. In an import graph, this means they form a circular dependency cycle.
 
 **How rw-git uses it:** The `detectImportCycles` method implements Tarjan's algorithm to find all circular import chains among the analyzed files. SCCs of size > 1 are cycles. The O(V + E) complexity means the algorithm is practical even for large import graphs.
 
@@ -63,7 +69,7 @@ Build a directed graph from the `imports` map collected across all analyzed file
 
 **Published in:** Journal of Software Maintenance and Evolution, Wiley
 
-**Key claim:** 80% of API breakage in studied projects came from renaming and parameter changes — not from deletion. Detecting which public method signatures changed between branches requires an AST-level comparison of declared types and parameter lists.
+**Key claim:** 80% of API breakage in studied projects came from renaming and parameter changes, not from deletion. Detecting which public method signatures changed between branches requires an AST-level comparison of declared types and parameter lists.
 
 **How rw-git uses it:** The `api_signatures` collection (class names + public method names) provides the surface for API breakage detection. A diff of `api_signatures` between base and target branch surfaces additions (safe) and removals / renames (breaking).
 
@@ -73,9 +79,9 @@ Build a directed graph from the `imports` map collected across all analyzed file
 
 **Published in:** POPL, ACM
 
-**Key claim:** The call graph (which function calls which) is the fundamental data structure for impact analysis — answering "if this function changes, what else might break?" Constructing it from an AST requires tracking method invocations as directed edges from caller to callee.
+**Key claim:** The call graph (which function calls which) is the fundamental data structure for impact analysis, answering "if this function changes, what else might break?". Constructing it from an AST requires tracking method invocations as directed edges from caller to callee.
 
-**How rw-git uses it:** The `dependencies` graph (target → [methods called on target]) is the tool's approximation of a call graph. It is underspecified (no type resolution, so target is a name not a type) but sufficient for identifying high-fan-in nodes — callers that depend on many external targets.
+**How rw-git uses it:** The `dependencies` graph (target → [methods called on target]) is the tool's approximation of a call graph. It is underspecified (no type resolution, so target is a name not a type) but sufficient for identifying high-fan-in nodes (callers that depend on many external targets).
 
 ---
 
@@ -93,6 +99,6 @@ Build a directed graph from the `imports` map collected across all analyzed file
 
 **Published in:** MSR, IEEE
 
-**Key claim:** Breaking API changes — where a public method is removed or its signature changes — are the primary source of downstream build failures. Detecting them at PR time rather than at integration time saves significant engineering time.
+**Key claim:** Breaking API changes (where a public method is removed or its signature changes) are the primary source of downstream build failures. Detecting them at PR time rather than at integration time saves significant engineering time.
 
 **How rw-git uses it:** The 10-file scope constraint exists precisely because AST-level analysis is expensive, and the most valuable use case is PR-time review of a small set of changed files, not batch analysis of an entire codebase.

@@ -2,7 +2,7 @@
 
 ## Business Logic
 
-Answers: "Who contributes how much?" Provides a ranked author contribution table for team reporting, performance review input, onboarding documentation, and spotting contributor drop-off or knowledge concentration risk.
+Answers: "Who contributes how much?". Provides a ranked author contribution table for team reporting, performance review input, onboarding documentation, and spotting contributor drop-off or knowledge concentration risk.
 
 ## Algorithm
 
@@ -58,4 +58,4 @@ Optional `since` and `until` parameters enable scoped queries (e.g., last 90 day
 
 **Key claim:** Authors who contribute fewer than 5% of a module's changes ("minor contributors") are significantly associated with higher post-release defect density in that module. The contribution count ranking enables identification of minor contributors.
 
-**How rw-git uses it:** Authors near the bottom of the ranked list who are committing to core modules may be contributing as minor authors to those modules — a risk signal that `analyze_file_ownership` investigates at the file level.
+**How rw-git uses it:** Authors near the bottom of the ranked list who are committing to core modules may be contributing as minor authors to those modules. This is a risk signal that `analyze_file_ownership` investigates at the file level.

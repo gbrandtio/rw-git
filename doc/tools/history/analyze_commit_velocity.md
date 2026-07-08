@@ -2,24 +2,24 @@
 
 ## Business Logic
 
-Answers: "Is our team's delivery pace healthy, and where is it heading?" Produces a time-series of commits per configurable period (day / week / month), surfaces burnout signals (off-hours commits), detects anomalous spikes, quantifies commit inequality across authors, and fits a linear trend to the velocity data. Feeds DORA Deployment Frequency benchmarking.
+Answers: "Is our team's delivery pace healthy, and where is it heading?".Produces a time-series of commits per configurable period (day / week / month), surfaces burnout signals (off-hours commits), detects anomalous spikes, quantifies commit inequality across authors, and fits a linear trend to the velocity data. Feeds DORA Deployment Frequency benchmarking.
 
 ## Algorithm
 
 **CommitVelocityHeuristic** runs the following pipeline:
 
-1. `git log --format=%H||%an||%aI --no-merges` — retrieve all commits with author and ISO-8601 timestamp
-2. **Bucketing**: group commits into periods using ISO week / calendar month arithmetic; count commits per bucket per author
-3. **Burnout detection**: commits with a local hour outside 09:00–17:00 are flagged as `burnout_commits`; the count is reported as a team signal
-4. **Trend classification** — compare mean commit rate in the first half of history vs. the second half:
+1. `git log --format=%H||%an||%aI --no-merges` retrieve all commits with author and ISO-8601 timestamp.
+2. **Bucketing**: group commits into periods using ISO week / calendar month arithmetic; count commits per bucket per author.
+3. **Burnout detection**: commits with a local hour outside 09:00–17:00 are flagged as `burnout_commits`; the count is reported as a team signal.
+4. **Trend classification** compare mean commit rate in the first half of history vs. the second half:
    - second_half_mean > first_half_mean × 1.2 → `accelerating`
    - second_half_mean < first_half_mean × 0.8 → `decelerating`
    - otherwise → `stable`
-5. **Anomaly detection**: any period whose commit count exceeds μ + 2σ is flagged as an anomaly
+5. **Anomaly detection**: any period whose commit count exceeds μ + 2σ is flagged as an anomaly.
 6. **Gini coefficient**: measures how unevenly commits are distributed across authors:
-   - Formula: `G = Σ|x_i − x_j| / (2 × n × Σx_i)`, equivalent to the sum-of-absolute-differences form
+   - Formula: `G = Σ|x_i − x_j| / (2 × n × Σx_i)`, equivalent to the sum-of-absolute-differences form.
    - 0.0 = perfectly equal contribution; 1.0 = one author made all commits
-7. **Linear regression slope (OLS)** — fit a straight line through the sequence of per-bucket commit counts:
+7. **Linear regression slope (OLS)** fit a straight line through the sequence of per-bucket commit counts:
    - `slope = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²)`
    - Positive slope = accelerating trend; negative = decelerating; near-zero = stable
 
