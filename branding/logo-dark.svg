@@ -1,0 +1,13 @@
+<svg width="64" height="64" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="rw_git mark">
+  <g fill="none" stroke="#C3CFDF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M10 46 H26"/>
+    <path d="M26 46 C34 46 32 34 40 34"/>
+    <path d="M26 46 H36"/>
+    <path d="M40 34 L45 40 L54 19"/>
+  </g>
+  <circle cx="10" cy="46" r="4.5" fill="#C3CFDF"/>
+  <circle cx="26" cy="46" r="4.5" fill="#C3CFDF"/>
+  <circle cx="40" cy="34" r="4.5" fill="#C3CFDF"/>
+  <circle cx="54" cy="19" r="6" fill="#F272B6"/>
+  <circle cx="54" cy="19" r="9.5" fill="none" stroke="#F272B6" stroke-width="2" opacity=".35"/>
+</svg>

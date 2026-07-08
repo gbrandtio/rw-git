@@ -1,0 +1,16 @@
+<svg width="310" height="80" viewBox="0 0 310 80" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="rw_git logo">
+  <g transform="translate(8,8)">
+    <g fill="none" stroke="#C3CFDF" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M10 46 H26"/>
+      <path d="M26 46 C34 46 32 34 40 34"/>
+      <path d="M26 46 H36"/>
+      <path d="M40 34 L45 40 L54 19"/>
+    </g>
+    <circle cx="10" cy="46" r="4.5" fill="#C3CFDF"/>
+    <circle cx="26" cy="46" r="4.5" fill="#C3CFDF"/>
+    <circle cx="40" cy="34" r="4.5" fill="#C3CFDF"/>
+    <circle cx="54" cy="19" r="6" fill="#F272B6"/>
+    <circle cx="54" cy="19" r="9.5" fill="none" stroke="#F272B6" stroke-width="2" opacity=".35"/>
+  </g>
+  <text x="90" y="53" font-family="ui-monospace,'SF Mono',SFMono-Regular,Menlo,Consolas,'Liberation Mono',monospace" font-size="38" font-weight="600" letter-spacing="-0.5" fill="#E8EDF4">rw<tspan fill="#F272B6">_</tspan>git</text>
+</svg>
