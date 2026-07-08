@@ -1,3 +1,54 @@
+# 3.2.1
+- **BREAKING (MCP):** `find_bugs_by_developer` is removed and merged into
+  **`analyze_bug_hotspots`** via a new optional `author` parameter (plus
+  `positiveRegex`/`negativeRegex`, previously only available on the removed
+  tool). Both tools ran the identical RA-SZZ pipeline (`SzzAlgorithm`) and
+  only differed in whether the resulting matches were aggregated or
+  filtered by author; `analyze_bug_hotspots` now does both in one call,
+  returning an additional `developer_bug_analysis` section when `author` is
+  supplied. Clients calling `find_bugs_by_developer` must switch to
+  `analyze_bug_hotspots` with the `author` parameter. `BugHotspotsHeuristic`
+  is refactored into a pure `aggregate(List<SzzMatch>)` function (no longer
+  owns the `SzzAlgorithm` call), so the shared SZZ pass now runs once per
+  `analyze_bug_hotspots` invocation instead of twice.
+- **DOCS (Tools):** Merged `doc/tools/history/find_bugs_by_developer.md`
+  into `doc/tools/history/analyze_bug_hotspots.md`, folding in the
+  developer-filtering phase and the Zimmermann et al. (2007) *Cross-Project
+  Defect Prediction* citation. Updated the `find_bugs_by_developer.md`
+  cross-references in `doc/tools/history/generate_changelog.md` to point at
+  `analyze_bug_hotspots.md`. `README.md` no longer lists
+  `find_bugs_by_developer` and documents the `author` filter under
+  `analyze_bug_hotspots`.
+- - **Fixed:** `get_contributions_by_author` now actually implements the
+    `git shortlog -sn --no-merges [--since=<date>] [--until=<date>]` behavior
+    its documentation already described. `ShortlogCommand` previously ran a
+    bare `git shortlog HEAD -s` and silently ignored its own `extraArgs`
+    parameter — sort-by-count (`-n`), merge-commit exclusion (`--no-merges`),
+    and date-range filtering were all doc-only. This was a doc/implementation
+    gap fix (not a new feature): `since`/`until` are validated with the same
+    shared `isValidDateInput` and forwarded through `RwGit.contributionsByAuthor`
+    exactly like the report tools.
+- **Added:** The five report meta-tools (`generate_technical_report`,
+  `generate_pm_report`, `generate_code_review_report`,
+  `generate_security_report`, `generate_repository_audit`) now accept
+  optional `since`/`until` parameters for date-bounded analysis (e.g.
+  "report for 2024" via `since: "2024-01-01", until: "2025-01-01"`, or "the
+  previous 6 months" via `since: "6 months ago"`). Values are validated
+  (shared `isValidDateInput` in `lib/src/mcp/utils/date_range_validation.dart`)
+  and forwarded verbatim to git's own `--since=`/`--until=` date parsing — no
+  natural-language date math is implemented in Dart. The effective window is
+  echoed back in the report's `metadata` when supplied. Every underlying
+  analyzer the report orchestrator composes (churn, bus factor, SZZ bug
+  hotspots, logical coupling, code volatility, refactoring detection,
+  architecture drift, secrets scanning, compliance scanning, mega/suspicious
+  commit detection) now accepts the same `since`/`until` parameters.
+- **Changed (MCP offload contract):** The offload `preview` built by
+  `McpToolFileOffloadDecorator` no longer strips the per-finding `rationale`
+  field or caps the `hints` list at 3 entries — both are now carried in
+  full, matching the uncapped full-report contract. The now-unused
+  `previewStrippedFindingKeys`/`previewHintsLimit` constants are removed
+  from `lib/src/constants.dart`.
+
 # 3.2.0
 - **BREAKING (MCP surface, prompts):** The five reporting prompts/skills are
   consolidated into the single `rw-git-mcp-reporting` prompt and agent skill.
