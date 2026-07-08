@@ -1,8 +1,10 @@
 <p align="center">
   <picture>
-  <source media="(prefers-color-scheme: dark)" srcset="branding/lockup-dark.png">
-  <img src="branding/lockup.png" alt="rw_git" width="310">
-</picture>
+    <source
+      media="(prefers-color-scheme: dark)"
+      srcset="branding/lockup-dark.png">
+    <img src="branding/lockup.png" alt="rw_git" width="310">
+  </picture>
 </p>
 <p align="center">
   <img src="https://github.com/gbrandtio/rw-git/actions/workflows/dart.yml/badge.svg" alt="Github action dart.yml badge"/>
