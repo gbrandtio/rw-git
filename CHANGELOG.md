@@ -1,3 +1,6 @@
+# 3.2.2
+- **FIX (documentation):** Fixing README.md documentation and branding in order to render correctly in pub.dev.
+
 # 3.2.1
 - **BREAKING (MCP):** `find_bugs_by_developer` is removed and merged into
   **`analyze_bug_hotspots`** via a new optional `author` parameter (plus
