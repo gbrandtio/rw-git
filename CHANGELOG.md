@@ -22,7 +22,7 @@
   `analyze_bug_hotspots.md`. `README.md` no longer lists
   `find_bugs_by_developer` and documents the `author` filter under
   `analyze_bug_hotspots`.
-- - **Fixed:** `get_contributions_by_author` now actually implements the
+- **Fixed:** `get_contributions_by_author` now actually implements the
     `git shortlog -sn --no-merges [--since=<date>] [--until=<date>]` behavior
     its documentation already described. `ShortlogCommand` previously ran a
     bare `git shortlog HEAD -s` and silently ignored its own `extraArgs`
