@@ -3,11 +3,13 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/models/architecture_drift_dto.dart';
 
-import '../finding.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../models/severity.dart';
 
 /// Classifies architecture-drift analysis into findings: the architectural
 /// bad smells of Garcia, Oliveira & Murta (2009) — God Component and
@@ -38,7 +40,7 @@ class ArchitectureDriftClassifier {
       final isScattered = smell.type == 'Scattered Functionality';
       findings.add(Finding(
         category: 'architectureDrift',
-        source: 'analyze_architecture_drift',
+        source: [AnalysisType.architectureDrift],
         severity: isScattered ? Severity.moderate : Severity.high,
         subject: smell.layer ?? 'repository',
         metric: 'architectural_smell',
@@ -64,7 +66,7 @@ class ArchitectureDriftClassifier {
     if (drift.couplingRatio > couplingRatioElevatedThreshold) {
       findings.add(Finding(
         category: 'architectureDrift',
-        source: 'analyze_architecture_drift',
+        source: [AnalysisType.architectureDrift],
         severity: Severity.elevated,
         subject: 'repository',
         metric: 'coupling_ratio',
@@ -86,7 +88,7 @@ class ArchitectureDriftClassifier {
     if (drift.couplingDensity > couplingDensityElevatedThreshold) {
       findings.add(Finding(
         category: 'architectureDrift',
-        source: 'analyze_architecture_drift',
+        source: [AnalysisType.architectureDrift],
         severity: Severity.elevated,
         subject: 'repository',
         metric: 'coupling_density',

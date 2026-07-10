@@ -120,9 +120,13 @@ class SzzAlgorithm {
     }
 
     final matches = <SzzMatch>[];
-    for (final fixInfo in fixCommits) {
-      matches.addAll(await _traceIntroducingCommits(
-          directory, fixInfo.hash, fixInfo.date));
+    const chunkSize = 10;
+    for (var i = 0; i < fixCommits.length; i += chunkSize) {
+      final chunk = fixCommits.skip(i).take(chunkSize);
+      final futures = chunk.map((fixInfo) =>
+          _traceIntroducingCommits(directory, fixInfo.hash, fixInfo.date));
+      final results = await Future.wait(futures);
+      matches.addAll(results.expand((m) => m));
     }
     return matches;
   }

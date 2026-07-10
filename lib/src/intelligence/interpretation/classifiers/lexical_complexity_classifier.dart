@@ -3,12 +3,14 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/models/file_lexical_metrics_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../models/severity.dart';
 
 /// Classifies the genuine per-file lexical complexity suite — McCabe
 /// cyclomatic complexity, maintainability index, ABC score, NPath,
@@ -52,7 +54,7 @@ class LexicalComplexityClassifier {
       final normalized = PathKey.normalize(file.filePath);
       findings.add(Finding(
         category: 'lexicalComplexity',
-        source: 'calculate_universal_lexical_metrics',
+        source: [AnalysisType.universalLexicalMetrics],
         severity: worst.severity,
         subject: normalized,
         metric: worst.metric,

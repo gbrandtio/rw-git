@@ -20,11 +20,12 @@
 /// [ReportPayload] level from the catalog entries of the analyses they run.
 library;
 
-import 'tool_hints.dart';
+import '../models/tool_hints.dart';
+import '../models/analysis_type.dart';
 
-const Map<String, ToolHints> toolHintsCatalog = {
+const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
   // ---------------------------------------------------------------- Architecture
-  'analyze_bus_factor': ToolHints(
+  AnalysisType.busFactor: ToolHints(
     interpretation: [
       'Across the open-source projects studied by Avelino et al. 2016, the '
           'typical project can survive the loss of only two key contributors '
@@ -60,7 +61,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_logical_coupling': ToolHints(
+  AnalysisType.logicalCoupling: ToolHints(
     interpretation: [
       'When two files change together in the same commit more than 60% of '
           'the time one changes at all, that is strong evidence they are '
@@ -92,7 +93,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_architecture_drift': ToolHints(
+  AnalysisType.architectureDrift: ToolHints(
     interpretation: [
       'This tool names three specific ways a codebase\'s actual '
           'change-history structure can drift from its intended layering '
@@ -134,7 +135,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_dependency_drift': ToolHints(
+  AnalysisType.dependencyDrift: ToolHints(
     interpretation: [
       'A dependency risk of "none" describes a project where every '
           'dependency is pinned to an exact version and a lock file is '
@@ -168,7 +169,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_file_ownership': ToolHints(
+  AnalysisType.fileOwnership: ToolHints(
     interpretation: [
       'The share of a file\'s history contributed by people who each '
           'touched it only rarely is one of the strongest known predictors '
@@ -208,7 +209,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_refactoring': ToolHints(
+  AnalysisType.refactoring: ToolHints(
     interpretation: [
       'The overwhelming majority of refactoring activity in real projects '
           'happens mixed into the same commit as feature work or a bug fix, '
@@ -243,7 +244,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
   ),
 
   // -------------------------------------------------------------------- History
-  'analyze_bug_hotspots': ToolHints(
+  AnalysisType.bugHotspots: ToolHints(
     interpretation: [
       'Defects in a codebase are not spread evenly: a consistent, '
           'stable pattern across many studied projects and releases is that '
@@ -298,7 +299,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_code_volatility': ToolHints(
+  AnalysisType.codeVolatility: ToolHints(
     interpretation: [
       'Two independent, separately validated signals combine in this '
           'tool\'s ranking, and both matter on their own. How often a file '
@@ -325,7 +326,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_commit_velocity': ToolHints(
+  AnalysisType.commitVelocity: ToolHints(
     interpretation: [
       'When a project has no release tags to measure against directly, '
           'commit velocity is a reasonable stand-in for the Deployment '
@@ -364,7 +365,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_release_delta': ToolHints(
+  AnalysisType.releaseDelta: ToolHints(
     interpretation: [
       'A release with a large amount of changed code but few bugs '
           'attributed to it by history is a genuinely healthy signal — the '
@@ -395,7 +396,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'generate_changelog': ToolHints(
+  AnalysisType.changelog: ToolHints(
     interpretation: [
       'Entries are classified using the Conventional Commits convention — '
           'a feature-prefixed commit maps to a minor version bump, a fix '
@@ -417,7 +418,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'get_contributions_by_author': ToolHints(
+  AnalysisType.contributionsByAuthor: ToolHints(
     interpretation: [
       'Contributor activity in most real projects follows a recognizable '
           '"onion model" shape: a small core of people producing the '
@@ -438,7 +439,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'get_stats': ToolHints(
+  AnalysisType.stats: ToolHints(
     interpretation: [
       'Lines of code is the most readily available way to measure the '
           'scope of a codebase from its history alone, even though it is a '
@@ -458,7 +459,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
   ),
 
   // ------------------------------------------------------------- Static analysis
-  'analyze_clean_code': ToolHints(
+  AnalysisType.cleanCode: ToolHints(
     interpretation: [
       'Each flag this tool raises corresponds to a specific, independently '
           'motivated readability or maintainability concern rather than an '
@@ -487,7 +488,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_code_quality': ToolHints(
+  AnalysisType.codeQuality: ToolHints(
     interpretation: [
       'A single commit that changes an unusually large amount of code or '
           'touches an unusually large number of files at once — the kind '
@@ -516,7 +517,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'analyze_dart_ast_quality': ToolHints(
+  AnalysisType.dartAstQuality: ToolHints(
     interpretation: [
       'Most real-world breakage from a changed public API does not come '
           'from something being deleted outright — it comes from a rename '
@@ -547,7 +548,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'calculate_universal_lexical_metrics': ToolHints(
+  AnalysisType.universalLexicalMetrics: ToolHints(
     interpretation: [
       'Several independent, well-studied complexity measures are reported '
           'together here because they each catch different things. A '
@@ -590,7 +591,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'evaluate_comments': ToolHints(
+  AnalysisType.evaluateComments: ToolHints(
     interpretation: [
       'Studies of real codebases have found that a large majority of '
           'comments — well over half — are redundant, out of date, or '
@@ -623,7 +624,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
   ),
 
   // ------------------------------------------------------------------- Security
-  'audit_compliance': ToolHints(
+  AnalysisType.auditCompliance: ToolHints(
     interpretation: [
       'An unsigned-commit finding here means the commit\'s cryptographic '
           'signature status was neither fully valid nor an expired-but-'
@@ -652,7 +653,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
     ],
   ),
 
-  'detect_secrets_in_commits': ToolHints(
+  AnalysisType.detectSecrets: ToolHints(
     interpretation: [
       'This tool leans on the fact that genuinely random secrets look '
           'statistically different from ordinary text: natural-language '
@@ -684,7 +685,7 @@ const Map<String, ToolHints> toolHintsCatalog = {
   ),
 
   // ------------------------------------------------------------------ Boundary
-  'get_commits_between': ToolHints(
+  AnalysisType.commitsBetween: ToolHints(
     pairWith: [
       'Feeds analyze_release_delta and get_stats when what is actually '
           'needed is risk or churn interpretation of a commit range, rather '

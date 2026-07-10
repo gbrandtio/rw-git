@@ -34,7 +34,7 @@ void main() {
     for (final finding in findings) {
       expect(finding.severity, Severity.high);
       expect(finding.category, 'architectureDrift');
-      expect(finding.source, 'analyze_architecture_drift');
+      expect(finding.source, [AnalysisType.architectureDrift]);
       expect(finding.basis, contains('Garcia'));
     }
     expect(findings.first.subject, 'core');

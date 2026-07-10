@@ -3,12 +3,14 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/churn_metrics_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../repo_stats.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../utils/repo_stats.dart';
+import '../models/severity.dart';
 
 /// Flags files in the top decile of change frequency. Churn alone is only a
 /// supporting signal (Elevated); it escalates to Critical exclusively when the
@@ -39,7 +41,7 @@ class ChurnClassifier {
       final normalized = PathKey.normalize(file);
       findings.add(Finding(
         category: 'churn',
-        source: 'analyze_code_quality',
+        source: [AnalysisType.codeQuality],
         severity: Severity.elevated,
         subject: normalized,
         metric: 'file_churn',

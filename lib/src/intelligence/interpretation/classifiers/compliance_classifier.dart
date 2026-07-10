@@ -3,10 +3,12 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/compliance_report_dto.dart';
 
-import '../finding.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../models/severity.dart';
 
 /// Classifies commit-compliance violations (signing, message hygiene, author
 /// domains) into aggregate severity bands, one finding per violation type.
@@ -36,7 +38,7 @@ class ComplianceClassifier {
       if (violations.isEmpty) return;
       findings.add(Finding(
         category: 'compliance',
-        source: 'audit_compliance',
+        source: [AnalysisType.auditCompliance],
         severity: severity,
         subject: 'repository',
         metric: metric,

@@ -3,13 +3,15 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/advanced_code_quality_dto.dart';
 
 import '../../source_file_filter.dart';
-import '../finding.dart';
-import '../path_key.dart';
-import '../repo_stats.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../utils/repo_stats.dart';
+import '../models/severity.dart';
 
 /// Classifies file complexity against the repository's own median. Complexity
 /// here is a raw control-flow keyword count, not a normalised score, so an
@@ -58,7 +60,7 @@ class ComplexityClassifier {
       final normalized = PathKey.normalize(file);
       findings.add(Finding(
         category: 'complexity',
-        source: 'analyze_code_quality',
+        source: [AnalysisType.codeQuality],
         severity: severity,
         subject: normalized,
         metric: 'file_complexity',

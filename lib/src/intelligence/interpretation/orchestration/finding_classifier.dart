@@ -21,24 +21,24 @@ import 'package:rw_git/src/models/file_lexical_metrics_dto.dart';
 import 'package:rw_git/src/models/logical_coupling_dto.dart';
 import 'package:rw_git/src/models/refactoring_dto.dart';
 
-import 'classifiers/architecture_drift_classifier.dart';
-import 'classifiers/bug_hotspot_classifier.dart';
-import 'classifiers/bus_factor_classifier.dart';
-import 'classifiers/churn_classifier.dart';
-import 'classifiers/clean_code_classifier.dart';
-import 'classifiers/commit_hygiene_classifier.dart';
-import 'classifiers/dart_ast_classifier.dart';
-import 'classifiers/commit_velocity_classifier.dart';
-import 'classifiers/compliance_classifier.dart';
-import 'classifiers/complexity_classifier.dart';
-import 'classifiers/dependency_classifier.dart';
-import 'classifiers/lexical_complexity_classifier.dart';
-import 'classifiers/logical_coupling_classifier.dart';
-import 'classifiers/ownership_classifier.dart';
-import 'classifiers/refactoring_context_classifier.dart';
-import 'classifiers/secrets_classifier.dart';
-import 'classifiers/volatility_classifier.dart';
-import 'finding.dart';
+import '../classifiers/architecture_drift_classifier.dart';
+import '../classifiers/bug_hotspot_classifier.dart';
+import '../classifiers/bus_factor_classifier.dart';
+import '../classifiers/churn_classifier.dart';
+import '../classifiers/clean_code_classifier.dart';
+import '../classifiers/commit_hygiene_classifier.dart';
+import '../classifiers/dart_ast_classifier.dart';
+import '../classifiers/commit_velocity_classifier.dart';
+import '../classifiers/compliance_classifier.dart';
+import '../classifiers/complexity_classifier.dart';
+import '../classifiers/dependency_classifier.dart';
+import '../classifiers/lexical_complexity_classifier.dart';
+import '../classifiers/logical_coupling_classifier.dart';
+import '../classifiers/ownership_classifier.dart';
+import '../classifiers/refactoring_context_classifier.dart';
+import '../classifiers/secrets_classifier.dart';
+import '../classifiers/volatility_classifier.dart';
+import '../models/finding.dart';
 
 /// Applies every deterministic classifier behind typed methods.
 class FindingClassifier {

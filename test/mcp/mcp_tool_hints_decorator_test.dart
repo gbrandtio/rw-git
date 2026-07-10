@@ -57,8 +57,8 @@ class MockNonJsonTool implements McpTool {
 void main() {
   group('McpToolHintsDecorator', () {
     test('injects catalog hints into a successful payload', () async {
-      final decorator =
-          McpToolHintsDecorator(MockCatalogedTool(() => {'bus_factor': 1}));
+      final decorator = McpToolHintsDecorator(
+          MockCatalogedTool(() => {'bus_factor': 1}), AnalysisType.busFactor);
 
       final result =
           jsonDecode(await decorator.execute({})) as Map<String, dynamic>;
@@ -73,12 +73,14 @@ void main() {
 
     test('unions a tool-provided conditional hints object with the catalog',
         () async {
-      final decorator = McpToolHintsDecorator(MockCatalogedTool(() => {
-            'bus_factor': 1,
-            'hints': {
-              'interpretation': ['A conditional, argument-driven hint.'],
-            },
-          }));
+      final decorator = McpToolHintsDecorator(
+          MockCatalogedTool(() => {
+                'bus_factor': 1,
+                'hints': {
+                  'interpretation': ['A conditional, argument-driven hint.'],
+                },
+              }),
+          AnalysisType.busFactor);
 
       final result =
           jsonDecode(await decorator.execute({})) as Map<String, dynamic>;
@@ -90,7 +92,8 @@ void main() {
     });
 
     test('passes error payloads through untouched', () async {
-      final decorator = McpToolHintsDecorator(MockErrorTool());
+      final decorator =
+          McpToolHintsDecorator(MockErrorTool(), AnalysisType.busFactor);
       final resultString = await decorator.execute({});
       final result = jsonDecode(resultString) as Map<String, dynamic>;
 
@@ -99,7 +102,8 @@ void main() {
     });
 
     test('passes non-JSON output through untouched', () async {
-      final decorator = McpToolHintsDecorator(MockNonJsonTool());
+      final decorator =
+          McpToolHintsDecorator(MockNonJsonTool(), AnalysisType.busFactor);
       final resultString = await decorator.execute({});
 
       expect(resultString, 'not json at all');
@@ -108,32 +112,11 @@ void main() {
     test('name, description and inputSchema delegate to the inner tool',
         () async {
       final inner = MockCatalogedTool(() => {});
-      final decorator = McpToolHintsDecorator(inner);
+      final decorator = McpToolHintsDecorator(inner, AnalysisType.busFactor);
 
       expect(decorator.name, inner.name);
       expect(decorator.description, inner.description);
       expect(decorator.inputSchema, inner.inputSchema);
     });
-
-    test('asserts the wrapped tool is present in the catalog', () {
-      expect(
-        () => McpToolHintsDecorator(_UncatalogedTool()),
-        throwsA(isA<AssertionError>()),
-      );
-    });
   });
-}
-
-class _UncatalogedTool implements McpTool {
-  @override
-  String get name => 'clone_repository';
-
-  @override
-  String get description => 'mock';
-
-  @override
-  Map<String, dynamic> get inputSchema => {'type': 'object'};
-
-  @override
-  Future<String> execute(Map<String, dynamic> arguments) async => '{}';
 }

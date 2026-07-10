@@ -3,12 +3,14 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/models/refactoring_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../models/severity.dart';
 
 /// Adds refactoring awareness to the technical report, two ways:
 ///
@@ -88,7 +90,7 @@ class RefactoringContextClassifier {
     return [
       Finding(
         category: 'refactoring',
-        source: 'analyze_refactoring',
+        source: [AnalysisType.refactoring],
         severity: Severity.elevated,
         subject: 'repository',
         metric: 'refactoring_commits',

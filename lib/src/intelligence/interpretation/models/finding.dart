@@ -7,6 +7,7 @@
 library;
 
 import 'severity.dart';
+import 'analysis_type.dart';
 
 /// An interpreted, band-classified observation about the repository.
 class Finding {
@@ -15,8 +16,8 @@ class Finding {
   /// `dependency`, `compliance`, `secret`, `ownership`, `compound`.
   final String category;
 
-  /// The tool/algorithm that produced the underlying metric.
-  final String source;
+  /// The tools/algorithms that produced the underlying metric.
+  final List<AnalysisType> source;
 
   /// The band assigned to the metric.
   final Severity severity;
@@ -91,7 +92,7 @@ class Finding {
 
   Map<String, dynamic> toJson() => {
         'category': category,
-        'source': source,
+        'source': source.map((s) => s.name).toList(),
         'severity': severity.label,
         'subject': subject,
         'metric': metric,

@@ -3,10 +3,12 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/dependency_freshness_dto.dart';
 
-import '../finding.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../models/severity.dart';
 
 /// Classifies dependency freshness: how far each declared dependency lags the
 /// latest published version. Major-behind carries breaking-change and
@@ -46,7 +48,7 @@ class DependencyClassifier {
 
       findings.add(Finding(
         category: 'dependency',
-        source: 'analyze_dependency_drift',
+        source: [AnalysisType.dependencyDrift],
         severity: severity,
         subject: r.name,
         metric: 'freshness',

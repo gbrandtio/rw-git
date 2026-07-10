@@ -92,8 +92,6 @@ void main() {
                 total: authors.values.fold(0, (a, b) => a + b),
                 authors: authors)
           },
-          classChurn: const {},
-          blockChurn: const {},
           totalCommits: 10,
         );
 
@@ -109,8 +107,6 @@ void main() {
     test('empty stats skipped', () {
       final empty = const ChurnMetricsWithAuthorsDto(
         fileChurn: {'x': ContributionStats(total: 0, authors: {})},
-        classChurn: {},
-        blockChurn: {},
         totalCommits: 0,
       );
       expect(fc.fromOwnership(empty), isEmpty);
@@ -147,7 +143,6 @@ void main() {
           'mid': 15
         },
         coChangeMatrix: const {},
-        methodChurn: const {},
         architectureDistribution: const {},
       );
       final byFile = {for (final f in fc.fromComplexity(dto)) f.subject: f};
@@ -161,7 +156,6 @@ void main() {
         fc.fromComplexity(AdvancedCodeQualityDto(
           fileComplexity: const {},
           coChangeMatrix: const {},
-          methodChurn: const {},
           architectureDistribution: const {},
         )),
         isEmpty,
@@ -180,7 +174,6 @@ void main() {
           'big': 30,
         },
         coChangeMatrix: const {},
-        methodChurn: const {},
         architectureDistribution: const {},
       );
       final byFile = {for (final f in fc.fromComplexity(dto)) f.subject: f};
@@ -194,8 +187,6 @@ void main() {
     test('flags top-decile churn only', () {
       final dto = const ChurnMetricsDto(
         fileChurn: {'hot': 10, 'c1': 1, 'c2': 1, 'c3': 1},
-        classChurn: {},
-        blockChurn: {},
         totalCommits: 13,
       );
       final findings = fc.fromChurn(dto);
@@ -332,8 +323,6 @@ void main() {
           fileChurn: {
             'lib/x.dart': ContributionStats(total: 10, authors: {'A': 10})
           },
-          classChurn: {},
-          blockChurn: {},
           totalCommits: 10,
         )),
       ];
@@ -349,13 +338,10 @@ void main() {
         ...fc.fromComplexity(AdvancedCodeQualityDto(
           fileComplexity: {'lib/x.dart': 30, 'a': 10, 'b': 10, 'c': 10},
           coChangeMatrix: const {},
-          methodChurn: const {},
           architectureDistribution: const {},
         )),
         ...fc.fromChurn(const ChurnMetricsDto(
           fileChurn: {'lib/x.dart': 10, 'a': 1, 'b': 1, 'c': 1},
-          classChurn: {},
-          blockChurn: {},
           totalCommits: 13,
         )),
       ];
@@ -398,13 +384,10 @@ void main() {
         ...fc.fromComplexity(AdvancedCodeQualityDto(
           fileComplexity: {'lib/x.dart': 30, 'a': 10, 'b': 10, 'c': 10},
           coChangeMatrix: const {},
-          methodChurn: const {},
           architectureDistribution: const {},
         )),
         ...fc.fromChurn(const ChurnMetricsDto(
           fileChurn: {'lib/other.dart': 10, 'a': 1, 'b': 1, 'c': 1},
-          classChurn: {},
-          blockChurn: {},
           totalCommits: 13,
         )),
       ];
@@ -416,7 +399,7 @@ void main() {
     test('ranks, dedupes compounds from top, counts summary', () {
       final singleton = const Finding(
         category: 'complexity',
-        source: 's',
+        source: [],
         severity: Severity.high,
         subject: 'lib/x.dart',
         metric: 'file_complexity',
@@ -426,7 +409,7 @@ void main() {
       );
       final compound = const Finding(
         category: 'compound',
-        source: 's',
+        source: [],
         severity: Severity.critical,
         subject: 'lib/x.dart',
         metric: 'complexity_x_churn',
@@ -457,7 +440,7 @@ void main() {
         20,
         (i) => Finding(
           category: 'complexity',
-          source: 's',
+          source: const [],
           severity: Severity.high,
           subject: 'f$i',
           metric: 'm',

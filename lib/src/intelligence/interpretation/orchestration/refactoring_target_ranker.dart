@@ -10,10 +10,10 @@
 /// per-file boolean joins into an ordered "refactor these first" answer.
 library;
 
-import '../../constants.dart';
-import '../../models/file_lexical_metrics_dto.dart';
-import '../source_file_filter.dart';
-import 'path_key.dart';
+import '../../../constants.dart';
+import '../../../models/file_lexical_metrics_dto.dart';
+import '../../source_file_filter.dart';
+import '../utils/path_key.dart';
 
 /// One ranked refactoring candidate: a file scored by how strongly its
 /// change frequency and complexity intersect.

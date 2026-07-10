@@ -43,11 +43,11 @@ import 'package:rw_git/src/models/churn_metrics_with_authors_dto.dart';
 import 'package:rw_git/src/models/dependency_freshness_dto.dart';
 import 'package:rw_git/src/vcs/git_query.dart';
 
-import 'compound_finding_correlator.dart';
-import 'finding.dart';
-import 'finding_classifier.dart';
-import 'refactoring_target_ranker.dart';
-import 'report_payload.dart';
+import 'package:rw_git/src/intelligence/interpretation/orchestration/compound_finding_correlator.dart';
+import 'package:rw_git/src/intelligence/interpretation/models/finding.dart';
+import 'package:rw_git/src/intelligence/interpretation/orchestration/finding_classifier.dart';
+import 'package:rw_git/src/intelligence/interpretation/orchestration/refactoring_target_ranker.dart';
+import 'package:rw_git/src/intelligence/interpretation/models/report_payload.dart';
 
 /// The findings plus the ranked Tornhill refactoring targets a technical
 /// analysis pass produces from one shared set of git data.
@@ -391,15 +391,11 @@ class ReportOrchestrator {
     );
   }
 
-  /// Derives the plain churn totals from the per-author breakdown, so one
-  /// `git log -p` pass serves both classifiers.
   ChurnMetricsDto _churnFromAuthors(ChurnMetricsWithAuthorsDto withAuthors) {
     Map<String, int> totals(Map<String, ContributionStats> stats) =>
         stats.map((key, value) => MapEntry(key, value.total));
     return ChurnMetricsDto(
       fileChurn: totals(withAuthors.fileChurn),
-      classChurn: totals(withAuthors.classChurn),
-      blockChurn: totals(withAuthors.blockChurn),
       totalCommits: withAuthors.totalCommits,
     );
   }

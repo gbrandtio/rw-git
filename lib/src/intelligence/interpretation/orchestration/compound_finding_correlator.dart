@@ -12,8 +12,9 @@ library;
 
 import 'package:rw_git/src/constants.dart';
 
-import 'finding.dart';
-import 'severity.dart';
+import '../models/analysis_type.dart';
+import '../models/finding.dart';
+import '../models/severity.dart';
 
 /// Correlates a flat list of findings into higher-order compound findings.
 class CompoundFindingCorrelator {
@@ -122,7 +123,7 @@ class CompoundFindingCorrelator {
           message: 'Tribal-knowledge risk: ${hotspot.subject} is a bug '
               'hotspot owned almost entirely by '
               '${owner.evidence['top_author']}.',
-          sources: const ['analyze_bug_hotspots', 'analyze_file_ownership'],
+          sources: const [AnalysisType.bugHotspots, AnalysisType.fileOwnership],
           basis: tribalKnowledgeBasis,
           rationale: tribalKnowledgeRationale,
           evidence: {'bug_hotspot': _ref(hotspot), 'ownership': _ref(owner)},
@@ -142,7 +143,7 @@ class CompoundFindingCorrelator {
           band: 'complex, actively-changing code',
           message: 'Prime defect-injection risk: ${cx.subject} is a complexity '
               'outlier that also churns frequently.',
-          sources: const ['analyze_code_quality'],
+          sources: const [AnalysisType.codeQuality],
           basis: complexityChurnBasis,
           rationale: complexityChurnRationale,
           evidence: {'complexity': _ref(cx), 'churn': _ref(churn)},
@@ -162,7 +163,7 @@ class CompoundFindingCorrelator {
           message: 'Architecture smell: ${c.evidence['file_a']} and '
               '${c.evidence['file_b']} are strongly coupled across module '
               'boundaries.',
-          sources: const ['analyze_logical_coupling'],
+          sources: const [AnalysisType.logicalCoupling],
           basis: crossModuleCouplingBasis,
           rationale: crossModuleCouplingRationale,
           evidence: c.evidence,
@@ -186,8 +187,8 @@ class CompoundFindingCorrelator {
                 '${secret.subject} while ${staleDeps.length} dependency(ies) '
                 'are a major version behind.',
             sources: const [
-              'detect_secrets_in_commits',
-              'analyze_dependency_drift',
+              AnalysisType.detectSecrets,
+              AnalysisType.dependencyDrift,
             ],
             basis: staleDependencySecretBasis,
             rationale: staleDependencySecretRationale,
@@ -215,8 +216,8 @@ class CompoundFindingCorrelator {
               '${lexical.evidence['cyclomatic_complexity']} and top-decile '
               'churn.',
           sources: const [
-            'calculate_universal_lexical_metrics',
-            'analyze_code_quality',
+            AnalysisType.universalLexicalMetrics,
+            AnalysisType.codeQuality,
           ],
           basis: realComplexityChurnBasis,
           rationale: realComplexityChurnRationale,
@@ -246,7 +247,7 @@ class CompoundFindingCorrelator {
         message: 'Knowledge-loss risk: if ${entry.key} leaves, '
             '${files.length} bug-hotspot files they almost solely own go '
             'dark: ${files.join(', ')}.',
-        sources: const ['analyze_file_ownership', 'analyze_bug_hotspots'],
+        sources: const [AnalysisType.fileOwnership, AnalysisType.bugHotspots],
         basis: knowledgeLossBasis,
         rationale: knowledgeLossRationale,
         evidence: {'author': entry.key, 'at_risk_files': files},
@@ -266,7 +267,7 @@ class CompoundFindingCorrelator {
           message: 'Defect-proneness risk: ${owner.subject} is a bug hotspot '
               'edited by ${owner.evidence['minor_contributor_count']} minor '
               'contributors, each without deep context.',
-          sources: const ['analyze_file_ownership', 'analyze_bug_hotspots'],
+          sources: const [AnalysisType.fileOwnership, AnalysisType.bugHotspots],
           basis: minorContributorsHotspotBasis,
           rationale: minorContributorsHotspotRationale,
           evidence: {'ownership': _ref(owner), 'bug_hotspot': _ref(hotspot)},
@@ -296,7 +297,7 @@ class CompoundFindingCorrelator {
             'heavily outside regular hours while '
             '${activeHotspots.length} bug hotspot(s) are active — off-hours '
             'commits are measurably buggier.',
-        sources: const ['analyze_commit_velocity', 'analyze_bug_hotspots'],
+        sources: const [AnalysisType.commitVelocity, AnalysisType.bugHotspots],
         basis: burnoutBugIntroductionBasis,
         rationale: burnoutBugIntroductionRationale,
         evidence: {
@@ -324,7 +325,7 @@ class CompoundFindingCorrelator {
     required String metric,
     required String band,
     required String message,
-    required List<String> sources,
+    required List<AnalysisType> sources,
     required String basis,
     required String rationale,
     required Map<String, dynamic> evidence,
@@ -332,7 +333,7 @@ class CompoundFindingCorrelator {
   }) {
     return Finding(
       category: 'compound',
-      source: sources.join(' + '),
+      source: sources,
       severity: severity,
       subject: subject,
       metric: metric,
@@ -341,7 +342,7 @@ class CompoundFindingCorrelator {
       message: message,
       basis: basis,
       rationale: rationale,
-      evidence: {'sources': sources, ...evidence},
+      evidence: {'sources': sources.map((s) => s.name).toList(), ...evidence},
     );
   }
 

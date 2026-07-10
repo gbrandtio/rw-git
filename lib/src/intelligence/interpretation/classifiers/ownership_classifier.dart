@@ -3,12 +3,14 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/models/churn_metrics_with_authors_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../models/severity.dart';
 
 /// Classifies per-file ownership structure along both axes Bird et al.
 /// (FSE 2011) found predictive of defects: a single author owning the
@@ -68,7 +70,7 @@ class OwnershipClassifier {
         final pct = (share * 100).toStringAsFixed(1);
         findings.add(Finding(
           category: 'ownership',
-          source: 'analyze_file_ownership',
+          source: [AnalysisType.fileOwnership],
           severity: severity,
           subject: normalized,
           metric: 'single_author_ownership',
@@ -95,7 +97,7 @@ class OwnershipClassifier {
       if (minorContributors.length >= birdMinorContributorMinimumCount) {
         findings.add(Finding(
           category: 'ownership',
-          source: 'analyze_file_ownership',
+          source: [AnalysisType.fileOwnership],
           severity: Severity.elevated,
           subject: normalized,
           metric: 'minor_contributor_count',

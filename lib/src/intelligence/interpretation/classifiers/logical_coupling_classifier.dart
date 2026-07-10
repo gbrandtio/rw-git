@@ -3,11 +3,13 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/logical_coupling_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../models/severity.dart';
 
 /// Classifies co-change coupling strength between file pairs and records
 /// whether the pair spans two declared modules (top-level directories), which
@@ -50,7 +52,7 @@ class LogicalCouplingClassifier {
       final pct = (confidence * 100).toStringAsFixed(1);
       findings.add(Finding(
         category: 'coupling',
-        source: 'analyze_logical_coupling',
+        source: [AnalysisType.logicalCoupling],
         severity: severity,
         subject: normalizedPathA,
         metric: 'co_change_confidence',

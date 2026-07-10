@@ -3,11 +3,13 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/models/commit_velocity_dto.dart';
 
-import '../finding.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../models/severity.dart';
 
 /// Classifies delivery-cadence signals: a declining commit trend, commit
 /// inequality across authors (Gini), and sustained off-hours (burnout
@@ -34,7 +36,7 @@ class CommitVelocityClassifier {
     if (dto.trend == 'declining' && dto.velocitySlope < 0) {
       findings.add(Finding(
         category: 'velocity',
-        source: 'analyze_commit_velocity',
+        source: [AnalysisType.commitVelocity],
         severity: Severity.elevated,
         subject: 'repository',
         metric: 'velocity_slope',
@@ -58,7 +60,7 @@ class CommitVelocityClassifier {
       final topAuthor = _topAuthorAcrossBuckets(dto.buckets);
       findings.add(Finding(
         category: 'velocity',
-        source: 'analyze_commit_velocity',
+        source: [AnalysisType.commitVelocity],
         severity: Severity.high,
         subject: topAuthor ?? 'repository',
         metric: 'gini_coefficient',
@@ -83,7 +85,7 @@ class CommitVelocityClassifier {
     if (burnoutShare > burnoutCommitShareHighThreshold) {
       findings.add(Finding(
         category: 'velocity',
-        source: 'analyze_commit_velocity',
+        source: [AnalysisType.commitVelocity],
         severity: Severity.high,
         subject: 'repository',
         metric: 'burnout_commit_share',

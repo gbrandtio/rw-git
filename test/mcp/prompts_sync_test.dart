@@ -1,6 +1,8 @@
 import 'dart:io';
 
-import 'package:rw_git/src/intelligence/interpretation/report_tool_sources.dart';
+import 'package:rw_git/src/intelligence/interpretation.dart';
+import 'package:rw_git/src/intelligence/interpretation/models/report_analysis_sources.dart';
+import 'package:rw_git/src/mcp/utils/mcp_analysis_mapping.dart';
 import 'package:test/test.dart';
 
 import '../../tool/prompt_codegen.dart';
@@ -10,7 +12,7 @@ import '../../tool/prompt_codegen.dart';
 ///   1. every `.agents/skills/<name>/SKILL.md` must equal its
 ///      `SKILL.template.md` expanded with the shared partials in
 ///      `.agents/skills/_shared/` and the `generate:` markers rendered from
-///      [reportToolSources] (plus the generated-file notice);
+///      [reportAnalysisSources] (plus the generated-file notice);
 ///   2. every MCP prompt Dart file in `lib/src/mcp/prompts/` must match the
 ///      expanded template's name/description/body.
 /// If either drifts, run `dart run tool/sync_prompts.dart` to regenerate.
@@ -121,15 +123,16 @@ void main() {
   group('generated deep-dive tool lists are catalog-native', () {
     test(
         'the consolidated skill carries a deep_dive tool list for every '
-        'report type, each matching reportToolSources exactly, in order', () {
+        'report type, each matching reportAnalysisSources exactly, in order',
+        () {
       final expanded = expandedTemplate(_anySkill);
-      for (final entry in reportToolSources.entries) {
+      for (final entry in reportAnalysisSources.entries) {
         final expectedLine =
-            'Raw tools for this report: ${entry.value.map((t) => '`$t`').join(', ')}.';
+            'Raw tools for this report: ${entry.value.map((t) => '`${mcpToolNameForAnalysis[t]}`').join(', ')}.';
 
         expect(expanded, contains(expectedLine),
             reason: '$_anySkill must carry a deep_dive tool list generated '
-                'from reportToolSources[\'${entry.key}\']');
+                'from reportAnalysisSources[\'${entry.key}\']');
       }
     });
 

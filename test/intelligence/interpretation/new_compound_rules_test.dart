@@ -24,8 +24,6 @@ void main() {
     final total = authors.values.fold<int>(0, (sum, value) => sum + value);
     return fc.fromOwnership(ChurnMetricsWithAuthorsDto(
       fileChurn: {file: ContributionStats(total: total, authors: authors)},
-      classChurn: const {},
-      blockChurn: const {},
       totalCommits: total,
     ));
   }

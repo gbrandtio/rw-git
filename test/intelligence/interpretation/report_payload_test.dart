@@ -2,11 +2,12 @@ import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
 /// [ReportPayload] aggregates report-level `hints` from the
-/// [toolHintsCatalog] entries of the tools that produced its findings — see
-/// `tool_hints_catalog_test.dart` for the per-tool catalog contract this
+/// [analysisHintsCatalog] entries of the tools that produced its findings — see
+/// `analysis_hints_catalog_test.dart` for the per-tool catalog contract this
 /// builds on.
 void main() {
-  Finding findingFrom(String source, {String subject = 'lib/x.dart'}) =>
+  Finding findingFrom(List<AnalysisType> source,
+          {String subject = 'lib/x.dart'}) =>
       Finding(
         category: 'test',
         source: source,
@@ -24,13 +25,15 @@ void main() {
     // analyze_bus_factor has both a non-empty caveats and pairWith entry in
     // the catalog — the bug this aggregation fixes is a caveat silently
     // shadowing that same tool's pair_with suggestion.
-    final catalogEntry = toolHintsCatalog['analyze_bus_factor']!;
+    final catalogEntry = analysisHintsCatalog[AnalysisType.busFactor]!;
     expect(catalogEntry.caveats, isNotEmpty);
     expect(catalogEntry.pairWith, isNotEmpty);
 
     final payload = ReportPayload.fromFindings(
       reportType: 'technical',
-      findings: [findingFrom('analyze_bus_factor')],
+      findings: [
+        findingFrom([AnalysisType.busFactor])
+      ],
       compounds: const [],
     );
 
@@ -42,14 +45,14 @@ void main() {
     final payload = ReportPayload.fromFindings(
       reportType: 'technical',
       findings: [
-        findingFrom('analyze_bus_factor'),
-        findingFrom('analyze_bug_hotspots', subject: 'lib/y.dart'),
+        findingFrom([AnalysisType.busFactor]),
+        findingFrom([AnalysisType.bugHotspots], subject: 'lib/y.dart'),
       ],
       compounds: const [],
     );
 
-    final busFactor = toolHintsCatalog['analyze_bus_factor']!;
-    final bugHotspots = toolHintsCatalog['analyze_bug_hotspots']!;
+    final busFactor = analysisHintsCatalog[AnalysisType.busFactor]!;
+    final bugHotspots = analysisHintsCatalog[AnalysisType.bugHotspots]!;
 
     for (final s in [
       ...busFactor.interpretation,
@@ -69,16 +72,16 @@ void main() {
       'is not capped: every distinct catalog string across many sources '
       'survives', () {
     final manySources = [
-      'analyze_bus_factor',
-      'analyze_bug_hotspots',
-      'analyze_code_volatility',
-      'analyze_commit_velocity',
-      'analyze_release_delta',
-      'generate_changelog',
+      AnalysisType.busFactor,
+      AnalysisType.bugHotspots,
+      AnalysisType.codeVolatility,
+      AnalysisType.commitVelocity,
+      AnalysisType.releaseDelta,
+      AnalysisType.changelog,
     ];
     final payload = ReportPayload.fromFindings(
       reportType: 'audit',
-      findings: manySources.map((s) => findingFrom(s)).toList(),
+      findings: manySources.map((s) => findingFrom([s])).toList(),
       compounds: const [],
     );
 
@@ -86,7 +89,7 @@ void main() {
     final expectedCaveats = <String>{};
     final expectedPairWith = <String>{};
     for (final source in manySources) {
-      final hints = toolHintsCatalog[source]!;
+      final hints = analysisHintsCatalog[source]!;
       expectedInterpretation.addAll(hints.interpretation);
       expectedCaveats.addAll(hints.caveats);
       expectedPairWith.addAll(hints.pairWith);
@@ -101,8 +104,8 @@ void main() {
     final payload = ReportPayload.fromFindings(
       reportType: 'technical',
       findings: [
-        findingFrom('analyze_bus_factor', subject: 'lib/a.dart'),
-        findingFrom('analyze_bus_factor', subject: 'lib/b.dart'),
+        findingFrom([AnalysisType.busFactor], subject: 'lib/a.dart'),
+        findingFrom([AnalysisType.busFactor], subject: 'lib/b.dart'),
       ],
       compounds: const [],
     );
@@ -121,7 +124,7 @@ void main() {
   test('omits hints when no source has a catalog entry', () {
     final payload = ReportPayload.fromFindings(
       reportType: 'technical',
-      findings: [findingFrom('clone_repository')],
+      findings: [findingFrom([])],
       compounds: const [],
     );
 
@@ -131,7 +134,9 @@ void main() {
   test('toJson emits a hints object with only non-empty category keys', () {
     final withHints = ReportPayload.fromFindings(
       reportType: 'technical',
-      findings: [findingFrom('analyze_bug_hotspots')],
+      findings: [
+        findingFrom([AnalysisType.bugHotspots])
+      ],
       compounds: const [],
     ).toJson();
     final keys = withHints.keys.toList();
@@ -146,7 +151,7 @@ void main() {
 
     final withoutHints = ReportPayload.fromFindings(
       reportType: 'technical',
-      findings: [findingFrom('clone_repository')],
+      findings: [findingFrom([])],
       compounds: const [],
     ).toJson();
     expect(withoutHints.containsKey('hints'), isFalse);
@@ -162,12 +167,12 @@ void main() {
       reportType: 'technical',
       findings: const [],
       compounds: [
-        findingFrom('analyze_bug_hotspots + analyze_file_ownership'),
+        findingFrom([AnalysisType.bugHotspots, AnalysisType.fileOwnership]),
       ],
     );
 
-    final bugHotspots = toolHintsCatalog['analyze_bug_hotspots']!;
-    final ownership = toolHintsCatalog['analyze_file_ownership']!;
+    final bugHotspots = analysisHintsCatalog[AnalysisType.bugHotspots]!;
+    final ownership = analysisHintsCatalog[AnalysisType.fileOwnership]!;
     for (final s in [
       ...bugHotspots.interpretation,
       ...ownership.interpretation

@@ -11,7 +11,7 @@ class AdvancedMetricsHeuristic {
   AdvancedMetricsHeuristic(this.runner);
 
   /// Computes advanced codebase metrics such as cyclomatic complexity
-  /// approximations, co-change matrices, method churn, and architectural
+  /// approximations, co-change matrices, and architectural
   /// distribution.
   Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
       {String? limit, String? since, String? until}) async {
@@ -46,7 +46,6 @@ AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
 
   final fileComplexity = <String, int>{};
   final coChangeMatrix = <String, Map<String, int>>{};
-  final methodChurn = <String, int>{};
   final dirCommits = <String, int>{};
 
   final controlFlowRegex = RegExp(r'\b(if|for|while|switch|&&|\|\||\?)\b');
@@ -88,14 +87,6 @@ AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
           currentCommitFiles.add(fileName);
         }
       }
-    } else if (line.startsWith('@@ ')) {
-      final parts = line.split('@@');
-      if (parts.length >= 3) {
-        final context = parts.sublist(2).join('@@').trim();
-        if (context.isNotEmpty) {
-          methodChurn[context] = (methodChurn[context] ?? 0) + 1;
-        }
-      }
     } else if (line.startsWith('+') && !line.startsWith('+++')) {
       if (currentFile.isNotEmpty) {
         final matches = controlFlowRegex.allMatches(line);
@@ -121,7 +112,6 @@ AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
   return AdvancedCodeQualityDto(
     fileComplexity: fileComplexity,
     coChangeMatrix: coChangeMatrix,
-    methodChurn: methodChurn,
     architectureDistribution: architectureDistribution,
   );
 }

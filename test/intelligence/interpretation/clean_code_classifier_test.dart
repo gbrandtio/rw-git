@@ -30,7 +30,7 @@ void main() {
 
     expect(finding.severity, Severity.elevated);
     expect(finding.category, 'cleanCode');
-    expect(finding.source, 'analyze_clean_code');
+    expect(finding.source, [AnalysisType.cleanCode]);
     expect(finding.value, 1);
     expect(finding.basis, contains('Martin'));
   });

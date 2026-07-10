@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:rw_git/rw_git.dart';
 import 'package:test/test.dart';
 
-/// [reportToolSources] is the single source of truth both [ReportPayload]'s
+/// [reportAnalysisSources] is the single source of truth both [ReportPayload]'s
 /// hint aggregation and the generated skill `<deep_dive>` tool lists rely on
 /// (see `test/mcp/prompts_sync_test.dart` for the latter). This guards it
 /// against drifting from what `ReportOrchestrator` actually invokes.
@@ -19,29 +19,30 @@ import 'package:test/test.dart';
 /// the relevant report method's source text is both deterministic and a
 /// faithful proxy for "this tool's classifier runs in this report."
 void main() {
-  test('every tool name in reportToolSources is a toolHintsCatalog key', () {
-    for (final entry in reportToolSources.entries) {
-      for (final tool in entry.value) {
-        expect(toolHintsCatalog.containsKey(tool), isTrue,
-            reason: 'reportToolSources[\'${entry.key}\'] references unknown '
-                'catalog tool $tool');
+  test('every tool name in reportAnalysisSources is a analysisHintsCatalog key',
+      () {
+    for (final entry in reportAnalysisSources.entries) {
+      for (final type in entry.value) {
+        expect(analysisHintsCatalog.containsKey(type), isTrue,
+            reason:
+                'reportAnalysisSources[\'${entry.key}\'] references unknown '
+                'catalog type $type');
       }
     }
   });
 
-  test('reportToolSources has exactly the five known report types', () {
+  test('reportAnalysisSources has exactly the five known report types', () {
     expect(
-      reportToolSources.keys.toSet(),
+      reportAnalysisSources.keys.toSet(),
       {'technical', 'security', 'pm', 'code_review', 'repository_audit'},
     );
   });
 
   test(
-      'reportToolSources exactly matches the classifiers ReportOrchestrator '
+      'reportAnalysisSources exactly matches the classifiers ReportOrchestrator '
       'invokes per report', () {
-    final source = File('lib/src/intelligence/interpretation/'
-            'report_orchestrator.dart')
-        .readAsStringSync();
+    final source =
+        File('lib/src/mcp/reports/report_orchestrator.dart').readAsStringSync();
 
     String methodBody(String signature) {
       final start = source.indexOf(signature);
@@ -74,19 +75,19 @@ void main() {
       ],
     };
 
-    for (final reportType in reportToolSources.keys) {
+    for (final reportType in reportAnalysisSources.keys) {
       final body = combinedBody(reportMethodSignatures[reportType]!);
-      final declared = reportToolSources[reportType]!.toSet();
+      final declared = reportAnalysisSources[reportType]!.toSet();
 
       for (final entry in _toolMarkers.entries) {
         final invoked = body.contains(entry.value);
         final isDeclared = declared.contains(entry.key);
         expect(invoked, isDeclared,
             reason: invoked
-                ? 'reportToolSources[\'$reportType\'] is missing '
+                ? 'reportAnalysisSources[\'$reportType\'] is missing '
                     '${entry.key} (its classifier, ${entry.value}, is '
                     'invoked by this report)'
-                : 'reportToolSources[\'$reportType\'] declares '
+                : 'reportAnalysisSources[\'$reportType\'] declares '
                     '${entry.key}, but its classifier, ${entry.value}, is '
                     'never invoked by this report');
       }
@@ -97,20 +98,20 @@ void main() {
 /// Maps each catalog tool this project's reports can produce findings for to
 /// the uniquely named class whose presence in `report_orchestrator.dart`'s
 /// source proves that tool's classifier is invoked.
-const Map<String, String> _toolMarkers = {
-  'analyze_code_quality': 'AdvancedMetricsHeuristic',
-  'analyze_file_ownership': 'calculateChurnWithAuthors',
-  'analyze_bug_hotspots': 'BugHotspotsHeuristic',
-  'analyze_logical_coupling': 'LogicalCouplingAlgorithm',
-  'analyze_code_volatility': 'CodeVolatilityAlgorithm',
-  'calculate_universal_lexical_metrics': 'BoundedLexicalMetricsSampler',
-  'analyze_refactoring': 'RefactoringDetectionAlgorithm',
-  'detect_secrets_in_commits': 'SecretsScanner',
-  'audit_compliance': 'ComplianceScanner',
-  'analyze_dependency_drift': 'DependencyFreshnessChecker',
-  'analyze_bus_factor': 'BusFactorAlgorithm',
-  'analyze_commit_velocity': 'CommitVelocityHeuristic',
-  'analyze_architecture_drift': 'ArchitectureDriftAlgorithm',
-  'analyze_clean_code': 'CleanCodeAnalyzer',
-  'analyze_dart_ast_quality': 'DartAstAnalyzer',
+const Map<AnalysisType, String> _toolMarkers = {
+  AnalysisType.codeQuality: 'AdvancedMetricsHeuristic',
+  AnalysisType.fileOwnership: 'calculateChurnWithAuthors',
+  AnalysisType.bugHotspots: 'BugHotspotsHeuristic',
+  AnalysisType.logicalCoupling: 'LogicalCouplingAlgorithm',
+  AnalysisType.codeVolatility: 'CodeVolatilityAlgorithm',
+  AnalysisType.universalLexicalMetrics: 'BoundedLexicalMetricsSampler',
+  AnalysisType.refactoring: 'RefactoringDetectionAlgorithm',
+  AnalysisType.detectSecrets: 'SecretsScanner',
+  AnalysisType.auditCompliance: 'ComplianceScanner',
+  AnalysisType.dependencyDrift: 'DependencyFreshnessChecker',
+  AnalysisType.busFactor: 'BusFactorAlgorithm',
+  AnalysisType.commitVelocity: 'CommitVelocityHeuristic',
+  AnalysisType.architectureDrift: 'ArchitectureDriftAlgorithm',
+  AnalysisType.cleanCode: 'CleanCodeAnalyzer',
+  AnalysisType.dartAstQuality: 'DartAstAnalyzer',
 };

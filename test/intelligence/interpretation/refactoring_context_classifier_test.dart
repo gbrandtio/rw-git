@@ -23,7 +23,7 @@ void main() {
 
   Finding churnFinding(String subject, Severity severity) => Finding(
         category: 'churn',
-        source: 'analyze_code_quality',
+        source: [AnalysisType.codeQuality],
         severity: severity,
         subject: subject,
         metric: 'file_churn',
@@ -49,7 +49,7 @@ void main() {
   test('leaves non-churn findings and unrefactored files untouched', () {
     final secret = const Finding(
       category: 'secret',
-      source: 'detect_secrets_in_commits',
+      source: [AnalysisType.detectSecrets],
       severity: Severity.critical,
       subject: 'lib/moved.dart',
       metric: 'exposed_secret',

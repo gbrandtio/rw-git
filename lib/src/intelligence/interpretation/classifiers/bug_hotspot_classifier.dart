@@ -3,12 +3,14 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/bug_hotspot_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../repo_stats.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../utils/repo_stats.dart';
+import '../models/severity.dart';
 
 /// Classifies bug hotspots two ways: per-file bug lifetime (SZZ introducing
 /// commit → fixing commit) against the global average, and hotspot count
@@ -80,7 +82,7 @@ class BugHotspotClassifier {
       final normalized = PathKey.normalize(file);
       findings.add(Finding(
         category: 'bugHotspot',
-        source: 'analyze_bug_hotspots',
+        source: [AnalysisType.bugHotspots],
         severity: severity,
         subject: normalized,
         metric: metric,

@@ -1,7 +1,8 @@
 import 'dart:convert';
 
-import '../intelligence/interpretation/tool_hints.dart';
-import '../intelligence/interpretation/tool_hints_catalog.dart';
+import '../intelligence/interpretation/models/tool_hints.dart';
+import '../intelligence/interpretation/catalogs/analysis_hints_catalog.dart';
+import '../intelligence/interpretation/models/analysis_type.dart';
 import 'mcp_tool.dart';
 
 /// A decorator that splices research-grounded [ToolHints] into a tool's
@@ -13,16 +14,18 @@ import 'mcp_tool.dart';
 /// thresholds, known limitations, complementary tools), while `basis`/
 /// `rationale` describe what one specific observed value means.
 ///
-/// Only wraps tools present in [toolHintsCatalog] (see
+/// Only wraps tools mapped to an [AnalysisType] present in [analysisHintsCatalog]
 /// `server_registry.dart`); error responses and non-JSON output pass
 /// through untouched, since appending interpretation guidance to a result
 /// that doesn't exist would be noise at best and misleading at worst.
 class McpToolHintsDecorator implements McpTool {
   final McpTool _inner;
 
-  McpToolHintsDecorator(this._inner)
-      : assert(toolHintsCatalog.containsKey(_inner.name),
-            '${_inner.name} has no toolHintsCatalog entry to inject');
+  final AnalysisType analysisType;
+
+  McpToolHintsDecorator(this._inner, this.analysisType)
+      : assert(analysisHintsCatalog.containsKey(analysisType),
+            '${_inner.name} (mapped to $analysisType) has no analysisHintsCatalog entry to inject');
 
   @override
   String get name => _inner.name;
@@ -48,7 +51,7 @@ class McpToolHintsDecorator implements McpTool {
       return rawOutput;
     }
 
-    final catalogHints = toolHintsCatalog[name];
+    final catalogHints = analysisHintsCatalog[analysisType];
     if (catalogHints == null) {
       return rawOutput;
     }

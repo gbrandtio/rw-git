@@ -51,7 +51,7 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
           'topN': {
             'type': 'number',
             'description': 'Limits all top-N lists (suspicious, mega, '
-                'churn files, classes, blocks) to this '
+                'churn files) to this '
                 'many entries.'
           }
         },
@@ -94,7 +94,6 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
       'mega_commits': mega,
       ...churnData,
       'advanced_metrics': advancedMetrics.toJson(),
-      ...getAnalysisGuidance(includeCodeDiff, includeAuthors: includeAuthors),
     };
 
     if (includeCommitLog) {
@@ -116,7 +115,5 @@ abstract class BaseAnalyzeCodeQualityTool implements McpTool {
 
   Future<Map<String, dynamic>> getChurnData(
       String directory, String limit, int? topN,
-      {bool includeAuthors});
-  Map<String, dynamic> getAnalysisGuidance(bool includeCodeDiff,
       {bool includeAuthors});
 }

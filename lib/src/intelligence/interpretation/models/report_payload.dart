@@ -8,9 +8,9 @@
 library;
 
 import 'finding.dart';
-import 'refactoring_target_ranker.dart';
+import '../orchestration/refactoring_target_ranker.dart';
 import 'report_hints.dart';
-import 'tool_hints_catalog.dart';
+import '../catalogs/analysis_hints_catalog.dart';
 
 /// A ranked, size-bounded report payload.
 class ReportPayload {
@@ -26,7 +26,7 @@ class ReportPayload {
   /// both churn and complexity signals (pm, security).
   final List<RefactoringTarget> refactoringTargets;
 
-  /// Research-grounded guidance aggregated from the [toolHintsCatalog]
+  /// Research-grounded guidance aggregated from the [analysisHintsCatalog]
   /// entries of the tools that produced [topFindings]/[compoundFindings].
   /// Complements per-finding `basis`/`rationale`: a hint here applies to the
   /// whole analysis (e.g. a caveat about SZZ false-positive rates), not to
@@ -83,31 +83,26 @@ class ReportPayload {
   }
 
   /// Aggregates every distinct finding `source` (the tool that produced it)
-  /// with a [toolHintsCatalog] entry into a [ReportHints], collecting *all*
+  /// with a [analysisHintsCatalog] entry into a [ReportHints], collecting *all*
   /// three categories per tool rather than picking one — so a caveat can
   /// never crowd out that same tool's pair_with suggestion. Compound
-  /// findings join their contributing tools' names with `' + '`; those are
-  /// split back apart so each contributor's catalog entry resolves —
-  /// otherwise compounds, the highest-priority findings in the report,
-  /// would contribute no hints at all. Sources are iterated in a fixed,
+  /// findings carry multiple sources in their list; those are already structured
+  /// so each contributor's catalog entry resolves.
+  /// Sources are iterated in a fixed,
   /// alphabetically sorted order so the resulting lists are deterministic
   /// regardless of `Set` iteration order. Deliberately uncapped: a report
   /// composes many analyses, and each one's guidance is worth surfacing in
   /// full rather than truncated.
   static ReportHints _aggregateHints(List<Finding> findings) {
-    final sortedSources = findings
-        .expand((f) => f.source.split(' + '))
-        .map((source) => source.trim())
-        .toSet()
-        .toList()
-      ..sort();
+    final sortedSources = findings.expand((f) => f.source).toSet().toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
 
     final interpretation = <String>[];
     final caveats = <String>[];
     final pairWith = <String>[];
 
     for (final source in sortedSources) {
-      final catalogHints = toolHintsCatalog[source];
+      final catalogHints = analysisHintsCatalog[source];
       if (catalogHints == null) continue;
 
       interpretation.addAll(catalogHints.interpretation);

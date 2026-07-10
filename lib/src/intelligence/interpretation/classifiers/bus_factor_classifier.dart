@@ -3,10 +3,12 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/bus_factor_dto.dart';
 
-import '../finding.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../models/severity.dart';
 
 /// Classifies repository-wide contribution concentration (bus factor) into a
 /// severity band using the ownership-concentration thresholds.
@@ -46,7 +48,7 @@ class BusFactorClassifier {
     return [
       Finding(
         category: 'busFactor',
-        source: 'analyze_bus_factor',
+        source: [AnalysisType.busFactor],
         severity: severity,
         subject: top.author,
         metric: 'contribution_percentage',

@@ -21,8 +21,6 @@ void main() {
 
   List<Finding> churnOn(String subject) => fc.fromChurn(ChurnMetricsDto(
         fileChurn: {subject: 10, 'a': 1, 'b': 1, 'c': 1},
-        classChurn: const {},
-        blockChurn: const {},
         totalCommits: 13,
       ));
 
@@ -35,7 +33,7 @@ void main() {
         compounds.singleWhere((c) => c.metric == 'real_complexity_x_churn');
     expect(compound.severity, Severity.critical);
     expect(compound.subject, 'lib/x.dart');
-    expect(compound.source, contains('calculate_universal_lexical_metrics'));
+    expect(compound.source, contains(AnalysisType.universalLexicalMetrics));
     expect(compound.basis, contains('McCabe'));
     expect(compound.rationale, contains('1976'));
   });

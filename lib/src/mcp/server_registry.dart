@@ -1,7 +1,7 @@
 import '../constants.dart';
 import '../core/process_runner.dart';
 import '../intelligence/history/algorithms/szz_algorithm.dart';
-import '../intelligence/interpretation/tool_hints_catalog.dart';
+import 'utils/mcp_analysis_mapping.dart';
 import '../vcs/git_query.dart';
 import '../vcs/rw_git_facade.dart';
 import 'mcp_registry.dart';
@@ -103,9 +103,10 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   // catalog has an entry for it; a no-op passthrough otherwise. Applied
   // before offloading so hints ride in inline responses, persist into the
   // offloaded full file, and remain visible to the preview builder.
-  McpTool withHints(McpTool inner) => toolHintsCatalog.containsKey(inner.name)
-      ? McpToolHintsDecorator(inner)
-      : inner;
+  McpTool withHints(McpTool inner) {
+    final type = analysisTypeForMcpTool[inner.name];
+    return type != null ? McpToolHintsDecorator(inner, type) : inner;
+  }
 
   void offloadedRo(McpTool inner, {Map<String, dynamic>? outputSchema}) =>
       registerReadOnly(

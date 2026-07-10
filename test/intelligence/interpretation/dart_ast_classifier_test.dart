@@ -16,7 +16,7 @@ void main() {
     final finding = findings.single;
     expect(finding.severity, Severity.high);
     expect(finding.category, 'dartAst');
-    expect(finding.source, 'analyze_dart_ast_quality');
+    expect(finding.source, [AnalysisType.dartAstQuality]);
     expect(finding.subject, 'lib/a.dart');
     expect(finding.value, 2);
     expect(finding.evidence['cycle_members'], ['lib/a.dart', 'lib/b.dart']);

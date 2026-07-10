@@ -7,14 +7,10 @@
 /// blocks have been modified.
 class ChurnMetricsDto {
   final Map<String, int> fileChurn;
-  final Map<String, int> classChurn;
-  final Map<String, int> blockChurn;
   final int totalCommits;
 
   const ChurnMetricsDto({
     required this.fileChurn,
-    required this.classChurn,
-    required this.blockChurn,
     required this.totalCommits,
   });
 
@@ -22,8 +18,6 @@ class ChurnMetricsDto {
   factory ChurnMetricsDto.empty() {
     return const ChurnMetricsDto(
       fileChurn: {},
-      classChurn: {},
-      blockChurn: {},
       totalCommits: 0,
     );
   }

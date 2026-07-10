@@ -51,30 +51,37 @@ void main() {
   test('every registered analysis tool has a catalog entry', () {
     final analysisTools = registeredToolNames.difference(toolsWithoutHints);
     for (final name in analysisTools) {
-      expect(toolHintsCatalog.containsKey(name), isTrue,
-          reason: '$name is registered but missing from toolHintsCatalog');
+      final type = analysisTypeForMcpTool[name];
+      expect(type, isNotNull, reason: '$name has no AnalysisType mapping');
+      expect(analysisHintsCatalog.containsKey(type), isTrue,
+          reason: '$name is registered but missing from analysisHintsCatalog');
     }
   });
 
   test('every catalog key names a registered tool', () {
-    for (final name in toolHintsCatalog.keys) {
+    for (final type in analysisHintsCatalog.keys) {
+      final name = mcpToolNameForAnalysis[type];
+      expect(name, isNotNull, reason: '$type has no MCP tool mapping');
       expect(registeredToolNames.contains(name), isTrue,
-          reason: "toolHintsCatalog has an entry for '$name', which is not "
+          reason: "analysisHintsCatalog has an entry for '$type', which is not "
               'a registered tool name');
     }
   });
 
   test('no tool without academic basis has a catalog entry', () {
     for (final name in toolsWithoutHints) {
-      expect(toolHintsCatalog.containsKey(name), isFalse,
-          reason: "'$name' has no academic basis and should not carry "
-              'invented hints');
+      final type = analysisTypeForMcpTool[name];
+      if (type != null) {
+        expect(analysisHintsCatalog.containsKey(type), isFalse,
+            reason: "'$name' has no academic basis and should not carry "
+                'invented hints');
+      }
     }
   });
 
   group('per-tool hint budgets', () {
-    for (final entry in toolHintsCatalog.entries) {
-      final name = entry.key;
+    for (final entry in analysisHintsCatalog.entries) {
+      final name = mcpToolNameForAnalysis[entry.key] ?? entry.key.name;
       final hints = entry.value;
       final all = [
         ...hints.interpretation,

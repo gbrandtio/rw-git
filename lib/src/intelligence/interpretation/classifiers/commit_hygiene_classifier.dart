@@ -3,10 +3,12 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/constants.dart';
 
-import '../finding.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../models/severity.dart';
 
 /// Classifies commit-hygiene signals for the repository audit: oversized
 /// ("mega") commits and commits with suspicious messages. Follows the
@@ -45,7 +47,7 @@ class CommitHygieneClassifier {
     return [
       Finding(
         category: 'commitHygiene',
-        source: 'analyze_code_quality',
+        source: [AnalysisType.codeQuality],
         severity: Severity.moderate,
         subject: 'repository',
         metric: metric,

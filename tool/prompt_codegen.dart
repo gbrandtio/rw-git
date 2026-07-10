@@ -11,7 +11,8 @@
 /// disagree about what "in sync" means.
 library;
 
-import 'package:rw_git/src/intelligence/interpretation/report_tool_sources.dart';
+import 'package:rw_git/src/intelligence/interpretation/models/report_analysis_sources.dart';
+import 'package:rw_git/src/mcp/utils/mcp_analysis_mapping.dart';
 
 /// The skill names that have a corresponding MCP prompt. The single
 /// `rw-git-mcp-reporting` skill covers every report type via its
@@ -178,14 +179,14 @@ String expandGenerated(String template,
 /// calling it directly surfaces its own `pair_with` guidance (via
 /// `McpToolHintsDecorator`) without needing to duplicate that prose here.
 String renderDeepDiveTools(String reportType) {
-  final tools = reportToolSources[reportType];
+  final tools = reportAnalysisSources[reportType];
   if (tools == null) {
     throw FormatException(
         'Unknown report type in generate:deep_dive_tools marker: '
-        '$reportType. Known types: ${reportToolSources.keys.join(', ')}.');
+        '$reportType. Known types: ${reportAnalysisSources.keys.join(', ')}.');
   }
 
-  final entries = tools.map((tool) => '`$tool`');
+  final entries = tools.map((type) => '`${mcpToolNameForAnalysis[type]}`');
   return 'Raw tools for this report: ${entries.join(', ')}.';
 }
 

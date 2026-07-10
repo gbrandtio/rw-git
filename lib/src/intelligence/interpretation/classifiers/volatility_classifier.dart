@@ -3,12 +3,14 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/models/code_volatility_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../repo_stats.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../utils/repo_stats.dart';
+import '../models/severity.dart';
 
 /// Flags the most volatile files (high churn x many authors) as a supporting
 /// defect-risk signal.
@@ -39,7 +41,7 @@ class VolatilityClassifier {
       final score = double.parse(f.volatilityScore.toStringAsFixed(2));
       findings.add(Finding(
         category: 'volatility',
-        source: 'analyze_code_volatility',
+        source: [AnalysisType.codeVolatility],
         severity: Severity.elevated,
         subject: normalized,
         metric: 'volatility_score',

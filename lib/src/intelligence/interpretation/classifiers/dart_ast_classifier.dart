@@ -3,9 +3,11 @@
 /// ----------------------------------------------------------------------------
 library;
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../severity.dart';
+import '../models/analysis_type.dart';
+
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../models/severity.dart';
 
 /// Classifies Dart AST analysis into findings: each circular import chain
 /// detected by Tarjan's strongly-connected-components algorithm (Tarjan
@@ -34,7 +36,7 @@ class DartAstClassifier {
       final normalizedMembers = cycle.map(PathKey.normalize).toList()..sort();
       findings.add(Finding(
         category: 'dartAst',
-        source: 'analyze_dart_ast_quality',
+        source: [AnalysisType.dartAstQuality],
         severity: Severity.high,
         subject: normalizedMembers.first,
         metric: 'import_cycle',

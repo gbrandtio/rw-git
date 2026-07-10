@@ -7,8 +7,6 @@ void main() {
     test('empty constructor returns object with length 0', () {
       final dto = ChurnMetricsWithAuthorsDto.empty();
       expect(dto.fileChurn.isEmpty, true);
-      expect(dto.classChurn.isEmpty, true);
-      expect(dto.blockChurn.isEmpty, true);
       expect(dto.totalCommits, 0);
     });
   });

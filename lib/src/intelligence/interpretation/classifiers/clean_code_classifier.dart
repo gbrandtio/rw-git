@@ -3,12 +3,14 @@
 /// ----------------------------------------------------------------------------
 library;
 
+import '../models/analysis_type.dart';
+
 import 'package:rw_git/src/constants.dart';
 import 'package:rw_git/src/models/clean_code_metrics_dto.dart';
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../severity.dart';
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../models/severity.dart';
 
 /// Classifies per-file clean-code heuristics — excessive length, deep
 /// nesting, long lines, magic numbers, duplicate lines — into findings.
@@ -39,7 +41,7 @@ class CleanCodeClassifier {
       final escalated = file.issues.length >= cleanCodeHighSeverityIssueCount;
       findings.add(Finding(
         category: 'cleanCode',
-        source: 'analyze_clean_code',
+        source: [AnalysisType.cleanCode],
         severity: escalated ? Severity.high : Severity.elevated,
         subject: normalized,
         metric: 'clean_code_issues',

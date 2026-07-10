@@ -54,8 +54,6 @@ void main() {
           fileChurn: {
             'lib/x.dart': ContributionStats(total: 10, authors: {'A': 9})
           },
-          classChurn: {},
-          blockChurn: {},
           totalCommits: 10,
         )),
         'OwnershipClassifier',
@@ -81,7 +79,6 @@ void main() {
         fc.fromComplexity(AdvancedCodeQualityDto(
           fileComplexity: {'big': 30, 'a': 10, 'b': 10, 'c': 10},
           coChangeMatrix: const {},
-          methodChurn: const {},
           architectureDistribution: const {},
         )),
         'ComplexityClassifier',
@@ -92,8 +89,6 @@ void main() {
       expectResearchBacked(
         fc.fromChurn(const ChurnMetricsDto(
           fileChurn: {'hot': 10, 'c1': 1, 'c2': 1, 'c3': 1},
-          classChurn: {},
-          blockChurn: {},
           totalCommits: 13,
         )),
         'ChurnClassifier',
@@ -190,8 +185,6 @@ void main() {
           fileChurn: {
             'lib/x.dart': ContributionStats(total: 10, authors: {'A': 10})
           },
-          classChurn: {},
-          blockChurn: {},
           totalCommits: 10,
         )),
       ]);
@@ -202,7 +195,7 @@ void main() {
   group('Finding serialization of basis/rationale', () {
     const bare = Finding(
       category: 'churn',
-      source: 'analyze_code_quality',
+      source: [AnalysisType.codeQuality],
       severity: Severity.elevated,
       subject: 'lib/x.dart',
       metric: 'file_churn',

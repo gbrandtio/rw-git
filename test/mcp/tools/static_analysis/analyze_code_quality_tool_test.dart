@@ -38,7 +38,7 @@ class _MockRunner implements ProcessRunner {
       for (final line in suspiciousOutput.split('\n')) {
         yield line;
       }
-    } else if (args.contains('-p') && args.contains('--format=')) {
+    } else if (args.contains('--name-only') && args.contains('--format=')) {
       for (final line in churnOutput.split('\n')) {
         yield line;
       }
@@ -75,10 +75,8 @@ void main() {
     test('executes with mock data', () async {
       final churnSb = StringBuffer();
       for (int i = 0; i < 11; i++) {
-        churnSb.writeln('--- a/file$i.dart');
-        churnSb.writeln('@@ -1 +1 @@ class Alpha$i {');
-        churnSb.writeln('--- a/file$i.dart');
-        churnSb.writeln('@@ -2 +2 @@ class Alpha$i {');
+        churnSb.writeln('file$i.dart');
+        churnSb.writeln('file$i.dart');
       }
 
       final megaSb = StringBuffer();

@@ -3,9 +3,11 @@
 /// ----------------------------------------------------------------------------
 library;
 
-import '../finding.dart';
-import '../path_key.dart';
-import '../severity.dart';
+import '../models/analysis_type.dart';
+
+import '../models/finding.dart';
+import '../utils/path_key.dart';
+import '../models/severity.dart';
 
 /// Classifies detected secrets. Any exposed credential is Critical; the file
 /// path is parsed from the scanner's report line so it can correlate with a
@@ -31,7 +33,7 @@ class SecretsClassifier {
       final normalized = file.isEmpty ? '' : PathKey.normalize(file);
       findings.add(Finding(
         category: 'secret',
-        source: 'detect_secrets_in_commits',
+        source: [AnalysisType.detectSecrets],
         severity: Severity.critical,
         subject: normalized.isEmpty ? 'unknown' : normalized,
         metric: 'exposed_secret',

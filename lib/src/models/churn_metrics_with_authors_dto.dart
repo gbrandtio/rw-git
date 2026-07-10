@@ -19,14 +19,10 @@ class ContributionStats {
 
 class ChurnMetricsWithAuthorsDto {
   final Map<String, ContributionStats> fileChurn;
-  final Map<String, ContributionStats> classChurn;
-  final Map<String, ContributionStats> blockChurn;
   final int totalCommits;
 
   const ChurnMetricsWithAuthorsDto({
     required this.fileChurn,
-    required this.classChurn,
-    required this.blockChurn,
     required this.totalCommits,
   });
 
@@ -34,8 +30,6 @@ class ChurnMetricsWithAuthorsDto {
   factory ChurnMetricsWithAuthorsDto.empty() {
     return const ChurnMetricsWithAuthorsDto(
       fileChurn: {},
-      classChurn: {},
-      blockChurn: {},
       totalCommits: 0,
     );
   }
