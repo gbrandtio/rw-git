@@ -1,3 +1,9 @@
+# 3.2.4
+- **PERF (Quality):** Drastically improved the execution time of intelligence tools across large Git repositories (e.g. >10,000 commits) by refactoring `ChurnHeuristic` to use `git log --name-only` instead of the heavy `git log -p`. This eliminates huge amounts of text-parsing overhead.
+- **BREAKING (Core/MCP):** Removed `classChurn` and `blockChurn` from `ChurnMetricsDto` and `ChurnMetricsWithAuthorsDto` across the codebase, as the granular tracking of functions and classes was removed to optimize analysis at the file level. The `analyze_code_quality` tool now exclusively reports `high_churn_files`.
+- **PERF (Quality):** Introduced chunked concurrency in `SzzAlgorithm.execute()`. The algorithm now groups fix-commits into batches (batch size of 10) to execute `_traceIntroducingCommits` in parallel, significantly improving performance for deep histories by preventing excessive OS command spawning.
+- **Improvement:** Improving skills, prompts, hints in order to provide more details and guide the LLM better.
+
 # 3.2.3
 - **FIX (Core):** Fixed an issue where `git diff` and `git log` commands would crash on binary or unreadable files (e.g., `.doc` files) due to failing `textconv` or external diff drivers. The `StandardProcessRunner` now universally injects `--no-ext-diff` and `--no-textconv` into diff-generating Git commands to ensure Git gracefully reports binary differences and continues processing all files in the repository without terminating the command sequence.
 
