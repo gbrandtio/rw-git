@@ -1,3 +1,6 @@
+# 3.2.3
+- **FIX (Core):** Fixed an issue where `git diff` and `git log` commands would crash on binary or unreadable files (e.g., `.doc` files) due to failing `textconv` or external diff drivers. The `StandardProcessRunner` now universally injects `--no-ext-diff` and `--no-textconv` into diff-generating Git commands to ensure Git gracefully reports binary differences and continues processing all files in the repository without terminating the command sequence.
+
 # 3.2.2
 - **FIX (documentation):** Fixing README.md documentation and branding in order to render correctly in pub.dev.
 
