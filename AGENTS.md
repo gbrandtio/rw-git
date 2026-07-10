@@ -25,9 +25,8 @@ Before generating any code, you must ensure you have analyzed the following file
 Intelligence and data insights mean different things for different stakeholders. This is the reason why `rw-git` is configurable, cost-efficient, highly extendable and rigorously flexible.
 
 - **Non-Intrusiveness**: The library is designed to provide useful harnesses and must not be intrusive. Do not offer or implement commands that mutate the remote state (like `push`). Do not offer or implement arbitrary command execution (like `execute_command`). The LLM using this library must be restricted to what the library explicitly offers for analysis and local operations, without any other intrusive capabilities available.
-- **Context Window Competitive Advantage**: The library is designed to offer
-flexibility and keep the token consumption of the LLMs using this library to a minimum. All intelligence gathering, data gathering, metrics gathering must be performed in runtime. The LLM will use these data for itnerpretation.
-- **Small and local models Competitive Advantage**: The library is designed to work with small LLMs or local LLMs efficiently. In parallel, the library must provide full flexibility to larger and more capable LLMs.
+- **Detailed Analysis Competitive Advantage**: The library is designed to offer maximum flexibility by offloading raw computation to the runtime, while leveraging the full context window of the LLMs to provide rich, comprehensive interpretation of data, algorithms, and metrics. The LLM must synthesize deep insights from this raw data to guide the user effectively.
+- **Advanced LLM Guidance**: The library provides detailed algorithmic context and comprehensive documentation for its metrics. This design empowers highly capable LLMs to produce high-quality, deeply detailed reports, explaining the 'why' and 'how' behind the numbers to the user.
 - **Quality**: The quality of the intelligence, data and metrics provided by the library must be top priority. All algorithms, functionality and architecture must be backed by academic research.
 
 ---

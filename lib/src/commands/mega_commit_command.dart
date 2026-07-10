@@ -16,7 +16,7 @@ class MegaCommitCheckCommand extends GitCommand<List<String>> {
         workingDirectory: directory, streamOutput: streamOutput);
     evaluateProcessResult(result);
 
-    // the parser logic will be handled outside, but for now we just return the raw lines to be processed
+    // Return the raw lines to be parsed externally.
     return RwGitParser.parseGitStdoutBasedOnNewLine(
         result.stdout?.toString() ?? '');
   }
