@@ -40,8 +40,12 @@ class SourceFileFilter {
     '.mp3', '.mp4', '.wav', '.mov',
     // Fonts.
     '.ttf', '.otf', '.woff', '.woff2', '.eot',
-    // Archives and binaries.
+    // Archives, binaries, and compiled objects.
     '.zip', '.gz', '.tar', '.jar', '.bin', '.exe', '.dll', '.so', '.dylib',
+    '.class', '.o', '.obj', '.a', '.lib', '.out', '.pdb', '.ilk',
+    // Project and IDE configuration.
+    '.csproj', '.vcxproj', '.fsproj', '.vbproj', '.sln', '.suo', '.user',
+    '.targets', '.props', '.filters', '.iml', '.map',
     // Logs.
     '.log',
   };
@@ -68,6 +72,9 @@ class SourceFileFilter {
     '.dockerignore',
     '.pubignore',
     '.env',
+    '.classpath',
+    '.project',
+    '.packages',
   };
 
   /// True when [path] may be source code: its extension and basename are

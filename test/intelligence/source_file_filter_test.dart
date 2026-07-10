@@ -54,6 +54,22 @@ void main() {
     expect(SourceFileFilter.isSource('lib/changelog_generator.dart'), isTrue);
   });
 
+  test('rejects IDE metadata and compiled objects for core languages', () {
+    // C# ecosystem
+    expect(SourceFileFilter.isSource('App.csproj'), isFalse);
+    expect(SourceFileFilter.isSource('solution.sln'), isFalse);
+    // Java ecosystem
+    expect(SourceFileFilter.isSource('module.iml'), isFalse);
+    expect(SourceFileFilter.isSource('.classpath'), isFalse);
+    expect(SourceFileFilter.isSource('Main.class'), isFalse);
+    // C/C++ ecosystem
+    expect(SourceFileFilter.isSource('project.vcxproj'), isFalse);
+    expect(SourceFileFilter.isSource('build/main.o'), isFalse);
+    // JS/TS and Dart ecosystem
+    expect(SourceFileFilter.isSource('main.js.map'), isFalse);
+    expect(SourceFileFilter.isSource('.packages'), isFalse);
+  });
+
   test('normalises diff-style and windows paths', () {
     expect(SourceFileFilter.isSource(r'doc\notes\INDEX.md'), isFalse);
     expect(SourceFileFilter.isSource(' CHANGELOG.md '), isFalse);
