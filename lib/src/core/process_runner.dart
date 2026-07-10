@@ -31,10 +31,25 @@ class StandardProcessRunner implements ProcessRunner {
   Future<ProcessResult> run(String executable, List<String> arguments,
       {String? workingDirectory, bool streamOutput = false}) async {
     try {
+      // Inject safety flags for diff-generating commands to prevent them from
+      // crashing on unreadable/binary files with broken textconv/ext-diff.
+      List<String> safeArgs = List.from(arguments);
+      if (executable == 'git' && safeArgs.isNotEmpty) {
+        final cmd = safeArgs.first;
+        if (cmd == 'diff' || cmd == 'log' || cmd == 'show') {
+          if (!safeArgs.contains('--no-ext-diff')) {
+            safeArgs.insert(1, '--no-ext-diff');
+          }
+          if (!safeArgs.contains('--no-textconv')) {
+            safeArgs.insert(1, '--no-textconv');
+          }
+        }
+      }
+
       // SECURITY.md: Never use runInShell: true for executing commands.
       final process = await Process.start(
         executable,
-        arguments,
+        safeArgs,
         workingDirectory: workingDirectory,
         runInShell: false,
       );
@@ -78,10 +93,25 @@ class StandardProcessRunner implements ProcessRunner {
   Stream<String> runStream(String executable, List<String> arguments,
       {String? workingDirectory}) async* {
     try {
+      // Inject safety flags for diff-generating commands to prevent them from
+      // crashing on unreadable/binary files with broken textconv/ext-diff.
+      List<String> safeArgs = List.from(arguments);
+      if (executable == 'git' && safeArgs.isNotEmpty) {
+        final cmd = safeArgs.first;
+        if (cmd == 'diff' || cmd == 'log' || cmd == 'show') {
+          if (!safeArgs.contains('--no-ext-diff')) {
+            safeArgs.insert(1, '--no-ext-diff');
+          }
+          if (!safeArgs.contains('--no-textconv')) {
+            safeArgs.insert(1, '--no-textconv');
+          }
+        }
+      }
+
       // SECURITY.md: Never use runInShell: true for executing commands.
       final process = await Process.start(
         executable,
-        arguments,
+        safeArgs,
         workingDirectory: workingDirectory,
         runInShell: false,
       );
@@ -179,6 +209,9 @@ void evaluateProcessResult(ProcessResult result) {
     } else if (errOutput.contains('conflict')) {
       throw GitMergeConflictException(
           exitCode: result.exitCode, stderr: errOutput);
+    } else if (errOutput.contains('unsupported file type') ||
+        errOutput.contains('unable to read files to diff')) {
+      throw GitDiffException(exitCode: result.exitCode, stderr: errOutput);
     }
 
     throw RwGitException(

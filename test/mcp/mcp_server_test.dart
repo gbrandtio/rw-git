@@ -459,8 +459,10 @@ void main() {
           .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
-      expect(response['error']['code'], -32000);
-      expect(response['error']['message'], contains('Custom Git Error'));
+      expect(response['id'], 6);
+      expect(response['result']['isError'], isTrue);
+      expect(response['result']['content'][0]['text'],
+          contains('Custom Git Error'));
     });
 
     test('tools/call tool throws generic exception returns error', () async {
@@ -482,8 +484,10 @@ void main() {
           .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
-      expect(response['error']['code'], -32000);
-      expect(response['error']['message'], contains('Generic error'));
+      expect(response['id'], 7);
+      expect(response['result']['isError'], isTrue);
+      expect(
+          response['result']['content'][0]['text'], contains('Generic error'));
     });
 
     test('unknown method returns error', () async {

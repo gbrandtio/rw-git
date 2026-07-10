@@ -70,3 +70,10 @@ class GitMergeConflictException extends RwGitException {
           message: 'Merge conflict detected.',
         );
 }
+
+class GitDiffException extends RwGitException {
+  GitDiffException({super.exitCode, super.stderr})
+      : super(
+          message: 'Failed to process file diff.',
+        );
+}

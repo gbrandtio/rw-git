@@ -35,10 +35,11 @@ class ToolsCallRule implements McpRule {
       ctx.sendToolResult(id, resultText,
           structuredContent: _structuredContentFor(tool, resultText));
     } on RwGitException catch (e) {
-      ctx.sendError(id, jsonRpcServerError,
-          'Git error (code ${e.exitCode}): ${e.message}\\n${e.stderr}');
+      ctx.sendToolResult(
+          id, 'Git error (code ${e.exitCode}): ${e.message}\n${e.stderr}',
+          isError: true);
     } catch (e) {
-      ctx.sendError(id, jsonRpcServerError, 'Tool execution error: $e');
+      ctx.sendToolResult(id, 'Tool execution error: $e', isError: true);
     }
   }
 

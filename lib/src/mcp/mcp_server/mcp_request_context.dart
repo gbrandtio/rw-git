@@ -54,7 +54,7 @@ class McpRequestContext {
   /// schema should return machine-readable structured output alongside the
   /// text for backward compatibility).
   void sendToolResult(dynamic id, String text,
-      {Map<String, dynamic>? structuredContent}) {
+      {Map<String, dynamic>? structuredContent, bool isError = false}) {
     outputSink.writeln(jsonEncode({
       'jsonrpc': '2.0',
       'id': id,
@@ -63,6 +63,7 @@ class McpRequestContext {
           {'type': 'text', 'text': text}
         ],
         if (structuredContent != null) 'structuredContent': structuredContent,
+        if (isError) 'isError': true,
       }
     }));
   }
