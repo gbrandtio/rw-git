@@ -27,20 +27,19 @@ const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
   // ---------------------------------------------------------------- Architecture
   AnalysisType.busFactor: ToolHints(
     interpretation: [
-      'Across the open-source projects studied by Avelino et al. 2016, the '
-          'typical project can survive the loss of only two key contributors '
-          'before its remaining team lacks the knowledge to carry it forward '
-          '— and the threshold this tool uses to flag that risk agrees with '
-          'what human experts independently judge to be a true bus-factor '
-          'problem roughly three times out of four. A result showing one '
-          'author responsible for more than half of a project\'s commits, '
-          'with no other contributor close behind, describes a project whose '
-          'continuity depends on a single person; in practice this often '
-          'traces back to an organizational boundary — one team, one owner — '
-          'that was never deliberately spread across more people (Conway '
-          '1968). A lower coverage threshold reports risk more '
-          'conservatively, treating even modest concentration as dangerous; '
-          'a higher one only flags the most extreme, unambiguous cases.',
+      'You must explain the bus factor algorithm (Avelino et al. 2016) used '
+          'to calculate this risk. The algorithm sorts authors by their total '
+          'commit volume and adds them up until their combined contributions '
+          'cross a coverage threshold (typically 50%). If it takes only one '
+          'or two authors to reach this threshold, the project has a '
+          'critically low bus factor, meaning its continuity depends on a '
+          'single point of failure. In practice, this often traces back to '
+          'an organizational boundary (Conway 1968). When interpreting these '
+          'results, explicitly guide the user through this calculation: show '
+          'how the top contributor\'s share dominates the codebase and '
+          'explain that a lower coverage threshold flags modest concentration '
+          'while a higher one flags unambiguous risk. Your report must '
+          'narrate *why* this numeric imbalance creates a knowledge silo.',
     ],
     caveats: [
       'Counting commits is a workable but blunt way to estimate who '
@@ -63,18 +62,18 @@ const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
 
   AnalysisType.logicalCoupling: ToolHints(
     interpretation: [
-      'When two files change together in the same commit more than 60% of '
-          'the time one changes at all, that is strong evidence they are '
-          'entangled in practice even if nothing in the code declares a '
-          'dependency between them — the kind of hidden coupling that makes '
-          'a change to one file quietly require a change to the other (Gall '
-          'et al. 1998; Zimmermann et al. 2004). A co-change rate in the '
-          '30–60% range is a moderate signal worth watching rather than '
-          'acting on immediately, and anything below 30% is more likely '
-          'coincidence than a real dependency. Files this tightly coupled '
-          'are strong candidates for merging, extracting a shared '
-          'interface, or otherwise making the hidden dependency explicit so '
-          'future changes do not silently break the other side.',
+      'Explain the algorithmic basis of logical coupling: this tool measures '
+          'how often two files co-change in the same commit relative to how '
+          'often they change at all. When two files co-change more than 60% '
+          'of the time, that is strong statistical evidence they are '
+          'entangled in practice even if no explicit dependency exists in '
+          'the code (Gall et al. 1998; Zimmermann et al. 2004). You must '
+          'interpret these co-change ratios for the user: a 30–60% rate is '
+          'a moderate warning, while >60% means a change to one file quietly '
+          'forces a change to the other. Explain that files this tightly '
+          'coupled are prime targets for architectural refactoring — such as '
+          'merging them or extracting a shared interface — to make the hidden '
+          'dependency explicit.',
     ],
     caveats: [
       'Among the many signals used to predict where bugs will appear next, '
@@ -95,27 +94,21 @@ const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
 
   AnalysisType.architectureDrift: ToolHints(
     interpretation: [
-      'This tool names three specific ways a codebase\'s actual '
-          'change-history structure can drift from its intended layering '
-          '(Garcia et al. 2009): a God Component, where one layer '
-          'dominates the majority of drift commits and is quietly becoming '
-          'the place everything goes through; a Hub-Like Dependency, where '
-          'one layer ends up entangled with most of the others instead of '
-          'depending on just a few; and Scattered Functionality, where a '
-          'single commit has to reach across three or more layers to '
-          'accomplish one change. A layer whose share of commits shifts by '
-          'more than roughly fifteen percentage points over the period '
-          'examined — especially if that shift crosses a boundary the '
-          'architecture was never meant to cross — is a sign that how the '
-          'system is actually built is pulling away from why it was '
-          'designed that way in the first place (Perry & Wolf 1992).',
-      'Two repo-level ratios summarise the drift commits: coupling_ratio, '
-          'the share of analyzed commits that cross layer boundaries — '
-          'above roughly 15% the declared boundaries are no longer '
-          'containing change (Perry & Wolf 1992) — and coupling_density, '
-          'the fraction of possible layer pairs that co-change at all; '
-          'above one half the architecture behaves as an entangled whole '
-          'rather than independent layers (Garcia et al. 2009).',
+      'You must explicitly break down the algorithmic definitions of the '
+          'three architectural drift patterns (Garcia et al. 2009). First, '
+          'a God Component algorithm identifies a layer dominating the majority '
+          'of drift commits, signaling it is becoming the central bottleneck. '
+          'Second, a Hub-Like Dependency flags a layer entangled with an '
+          'anomalous number of other layers (calculated via co-change edges) '
+          'rather than being isolated. Third, Scattered Functionality '
+          'identifies single commits that span three or more distinct layers '
+          'simultaneously, violating layer encapsulation. Guide the user '
+          'through the two repo-level ratios: coupling_ratio (commits crossing '
+          'layer boundaries / total commits) and coupling_density (fraction '
+          'of all possible layer-pairs that co-change). Explain that a ratio '
+          '>15% means boundaries are failing to contain change, and a density '
+          '>0.5 means the system acts as an entangled monolith rather than '
+          'independent layers.',
     ],
     caveats: [
       'The density figure this tool reports is a practical estimate of how '
@@ -462,23 +455,19 @@ const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
   // ------------------------------------------------------------- Static analysis
   AnalysisType.cleanCode: ToolHints(
     interpretation: [
-      'Each flag this tool raises corresponds to a specific, independently '
-          'motivated readability or maintainability concern rather than an '
-          'arbitrary style preference. A file that has grown past roughly '
-          'three hundred non-empty lines is working against the principle '
-          'that small, focused files and functions are easier to '
-          'understand and change safely (Martin 2008). Nesting five or '
-          'more levels deep asks a reader to hold more conditional context '
-          'in mind at once than typical working memory comfortably manages '
-          '(Wulf & Shaw 1973). A meaningful share of very long lines makes '
-          'a file harder to scan, and a large number of unexplained '
-          'numeric literals forces a reader to guess at their meaning '
-          'rather than read it directly. Any duplicated block of code '
-          'means the same defect, if one exists, now lives in more than '
-          'one place and has to be fixed twice (Fowler 1999; Koschke '
-          '2007). A file with no such flags is in good shape; each '
-          'additional distinct flag raises how urgently it is worth '
-          'revisiting.',
+      'In your report, you must explain the specific syntactic algorithms '
+          'triggering each clean code flag. Explain that file length flags '
+          'trigger when non-empty LOC exceeds 300, pointing to Single '
+          'Responsibility Principle violations (Martin 2008). Explain that '
+          'nesting algorithms calculate the AST depth of conditional blocks, '
+          'and depths >= 5 overwhelm typical human working memory (Wulf & '
+          'Shaw 1973). Explain that long line algorithms calculate the '
+          'percentage of lines exceeding 100 characters to assess scannability, '
+          'while magic number detectors flag undocumented numeric literals. '
+          'Finally, explain that code duplication algorithms use rolling AST '
+          'hashes to find identical blocks of logic, which force developers '
+          'to fix identical bugs multiple times (Koschke 2007). Guide the '
+          'user on how to address the specific algorithm that failed.',
     ],
     pairWith: [
       'Pair with calculate_universal_lexical_metrics for the numeric '
@@ -491,24 +480,19 @@ const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
 
   AnalysisType.codeQuality: ToolHints(
     interpretation: [
-      'A single commit that changes an unusually large amount of code or '
-          'touches an unusually large number of files at once — the kind '
-          'this tool flags as a mega commit — is measurably harder to '
-          'review carefully and carries more defects per line changed than '
-          'a smaller, more focused commit would (Mockus & Votta 2000). '
-          'Files that repeatedly change together across many unrelated '
-          'commits read as a signal that a single responsibility has been '
-          'smeared across multiple files, in tension with the '
-          'single-responsibility principle (Martin 2000); files that '
-          'individually accumulate very high churn read as a signal that '
-          'the code was not built to be extended without being directly '
-          'modified each time, in tension with the open-closed principle '
-          '(Tornhill 2015). When author information is included, a '
-          'contributor responsible for less than about 5% of a file\'s '
-          'commits is a minor, less-reliable contributor to that file\'s '
-          'history, while one responsible for more than about 75% '
-          'represents strong, concentrated ownership (Bird et al. 2011; '
-          'Weyuker, Ostrand & Bell 2008).',
+      'When interpreting code quality, explicitly detail the thresholds and '
+          'algorithms used. Explain that a "mega commit" algorithm flags '
+          'commits exceeding standard standard deviations for lines or files '
+          'changed, warning that these carry disproportionately higher defect '
+          'density (Mockus & Votta 2000). Describe how the single-responsibility '
+          'checker identifies files that repeatedly co-change across unrelated '
+          'commits, smearing responsibilities (Martin 2000). Detail the '
+          'open-closed principle violation detector, which flags files '
+          'accumulating extremely high churn (Tornhill 2015). Finally, when '
+          'analyzing author ownership algorithms, explain that a contributor '
+          'under a 5% commit threshold is flagged as a minor risk, while '
+          '>75% triggers a concentrated ownership silo warning (Bird et al. '
+          '2011; Weyuker, Ostrand & Bell 2008).',
     ],
     pairWith: [
       'Pair with analyze_logical_coupling — the single-responsibility '
@@ -662,16 +646,16 @@ const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
 
   AnalysisType.detectSecrets: ToolHints(
     interpretation: [
-      'This tool leans on the fact that genuinely random secrets look '
-          'statistically different from ordinary text: natural-language '
-          'identifiers and code sit in a comfortably low range of '
-          'character randomness, while true random tokens sit distinctly '
-          'higher (Shannon 1948), and filtering by whether the surrounding '
-          'line looks like a credential assignment sharply cuts how often '
-          'ordinary-looking strings get mistaken for secrets, at very '
-          'little cost in secrets actually missed (Zielinski et al. 2016). '
-          'A hit here is not a hypothetical risk — it should be treated as '
-          'an actual credential exposure requiring action.',
+      'You must explain the Shannon entropy algorithm (Shannon 1948) used by '
+          'this tool. The algorithm calculates the character randomness of '
+          'strings (H = -sum(p * log2(p))). Natural-language identifiers and '
+          'code sit in a comfortably low entropy range, while true random '
+          'cryptographic tokens sit distinctly higher. Explain that to cut '
+          'false positives, the algorithm combines this entropy math with '
+          'regex checks for credential assignment patterns (Zielinski et al. '
+          '2016). Guide the user to understand that a hit here is not a '
+          'hypothetical risk — it is a mathematically identified, high-entropy '
+          'credential exposure requiring immediate rotation.',
     ],
     caveats: [
       'Most secrets that have ever been committed to a repository are '
