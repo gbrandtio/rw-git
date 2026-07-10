@@ -43,7 +43,7 @@ class SzzAlgorithm {
   /// digit to keep the column width); the optional filename column appears
   /// when `-C -C` attributes the line to content moved from another file.
   static final RegExp _blameLinePattern = RegExp(
-      r'^(\^?[a-f0-9]{39,40})(?:\s+(.+?))?\s+\((.*?)\s+(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}[+-]\d{2}:\d{2})\s+\d+\)');
+      r'^(\^?[a-f0-9]{39,40})(?:\s+(.+?))?\s+\((.*?)\s*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:?\d{2}))\s+\d+\)');
 
   /// Identifies bug introductions across the repository history:
   /// 1. Find bug-fix commits via keyword heuristics (positive/negative

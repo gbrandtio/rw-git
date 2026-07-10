@@ -231,7 +231,7 @@ class RwGitParser {
 
     // Example: 93f2f810 (Ioannis 2026-06-29 00:00:00 +0400 1) content
     final regex = RegExp(
-        r'^([a-f0-9\^]+)\s+\((.+?)\s+(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+[+-]\d{4})\s+(\d+)\)\s?(.*)$');
+        r'^([a-f0-9\^]+)\s+\((.*?)\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(?:Z|[+-]\d{2}:?\d{2}))\s+(\d+)\)\s?(.*)$');
 
     for (final line in lines) {
       final match = regex.firstMatch(line);
