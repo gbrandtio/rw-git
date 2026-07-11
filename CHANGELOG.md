@@ -1,3 +1,7 @@
+# 3.3.0
+- **FEAT (Library):** Exposed the pure lexical metrics algorithms (`FsmLexer`, `CyclomaticComplexityAlgorithm`, `HalsteadComplexityAlgorithm`, etc.) via `lexical_metrics.dart` so 3rd party packages can build custom static analysis pipelines.
+- **FEAT (Library):** Added a new `LexicalMetricsRunner` facade that allows 3rd party consumers to easily compute the full lexical complexity suite (McCabe, Maintainability Index, ABC Score, NPath, Cognitive, Halstead) synchronously for any given file and source string, without the overhead of Isolate spawning or git-churn sampling logic.
+
 # 3.2.5
 - **Improvement (Quality):** Removed duplication of context for hints/prompts/skills. Removed capped limits for hints in order to enhance quality of output.
 
