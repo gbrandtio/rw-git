@@ -40,9 +40,9 @@ class McpServer {
     IOSink? outputSink,
     IOSink? errorSink,
     this.toolsPageSize,
-  })  : inputStream = inputStream ?? stdin,
-        outputSink = outputSink ?? stdout,
-        errorSink = errorSink ?? stderr {
+  }) : inputStream = inputStream ?? stdin,
+       outputSink = outputSink ?? stdout,
+       errorSink = errorSink ?? stderr {
     _context = McpRequestContext(
       registry: registry,
       outputSink: this.outputSink,

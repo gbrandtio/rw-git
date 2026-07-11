@@ -73,13 +73,10 @@ int classify(int a, int b) {
       await writeSource('lib/high.dart', branchySource);
       await writeSource('lib/low.dart', branchySource);
 
-      final metrics = await sampler.sampleTopChurnFiles(
-          tempDir.path,
-          {
-            'lib/high.dart': 100,
-            'lib/low.dart': 1,
-          },
-          maxFiles: 1);
+      final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+        'lib/high.dart': 100,
+        'lib/low.dart': 1,
+      }, maxFiles: 1);
 
       expect(metrics.single.filePath, 'lib/high.dart');
     },
@@ -89,13 +86,10 @@ int classify(int a, int b) {
     await writeSource('lib/huge.dart', branchySource);
     await writeSource('lib/small.dart', branchySource);
 
-    final metrics = await sampler.sampleTopChurnFiles(
-        tempDir.path,
-        {
-          'lib/huge.dart': 100,
-          'lib/small.dart': 1,
-        },
-        maxFileSizeBytes: 10);
+    final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+      'lib/huge.dart': 100,
+      'lib/small.dart': 1,
+    }, maxFileSizeBytes: 10);
 
     expect(metrics, isEmpty);
   });
@@ -127,13 +121,10 @@ int classify(int a, int b) {
     await writeSource('CHANGELOG.md', '# if for while, a prose file\n');
     await writeSource('lib/code.dart', branchySource);
 
-    final metrics = await sampler.sampleTopChurnFiles(
-        tempDir.path,
-        {
-          'CHANGELOG.md': 100,
-          'lib/code.dart': 1,
-        },
-        maxFiles: 1);
+    final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+      'CHANGELOG.md': 100,
+      'lib/code.dart': 1,
+    }, maxFiles: 1);
 
     // The single slot goes to the source file, not the hotter prose file.
     expect(metrics.single.filePath, 'lib/code.dart');

@@ -205,9 +205,7 @@ class DartAstAnalyzer {
         continue;
       }
       fileImports[entry.key] = rawImports
-          .map(
-            (uri) => _resolveImportToRepoPath(entry.key, uri, packageName),
-          )
+          .map((uri) => _resolveImportToRepoPath(entry.key, uri, packageName))
           .whereType<String>()
           .toList();
     }

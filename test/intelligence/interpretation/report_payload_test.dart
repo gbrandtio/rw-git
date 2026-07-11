@@ -9,19 +9,17 @@ void main() {
   Finding findingFrom(
     List<AnalysisType> source, {
     String subject = 'lib/x.dart',
-  }) =>
-      Finding(
-        category: 'test',
-        source: source,
-        severity: Severity.critical,
-        subject: subject,
-        metric: 'm',
-        value: 1,
-        band: 'b',
-      );
+  }) => Finding(
+    category: 'test',
+    source: source,
+    severity: Severity.critical,
+    subject: subject,
+    metric: 'm',
+    value: 1,
+    band: 'b',
+  );
 
-  test(
-      'a pair_with entry survives even when the same source also has a '
+  test('a pair_with entry survives even when the same source also has a '
       'caveat', () {
     // analyze_bus_factor has both a non-empty caveats and pairWith entry in
     // the catalog — the bug this aggregation fixes is a caveat silently
@@ -89,8 +87,7 @@ void main() {
     );
   });
 
-  test(
-      'is not capped: every distinct catalog string across many sources '
+  test('is not capped: every distinct catalog string across many sources '
       'survives', () {
     final manySources = [
       AnalysisType.busFactor,
@@ -172,8 +169,7 @@ void main() {
     expect(withoutHints.containsKey('hints'), isFalse);
   });
 
-  test(
-      'compound findings contribute hints: their joined source string is '
+  test('compound findings contribute hints: their joined source string is '
       'split back into catalog keys', () {
     // A compound's source is 'tool_a + tool_b' — before the split fix,
     // that string matched no catalog key and compounds (the highest-

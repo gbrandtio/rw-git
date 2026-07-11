@@ -37,8 +37,8 @@ class MockMcpPrompt implements McpPrompt {
 
   @override
   List<Map<String, dynamic>> get messages => [
-        {'role': 'user', 'content': 'hello'},
-      ];
+    {'role': 'user', 'content': 'hello'},
+  ];
 }
 
 void main() {
@@ -137,8 +137,7 @@ void main() {
       },
     );
 
-    test(
-        'library log events reach the host as notifications/message once '
+    test('library log events reach the host as notifications/message once '
         'the host lowers the level via logging/setLevel', () async {
       server.start();
       sendInput({
@@ -180,8 +179,7 @@ void main() {
       );
     });
 
-    test(
-        'debug events are suppressed at the default warning level so an '
+    test('debug events are suppressed at the default warning level so an '
         'idle host is not flooded', () async {
       server.start();
 

@@ -19,10 +19,10 @@ class GetRwGitDocumentationTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {},
-        'required': [],
-      };
+    'type': 'object',
+    'properties': {},
+    'required': [],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

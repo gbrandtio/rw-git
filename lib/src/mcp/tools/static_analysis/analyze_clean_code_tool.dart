@@ -15,7 +15,8 @@ class AnalyzeCleanCodeTool implements McpTool {
   String get name => 'analyze_clean_code';
 
   @override
-  String get description => 'Language-agnostic tool to analyze basic clean '
+  String get description =>
+      'Language-agnostic tool to analyze basic clean '
       'code heuristics of a specific file. Detects '
       'excessive length, deep nesting (arrow code), '
       'long lines, magic numbers, and duplicate lines, which violate SOLID '
@@ -23,21 +24,23 @@ class AnalyzeCleanCodeTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The absolute path to the repository root. '
-                'Used to scope file access and prevent path traversal.',
-          },
-          'file_path': {
-            'type': 'string',
-            'description': 'Path to the file to analyze, absolute or relative '
-                'to directory.',
-          },
-        },
-        'required': ['directory', 'file_path'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description':
+            'The absolute path to the repository root. '
+            'Used to scope file access and prevent path traversal.',
+      },
+      'file_path': {
+        'type': 'string',
+        'description':
+            'Path to the file to analyze, absolute or relative '
+            'to directory.',
+      },
+    },
+    'required': ['directory', 'file_path'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -75,8 +78,8 @@ class AnalyzeCleanCodeTool implements McpTool {
       'risk_level': metrics.issues.isEmpty
           ? 'low'
           : metrics.issues.length == 1
-              ? 'medium'
-              : 'high',
+          ? 'medium'
+          : 'high',
     });
   }
 }

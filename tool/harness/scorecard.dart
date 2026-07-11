@@ -52,7 +52,8 @@ class CallRecord {
     try {
       final decoded = jsonDecode(response);
       if (decoded is Map) {
-        offloaded = decoded.containsKey('file_size_bytes') &&
+        offloaded =
+            decoded.containsKey('file_size_bytes') &&
             decoded.containsKey('file');
         if (offloaded) {
           offloadedFileBytes =
@@ -115,13 +116,13 @@ class Scorecard {
       followupReads == 0 && calls.any((c) => c.actionable);
 
   Map<String, dynamic> toJson() => {
-        'label': label,
-        'tool_calls': toolCalls,
-        'followup_reads': followupReads,
-        'hops_to_report': hopsToReport,
-        'response_bytes': totalResponseBytes,
-        'worst_case_read_bytes': worstCaseReadBytes,
-        'estimated_tokens': estimatedTokens,
-        'inline_complete': inlineComplete,
-      };
+    'label': label,
+    'tool_calls': toolCalls,
+    'followup_reads': followupReads,
+    'hops_to_report': hopsToReport,
+    'response_bytes': totalResponseBytes,
+    'worst_case_read_bytes': worstCaseReadBytes,
+    'estimated_tokens': estimatedTokens,
+    'inline_complete': inlineComplete,
+  };
 }

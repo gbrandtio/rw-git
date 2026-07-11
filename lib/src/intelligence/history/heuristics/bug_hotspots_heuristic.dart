@@ -27,7 +27,7 @@ class BugHotspotsHeuristic {
       // or months; whole-hour truncation would be false precision.
       final lifetimeDays =
           match.fixingDate.difference(match.introducingDate).inMinutes.abs() /
-              minutesPerDay;
+          minutesPerDay;
 
       uniqueFixCommits.add(match.fixingCommitHash);
 
@@ -42,8 +42,9 @@ class BugHotspotsHeuristic {
       lifetimeCount++;
     }
 
-    final globalAvg =
-        lifetimeCount > 0 ? totalLifetimeDays / lifetimeCount : 0.0;
+    final globalAvg = lifetimeCount > 0
+        ? totalLifetimeDays / lifetimeCount
+        : 0.0;
 
     final fileAvg = <String, double>{};
     for (final entry in fileLifetimes.entries) {

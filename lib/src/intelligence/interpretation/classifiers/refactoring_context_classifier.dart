@@ -71,8 +71,9 @@ class RefactoringContextClassifier {
     if (refactorings.length < refactoringActivityNotableThreshold) {
       return const [];
     }
-    final simplificationCount =
-        refactorings.where((r) => r.isSimplification).length;
+    final simplificationCount = refactorings
+        .where((r) => r.isSimplification)
+        .length;
     return [
       Finding(
         category: 'refactoring',

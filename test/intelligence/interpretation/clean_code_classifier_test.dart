@@ -36,11 +36,7 @@ void main() {
 
   test('three or more agreeing heuristics escalate to High', () {
     final finding = fc.fromCleanCode([
-      metrics('lib/bad.dart', const [
-        'too long',
-        'nesting',
-        'magic numbers',
-      ]),
+      metrics('lib/bad.dart', const ['too long', 'nesting', 'magic numbers']),
     ]).single;
 
     expect(finding.severity, Severity.high);

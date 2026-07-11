@@ -106,8 +106,9 @@ class CompoundFindingCorrelator {
 
     // Rule 4: dependency major-version-behind + a secret in a manifest/config
     // file → escalate to a single Critical security finding.
-    final staleDeps =
-        of('dependency').where((d) => d.severity == Severity.critical).toList();
+    final staleDeps = of(
+      'dependency',
+    ).where((d) => d.severity == Severity.critical).toList();
     if (staleDeps.isNotEmpty) {
       for (final secret in of('secret')) {
         if (_looksLikeDependencyConfig(secret.subject)) {
@@ -235,8 +236,9 @@ class CompoundFindingCorrelator {
           ],
           evidence: {
             'burnout': _ref(burnout.first),
-            'active_bug_hotspots':
-                activeHotspots.map((h) => h.subject).toList(),
+            'active_bug_hotspots': activeHotspots
+                .map((h) => h.subject)
+                .toList(),
           },
           severity: Severity.high,
         ),
@@ -250,10 +252,10 @@ class CompoundFindingCorrelator {
   /// compound without embedding the full finding (which would bloat the
   /// payload and push it past the inline threshold).
   Map<String, dynamic> _ref(Finding f) => {
-        'subject': f.subject,
-        'severity': f.severity.label,
-        'band': f.band,
-      };
+    'subject': f.subject,
+    'severity': f.severity.label,
+    'band': f.band,
+  };
 
   Finding _compound({
     required String subject,

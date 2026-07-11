@@ -12,15 +12,14 @@ void main() {
     List<ArchitecturalSmell> smells = const [],
     double couplingRatio = 0,
     double couplingDensity = 0,
-  }) =>
-      ArchitectureDriftDto(
-        totalCommitsAnalyzed: 100,
-        driftCommits: const [],
-        couplingMatrix: const {},
-        couplingRatio: couplingRatio,
-        couplingDensity: couplingDensity,
-        smells: smells,
-      );
+  }) => ArchitectureDriftDto(
+    totalCommitsAnalyzed: 100,
+    driftCommits: const [],
+    couplingMatrix: const {},
+    couplingRatio: couplingRatio,
+    couplingDensity: couplingDensity,
+    smells: smells,
+  );
 
   test('God Component and Hub-Like Dependency band High', () {
     final findings = fc.fromArchitectureDrift(

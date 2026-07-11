@@ -23,15 +23,12 @@ class IsGitRepositoryTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The directory to check.'
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {'type': 'string', 'description': 'The directory to check.'},
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -49,25 +46,31 @@ class IsGitRepositoryTool implements McpTool {
     int totalCommits = 0;
 
     try {
-      final branchRes =
-          (await gitQuery.run(dir, ['branch', '--show-current'])).getOrNull();
+      final branchRes = (await gitQuery.run(dir, [
+        'branch',
+        '--show-current',
+      ])).getOrNull();
       currentBranch = branchRes?.trim() ?? '';
 
-      final statusRes =
-          (await gitQuery.run(dir, ['status', '--porcelain'])).getOrNull();
+      final statusRes = (await gitQuery.run(dir, [
+        'status',
+        '--porcelain',
+      ])).getOrNull();
       hasUncommittedChanges =
           (statusRes != null && statusRes.trim().isNotEmpty);
 
-      final logRes =
-          (await gitQuery.run(dir, ['log', '-1', '--format=%cd'])).getOrNull();
+      final logRes = (await gitQuery.run(dir, [
+        'log',
+        '-1',
+        '--format=%cd',
+      ])).getOrNull();
       lastCommitDate = logRes?.trim() ?? '';
 
       final countRes = (await gitQuery.run(dir, [
         'rev-list',
         '--count',
         'HEAD',
-      ]))
-          .getOrNull();
+      ])).getOrNull();
       totalCommits = int.tryParse(countRes?.trim() ?? '') ?? 0;
     } catch (_) {
       // Ignore errors if health data cannot be fetched

@@ -17,7 +17,8 @@ class AuditComplianceTool implements McpTool {
   String get name => 'audit_compliance';
 
   @override
-  String get description => 'Scans commit history for compliance policy '
+  String get description =>
+      'Scans commit history for compliance policy '
       'violations: unsigned commits (no GPG/SSH '
       'signature), empty commit messages, and commits '
       'from unrecognized author emails. Optionally '
@@ -28,26 +29,28 @@ class AuditComplianceTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'limit': {
-            'type': 'number',
-            'description': 'Number of commits to scan '
-                '(default: $defaultCommitLimit).',
-          },
-          'allowedEmails': {
-            'type': 'string',
-            'description': 'Comma-separated list of allowed '
-                'author email addresses. Commits '
-                'from other emails will be flagged.',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'limit': {
+        'type': 'number',
+        'description':
+            'Number of commits to scan '
+            '(default: $defaultCommitLimit).',
+      },
+      'allowedEmails': {
+        'type': 'string',
+        'description':
+            'Comma-separated list of allowed '
+            'author email addresses. Commits '
+            'from other emails will be flagged.',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -59,12 +62,12 @@ class AuditComplianceTool implements McpTool {
 
     final allowedEmails =
         allowedEmailsStr != null && allowedEmailsStr.isNotEmpty
-            ? allowedEmailsStr
-                .split(',')
-                .map((e) => e.trim())
-                .where((e) => e.isNotEmpty)
-                .toList()
-            : <String>[];
+        ? allowedEmailsStr
+              .split(',')
+              .map((e) => e.trim())
+              .where((e) => e.isNotEmpty)
+              .toList()
+        : <String>[];
 
     final report = await ComplianceScanner(runner).scanComplianceIssues(
       directory,

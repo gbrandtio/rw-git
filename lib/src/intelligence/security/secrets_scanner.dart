@@ -123,7 +123,8 @@ List<String> _parseSecrets(String rawLog) {
     } else if (line.startsWith('+') && !line.startsWith('+++')) {
       if (skipBlob) continue;
       // Add Context-Aware Risk Scoring (ignoring test/, etc.)
-      final isTestOrMock = currentFile.contains('test/') ||
+      final isTestOrMock =
+          currentFile.contains('test/') ||
           currentFile.contains('tests/') ||
           currentFile.contains('__tests__/') ||
           currentFile.contains('spec/') ||
@@ -135,7 +136,8 @@ List<String> _parseSecrets(String rawLog) {
           currentFile.endsWith('.md');
 
       // Exclude lock files entirely
-      final isLockFile = currentFile.endsWith('package-lock.json') ||
+      final isLockFile =
+          currentFile.endsWith('package-lock.json') ||
           currentFile.endsWith('yarn.lock') ||
           currentFile.endsWith('pnpm-lock.yaml') ||
           currentFile.endsWith('pubspec.lock') ||

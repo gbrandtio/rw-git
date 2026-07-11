@@ -8,8 +8,7 @@ void main() {
       expect(isValidDateInput('2024-12-31'), isTrue);
     });
 
-    test(
-        'accepts git relative-date phrases for every unit, singular and '
+    test('accepts git relative-date phrases for every unit, singular and '
         'plural', () {
       const units = [
         'second',

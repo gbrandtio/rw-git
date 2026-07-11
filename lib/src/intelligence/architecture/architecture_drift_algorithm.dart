@@ -102,8 +102,9 @@ class ArchitectureDriftAlgorithm {
       totalCommitsAnalyzed: totalAnalyzed,
       driftCommits: driftCommits,
       couplingMatrix: couplingMatrix,
-      couplingRatio:
-          totalAnalyzed > 0 ? driftCommits.length / totalAnalyzed : 0.0,
+      couplingRatio: totalAnalyzed > 0
+          ? driftCommits.length / totalAnalyzed
+          : 0.0,
       couplingDensity: maxPairs > 0 ? coupledPairCount / maxPairs : 0.0,
       smells: _detectSmells(driftCommits, couplingMatrix, numLayers),
     );
@@ -232,8 +233,9 @@ class ArchitectureDriftAlgorithm {
 
     final rankedPrefixes = fileCountByLayerPrefix.entries.toList()
       ..sort((a, b) => b.value.compareTo(a.value));
-    final topPrefixes =
-        rankedPrefixes.take(maxInferredArchitectureLayers).toList();
+    final topPrefixes = rankedPrefixes
+        .take(maxInferredArchitectureLayers)
+        .toList();
     if (topPrefixes.length < minInferredArchitectureLayers) return const {};
 
     // The full prefix path is the layer name: unambiguous when two branches

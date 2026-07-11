@@ -25,14 +25,14 @@ void main() {
       'will succeed on a valid git repository with a valid branch',
       () async {
         (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
-        List<FileSystemEntity> clonedFiles =
-            await Directory(testDir).list().toList();
+        List<FileSystemEntity> clonedFiles = await Directory(
+          testDir,
+        ).list().toList();
 
         bool isCheckoutSuccess = (await rwGit.checkout(
           clonedFiles[0].uri.path,
           "main",
-        ))
-            .getOrThrow();
+        )).getOrThrow();
         expect(isCheckoutSuccess, true);
       },
     );

@@ -16,22 +16,16 @@ void main() {
 
     await rwGit.init(tempDir.path);
 
-    await runner.run(
-        'git',
-        [
-          'config',
-          'user.name',
-          'Test User',
-        ],
-        workingDirectory: tempDir.path);
-    await runner.run(
-        'git',
-        [
-          'config',
-          'user.email',
-          'test@example.com',
-        ],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'config',
+      'user.name',
+      'Test User',
+    ], workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'config',
+      'user.email',
+      'test@example.com',
+    ], workingDirectory: tempDir.path);
 
     final pkgJson = File('${tempDir.path}/package.json');
     await pkgJson.writeAsString(
@@ -73,14 +67,11 @@ void main() {
     await packageLock.writeAsString('lock');
 
     await runner.run('git', ['add', '.'], workingDirectory: tempDir.path);
-    await runner.run(
-        'git',
-        [
-          'commit',
-          '-m',
-          'Initial',
-        ],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'commit',
+      '-m',
+      'Initial',
+    ], workingDirectory: tempDir.path);
   });
 
   tearDown(() async {

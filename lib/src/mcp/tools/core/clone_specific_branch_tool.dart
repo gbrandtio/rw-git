@@ -20,23 +20,23 @@ class CloneSpecificBranchTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory to clone the repository into.',
-          },
-          'repository': {
-            'type': 'string',
-            'description': 'The remote repository URL.',
-          },
-          'branchToCheckout': {
-            'type': 'string',
-            'description': 'The name of the branch to checkout.',
-          },
-        },
-        'required': ['directory', 'repository', 'branchToCheckout'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory to clone the repository into.',
+      },
+      'repository': {
+        'type': 'string',
+        'description': 'The remote repository URL.',
+      },
+      'branchToCheckout': {
+        'type': 'string',
+        'description': 'The name of the branch to checkout.',
+      },
+    },
+    'required': ['directory', 'repository', 'branchToCheckout'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -47,8 +47,7 @@ class CloneSpecificBranchTool implements McpTool {
       localDir,
       repoUrl,
       branch,
-    ))
-        .getOrThrow();
+    )).getOrThrow();
     return jsonEncode({'success': result});
   }
 }

@@ -32,29 +32,29 @@ void main() {
 
   /// Bug-hotspot findings for [files] (each above 2x the global lifetime).
   List<Finding> hotspotsOn(List<String> files) => fc.fromBugHotspots(
-        BugHotspotDto(
-          fileHotspots: {for (final f in files) f: 5},
-          authorHotspots: const {},
-          totalFixCommitsAnalyzed: files.length * 5,
-          globalAverageBugLifetimeInDays: 10,
-          fileAverageBugLifetimeInDays: {for (final f in files) f: 30},
-          authorAverageBugLifetimeInDays: const {},
-        ),
-      );
+    BugHotspotDto(
+      fileHotspots: {for (final f in files) f: 5},
+      authorHotspots: const {},
+      totalFixCommitsAnalyzed: files.length * 5,
+      globalAverageBugLifetimeInDays: 10,
+      fileAverageBugLifetimeInDays: {for (final f in files) f: 30},
+      authorAverageBugLifetimeInDays: const {},
+    ),
+  );
 
   /// A High burnout finding (>15% of commits in the burnout window).
   List<Finding> burnoutFindings() => fc.fromCommitVelocity(
-        const CommitVelocityDto(
-          buckets: [],
-          totalCommits: 100,
-          averagePerPeriod: 10,
-          trend: 'stable',
-          anomalies: [],
-          totalBurnoutCommits: 30,
-          giniCoefficient: 0.2,
-          velocitySlope: 1,
-        ),
-      );
+    const CommitVelocityDto(
+      buckets: [],
+      totalCommits: 100,
+      averagePerPeriod: 10,
+      trend: 'stable',
+      anomalies: [],
+      totalBurnoutCommits: 30,
+      giniCoefficient: 0.2,
+      velocitySlope: 1,
+    ),
+  );
 
   group('Rule 6: author-level knowledge loss', () {
     test('fires when one author solely owns 2+ bug-hotspot files', () {

@@ -59,43 +59,43 @@ class LexicalComplexityClassifier {
   /// Bands every metric of [file] independently, so the worst one drives
   /// the finding and the rest stay visible in evidence.
   List<_MetricSeverity> _metricSeverities(FileLexicalMetricsDto file) => [
-        _MetricSeverity(
-          metric: 'cyclomatic_complexity',
-          value: file.cyclomaticComplexity,
-          severity: _cyclomaticSeverity(file.cyclomaticComplexity),
-          band: _cyclomaticBand(file.cyclomaticComplexity),
-        ),
-        _MetricSeverity(
-          metric: 'maintainability_index',
-          value: file.maintainabilityIndex,
-          severity: _maintainabilitySeverity(file.maintainabilityIndex),
-          band: _maintainabilityBand(file.maintainabilityIndex),
-        ),
-        _MetricSeverity(
-          metric: 'abc_score',
-          value: file.abcScore,
-          severity: _abcSeverity(file.abcScore),
-          band: _abcBand(file.abcScore),
-        ),
-        _MetricSeverity(
-          metric: 'npath_complexity',
-          value: file.npathComplexity,
-          severity: _npathSeverity(file.npathComplexity),
-          band: _npathBand(file.npathComplexity),
-        ),
-        _MetricSeverity(
-          metric: 'cognitive_complexity',
-          value: file.cognitiveComplexity,
-          severity: _cognitiveSeverity(file.cognitiveComplexity),
-          band: _cognitiveBand(file.cognitiveComplexity),
-        ),
-        _MetricSeverity(
-          metric: 'halstead_delivered_bugs',
-          value: file.halsteadDeliveredBugs,
-          severity: _halsteadBugsSeverity(file.halsteadDeliveredBugs),
-          band: _halsteadBugsBand(file.halsteadDeliveredBugs),
-        ),
-      ];
+    _MetricSeverity(
+      metric: 'cyclomatic_complexity',
+      value: file.cyclomaticComplexity,
+      severity: _cyclomaticSeverity(file.cyclomaticComplexity),
+      band: _cyclomaticBand(file.cyclomaticComplexity),
+    ),
+    _MetricSeverity(
+      metric: 'maintainability_index',
+      value: file.maintainabilityIndex,
+      severity: _maintainabilitySeverity(file.maintainabilityIndex),
+      band: _maintainabilityBand(file.maintainabilityIndex),
+    ),
+    _MetricSeverity(
+      metric: 'abc_score',
+      value: file.abcScore,
+      severity: _abcSeverity(file.abcScore),
+      band: _abcBand(file.abcScore),
+    ),
+    _MetricSeverity(
+      metric: 'npath_complexity',
+      value: file.npathComplexity,
+      severity: _npathSeverity(file.npathComplexity),
+      band: _npathBand(file.npathComplexity),
+    ),
+    _MetricSeverity(
+      metric: 'cognitive_complexity',
+      value: file.cognitiveComplexity,
+      severity: _cognitiveSeverity(file.cognitiveComplexity),
+      band: _cognitiveBand(file.cognitiveComplexity),
+    ),
+    _MetricSeverity(
+      metric: 'halstead_delivered_bugs',
+      value: file.halsteadDeliveredBugs,
+      severity: _halsteadBugsSeverity(file.halsteadDeliveredBugs),
+      band: _halsteadBugsBand(file.halsteadDeliveredBugs),
+    ),
+  ];
 
   Severity _cyclomaticSeverity(int cyclomaticComplexity) {
     if (cyclomaticComplexity > mccabeCriticalCyclomaticComplexityThreshold) {
@@ -136,9 +136,9 @@ class LexicalComplexityClassifier {
   String _maintainabilityBand(double maintainabilityIndex) {
     return maintainabilityIndex < maintainabilityIndexLowBandThreshold
         ? 'maintainability index < $maintainabilityIndexLowBandThreshold '
-            '(low / needs refactoring)'
+              '(low / needs refactoring)'
         : 'maintainability index < '
-            '$maintainabilityIndexModerateBandThreshold (moderate)';
+              '$maintainabilityIndexModerateBandThreshold (moderate)';
   }
 
   Severity _abcSeverity(double abcScore) {
@@ -178,9 +178,9 @@ class LexicalComplexityClassifier {
   String _cognitiveBand(int cognitiveComplexity) {
     return cognitiveComplexity > cognitiveComplexityHighThreshold
         ? 'cognitive complexity > $cognitiveComplexityHighThreshold '
-            '(resists comprehension)'
+              '(resists comprehension)'
         : 'cognitive complexity > $cognitiveComplexityElevatedThreshold '
-            '(hard to understand)';
+              '(hard to understand)';
   }
 
   Severity _halsteadBugsSeverity(double deliveredBugs) {

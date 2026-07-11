@@ -3,8 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('buildJsonStructurePreview', () {
-    test(
-        'maps each top-level key exactly once to a compact type tag, so the '
+    test('maps each top-level key exactly once to a compact type tag, so the '
         'inline preview cost stays one entry per key', () {
       final preview = buildJsonStructurePreview({
         'findings': [1, 2, 3],

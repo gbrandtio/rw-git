@@ -25,14 +25,14 @@ void main() {
       'will create a ShortLogDto that will contain all the available data',
       () async {
         (await rwGit.clone(testDir, repositoryWithTags)).getOrThrow();
-        List<FileSystemEntity> clonedFiles =
-            await Directory(testDir).list().toList();
+        List<FileSystemEntity> clonedFiles = await Directory(
+          testDir,
+        ).list().toList();
 
         List<ShortLogDto> contributionsByAuthor =
             (await rwGit.contributionsByAuthor(
-          clonedFiles[0].uri.path,
-        ))
-                .getOrThrow();
+              clonedFiles[0].uri.path,
+            )).getOrThrow();
 
         expect(contributionsByAuthor.length, greaterThan(1));
         expect(contributionsByAuthor[0].numberOfContributions, greaterThan(0));
@@ -52,17 +52,18 @@ void main() {
 
     test('scopes contributions to a date window via since/until', () async {
       (await rwGit.clone(testDir, repositoryWithTags)).getOrThrow();
-      List<FileSystemEntity> clonedFiles =
-          await Directory(testDir).list().toList();
+      List<FileSystemEntity> clonedFiles = await Directory(
+        testDir,
+      ).list().toList();
       final directory = clonedFiles[0].uri.path;
 
-      final unbounded =
-          (await rwGit.contributionsByAuthor(directory)).getOrThrow();
+      final unbounded = (await rwGit.contributionsByAuthor(
+        directory,
+      )).getOrThrow();
       final scoped = (await rwGit.contributionsByAuthor(
         directory,
         since: '1 second ago',
-      ))
-          .getOrThrow();
+      )).getOrThrow();
 
       int totalCommits(List<ShortLogDto> contributions) =>
           contributions.fold(0, (sum, c) => sum + c.numberOfContributions);

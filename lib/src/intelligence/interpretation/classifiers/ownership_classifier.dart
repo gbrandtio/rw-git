@@ -93,7 +93,8 @@ class OwnershipClassifier {
             subject: normalized,
             metric: 'minor_contributor_count',
             value: minorContributors.length,
-            band: '>= $birdMinorContributorMinimumCount contributors below '
+            band:
+                '>= $birdMinorContributorMinimumCount contributors below '
                 '${(birdMinorContributorShareThreshold * 100).round()}% share',
             evidence: {
               'minor_contributor_count': minorContributors.length,

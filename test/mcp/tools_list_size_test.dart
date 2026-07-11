@@ -42,7 +42,8 @@ void main() {
       expect(
         bytes,
         lessThan(budgetBytes),
-        reason: 'tools/list grew to $bytes bytes (budget $budgetBytes). '
+        reason:
+            'tools/list grew to $bytes bytes (budget $budgetBytes). '
             'Keep per-tool descriptions terse and defer detail to '
             'get_rw_git_documentation.',
       );
@@ -53,8 +54,9 @@ void main() {
       () {
         // The long explanation must live in one place, not be duplicated across
         // every offloaded tool description.
-        final occurrences =
-            'return_full_json: true'.allMatches(serialized).length;
+        final occurrences = 'return_full_json: true'
+            .allMatches(serialized)
+            .length;
         expect(occurrences, lessThanOrEqualTo(1));
       },
     );

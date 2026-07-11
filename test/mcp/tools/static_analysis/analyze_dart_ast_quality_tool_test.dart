@@ -17,22 +17,16 @@ void main() {
 
     await rwGit.init(tempDir.path);
 
-    await runner.run(
-        'git',
-        [
-          'config',
-          'user.name',
-          'Test User',
-        ],
-        workingDirectory: tempDir.path);
-    await runner.run(
-        'git',
-        [
-          'config',
-          'user.email',
-          'test@example.com',
-        ],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'config',
+      'user.name',
+      'Test User',
+    ], workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'config',
+      'user.email',
+      'test@example.com',
+    ], workingDirectory: tempDir.path);
 
     // Create initial commit
     final file1 = File('${tempDir.path}/main.dart');
@@ -45,44 +39,32 @@ void main() {
     }
 
     await runner.run('git', ['add', '.'], workingDirectory: tempDir.path);
-    await runner.run(
-        'git',
-        [
-          'commit',
-          '-m',
-          'Initial',
-        ],
-        workingDirectory: tempDir.path);
-    await runner.run(
-        'git',
-        [
-          'branch',
-          '-m',
-          'master',
-        ],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'commit',
+      '-m',
+      'Initial',
+    ], workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'branch',
+      '-m',
+      'master',
+    ], workingDirectory: tempDir.path);
 
     // Create a new branch
-    await runner.run(
-        'git',
-        [
-          'checkout',
-          '-b',
-          'feature',
-        ],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'checkout',
+      '-b',
+      'feature',
+    ], workingDirectory: tempDir.path);
 
     // Modify a file
     await file1.writeAsString('void main() { print("hello"); }');
     await runner.run('git', ['add', '.'], workingDirectory: tempDir.path);
-    await runner.run(
-        'git',
-        [
-          'commit',
-          '-m',
-          'Update',
-        ],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'commit',
+      '-m',
+      'Update',
+    ], workingDirectory: tempDir.path);
   });
 
   tearDown(() async {
@@ -113,14 +95,11 @@ void main() {
         await f.writeAsString('class A$i { int x = 1; }');
       }
       await runner.run('git', ['add', '.'], workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'commit',
-            '-m',
-            'Update 11 files',
-          ],
-          workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'commit',
+        '-m',
+        'Update 11 files',
+      ], workingDirectory: tempDir.path);
 
       final result = await tool.execute({
         'directory': tempDir.path,
@@ -145,32 +124,23 @@ void main() {
 
     test('handles no dart files modified', () async {
       // Create branch and modify non-dart file
-      await runner.run(
-          'git',
-          [
-            'checkout',
-            'master',
-          ],
-          workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'checkout',
-            '-b',
-            'other',
-          ],
-          workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'checkout',
+        'master',
+      ], workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'checkout',
+        '-b',
+        'other',
+      ], workingDirectory: tempDir.path);
       final file = File('${tempDir.path}/test.txt');
       await file.writeAsString('hello');
       await runner.run('git', ['add', '.'], workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'commit',
-            '-m',
-            'Text',
-          ],
-          workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'commit',
+        '-m',
+        'Text',
+      ], workingDirectory: tempDir.path);
 
       final result = await tool.execute({
         'directory': tempDir.path,
@@ -182,36 +152,24 @@ void main() {
 
     test('handles deleted dart files gracefully', () async {
       // Create branch and delete a dart file
-      await runner.run(
-          'git',
-          [
-            'checkout',
-            'master',
-          ],
-          workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'checkout',
-            '-b',
-            'delete_test',
-          ],
-          workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'rm',
-            'file0.dart',
-          ],
-          workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'commit',
-            '-m',
-            'Delete',
-          ],
-          workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'checkout',
+        'master',
+      ], workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'checkout',
+        '-b',
+        'delete_test',
+      ], workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'rm',
+        'file0.dart',
+      ], workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'commit',
+        '-m',
+        'Delete',
+      ], workingDirectory: tempDir.path);
 
       final result = await tool.execute({
         'directory': tempDir.path,
@@ -224,34 +182,25 @@ void main() {
     });
 
     test('handles dart files with syntax errors gracefully', () async {
-      await runner.run(
-          'git',
-          [
-            'checkout',
-            'master',
-          ],
-          workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'checkout',
-            '-b',
-            'syntax_error',
-          ],
-          workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'checkout',
+        'master',
+      ], workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'checkout',
+        '-b',
+        'syntax_error',
+      ], workingDirectory: tempDir.path);
 
       final file = File('${tempDir.path}/error.dart');
       // Create a file with intentional syntax error
       await file.writeAsString('class A { { { { invalid syntax; }');
       await runner.run('git', ['add', '.'], workingDirectory: tempDir.path);
-      await runner.run(
-          'git',
-          [
-            'commit',
-            '-m',
-            'Syntax error',
-          ],
-          workingDirectory: tempDir.path);
+      await runner.run('git', [
+        'commit',
+        '-m',
+        'Syntax error',
+      ], workingDirectory: tempDir.path);
 
       final result = await tool.execute({
         'directory': tempDir.path,

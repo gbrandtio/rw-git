@@ -62,8 +62,10 @@ void main() {
         '  main\n* feature-branch\n  dev',
         '',
       );
-      final result =
-          (await rwGit.branch('my_dir', extraArgs: ['extra_arg'])).getOrThrow();
+      final result = (await rwGit.branch(
+        'my_dir',
+        extraArgs: ['extra_arg'],
+      )).getOrThrow();
       expect(result.length, 3);
       expect(result[1].name, 'feature-branch');
       expect(result[1].isCurrent, true);
@@ -99,8 +101,7 @@ void main() {
       final result = (await rwGit.pull(
         'my_dir',
         extraArgs: ['origin', 'main'],
-      ))
-          .getOrThrow();
+      )).getOrThrow();
       expect(result, true);
     });
 
@@ -112,8 +113,10 @@ void main() {
         'diff --git a/file.txt b/file.txt\n--- a/file.txt\n+++ b/file.txt\n@@ -1 +1 @@\n-old\n+new',
         '',
       );
-      final result =
-          (await rwGit.diff('my_dir', extraArgs: ['file.txt'])).getOrThrow();
+      final result = (await rwGit.diff(
+        'my_dir',
+        extraArgs: ['file.txt'],
+      )).getOrThrow();
       expect(result.files.length, 1);
     });
 
@@ -128,8 +131,7 @@ void main() {
       final result = (await rwGit.merge(
         'my_dir',
         extraArgs: ['feature-branch'],
-      ))
-          .getOrThrow();
+      )).getOrThrow();
       expect(result, true);
     });
 
@@ -144,8 +146,7 @@ void main() {
       final result = (await rwGit.stash(
         'my_dir',
         extraArgs: ['push', '-m', 'msg'],
-      ))
-          .getOrThrow();
+      )).getOrThrow();
       expect(result, true);
     });
 
@@ -157,8 +158,10 @@ void main() {
         '1234abcd (Author 2021-01-01 00:00:00 +0000 1) content',
         '',
       );
-      final result =
-          (await rwGit.blame('my_dir', extraArgs: ['file.txt'])).getOrThrow();
+      final result = (await rwGit.blame(
+        'my_dir',
+        extraArgs: ['file.txt'],
+      )).getOrThrow();
       expect(result.lines.length, 1);
     });
 
@@ -170,8 +173,10 @@ void main() {
         '1234abcd|test|email|date|msg',
         '',
       );
-      final result =
-          (await rwGit.show('my_dir', extraArgs: ['HEAD'])).getOrThrow();
+      final result = (await rwGit.show(
+        'my_dir',
+        extraArgs: ['HEAD'],
+      )).getOrThrow();
       expect(result.hash, '1234abcd');
     });
 

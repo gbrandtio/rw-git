@@ -61,13 +61,10 @@ void main() {
         '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
       );
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'rev-parse',
-            '0123456789abcdef0123456789abcdef01234567^',
-          ],
-          '1111222233334444555566667777888899990000\n');
+      mockRunner.mockResult('git', [
+        'rev-parse',
+        '0123456789abcdef0123456789abcdef01234567^',
+      ], '1111222233334444555566667777888899990000\n');
 
       mockRunner.mockResult(
         'git',
@@ -117,23 +114,19 @@ void main() {
       );
     });
 
-    test(
-        'forwards since/until as git flags on the fix-commit selection call '
+    test('forwards since/until as git flags on the fix-commit selection call '
         'only', () async {
-      mockRunner.mockResult(
-          'git',
-          [
-            'log',
-            '-n',
-            '500',
-            '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
-            '-i',
-            '--no-merges',
-            '--format=format:%H%x09%aI%x09%s',
-            '--since=2024-01-01',
-            '--until=2024-12-31',
-          ],
-          '');
+      mockRunner.mockResult('git', [
+        'log',
+        '-n',
+        '500',
+        '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+        '-i',
+        '--no-merges',
+        '--format=format:%H%x09%aI%x09%s',
+        '--since=2024-01-01',
+        '--until=2024-12-31',
+      ], '');
 
       final matches = await szz.execute(
         './test_dir',
@@ -145,8 +138,7 @@ void main() {
       expect(matches, isEmpty);
     });
 
-    test(
-        'parses -C -C filename columns and boundary (^) hashes instead of '
+    test('parses -C -C filename columns and boundary (^) hashes instead of '
         'silently dropping them', () async {
       mockRunner.mockResult(
         'git',
@@ -160,13 +152,10 @@ void main() {
         '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
       );
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'rev-parse',
-            '0123456789abcdef0123456789abcdef01234567^',
-          ],
-          '1111222233334444555566667777888899990000\n');
+      mockRunner.mockResult('git', [
+        'rev-parse',
+        '0123456789abcdef0123456789abcdef01234567^',
+      ], '1111222233334444555566667777888899990000\n');
 
       mockRunner.mockResult(
         'git',
@@ -233,13 +222,10 @@ void main() {
         '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
       );
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'rev-parse',
-            '0123456789abcdef0123456789abcdef01234567^',
-          ],
-          '1111222233334444555566667777888899990000\n');
+      mockRunner.mockResult('git', [
+        'rev-parse',
+        '0123456789abcdef0123456789abcdef01234567^',
+      ], '1111222233334444555566667777888899990000\n');
 
       mockRunner.mockResult(
         'git',
@@ -287,8 +273,7 @@ void main() {
       );
     });
 
-    test(
-        'RA-SZZ line filter: a deleted line that re-appears as an added line '
+    test('RA-SZZ line filter: a deleted line that re-appears as an added line '
         'is a move, not a fix, and is excluded from blame', () async {
       mockRunner.mockResult(
         'git',
@@ -304,13 +289,10 @@ void main() {
         '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
       );
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'rev-parse',
-            '0123456789abcdef0123456789abcdef01234567^',
-          ],
-          '1111222233334444555566667777888899990000\n');
+      mockRunner.mockResult('git', [
+        'rev-parse',
+        '0123456789abcdef0123456789abcdef01234567^',
+      ], '1111222233334444555566667777888899990000\n');
 
       // Line 5 is moved (identical content re-added, modulo indentation);
       // line 6 is a genuine bug-removing deletion. Only line 6 may be
@@ -361,8 +343,7 @@ void main() {
       );
     });
 
-    test(
-        'RA-SZZ line filter keeps short boilerplate deletions: a re-added '
+    test('RA-SZZ line filter keeps short boilerplate deletions: a re-added '
         '"}" is no evidence of a move', () async {
       mockRunner.mockResult(
         'git',
@@ -378,13 +359,10 @@ void main() {
         '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
       );
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'rev-parse',
-            '0123456789abcdef0123456789abcdef01234567^',
-          ],
-          '1111222233334444555566667777888899990000\n');
+      mockRunner.mockResult('git', [
+        'rev-parse',
+        '0123456789abcdef0123456789abcdef01234567^',
+      ], '1111222233334444555566667777888899990000\n');
 
       mockRunner.mockResult(
         'git',
@@ -427,8 +405,7 @@ void main() {
       expect(matches.length, 1);
     });
 
-    test(
-        'RA-SZZ commit filter: an introducing commit whose subject is a '
+    test('RA-SZZ commit filter: an introducing commit whose subject is a '
         'refactoring is discarded — the buggy code predates it', () async {
       mockRunner.mockResult(
         'git',
@@ -444,13 +421,10 @@ void main() {
         '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
       );
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'rev-parse',
-            '0123456789abcdef0123456789abcdef01234567^',
-          ],
-          '1111222233334444555566667777888899990000\n');
+      mockRunner.mockResult('git', [
+        'rev-parse',
+        '0123456789abcdef0123456789abcdef01234567^',
+      ], '1111222233334444555566667777888899990000\n');
 
       mockRunner.mockResult(
         'git',
@@ -500,8 +474,7 @@ void main() {
       expect(matches, isEmpty);
     });
 
-    test('execute handles custom positiveRegex and negativeRegex correctly',
-        () async {
+    test('execute handles custom positiveRegex and negativeRegex correctly', () async {
       mockRunner.mockResult(
         'git',
         [
@@ -516,24 +489,18 @@ void main() {
         '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
       );
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'rev-parse',
-            '0123456789abcdef0123456789abcdef01234567^',
-          ],
-          '1111222233334444555566667777888899990000\n');
+      mockRunner.mockResult('git', [
+        'rev-parse',
+        '0123456789abcdef0123456789abcdef01234567^',
+      ], '1111222233334444555566667777888899990000\n');
 
-      mockRunner.mockResult(
-          'git',
-          [
-            'diff-tree',
-            '--no-commit-id',
-            '--name-only',
-            '-r',
-            '0123456789abcdef0123456789abcdef01234567',
-          ],
-          'test_file.dart\n');
+      mockRunner.mockResult('git', [
+        'diff-tree',
+        '--no-commit-id',
+        '--name-only',
+        '-r',
+        '0123456789abcdef0123456789abcdef01234567',
+      ], 'test_file.dart\n');
 
       mockRunner.mockResult(
         'git',

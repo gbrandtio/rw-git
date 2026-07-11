@@ -12,27 +12,26 @@ void main() {
     List<String> renamed, {
     bool simplification = false,
     String hash = 'abc123',
-  }) =>
-      RefactoringDto(
-        commitHash: hash,
-        message: 'm',
-        date: '2026-01-01',
-        author: 'A',
-        renamedFiles: renamed,
-        linesInserted: 10,
-        linesDeleted: simplification ? 100 : 10,
-        isSimplification: simplification,
-      );
+  }) => RefactoringDto(
+    commitHash: hash,
+    message: 'm',
+    date: '2026-01-01',
+    author: 'A',
+    renamedFiles: renamed,
+    linesInserted: 10,
+    linesDeleted: simplification ? 100 : 10,
+    isSimplification: simplification,
+  );
 
   Finding churnFinding(String subject, Severity severity) => Finding(
-        category: 'churn',
-        source: [AnalysisType.codeQuality],
-        severity: severity,
-        subject: subject,
-        metric: 'file_churn',
-        value: 12,
-        band: 'top-decile change frequency',
-      );
+    category: 'churn',
+    source: [AnalysisType.codeQuality],
+    severity: severity,
+    subject: subject,
+    metric: 'file_churn',
+    value: 12,
+    band: 'top-decile change frequency',
+  );
 
   test('downgrades churn findings on refactored files one band', () {
     final annotated = fc.applyRefactoringContext(
@@ -75,8 +74,7 @@ void main() {
     expect(fc.applyRefactoringContext(original, const []), same(original));
   });
 
-  test(
-      'notable refactoring activity (>= 5 commits) surfaces as an Elevated '
+  test('notable refactoring activity (>= 5 commits) surfaces as an Elevated '
       'repo-level signal with basis', () {
     final refactorings = List.generate(
       5,

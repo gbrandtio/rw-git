@@ -22,23 +22,23 @@ class AnalyzeDartAstQualityTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'baseBranch': {
-            'type': 'string',
-            'description': 'The base branch to compare against.',
-          },
-          'targetBranch': {
-            'type': 'string',
-            'description': 'The target branch with changes.',
-          },
-        },
-        'required': ['directory', 'baseBranch', 'targetBranch'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'baseBranch': {
+        'type': 'string',
+        'description': 'The base branch to compare against.',
+      },
+      'targetBranch': {
+        'type': 'string',
+        'description': 'The target branch with changes.',
+      },
+    },
+    'required': ['directory', 'baseBranch', 'targetBranch'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

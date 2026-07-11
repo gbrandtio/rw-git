@@ -63,16 +63,16 @@ void main() {
 
   group('BusFactorClassifier', () {
     BusFactorDto dto(double topPct) => BusFactorDto(
-          busFactor: 1,
-          totalDevelopers: 3,
-          topContributors: [
-            DeveloperContribution(
-              author: 'A',
-              contributions: 10,
-              percentage: topPct,
-            ),
-          ],
-        );
+      busFactor: 1,
+      totalDevelopers: 3,
+      topContributors: [
+        DeveloperContribution(
+          author: 'A',
+          contributions: 10,
+          percentage: topPct,
+        ),
+      ],
+    );
 
     test('bands', () {
       expect(fc.fromBusFactor(dto(0.7)).single.severity, Severity.critical);

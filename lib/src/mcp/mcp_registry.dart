@@ -14,7 +14,7 @@ class McpRegistry {
   final ResourceRegistry resources;
 
   McpRegistry({ResourceRegistry? resources})
-      : resources = resources ?? ResourceRegistry();
+    : resources = resources ?? ResourceRegistry();
 
   /// Registers a new tool into the registry.
   void registerTool(McpTool tool) {

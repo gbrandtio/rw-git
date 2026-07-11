@@ -60,14 +60,11 @@ void main() {
     });
 
     test('handles empty git log', () async {
-      mockRunner.mockResult(
-          'git',
-          [
-            'log',
-            '--shortstat',
-            '--format=%H||%an||%aI||%s',
-          ],
-          '');
+      mockRunner.mockResult('git', [
+        'log',
+        '--shortstat',
+        '--format=%H||%an||%aI||%s',
+      ], '');
       final results = await heuristic.findMegaCommits(
         './test',
         lineThreshold: 100,
@@ -76,16 +73,13 @@ void main() {
     });
 
     test('forwards since/until as git flags', () async {
-      mockRunner.mockResult(
-          'git',
-          [
-            'log',
-            '--shortstat',
-            '--format=%H||%an||%aI||%s',
-            '--since=2024-01-01',
-            '--until=2024-12-31',
-          ],
-          '');
+      mockRunner.mockResult('git', [
+        'log',
+        '--shortstat',
+        '--format=%H||%an||%aI||%s',
+        '--since=2024-01-01',
+        '--until=2024-12-31',
+      ], '');
       final results = await heuristic.findMegaCommits(
         './test',
         lineThreshold: 100,

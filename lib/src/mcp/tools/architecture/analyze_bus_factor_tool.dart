@@ -22,25 +22,25 @@ class AnalyzeBusFactorTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'limit': {
-            'type': 'number',
-            'description':
-                'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
-          },
-          'knowledge_threshold': {
-            'type': 'number',
-            'description':
-                'Percentage of total contributions that defines project dominance (default: 0.50 for 50%).',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'limit': {
+        'type': 'number',
+        'description':
+            'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
+      },
+      'knowledge_threshold': {
+        'type': 'number',
+        'description':
+            'Percentage of total contributions that defines project dominance (default: 0.50 for 50%).',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

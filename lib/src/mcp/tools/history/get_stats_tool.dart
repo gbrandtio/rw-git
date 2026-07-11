@@ -23,23 +23,23 @@ class GetStatsTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory containing the git repository.',
-          },
-          'oldTag': {
-            'type': 'string',
-            'description': 'The older tag or commit hash.',
-          },
-          'newTag': {
-            'type': 'string',
-            'description': 'The newer tag or commit hash.',
-          },
-        },
-        'required': ['directory', 'oldTag', 'newTag'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory containing the git repository.',
+      },
+      'oldTag': {
+        'type': 'string',
+        'description': 'The older tag or commit hash.',
+      },
+      'newTag': {
+        'type': 'string',
+        'description': 'The newer tag or commit hash.',
+      },
+    },
+    'required': ['directory', 'oldTag', 'newTag'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -54,8 +54,7 @@ class GetStatsTool implements McpTool {
       '--numstat',
       oldTag,
       newTag,
-    ]))
-        .getOrThrow();
+    ])).getOrThrow();
 
     final Map<String, Map<String, int>> statsByExtension = {};
     for (final line in numstatResult.split('\n')) {

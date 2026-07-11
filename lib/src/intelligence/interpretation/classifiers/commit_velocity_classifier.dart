@@ -52,7 +52,8 @@ class CommitVelocityClassifier {
           subject: topAuthor ?? 'repository',
           metric: 'gini_coefficient',
           value: double.parse(dto.giniCoefficient.toStringAsFixed(3)),
-          band: '> $giniAuthorConcentrationHighThreshold Gini author '
+          band:
+              '> $giniAuthorConcentrationHighThreshold Gini author '
               'concentration',
           evidence: {
             'gini_coefficient': double.parse(

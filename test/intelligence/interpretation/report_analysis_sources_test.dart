@@ -100,11 +100,11 @@ void main() {
             isDeclared,
             reason: invoked
                 ? 'reportAnalysisSources[\'$reportType\'] is missing '
-                    '${entry.key} (its classifier, ${entry.value}, is '
-                    'invoked by this report)'
+                      '${entry.key} (its classifier, ${entry.value}, is '
+                      'invoked by this report)'
                 : 'reportAnalysisSources[\'$reportType\'] declares '
-                    '${entry.key}, but its classifier, ${entry.value}, is '
-                    'never invoked by this report',
+                      '${entry.key}, but its classifier, ${entry.value}, is '
+                      'never invoked by this report',
           );
         }
       }

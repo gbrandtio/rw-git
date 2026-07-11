@@ -55,9 +55,9 @@ void main(List<String> args) {
       (directive, reportType) => switch (directive) {
         'deep_dive_tools' => renderDeepDiveTools(reportType),
         _ => throw FormatException(
-            'Unknown generate directive: '
-            '$directive',
-          ),
+          'Unknown generate directive: '
+          '$directive',
+        ),
       },
     );
     final doc = parseSkill(expanded);
@@ -91,7 +91,8 @@ void main(List<String> args) {
       // Format-independent comparison: the on-disk prompt is in sync if its
       // name, description, and body match the canonical expanded template.
       final onDisk = extractFromPromptSource(promptFile.readAsStringSync());
-      final inSync = onDisk.name == doc.name &&
+      final inSync =
+          onDisk.name == doc.name &&
           onDisk.description == doc.description &&
           onDisk.body.trimRight() == doc.body.trimRight();
       if (!inSync) {

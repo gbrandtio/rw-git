@@ -68,8 +68,9 @@ class ReportPayload {
     final rankedCompounds = compounds.toList()..sort(_rank);
 
     final boundedTopFindings = singletons.take(maxTopFindings).toList();
-    final boundedCompoundFindings =
-        rankedCompounds.take(maxCompoundFindings).toList();
+    final boundedCompoundFindings = rankedCompounds
+        .take(maxCompoundFindings)
+        .toList();
 
     return ReportPayload(
       reportType: reportType,
@@ -127,23 +128,22 @@ class ReportPayload {
   }
 
   Map<String, dynamic> toJson() => {
-        'report_type': reportType,
-        'summary': summaryBySeverity,
-        'top_findings': topFindings.map((f) => f.toJson()).toList(),
-        'compound_findings': compoundFindings.map((f) => f.toJson()).toList(),
-        if (refactoringTargets.isNotEmpty)
-          'refactoring_targets': {
-            'basis': RefactoringTargetRanker.researchBasis,
-            'targets':
-                refactoringTargets.map((target) => target.toJson()).toList(),
-          },
-        'metadata': metadata,
-        'guidance':
-            'Findings are already classified into severity bands and ranked. '
-                'Narrate each using its severity, subject, band, and message. '
-                'Use the hints map to surface contextually relevant '
-                'expert interpretation, caveats, and pair_with guidance '
-                'for each analysis type.',
-        if (!hints.isEmpty) 'hints': hints.toJson(),
-      };
+    'report_type': reportType,
+    'summary': summaryBySeverity,
+    'top_findings': topFindings.map((f) => f.toJson()).toList(),
+    'compound_findings': compoundFindings.map((f) => f.toJson()).toList(),
+    if (refactoringTargets.isNotEmpty)
+      'refactoring_targets': {
+        'basis': RefactoringTargetRanker.researchBasis,
+        'targets': refactoringTargets.map((target) => target.toJson()).toList(),
+      },
+    'metadata': metadata,
+    'guidance':
+        'Findings are already classified into severity bands and ranked. '
+        'Narrate each using its severity, subject, band, and message. '
+        'Use the hints map to surface contextually relevant '
+        'expert interpretation, caveats, and pair_with guidance '
+        'for each analysis type.',
+    if (!hints.isEmpty) 'hints': hints.toJson(),
+  };
 }

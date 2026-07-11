@@ -6,8 +6,9 @@ import 'package:test/test.dart';
 /// auto-approve them), repository-mutating tools carry `readOnlyHint: false`,
 /// and tools with a stable shape may expose an `outputSchema`.
 void main() {
-  final listings =
-      buildDefaultRegistry(runner: MockProcessRunner()).getToolListings();
+  final listings = buildDefaultRegistry(
+    runner: MockProcessRunner(),
+  ).getToolListings();
   Map<String, dynamic> byName(String name) =>
       listings.firstWhere((t) => t['name'] == name);
 
@@ -45,8 +46,7 @@ void main() {
       }
     });
 
-    test(
-        'per-tool offload thresholds are wired into the advertised '
+    test('per-tool offload thresholds are wired into the advertised '
         'descriptions', () {
       // ADR-0011: report meta-tools offload aggressively, compact history
       // tools stay inline longer, everything else keeps the 8 KiB default.
@@ -56,8 +56,7 @@ void main() {
       expect(byName('analyze_bug_hotspots')['description'], contains('>8KB'));
     });
 
-    test(
-        'outputSchema is advertised only for stable shapes that drive '
+    test('outputSchema is advertised only for stable shapes that drive '
         'structuredContent (ADR-0013)', () {
       // Report meta-tools and a handful of fixed-shape tools carry a schema.
       for (final name in [
@@ -99,8 +98,9 @@ void main() {
     });
 
     test('report meta-tool schema pins the classified-findings contract', () {
-      final schema = byName('generate_technical_report')['outputSchema']
-          as Map<String, dynamic>;
+      final schema =
+          byName('generate_technical_report')['outputSchema']
+              as Map<String, dynamic>;
       final properties = schema['properties'] as Map;
       expect(
         properties.keys,

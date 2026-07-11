@@ -174,30 +174,24 @@ class SzzAlgorithm {
     final matches = <SzzMatch>[];
 
     // Get parent of fix commit
-    final parentRes = await runner.run(
-        'git',
-        [
-          'rev-parse',
-          '$commit^',
-        ],
-        workingDirectory: directory);
+    final parentRes = await runner.run('git', [
+      'rev-parse',
+      '$commit^',
+    ], workingDirectory: directory);
     if (parentRes.exitCode != 0) return matches;
     final parent = parentRes.stdout?.toString().trim() ?? '';
     if (parent.isEmpty) return matches;
 
     // MA-SZZ: ignore whitespace and blank-line changes to avoid attributing
     // cosmetic edits as bug introductions (da Costa et al., 2017).
-    final diffRes = await runner.run(
-        'git',
-        [
-          'diff',
-          '-M',
-          '-w',
-          '--ignore-blank-lines',
-          parent,
-          commit,
-        ],
-        workingDirectory: directory);
+    final diffRes = await runner.run('git', [
+      'diff',
+      '-M',
+      '-w',
+      '--ignore-blank-lines',
+      parent,
+      commit,
+    ], workingDirectory: directory);
     if (diffRes.exitCode != 0) return matches;
 
     final commitDiff = _parseUnifiedDiff(diffRes.stdout?.toString() ?? '');
@@ -212,21 +206,18 @@ class SzzAlgorithm {
           .toList();
 
       for (final range in _contiguousRanges(survivingLines)) {
-        final blameRes = await runner.run(
-            'git',
-            [
-              'blame',
-              '--date=iso-strict',
-              '-l', // long hash
-              '-w', // ignore whitespace
-              '-C', '-C', '-M', // detect moves and copies
-              '-L',
-              '${range.start},${range.end}',
-              parent,
-              '--',
-              filePath,
-            ],
-            workingDirectory: directory);
+        final blameRes = await runner.run('git', [
+          'blame',
+          '--date=iso-strict',
+          '-l', // long hash
+          '-w', // ignore whitespace
+          '-C', '-C', '-M', // detect moves and copies
+          '-L',
+          '${range.start},${range.end}',
+          parent,
+          '--',
+          filePath,
+        ], workingDirectory: directory);
         if (blameRes.exitCode != 0) continue;
 
         final blameLines = (blameRes.stdout?.toString() ?? '')
@@ -240,7 +231,8 @@ class SzzAlgorithm {
             // corrupt the analysis.
             throw GitOutputParseException(
               offendingLine: blameLine,
-              reason: 'does not match the git blame -l --date=iso-strict '
+              reason:
+                  'does not match the git blame -l --date=iso-strict '
                   'format',
             );
           }
@@ -248,8 +240,9 @@ class SzzAlgorithm {
           // Strip the boundary marker before handing the hash back to git:
           // in rev syntax a leading `^` means exclusion, not boundary.
           final rawHash = blameMatch.group(1)!;
-          final introHash =
-              rawHash.startsWith('^') ? rawHash.substring(1) : rawHash;
+          final introHash = rawHash.startsWith('^')
+              ? rawHash.substring(1)
+              : rawHash;
           final author = blameMatch.group(3)!.trim();
           final introDate = GitDateTime.parse(blameMatch.group(4)!).utc;
 
@@ -292,15 +285,12 @@ class SzzAlgorithm {
       return _commitMetadataCache[cacheKey];
     }
 
-    final res = await runner.run(
-        'git',
-        [
-          'log',
-          '-1',
-          '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
-          hash,
-        ],
-        workingDirectory: directory);
+    final res = await runner.run('git', [
+      'log',
+      '-1',
+      '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
+      hash,
+    ], workingDirectory: directory);
 
     _CommitMetadata? metadata;
     if (res.exitCode == 0) {

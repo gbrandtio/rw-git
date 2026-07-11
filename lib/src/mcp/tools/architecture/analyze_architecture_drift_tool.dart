@@ -17,7 +17,8 @@ class AnalyzeArchitectureDriftTool implements McpTool {
   String get name => 'analyze_architecture_drift';
 
   @override
-  String get description => 'Analyzes git history to detect architectural '
+  String get description =>
+      'Analyzes git history to detect architectural '
       'drift by identifying commits that modify multiple '
       'independent architectural layers simultaneously, '
       'indicating tight coupling or leaky abstractions. '
@@ -25,24 +26,25 @@ class AnalyzeArchitectureDriftTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'layer_patterns': {
         'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'layer_patterns': {
-            'type': 'object',
-            'description': 'A map where keys are layer names (e.g., "ui", "data") '
-                'and values are regex strings matching file paths for that layer.',
-          },
-          'since': {
-            'type': 'string',
-            'description': 'Date string (e.g. "90 days ago").',
-          },
-        },
-        'required': ['directory', 'layer_patterns'],
-      };
+        'description':
+            'A map where keys are layer names (e.g., "ui", "data") '
+            'and values are regex strings matching file paths for that layer.',
+      },
+      'since': {
+        'type': 'string',
+        'description': 'Date string (e.g. "90 days ago").',
+      },
+    },
+    'required': ['directory', 'layer_patterns'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -57,7 +59,8 @@ class AnalyzeArchitectureDriftTool implements McpTool {
         layerRegexes[entry.key] = RegExp(entry.value.toString());
       } on FormatException catch (e) {
         return jsonEncode({
-          'error': 'Invalid regex pattern for layer "${entry.key}": '
+          'error':
+              'Invalid regex pattern for layer "${entry.key}": '
               '${e.message}',
         });
       }
@@ -81,10 +84,12 @@ class AnalyzeArchitectureDriftTool implements McpTool {
         drift.couplingDensity.toStringAsFixed(3),
       ),
       'coupling_matrix': drift.couplingMatrix,
-      'architectural_smells':
-          drift.smells.map((smell) => smell.toJson()).toList(),
-      'drift_commits':
-          drift.driftCommits.map((commit) => commit.toJson()).toList(),
+      'architectural_smells': drift.smells
+          .map((smell) => smell.toJson())
+          .toList(),
+      'drift_commits': drift.driftCommits
+          .map((commit) => commit.toJson())
+          .toList(),
     });
   }
 }

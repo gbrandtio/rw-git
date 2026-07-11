@@ -105,6 +105,5 @@ class FindingClassifier {
   List<Finding> applyRefactoringContext(
     List<Finding> findings,
     List<RefactoringDto> refactorings,
-  ) =>
-      const RefactoringContextClassifier().annotate(findings, refactorings);
+  ) => const RefactoringContextClassifier().annotate(findings, refactorings);
 }

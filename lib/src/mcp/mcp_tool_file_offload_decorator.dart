@@ -43,7 +43,8 @@ class McpToolFileOffloadDecorator implements McpTool {
   String get name => _inner.name;
 
   @override
-  String get description => '${_inner.description} '
+  String get description =>
+      '${_inner.description} '
       '(>${offloadThresholdBytes ~/ 1024}KB offloaded to disk.)';
 
   @override

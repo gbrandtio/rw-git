@@ -37,8 +37,9 @@ void main() {
     });
 
     test('developer.log numeric levels rank in severity order', () {
-      final numericLevels =
-          McpLogLevel.values.map((l) => l.developerLogLevel).toList();
+      final numericLevels = McpLogLevel.values
+          .map((l) => l.developerLogLevel)
+          .toList();
       for (var i = 1; i < numericLevels.length; i++) {
         expect(numericLevels[i], greaterThanOrEqualTo(numericLevels[i - 1]));
       }
@@ -48,8 +49,8 @@ void main() {
   group('RwGitLogger', () {
     test('forwards every event to the attached listener with its severity', () {
       final received = <(McpLogLevel, String, Object?)>[];
-      RwGitLogger.instance.listener =
-          (level, message, error) => received.add((level, message, error));
+      RwGitLogger.instance.listener = (level, message, error) =>
+          received.add((level, message, error));
 
       RwGitLogger.instance.debug('starting');
       RwGitLogger.instance.info('done');

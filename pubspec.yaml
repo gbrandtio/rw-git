@@ -16,6 +16,7 @@ dev_dependencies:
   test: '>=1.25.9 <2.0.0'
   frontend_server_client: ^4.0.0
   coverage: ^1.15.1
+  dart_style: ^3.1.8
 
 executables:
   rw_git_mcp: rw_git_mcp

@@ -26,37 +26,37 @@ class AnalyzeBugHotspotsTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'limit': {
-            'type': 'number',
-            'description':
-                'Maximum number of recent commits to scan for bug fixes (default: $defaultCommitLimit).',
-          },
-          'author': {
-            'type': 'string',
-            'description':
-                'Optional name or email of a developer. When provided, the '
-                    'response includes a developer_bug_analysis section listing '
-                    'only the bugs that developer introduced.',
-          },
-          'positiveRegex': {
-            'type': 'string',
-            'description':
-                'Optional custom regex to identify bug-fixing commits (e.g. "\\b(fix|bug)\\b").',
-          },
-          'negativeRegex': {
-            'type': 'string',
-            'description':
-                'Optional custom regex to exclude false positive commits (e.g. "\\b(typo|docs)\\b").',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'limit': {
+        'type': 'number',
+        'description':
+            'Maximum number of recent commits to scan for bug fixes (default: $defaultCommitLimit).',
+      },
+      'author': {
+        'type': 'string',
+        'description':
+            'Optional name or email of a developer. When provided, the '
+            'response includes a developer_bug_analysis section listing '
+            'only the bugs that developer introduced.',
+      },
+      'positiveRegex': {
+        'type': 'string',
+        'description':
+            'Optional custom regex to identify bug-fixing commits (e.g. "\\b(fix|bug)\\b").',
+      },
+      'negativeRegex': {
+        'type': 'string',
+        'description':
+            'Optional custom regex to exclude false positive commits (e.g. "\\b(typo|docs)\\b").',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -131,9 +131,7 @@ class AnalyzeBugHotspotsTool implements McpTool {
     if (author != null) {
       final authorLower = author.toLowerCase();
       final bugs = matches
-          .where(
-            (m) => m.introducingAuthor.toLowerCase().contains(authorLower),
-          )
+          .where((m) => m.introducingAuthor.toLowerCase().contains(authorLower))
           .toList();
 
       response['developer_bug_analysis'] = {

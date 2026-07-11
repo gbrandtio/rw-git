@@ -21,8 +21,7 @@ class MockProcessRunner implements ProcessRunner {
     String ex,
     List<String> arg, {
     String? workingDirectory,
-  }) =>
-      throw UnimplementedError();
+  }) => throw UnimplementedError();
 }
 
 void main() {
@@ -43,8 +42,7 @@ void main() {
       expect(runner.lastArgs!.any((a) => a.startsWith('--until=')), isFalse);
     });
 
-    test(
-        'places --since=/--until= before the trailing positional branch '
+    test('places --since=/--until= before the trailing positional branch '
         'argument, so git does not misparse the revision range', () async {
       final runner = MockProcessRunner();
       await SecretsScanner(runner).findSecrets(

@@ -19,14 +19,14 @@ class HalsteadResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'vocabulary': vocabulary,
-        'length': length,
-        'volume': volume,
-        'difficulty': difficulty,
-        'effort': effort,
-        'timeRequired': timeRequired,
-        'deliveredBugs': deliveredBugs,
-      };
+    'vocabulary': vocabulary,
+    'length': length,
+    'volume': volume,
+    'difficulty': difficulty,
+    'effort': effort,
+    'timeRequired': timeRequired,
+    'deliveredBugs': deliveredBugs,
+  };
 }
 
 /// Encapsulates the ABC Software Size Metric (Fitzpatrick, 1997).
@@ -47,11 +47,11 @@ class AbcScore {
   });
 
   Map<String, dynamic> toJson() => {
-        'assignments': assignments,
-        'branches': branches,
-        'conditions': conditions,
-        'score': score,
-      };
+    'assignments': assignments,
+    'branches': branches,
+    'conditions': conditions,
+    'score': score,
+  };
 }
 
 /// Encapsulates the results of the composite Maintainability Index algorithm.

@@ -52,7 +52,8 @@ class GitDateTime {
       offset = Duration.zero;
     } else {
       final digits = zone.substring(1).replaceAll(':', '');
-      offset = Duration(
+      offset =
+          Duration(
             hours: int.parse(digits.substring(0, 2)),
             minutes: int.parse(digits.substring(2, 4)),
           ) *

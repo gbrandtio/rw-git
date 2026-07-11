@@ -39,8 +39,9 @@ class DependencyFreshnessChecker {
       }
     }
 
-    final workerCount =
-        concurrency < dependencies.length ? concurrency : dependencies.length;
+    final workerCount = concurrency < dependencies.length
+        ? concurrency
+        : dependencies.length;
     await Future.wait(List.generate(workerCount, (_) => worker()));
 
     return results.cast<FreshnessResult>();

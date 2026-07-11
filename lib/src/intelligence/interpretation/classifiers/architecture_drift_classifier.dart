@@ -36,9 +36,9 @@ class ArchitectureDriftClassifier {
           band: isScattered
               ? '>= $scatteredFunctionalityLayerCount layers per commit'
               : smell.type == 'God Component'
-                  ? '> ${(godComponentDriftShareThreshold * 100).round()}% of '
-                      'drift commits'
-                  : '>= half of layers coupled',
+              ? '> ${(godComponentDriftShareThreshold * 100).round()}% of '
+                    'drift commits'
+              : '>= half of layers coupled',
           evidence: {
             'smell_type': smell.type,
             if (smell.count != null) 'occurrences': smell.count,
@@ -58,7 +58,8 @@ class ArchitectureDriftClassifier {
           subject: 'repository',
           metric: 'coupling_ratio',
           value: double.parse(drift.couplingRatio.toStringAsFixed(3)),
-          band: '> ${(couplingRatioElevatedThreshold * 100).round()}% of '
+          band:
+              '> ${(couplingRatioElevatedThreshold * 100).round()}% of '
               'commits cross layer boundaries',
           evidence: {
             'commits_with_drift': drift.driftCommits.length,
@@ -77,7 +78,8 @@ class ArchitectureDriftClassifier {
           subject: 'repository',
           metric: 'coupling_density',
           value: double.parse(drift.couplingDensity.toStringAsFixed(3)),
-          band: '> ${(couplingDensityElevatedThreshold * 100).round()}% of '
+          band:
+              '> ${(couplingDensityElevatedThreshold * 100).round()}% of '
               'layer pairs coupled',
           evidence: {
             'coupling_matrix_layers': drift.couplingMatrix.keys.toList(),

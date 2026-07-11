@@ -26,28 +26,28 @@ class AnalyzeReleaseDeltaTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory containing the git repository.',
-          },
-          'firstTag': {
-            'type': 'string',
-            'description': 'The older tag or commit hash.',
-          },
-          'secondTag': {
-            'type': 'string',
-            'description': 'The newer tag or commit hash.',
-          },
-          'detailed': {
-            'type': 'boolean',
-            'description':
-                'If true, includes the full list of commits in the response. Defaults to false.',
-          },
-        },
-        'required': ['directory', 'firstTag', 'secondTag'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory containing the git repository.',
+      },
+      'firstTag': {
+        'type': 'string',
+        'description': 'The older tag or commit hash.',
+      },
+      'secondTag': {
+        'type': 'string',
+        'description': 'The newer tag or commit hash.',
+      },
+      'detailed': {
+        'type': 'boolean',
+        'description':
+            'If true, includes the full list of commits in the response. Defaults to false.',
+      },
+    },
+    'required': ['directory', 'firstTag', 'secondTag'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -61,8 +61,7 @@ class AnalyzeReleaseDeltaTool implements McpTool {
       'log',
       '$firstTag..$secondTag',
       '--format=%H||%an||%aI||%s',
-    ]))
-        .getOrThrow();
+    ])).getOrThrow();
 
     // 2. Get file diff stats
     final numstatRaw = (await gitQuery.run(localDir, [
@@ -70,8 +69,7 @@ class AnalyzeReleaseDeltaTool implements McpTool {
       '--numstat',
       firstTag,
       secondTag,
-    ]))
-        .getOrThrow();
+    ])).getOrThrow();
 
     // 3. Get Bug Hotspots and Advanced Metrics (Blast Radius) for context
     final szzMatches = await SzzAlgorithm(

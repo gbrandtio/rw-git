@@ -20,25 +20,25 @@ class AnalyzeLogicalCouplingTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'limit': {
-            'type': 'number',
-            'description':
-                'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
-          },
-          'min_co_changes': {
-            'type': 'number',
-            'description':
-                'Minimum number of times two files must change together to be reported (default: 3).',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'limit': {
+        'type': 'number',
+        'description':
+            'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
+      },
+      'min_co_changes': {
+        'type': 'number',
+        'description':
+            'Minimum number of times two files must change together to be reported (default: 3).',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

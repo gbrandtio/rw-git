@@ -116,8 +116,9 @@ void main() {
       final lexer = FsmLexer('a === b && c >= d;');
       final tokens = lexer.tokenize();
 
-      final operators =
-          tokens.where((t) => t.type == TokenType.operator).toList();
+      final operators = tokens
+          .where((t) => t.type == TokenType.operator)
+          .toList();
       expect(operators.length, 3);
       expect(operators[0].lexeme, '===');
       expect(operators[1].lexeme, '&&');

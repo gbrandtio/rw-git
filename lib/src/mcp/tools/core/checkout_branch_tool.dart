@@ -20,19 +20,19 @@ class CheckoutBranchTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory containing the git repository.',
-          },
-          'branchToCheckout': {
-            'type': 'string',
-            'description': 'The name of the branch to checkout.',
-          },
-        },
-        'required': ['directory', 'branchToCheckout'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory containing the git repository.',
+      },
+      'branchToCheckout': {
+        'type': 'string',
+        'description': 'The name of the branch to checkout.',
+      },
+    },
+    'required': ['directory', 'branchToCheckout'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

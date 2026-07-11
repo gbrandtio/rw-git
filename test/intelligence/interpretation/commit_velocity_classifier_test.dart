@@ -14,17 +14,16 @@ void main() {
     int burnout = 0,
     int total = 100,
     List<TimeBucket> buckets = const [],
-  }) =>
-      CommitVelocityDto(
-        buckets: buckets,
-        totalCommits: total,
-        averagePerPeriod: 10,
-        trend: trend,
-        anomalies: const [],
-        totalBurnoutCommits: burnout,
-        giniCoefficient: gini,
-        velocitySlope: slope,
-      );
+  }) => CommitVelocityDto(
+    buckets: buckets,
+    totalCommits: total,
+    averagePerPeriod: 10,
+    trend: trend,
+    anomalies: const [],
+    totalBurnoutCommits: burnout,
+    giniCoefficient: gini,
+    velocitySlope: slope,
+  );
 
   test('healthy cadence yields no findings', () {
     expect(fc.fromCommitVelocity(dto()), isEmpty);

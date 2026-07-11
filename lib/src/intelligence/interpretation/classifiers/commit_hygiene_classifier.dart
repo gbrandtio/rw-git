@@ -49,8 +49,9 @@ class CommitHygieneClassifier {
         band: '${flaggedCommits.length} $label',
         evidence: {
           'count': flaggedCommits.length,
-          'samples':
-              flaggedCommits.take(aggregateFindingEvidenceSampleSize).toList(),
+          'samples': flaggedCommits
+              .take(aggregateFindingEvidenceSampleSize)
+              .toList(),
         },
       ),
     ];

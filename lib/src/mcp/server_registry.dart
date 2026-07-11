@@ -119,7 +119,8 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
           withHints(inner),
           resources: registry.resources,
           // Per-tool size gate (ADR-0011); global default when unlisted.
-          offloadThresholdBytes: perToolOffloadThresholdBytes[inner.name] ??
+          offloadThresholdBytes:
+              perToolOffloadThresholdBytes[inner.name] ??
               offloadSizeThresholdBytes,
         ),
         outputSchema: outputSchema,

@@ -18,7 +18,8 @@ class AnalyzeFileOwnershipTool implements McpTool {
   String get name => 'analyze_file_ownership';
 
   @override
-  String get description => 'Reads the CODEOWNERS file and cross-references '
+  String get description =>
+      'Reads the CODEOWNERS file and cross-references '
       'it with git blame history to detect ownership '
       'drift. Identifies files with no owner and files '
       'where the declared owner differs from the top '
@@ -28,20 +29,21 @@ class AnalyzeFileOwnershipTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'limit': {
-            'type': 'number',
-            'description': 'Number of commits to analyze for '
-                'authorship (default: 100).',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'limit': {
+        'type': 'number',
+        'description':
+            'Number of commits to analyze for '
+            'authorship (default: 100).',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -57,8 +59,7 @@ class AnalyzeFileOwnershipTool implements McpTool {
         codeownersContent = (await gitQuery.run(directory, [
           'show',
           'HEAD:$path',
-        ]))
-            .getOrThrow();
+        ])).getOrThrow();
         codeownersFound = true;
         break;
       } on RwGitException {

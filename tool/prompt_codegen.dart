@@ -220,8 +220,9 @@ String renderGeneratedSkill(String expandedTemplate) {
   }
   final afterClose = normalized.indexOf('\n', frontmatterEnd + 1);
   final head = normalized.substring(0, afterClose + 1);
-  final body =
-      normalized.substring(afterClose + 1).replaceFirst(RegExp(r'^\n+'), '');
+  final body = normalized
+      .substring(afterClose + 1)
+      .replaceFirst(RegExp(r'^\n+'), '');
   return '$head\n$generatedSkillNotice\n\n$body';
 }
 

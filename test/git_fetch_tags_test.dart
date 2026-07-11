@@ -23,11 +23,13 @@ void main() {
   group('fetchTags', () {
     test('will retrieve a list of tags from a valid git repository', () async {
       (await rwGit.clone(testDir, repositoryWithTags)).getOrThrow();
-      List<FileSystemEntity> clonedFiles =
-          await Directory(testDir).list().toList();
+      List<FileSystemEntity> clonedFiles = await Directory(
+        testDir,
+      ).list().toList();
 
-      List<GitTag> tags =
-          (await rwGit.fetchTags(clonedFiles[0].uri.path)).getOrThrow();
+      List<GitTag> tags = (await rwGit.fetchTags(
+        clonedFiles[0].uri.path,
+      )).getOrThrow();
       bool isTagsMoreThanOne = tags.length > 1;
 
       expect(isTagsMoreThanOne, true);

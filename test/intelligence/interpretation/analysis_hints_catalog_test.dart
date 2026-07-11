@@ -34,8 +34,10 @@ void main() {
 
   setUpAll(() {
     final registry = buildDefaultRegistry();
-    registeredToolNames =
-        registry.getToolListings().map((t) => t['name'] as String).toSet();
+    registeredToolNames = registry
+        .getToolListings()
+        .map((t) => t['name'] as String)
+        .toSet();
   });
 
   test('every registered analysis tool has a catalog entry', () {
@@ -59,7 +61,8 @@ void main() {
       expect(
         registeredToolNames.contains(name),
         isTrue,
-        reason: "analysisHintsCatalog has an entry for '$type', which is not "
+        reason:
+            "analysisHintsCatalog has an entry for '$type', which is not "
             'a registered tool name',
       );
     }
@@ -72,7 +75,8 @@ void main() {
         expect(
           analysisHintsCatalog.containsKey(type),
           isFalse,
-          reason: "'$name' has no academic basis and should not carry "
+          reason:
+              "'$name' has no academic basis and should not carry "
               'invented hints',
         );
       }

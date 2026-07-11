@@ -42,12 +42,12 @@ void main() {
   }
 
   McpServer makeServer(McpRegistry registry, {int? pageSize}) => McpServer(
-        registry: registry,
-        inputStream: input.stream,
-        outputSink: outSink,
-        errorSink: IOSink(StreamController<List<int>>().sink),
-        toolsPageSize: pageSize,
-      );
+    registry: registry,
+    inputStream: input.stream,
+    outputSink: outSink,
+    errorSink: IOSink(StreamController<List<int>>().sink),
+    toolsPageSize: pageSize,
+  );
 
   test('initialize echoes a supported requested protocol version', () async {
     makeServer(McpRegistry()).start();
@@ -61,8 +61,7 @@ void main() {
     expect(res['result']['protocolVersion'], '2024-11-05');
   });
 
-  test(
-      'unrecognized notification (no id) is silently dropped, not replied '
+  test('unrecognized notification (no id) is silently dropped, not replied '
       'to with id: null', () async {
     makeServer(McpRegistry()).start();
     send({'jsonrpc': '2.0', 'method': 'notifications/roots/list_changed'});
@@ -164,8 +163,7 @@ void main() {
     return firstResponse();
   }
 
-  test(
-      'tools/call returns structuredContent alongside text when the tool '
+  test('tools/call returns structuredContent alongside text when the tool '
       'advertises an outputSchema (MCP 2025-06-18)', () async {
     final registry = McpRegistry()
       ..registerTool(
@@ -201,8 +199,7 @@ void main() {
     },
   );
 
-  test(
-      'tools/call omits structuredContent for non-object output even when a '
+  test('tools/call omits structuredContent for non-object output even when a '
       'schema is declared', () async {
     final registry = McpRegistry()
       ..registerTool(

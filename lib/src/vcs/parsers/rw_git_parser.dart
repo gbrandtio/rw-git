@@ -27,8 +27,9 @@ class RwGitParser {
   static List<String> parseGitStdoutBasedOnNewLine(String gitStdout) {
     LineSplitter independentLineSplitter = const LineSplitter();
     List<String> independentLines = independentLineSplitter.convert(gitStdout);
-    independentLines =
-        independentLines.where((element) => element.isNotEmpty).toList();
+    independentLines = independentLines
+        .where((element) => element.isNotEmpty)
+        .toList();
 
     return independentLines;
   }
@@ -206,8 +207,9 @@ class RwGitParser {
       if (lines.isEmpty) continue;
 
       final pathParts = lines[0].split(' ');
-      final path =
-          pathParts.isNotEmpty ? pathParts.last.replaceFirst('b/', '') : '';
+      final path = pathParts.isNotEmpty
+          ? pathParts.last.replaceFirst('b/', '')
+          : '';
 
       int additions = 0;
       int deletions = 0;

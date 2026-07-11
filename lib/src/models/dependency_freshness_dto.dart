@@ -5,7 +5,7 @@ class FreshnessResult {
   final String declaredVersion;
   final String? latestVersion;
   final String
-      classification; // current | patch_behind | minor_behind | major_behind | unknown
+  classification; // current | patch_behind | minor_behind | major_behind | unknown
   final String? error;
 
   const FreshnessResult({

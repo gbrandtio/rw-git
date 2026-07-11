@@ -12,14 +12,14 @@ void main() {
   const ranker = RefactoringTargetRanker();
 
   FileLexicalMetricsDto lexical(String path, int cc) => FileLexicalMetricsDto(
-        filePath: path,
-        cyclomaticComplexity: cc,
-        maintainabilityIndex: 90,
-        abcScore: 0,
-        npathComplexity: 1,
-        cognitiveComplexity: 0,
-        halsteadDeliveredBugs: 0,
-      );
+    filePath: path,
+    cyclomaticComplexity: cc,
+    maintainabilityIndex: 90,
+    abcScore: 0,
+    npathComplexity: 1,
+    cognitiveComplexity: 0,
+    halsteadDeliveredBugs: 0,
+  );
 
   test('ranks hot, complex files first', () {
     final targets = ranker.rank(
@@ -94,18 +94,16 @@ void main() {
     // With CHANGELOG.md dropped before percentiling, lib/a.dart is the
     // churn and proxy maximum of the remaining population: both
     // percentiles are 1.0, not deflated by the prose file.
-    final target = ranker.rank(
-      fileChurn: {
-        'CHANGELOG.md': 500,
-        'lib/a.dart': 10,
-        'lib/b.dart': 2,
-      },
-      proxyComplexity: {
-        'CHANGELOG.md': 900,
-        'lib/a.dart': 30,
-        'lib/b.dart': 3,
-      },
-    ).first;
+    final target = ranker
+        .rank(
+          fileChurn: {'CHANGELOG.md': 500, 'lib/a.dart': 10, 'lib/b.dart': 2},
+          proxyComplexity: {
+            'CHANGELOG.md': 900,
+            'lib/a.dart': 30,
+            'lib/b.dart': 3,
+          },
+        )
+        .first;
 
     expect(target.filePath, 'lib/a.dart');
     expect(target.churnPercentile, 1.0);
@@ -125,10 +123,12 @@ void main() {
   });
 
   test('toJson exposes the rounded score and both percentiles', () {
-    final target = ranker.rank(
-      fileChurn: {'lib/a.dart': 10, 'lib/b.dart': 1},
-      proxyComplexity: {'lib/a.dart': 10, 'lib/b.dart': 1},
-    ).first;
+    final target = ranker
+        .rank(
+          fileChurn: {'lib/a.dart': 10, 'lib/b.dart': 1},
+          proxyComplexity: {'lib/a.dart': 10, 'lib/b.dart': 1},
+        )
+        .first;
 
     final json = target.toJson();
     expect(json['file_path'], 'lib/a.dart');

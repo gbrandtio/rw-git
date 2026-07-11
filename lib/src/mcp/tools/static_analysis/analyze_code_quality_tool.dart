@@ -14,7 +14,8 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
   String get name => 'analyze_code_quality';
 
   @override
-  String get description => 'Analyzes commit history to surface architectural '
+  String get description =>
+      'Analyzes commit history to surface architectural '
       'bottlenecks and technical debt. Returns structured JSON containing '
       'advanced heuristics: Co-Change Matrix (SRP / Blast Radius), '
       'Architecture Drift (commit distribution), '
@@ -37,12 +38,13 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
         runner,
       ).calculateChurn(directory, limit: limit);
       final highChurnThreshold = (churn.totalCommits * 0.10).ceil();
-      var highChurnFiles = churn.fileChurn.entries
-          .where(
-            (e) => e.value >= highChurnThreshold && churn.totalCommits > 0,
-          )
-          .toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
+      var highChurnFiles =
+          churn.fileChurn.entries
+              .where(
+                (e) => e.value >= highChurnThreshold && churn.totalCommits > 0,
+              )
+              .toList()
+            ..sort((a, b) => b.value.compareTo(a.value));
       if (highChurnFiles.length > effectiveTopN) {
         highChurnFiles = highChurnFiles.take(effectiveTopN).toList();
       }
@@ -59,12 +61,14 @@ class AnalyzeCodeQualityTool extends BaseAnalyzeCodeQualityTool {
       runner,
     ).calculateChurnWithAuthors(directory, limit: limit);
     final highChurnThreshold = (churn.totalCommits * 0.10).ceil();
-    var highChurnFiles = churn.fileChurn.entries
-        .where(
-          (e) => e.value.total >= highChurnThreshold && churn.totalCommits > 0,
-        )
-        .toList()
-      ..sort((a, b) => b.value.total.compareTo(a.value.total));
+    var highChurnFiles =
+        churn.fileChurn.entries
+            .where(
+              (e) =>
+                  e.value.total >= highChurnThreshold && churn.totalCommits > 0,
+            )
+            .toList()
+          ..sort((a, b) => b.value.total.compareTo(a.value.total));
     if (highChurnFiles.length > effectiveTopN) {
       highChurnFiles = highChurnFiles.take(effectiveTopN).toList();
     }

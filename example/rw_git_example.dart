@@ -28,8 +28,9 @@ void main() async {
   print("Repository cloned successfully!\n");
 
   // 2. Branch: Retrieve the branches of the repository
-  List<GitBranch> branches =
-      (await rwGit.branch(localDirectoryToCloneInto)).getOrThrow();
+  List<GitBranch> branches = (await rwGit.branch(
+    localDirectoryToCloneInto,
+  )).getOrThrow();
   print("Number of branches: ${branches.length}");
   final currentBranch = branches.firstWhere(
     (b) => b.isCurrent,
@@ -38,8 +39,9 @@ void main() async {
   print("Current branch: ${currentBranch.name}\n");
 
   // 3. Status: Check working directory state
-  GitStatus status =
-      (await rwGit.status(localDirectoryToCloneInto)).getOrThrow();
+  GitStatus status = (await rwGit.status(
+    localDirectoryToCloneInto,
+  )).getOrThrow();
   print("Initial Status - Untracked files: ${status.untrackedFiles.length}");
 
   // Modify a file to showcase diff and status
@@ -53,16 +55,16 @@ void main() async {
   GitCommit headCommit = (await rwGit.show(
     localDirectoryToCloneInto,
     extraArgs: ["HEAD"],
-  ))
-      .getOrThrow();
+  )).getOrThrow();
   print("HEAD Commit Details:");
   print("  Hash: ${headCommit.hash}");
   print("  Author: ${headCommit.authorName} <${headCommit.authorEmail}>");
   print("  Message: ${headCommit.message}\n");
 
   // 5. Retrieve the tags of the repository
-  List<GitTag> tags =
-      (await rwGit.fetchTags(localDirectoryToCloneInto)).getOrThrow();
+  List<GitTag> tags = (await rwGit.fetchTags(
+    localDirectoryToCloneInto,
+  )).getOrThrow();
   print("Number of tags: ${tags.length}\n");
 
   if (tags.length >= 2) {
@@ -72,11 +74,10 @@ void main() async {
     // 6. Get the commits between two tags
     List<GitCommit> listOfCommitsBetweenTwoTags =
         (await rwGit.getCommitsBetween(
-      localDirectoryToCloneInto,
-      oldTag,
-      newTag,
-    ))
-            .getOrThrow();
+          localDirectoryToCloneInto,
+          oldTag,
+          newTag,
+        )).getOrThrow();
     print(
       "Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}\n",
     );
@@ -87,8 +88,7 @@ void main() async {
       localDirectoryToCloneInto,
       oldTag,
       newTag,
-    ))
-        .getOrThrow();
+    )).getOrThrow();
     print('Number of lines inserted: ${shortStatDto.insertions}');
     print('Number of lines deleted: ${shortStatDto.deletions}');
     print('Number of files changed: ${shortStatDto.numberOfChangedFiles}\n');

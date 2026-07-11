@@ -53,7 +53,7 @@ import 'package:rw_git/src/intelligence/interpretation/models/report_payload.dar
 /// analysis pass produces from one shared set of git data.
 typedef TechnicalAnalysis = ({
   List<Finding> findings,
-  List<RefactoringTarget> refactoringTargets
+  List<RefactoringTarget> refactoringTargets,
 });
 
 /// Builds pre-interpreted report payloads for the report meta-tools.
@@ -158,14 +158,13 @@ class ReportOrchestrator {
     final hotspotsFuture = SzzAlgorithm(runner)
         .execute(directory, limit: lim, since: since, until: until)
         .then((matches) => BugHotspotsHeuristic().aggregate(matches));
-    final velocityFuture = CommitVelocityHeuristic(
-      runner,
-    ).calculateCommitVelocity(
-      directory,
-      limit: lim,
-      since: since,
-      until: until,
-    );
+    final velocityFuture = CommitVelocityHeuristic(runner)
+        .calculateCommitVelocity(
+          directory,
+          limit: lim,
+          since: since,
+          until: until,
+        );
 
     final findings = <Finding>[
       ..._classifier.fromBusFactor(await busFactorFuture),
@@ -199,14 +198,13 @@ class ReportOrchestrator {
     String? branch,
   }) async {
     final lim = limit ?? defaultCommitLimit;
-    final advancedFuture = AdvancedMetricsHeuristic(
-      runner,
-    ).calculateAdvancedMetrics(
-      directory,
-      limit: lim,
-      since: since,
-      until: until,
-    );
+    final advancedFuture = AdvancedMetricsHeuristic(runner)
+        .calculateAdvancedMetrics(
+          directory,
+          limit: lim,
+          since: since,
+          until: until,
+        );
     final churnAuthorsFuture = ChurnHeuristic(runner).calculateChurnWithAuthors(
       directory,
       limit: lim,
@@ -299,14 +297,13 @@ class ReportOrchestrator {
     final suspiciousCommitsFuture = SuspiciousCommitsHeuristic(
       runner,
     ).findSuspiciousCommits(directory, limit: lim, since: since, until: until);
-    final velocityFuture = CommitVelocityHeuristic(
-      runner,
-    ).calculateCommitVelocity(
-      directory,
-      limit: lim,
-      since: since,
-      until: until,
-    );
+    final velocityFuture = CommitVelocityHeuristic(runner)
+        .calculateCommitVelocity(
+          directory,
+          limit: lim,
+          since: since,
+          until: until,
+        );
     final securityFuture = _securityFindings(
       directory,
       lim,
@@ -353,14 +350,13 @@ class ReportOrchestrator {
     String? since,
     String? until,
   }) async {
-    final advancedFuture = AdvancedMetricsHeuristic(
-      runner,
-    ).calculateAdvancedMetrics(
-      directory,
-      limit: lim,
-      since: since,
-      until: until,
-    );
+    final advancedFuture = AdvancedMetricsHeuristic(runner)
+        .calculateAdvancedMetrics(
+          directory,
+          limit: lim,
+          since: since,
+          until: until,
+        );
     final churnAuthorsFuture = ChurnHeuristic(runner).calculateChurnWithAuthors(
       directory,
       limit: lim,
@@ -408,9 +404,7 @@ class ReportOrchestrator {
     );
     final drift = inferredLayers.isEmpty
         ? const ArchitectureDriftDto.empty()
-        : await ArchitectureDriftAlgorithm(
-            ReadOnlyGitQuery(runner),
-          ).execute(
+        : await ArchitectureDriftAlgorithm(ReadOnlyGitQuery(runner)).execute(
             directory,
             inferredLayers,
             limit: lim,

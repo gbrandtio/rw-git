@@ -23,7 +23,7 @@ class CliRwGit extends BaseRwGit {
   final ProcessRunner runner;
 
   CliRwGit({ProcessRunner? runner})
-      : runner = runner ?? ProcessRunner.defaultRunner();
+    : runner = runner ?? ProcessRunner.defaultRunner();
 
   @override
   Future<Result<bool, RwGitException>> init(

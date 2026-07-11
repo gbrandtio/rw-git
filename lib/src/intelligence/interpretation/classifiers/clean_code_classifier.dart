@@ -37,7 +37,7 @@ class CleanCodeClassifier {
           value: file.issues.length,
           band: escalated
               ? '>= $cleanCodeHighSeverityIssueCount clean-code heuristics '
-                  'crossed'
+                    'crossed'
               : 'clean-code threshold crossed',
           evidence: {
             'total_lines': file.totalLines,

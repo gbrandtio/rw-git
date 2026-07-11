@@ -62,8 +62,9 @@ Future<void> main(List<String> args) async {
   });
   meta.record(CallRecord.fromResponse('generate_technical_report', metaResp));
 
-  final toolsListBytes =
-      utf8.encode(jsonEncode(registry.getToolListings())).length;
+  final toolsListBytes = utf8
+      .encode(jsonEncode(registry.getToolListings()))
+      .length;
 
   if (asJson) {
     stdout.writeln(
@@ -88,7 +89,8 @@ void _printReport(
   Scorecard baseline,
   Scorecard meta,
 ) {
-  String row(Scorecard s) => '${s.hopsToReport.toString().padLeft(8)}'
+  String row(Scorecard s) =>
+      '${s.hopsToReport.toString().padLeft(8)}'
       '${s.toolCalls.toString().padLeft(12)}'
       '${s.followupReads.toString().padLeft(12)}'
       '${s.estimatedTokens.toString().padLeft(12)}'

@@ -24,8 +24,7 @@ void main() {
       final result = (await rwGit.clone(
         'my_dir',
         'https://fake.url/repo.git',
-      ))
-          .getOrThrow();
+      )).getOrThrow();
       expect(result, true);
     });
 
