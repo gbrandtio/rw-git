@@ -2,7 +2,7 @@
 
 ## Business Logic
 
-Answers: "How complex is this file, and will it be easy to maintain?". Provides seven orthogonal complexity dimensions for any source file in any programming language, using a single FSM-based lexer as the computational engine. No language-specific parser is required since the lexer tokenises source into a universal token stream that all seven algorithms operate on.
+Answers: "How complex is this file, and will it be easy to maintain?". Provides seven orthogonal complexity dimensions for any source file in any programming language, using a single FSM-based (finite-state machine) lexer as the computational engine. No language-specific parser is required since the lexer tokenises source into a universal token stream that all seven algorithms operate on.
 
 ## Algorithm
 

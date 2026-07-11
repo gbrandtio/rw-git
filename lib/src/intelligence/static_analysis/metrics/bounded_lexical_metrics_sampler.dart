@@ -6,14 +6,7 @@ import 'package:path/path.dart' as p;
 import '../../../constants.dart';
 import '../../../models/file_lexical_metrics_dto.dart';
 import '../../source_file_filter.dart';
-import 'agnostic/algorithms/abc_score.dart';
-import 'agnostic/algorithms/cognitive_complexity.dart';
-import 'agnostic/algorithms/cyclomatic_complexity.dart';
-import 'agnostic/algorithms/halstead_complexity.dart';
-import 'agnostic/algorithms/maintainability_index.dart';
-import 'agnostic/algorithms/npath_complexity.dart';
-import 'agnostic/lexer/fsm_lexer.dart';
-import 'agnostic/profiles/default_profiles.dart';
+import 'lexical_metrics_runner.dart';
 
 /// ----------------------------------------------------------------------------
 /// bounded_lexical_metrics_sampler.dart
@@ -104,22 +97,7 @@ List<FileLexicalMetricsDto> _computeLexicalMetrics(
     Map<String, String> sourcesByChurnPath) {
   final metrics = <FileLexicalMetricsDto>[];
   sourcesByChurnPath.forEach((churnPath, source) {
-    final profile = DefaultProfiles.getProfileForFile(churnPath);
-    final tokens = FsmLexer(source).tokenize();
-    metrics.add(FileLexicalMetricsDto(
-      filePath: churnPath,
-      cyclomaticComplexity:
-          CyclomaticComplexityAlgorithm().calculate(tokens, profile),
-      maintainabilityIndex:
-          MaintainabilityIndexAlgorithm().calculate(tokens, profile).score,
-      abcScore: AbcScoreAlgorithm().calculate(tokens, profile).score,
-      npathComplexity: NpathComplexityAlgorithm().calculate(tokens, profile),
-      cognitiveComplexity:
-          CognitiveComplexityAlgorithm().calculate(tokens, profile),
-      halsteadDeliveredBugs: HalsteadComplexityAlgorithm()
-          .calculate(tokens, profile)
-          .deliveredBugs,
-    ));
+    metrics.add(LexicalMetricsRunner.execute(churnPath, source));
   });
   return metrics;
 }

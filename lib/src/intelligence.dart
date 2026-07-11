@@ -27,3 +27,5 @@ export 'intelligence/source_file_filter.dart';
 export 'intelligence/static_analysis/clean_code_analyzer.dart';
 export 'intelligence/static_analysis/dart/dart_ast_analyzer.dart';
 export 'intelligence/static_analysis/metrics/bounded_lexical_metrics_sampler.dart';
+export 'intelligence/static_analysis/metrics/lexical_metrics.dart';
+export 'intelligence/static_analysis/metrics/lexical_metrics_runner.dart';
