@@ -1,6 +1,6 @@
 name: rw_git
-description: A git intelligence library and MCP server, designed to provide deep intelligence on runtime via research-backed algorithms.
-version: 3.2.4
+description: A git intelligence library and MCP server, designed to provide deep intelligence via research-backed algorithms.
+version: 3.2.5
 repository: https://github.com/gbrandtio/rw-git
 
 environment:

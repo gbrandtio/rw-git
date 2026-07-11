@@ -1,3 +1,6 @@
+# 3.2.5
+- **Improvement (Quality):** Removed duplication of context for hints/prompts/skills. Removed capped limits for hints in order to enhance quality of output.
+
 # 3.2.4
 - **PERF (Quality):** Drastically improved the execution time of intelligence tools across large Git repositories (e.g. >10,000 commits) by refactoring `ChurnHeuristic` to use `git log --name-only` instead of the heavy `git log -p`. This eliminates huge amounts of text-parsing overhead.
 - **BREAKING (Core/MCP):** Removed `classChurn` and `blockChurn` from `ChurnMetricsDto` and `ChurnMetricsWithAuthorsDto` across the codebase, as the granular tracking of functions and classes was removed to optimize analysis at the file level. The `analyze_code_quality` tool now exclusively reports `high_churn_files`.
