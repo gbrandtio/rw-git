@@ -9,7 +9,7 @@ Search the [issue tracker](https://github.com/rw-core/rw-git/issues) before
 opening a new issue. When filing a bug, please include:
 
 - The `rw_git` version (`pubspec.yaml` or `npx @rw-core/rw-git-mcp --version`)
-- Steps to reproduce, including the Dart/Flutter SDK version
+- Steps to reproduce, including the Dart SDK version
 - Expected vs. actual behavior, with relevant git history/repo state if possible
 
 ## Proposing features
@@ -22,14 +22,12 @@ lets us discuss the approach (and its academic/technical grounding) up front.
 
 Requirements:
 
-- Dart SDK `>=3.3.0 <4.0.0`
-- Flutter `>=3.29.0`
+- Dart SDK `>=3.10.0 <4.0.0`
 
 ```bash
 git clone https://github.com/rw-core/rw-git.git
 cd rw-git
 dart pub get
-flutter pub get
 ```
 
 ### Running checks locally
@@ -45,10 +43,11 @@ dart format --output=none --set-exit-if-changed --line-length=80 .
 dart analyze --fatal-infos
 
 # Tests
-flutter test
+dart test
 
 # Tests with coverage
-flutter test -r expanded --coverage
+dart test --coverage=coverage
+dart run coverage:format_coverage --lcov --in=coverage --out=coverage/lcov.info --report-on=lib
 ```
 
 ## Adding or modifying MCP tools
