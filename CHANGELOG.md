@@ -1,3 +1,8 @@
+# 3.3.2
+- **Improvement:** Move FsmLexer from hardcoded C-family comment/string masking to injected LexicalProfile objects, enabling language-specific accuracy without code forks. Simultaneously optimize the hot tokenization path to operate exclusively on code units (integers) instead of String indexing, eliminating per-character allocations.
+- **Improvement:** Add LexicalProfile definitions for 10 languages (C, Python, Go, Ruby, Lua, Shell, XML, etc.), each with correct line-comment prefixes, block delimiters, and string syntax. Extend DefaultProfiles with new language support and file extensions, refactoring extension lookup to iterate through all profiles.
+- **Improvement:** Improve number literal scanning to handle radix prefixes (0x, 0b, 0o), digit separators, decimals, and scientific notation as atomic tokens. Replace substring-based character tests with precomputed lookup tables.
+
 # 3.3.1
 - **Feat (GitHub):** Moved from @gbrandtio personal github, to @rw-core organisation in github.
 - **Feat (Distribution):** Updated the npm package to reflect the new organisation name, along with pubspec assets and git jobs.
