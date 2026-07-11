@@ -71,8 +71,9 @@ class CalculateUniversalLexicalMetricsTool implements McpTool {
     // Load language profile based on file extension
     final profile = DefaultProfiles.getProfileForFile(resolvedPath);
 
-    // Tokenize using FSM (Zero-allocation masking)
-    final lexer = FsmLexer(source);
+    // Tokenize using FSM (Zero-allocation masking) with the language's
+    // comment/string syntax injected.
+    final lexer = FsmLexer(source, profile.lexical);
     final tokens = lexer.tokenize();
 
     // Run heuristics

@@ -24,7 +24,7 @@ class LexicalMetricsRunner {
   }) {
     final activeProfile =
         profile ?? DefaultProfiles.getProfileForFile(filePath);
-    final tokens = FsmLexer(sourceCode).tokenize();
+    final tokens = FsmLexer(sourceCode, activeProfile.lexical).tokenize();
 
     return FileLexicalMetricsDto(
       filePath: filePath,
