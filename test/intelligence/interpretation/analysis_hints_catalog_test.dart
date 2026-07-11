@@ -85,7 +85,9 @@ void main() {
       });
 
       test('$name interpretation hints carry a citation year', () {
-        if (hints.interpretation.isEmpty) return;
+        if (hints.interpretation.isEmpty) {
+          return;
+        }
         final hasCitation = hints.interpretation
             .any((hint) => citationYearPattern.hasMatch(hint));
         expect(hasCitation, isTrue,
@@ -93,8 +95,9 @@ void main() {
       });
 
       test('$name pair_with hints name a registered tool', () {
-        if (hints.pairWith.isEmpty || entry.key == AnalysisType.compound)
+        if (hints.pairWith.isEmpty || entry.key == AnalysisType.compound) {
           return;
+        }
         final hasRegisteredTool = hints.pairWith.any((hint) =>
             registeredToolNames.any((toolName) => hint.contains(toolName)));
         expect(hasRegisteredTool, isTrue,
