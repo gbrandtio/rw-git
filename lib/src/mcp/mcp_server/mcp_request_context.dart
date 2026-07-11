@@ -67,7 +67,7 @@ class McpRequestContext {
           'content': [
             {'type': 'text', 'text': text},
           ],
-          if (structuredContent != null) 'structuredContent': structuredContent,
+          'structuredContent': ?structuredContent,
           if (isError) 'isError': true,
         },
       }),

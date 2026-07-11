@@ -36,7 +36,7 @@ class ArchitectureDriftAlgorithm {
       if (since != null) '--since=$since',
       if (until != null) '--until=$until',
       if (limit != null) '-n',
-      if (limit != null) limit,
+      ?limit,
       '--format=%H||%s',
       '--name-only',
     ]);

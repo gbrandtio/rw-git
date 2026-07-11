@@ -94,8 +94,8 @@ class ReportOrchestrator {
       metadata: {
         'directory': directory,
         'commit_limit': lim,
-        if (since != null) 'since': since,
-        if (until != null) 'until': until,
+        'since': ?since,
+        'until': ?until,
       },
     );
   }
@@ -128,8 +128,8 @@ class ReportOrchestrator {
       metadata: {
         'directory': directory,
         'commit_limit': lim,
-        if (since != null) 'since': since,
-        if (until != null) 'until': until,
+        'since': ?since,
+        'until': ?until,
         'freshness_checked': checkFreshness && httpClient != null,
       },
     );
@@ -179,8 +179,8 @@ class ReportOrchestrator {
       metadata: {
         'directory': directory,
         'commit_limit': lim,
-        if (since != null) 'since': since,
-        if (until != null) 'until': until,
+        'since': ?since,
+        'until': ?until,
       },
     );
   }
@@ -269,8 +269,8 @@ class ReportOrchestrator {
       metadata: {
         'directory': directory,
         'commit_limit': lim,
-        if (since != null) 'since': since,
-        if (until != null) 'until': until,
+        'since': ?since,
+        'until': ?until,
       },
     );
   }
@@ -338,8 +338,8 @@ class ReportOrchestrator {
       metadata: {
         'directory': directory,
         'commit_limit': lim,
-        if (since != null) 'since': since,
-        if (until != null) 'until': until,
+        'since': ?since,
+        'until': ?until,
       },
     );
   }

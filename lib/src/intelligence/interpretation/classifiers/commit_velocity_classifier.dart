@@ -59,7 +59,7 @@ class CommitVelocityClassifier {
             'gini_coefficient': double.parse(
               dto.giniCoefficient.toStringAsFixed(3),
             ),
-            if (topAuthor != null) 'top_author': topAuthor,
+            'top_author': ?topAuthor,
           },
         ),
       );
