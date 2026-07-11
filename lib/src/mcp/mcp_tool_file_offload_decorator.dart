@@ -43,7 +43,8 @@ class McpToolFileOffloadDecorator implements McpTool {
   String get name => _inner.name;
 
   @override
-  String get description => '${_inner.description} '
+  String get description =>
+      '${_inner.description} '
       '(>${offloadThresholdBytes ~/ 1024}KB offloaded to disk.)';
 
   @override
@@ -166,8 +167,9 @@ class McpToolFileOffloadDecorator implements McpTool {
       return rawOutput;
     }
 
-    final providedOutputFile =
-        arguments.getOptionalStringArgument('output_file');
+    final providedOutputFile = arguments.getOptionalStringArgument(
+      'output_file',
+    );
 
     // For small payloads with no explicit output_file request, returning
     // inline avoids a wasted file-write + file-read round trip.

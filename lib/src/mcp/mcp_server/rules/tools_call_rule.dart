@@ -14,13 +14,19 @@ class ToolsCallRule implements McpRule {
 
   @override
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  ) async {
     final toolName = params['name'] as String?;
     final args = params['arguments'] as Map<String, dynamic>? ?? {};
 
     if (toolName == null) {
       ctx.sendError(
-          id, jsonRpcInvalidParams, 'Invalid params: missing tool name');
+        id,
+        jsonRpcInvalidParams,
+        'Invalid params: missing tool name',
+      );
       return;
     }
 
@@ -32,12 +38,17 @@ class ToolsCallRule implements McpRule {
 
     try {
       final resultText = await tool.execute(args);
-      ctx.sendToolResult(id, resultText,
-          structuredContent: _structuredContentFor(tool, resultText));
+      ctx.sendToolResult(
+        id,
+        resultText,
+        structuredContent: _structuredContentFor(tool, resultText),
+      );
     } on RwGitException catch (e) {
       ctx.sendToolResult(
-          id, 'Git error (code ${e.exitCode}): ${e.message}\n${e.stderr}',
-          isError: true);
+        id,
+        'Git error (code ${e.exitCode}): ${e.message}\n${e.stderr}',
+        isError: true,
+      );
     } catch (e) {
       ctx.sendToolResult(id, 'Tool execution error: $e', isError: true);
     }

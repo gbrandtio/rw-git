@@ -11,14 +11,16 @@ class AnalyzeDependencyDriftTool implements McpTool {
   final RwHttpClient httpClient;
 
   AnalyzeDependencyDriftTool(this.runner, {RwHttpClient? httpClient})
-      : httpClient = httpClient ??
-            RwHttpClient.defaultClient(interceptors: [RetryInterceptor()]);
+    : httpClient =
+          httpClient ??
+          RwHttpClient.defaultClient(interceptors: [RetryInterceptor()]);
 
   @override
   String get name => 'analyze_dependency_drift';
 
   @override
-  String get description => 'Parses dependency manifests (pubspec.yaml, '
+  String get description =>
+      'Parses dependency manifests (pubspec.yaml, '
       'package.json, requirements.txt, go.mod, '
       'Cargo.toml, Gemfile) from the git working tree. '
       'Returns a structured report of pinned vs '
@@ -32,24 +34,25 @@ class AnalyzeDependencyDriftTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'check_freshness': {
-            'type': 'boolean',
-            'description': 'Optional. When true, performs network lookups '
-                'against each ecosystem\'s package registry (pub.dev, '
-                'npmjs.org, pypi.org, crates.io, proxy.golang.org, '
-                'rubygems.org) to compare declared versions against the '
-                'latest available, and adds a "freshness" block per '
-                'dependency. Default false (fully offline).',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'check_freshness': {
+        'type': 'boolean',
+        'description':
+            'Optional. When true, performs network lookups '
+            'against each ecosystem\'s package registry (pub.dev, '
+            'npmjs.org, pypi.org, crates.io, proxy.golang.org, '
+            'rubygems.org) to compare declared versions against the '
+            'latest available, and adds a "freshness" block per '
+            'dependency. Default false (fully offline).',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -57,8 +60,9 @@ class AnalyzeDependencyDriftTool implements McpTool {
     final checkFreshness =
         arguments.getOptionalBoolArgument('check_freshness') ?? false;
 
-    final manifests = await DependencyManifestParser(runner)
-        .parseDependencyManifests(directory);
+    final manifests = await DependencyManifestParser(
+      runner,
+    ).parseDependencyManifests(directory);
 
     final freshnessChecker =
         checkFreshness ? DependencyFreshnessChecker(httpClient) : null;
@@ -83,29 +87,30 @@ class AnalyzeDependencyDriftTool implements McpTool {
       };
 
       if (checkFreshness) {
-        final freshnessResults =
-            await freshnessChecker!.checkFreshness(e.dependencies, e.type);
-        final freshnessByName = {
-          for (final r in freshnessResults) r.name: r,
-        };
+        final freshnessResults = await freshnessChecker!.checkFreshness(
+          e.dependencies,
+          e.type,
+        );
+        final freshnessByName = {for (final r in freshnessResults) r.name: r};
 
-        ecoJson['dependencies'] = e.dependencies.map((dep) {
-          final freshness = freshnessByName[dep.name];
-          if (freshness != null) {
-            freshnessCounts[freshness.classification] =
-                (freshnessCounts[freshness.classification] ?? 0) + 1;
-          }
-          return {
-            'name': dep.name,
-            'declared_version': dep.declaredVersion,
-            'is_pinned': dep.isPinned,
-            'freshness': {
-              'latest_version': freshness?.latestVersion,
-              'classification': freshness?.classification ?? 'unknown',
-              'error': freshness?.error,
-            },
-          };
-        }).toList();
+        ecoJson['dependencies'] =
+            e.dependencies.map((dep) {
+              final freshness = freshnessByName[dep.name];
+              if (freshness != null) {
+                freshnessCounts[freshness.classification] =
+                    (freshnessCounts[freshness.classification] ?? 0) + 1;
+              }
+              return {
+                'name': dep.name,
+                'declared_version': dep.declaredVersion,
+                'is_pinned': dep.isPinned,
+                'freshness': {
+                  'latest_version': freshness?.latestVersion,
+                  'classification': freshness?.classification ?? 'unknown',
+                  'error': freshness?.error,
+                },
+              };
+            }).toList();
       }
 
       ecosystems.add(ecoJson);
@@ -143,10 +148,7 @@ class AnalyzeDependencyDriftTool implements McpTool {
     };
 
     if (checkFreshness) {
-      result['freshness_summary'] = {
-        'checked': true,
-        ...freshnessCounts,
-      };
+      result['freshness_summary'] = {'checked': true, ...freshnessCounts};
     }
 
     return jsonEncode(result);

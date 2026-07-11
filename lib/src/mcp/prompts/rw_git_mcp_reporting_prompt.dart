@@ -16,14 +16,11 @@ class RwGitMcpReportingPrompt implements McpPrompt {
 
   @override
   List<Map<String, dynamic>> get messages => [
-        {
-          'role': 'user',
-          'content': {
-            'type': 'text',
-            'text': _promptText,
-          }
-        }
-      ];
+    {
+      'role': 'user',
+      'content': {'type': 'text', 'text': _promptText},
+    },
+  ];
 
   static const String _promptText = r'''
 <role>

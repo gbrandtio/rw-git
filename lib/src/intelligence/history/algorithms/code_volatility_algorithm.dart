@@ -79,12 +79,14 @@ List<CodeVolatilityDto> _parseCodeVolatility(String rawLog) {
     // Files changed often by many different people are highly volatile.
     final score = (changes * authorsCount).toDouble();
 
-    results.add(CodeVolatilityDto(
-      filePath: file,
-      totalChanges: changes,
-      uniqueAuthors: authorsCount,
-      volatilityScore: score,
-    ));
+    results.add(
+      CodeVolatilityDto(
+        filePath: file,
+        totalChanges: changes,
+        uniqueAuthors: authorsCount,
+        volatilityScore: score,
+      ),
+    );
   }
 
   // Sort by volatility score descending

@@ -33,48 +33,55 @@ void main() {
     'infra': RegExp('^infra/'),
   };
 
-  test('flags commits spanning multiple layers and builds the matrix',
-      () async {
-    const log = 'aaa||cross-layer change\n'
-        'ui/screen.dart\n'
-        'data/repo.dart\n'
-        '\n'
-        'bbb||single-layer change\n'
-        'ui/other.dart\n';
-    final drift = await ArchitectureDriftAlgorithm(_MockGitQuery(log))
-        .execute('.', layers);
+  test(
+    'flags commits spanning multiple layers and builds the matrix',
+    () async {
+      const log =
+          'aaa||cross-layer change\n'
+          'ui/screen.dart\n'
+          'data/repo.dart\n'
+          '\n'
+          'bbb||single-layer change\n'
+          'ui/other.dart\n';
+      final drift = await ArchitectureDriftAlgorithm(
+        _MockGitQuery(log),
+      ).execute('.', layers);
 
-    expect(drift.totalCommitsAnalyzed, 2);
-    expect(drift.driftCommits, hasLength(1));
-    expect(drift.driftCommits.single.layersCoupled, ['data', 'ui']);
-    expect(drift.couplingMatrix['ui']!['data'], 1);
-    expect(drift.couplingRatio, 0.5);
-  });
+      expect(drift.totalCommitsAnalyzed, 2);
+      expect(drift.driftCommits, hasLength(1));
+      expect(drift.driftCommits.single.layersCoupled, ['data', 'ui']);
+      expect(drift.couplingMatrix['ui']!['data'], 1);
+      expect(drift.couplingRatio, 0.5);
+    },
+  );
 
   test('forwards since and until as git flags', () async {
     final query = _MockGitQuery('');
-    await ArchitectureDriftAlgorithm(query)
-        .execute('.', layers, since: '2024-01-01', until: '2024-12-31');
+    await ArchitectureDriftAlgorithm(
+      query,
+    ).execute('.', layers, since: '2024-01-01', until: '2024-12-31');
     expect(query.lastArgs, contains('--since=2024-01-01'));
     expect(query.lastArgs, contains('--until=2024-12-31'));
   });
 
   test('empty history yields the empty result', () async {
-    final drift = await ArchitectureDriftAlgorithm(_MockGitQuery(''))
-        .execute('.', layers);
+    final drift = await ArchitectureDriftAlgorithm(
+      _MockGitQuery(''),
+    ).execute('.', layers);
     expect(drift.totalCommitsAnalyzed, 0);
     expect(drift.driftCommits, isEmpty);
     expect(drift.smells, isEmpty);
   });
 
-  test(
-      'God Component: a layer in more than half of drift commits '
+  test('God Component: a layer in more than half of drift commits '
       '(Garcia et al. 2009)', () async {
-    const log = 'aaa||one\nui/a.dart\ndata/b.dart\n\n'
+    const log =
+        'aaa||one\nui/a.dart\ndata/b.dart\n\n'
         'bbb||two\nui/c.dart\ndomain/d.dart\n\n'
         'ccc||three\nui/e.dart\ninfra/f.dart\n';
-    final drift = await ArchitectureDriftAlgorithm(_MockGitQuery(log))
-        .execute('.', layers);
+    final drift = await ArchitectureDriftAlgorithm(
+      _MockGitQuery(log),
+    ).execute('.', layers);
 
     final god = drift.smells.where((s) => s.type == 'God Component');
     expect(god.single.layer, 'ui');
@@ -82,11 +89,13 @@ void main() {
 
   test('Scattered Functionality: commits touching 3+ layers', () async {
     const log = 'aaa||wide\nui/a.dart\ndata/b.dart\ndomain/c.dart\n';
-    final drift = await ArchitectureDriftAlgorithm(_MockGitQuery(log))
-        .execute('.', layers);
+    final drift = await ArchitectureDriftAlgorithm(
+      _MockGitQuery(log),
+    ).execute('.', layers);
 
-    final scattered =
-        drift.smells.where((s) => s.type == 'Scattered Functionality');
+    final scattered = drift.smells.where(
+      (s) => s.type == 'Scattered Functionality',
+    );
     expect(scattered.single.count, 1);
   });
 
@@ -99,12 +108,18 @@ void main() {
         'tool/codegen.dart',
       ]);
 
-      expect(patterns.keys,
-          containsAll(['lib/src/mcp', 'lib/src/intelligence', 'tool']));
       expect(
-          patterns['lib/src/mcp']!.hasMatch('lib/src/mcp/server.dart'), isTrue);
-      expect(patterns['lib/src/mcp']!.hasMatch('lib/src/mcpx/other.dart'),
-          isFalse);
+        patterns.keys,
+        containsAll(['lib/src/mcp', 'lib/src/intelligence', 'tool']),
+      );
+      expect(
+        patterns['lib/src/mcp']!.hasMatch('lib/src/mcp/server.dart'),
+        isTrue,
+      );
+      expect(
+        patterns['lib/src/mcp']!.hasMatch('lib/src/mcpx/other.dart'),
+        isFalse,
+      );
     });
 
     test('excludes tests, docs, build output, and dot-directories', () {
@@ -122,9 +137,13 @@ void main() {
 
     test('returns empty below the minimum layer count', () {
       expect(
-          ArchitectureDriftAlgorithm.inferLayerPatterns(
-              ['lib/src/core/a.dart', 'lib/src/core/b.dart', 'README.md']),
-          isEmpty);
+        ArchitectureDriftAlgorithm.inferLayerPatterns([
+          'lib/src/core/a.dart',
+          'lib/src/core/b.dart',
+          'README.md',
+        ]),
+        isEmpty,
+      );
     });
 
     test('caps inferred layers at the configured maximum', () {

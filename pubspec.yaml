@@ -1,7 +1,7 @@
 name: rw_git
 description: A git intelligence library and MCP server, designed to provide deep intelligence via research-backed algorithms.
 version: 3.3.0
-repository: https://github.com/gbrandtio/rw-git
+repository: https://github.com/rw-core/rw-git
 
 environment:
   sdk: '>=3.3.0 <4.0.0'

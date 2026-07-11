@@ -26,16 +26,15 @@ class RefactoringContextClassifier {
 
   /// Categories whose findings are churn-derived and therefore softened
   /// when the underlying changes are refactorings.
-  static const List<String> _churnDerivedCategories = [
-    'churn',
-    'volatility',
-  ];
+  static const List<String> _churnDerivedCategories = ['churn', 'volatility'];
 
   /// Returns [findings] with churn-derived entries downgraded one band when
   /// their subject appears among [refactorings]' renamed files. Non-matching
   /// findings are returned unchanged; the list order is preserved.
   List<Finding> annotate(
-      List<Finding> findings, List<RefactoringDto> refactorings) {
+    List<Finding> findings,
+    List<RefactoringDto> refactorings,
+  ) {
     if (refactorings.isEmpty) return findings;
 
     final refactoredCommitsByFile = <String, List<String>>{};
@@ -57,9 +56,10 @@ class RefactoringContextClassifier {
         band: '${finding.band} (partly explained by refactoring)',
         evidence: {
           ...finding.evidence,
-          'refactoring_commits': refactoringCommits
-              .take(aggregateFindingEvidenceSampleSize)
-              .toList(),
+          'refactoring_commits':
+              refactoringCommits
+                  .take(aggregateFindingEvidenceSampleSize)
+                  .toList(),
         },
       );
     }).toList();
@@ -86,10 +86,11 @@ class RefactoringContextClassifier {
         evidence: {
           'refactoring_commits_detected': refactorings.length,
           'simplifications': simplificationCount,
-          'sample_commits': refactorings
-              .take(aggregateFindingEvidenceSampleSize)
-              .map((r) => r.commitHash)
-              .toList(),
+          'sample_commits':
+              refactorings
+                  .take(aggregateFindingEvidenceSampleSize)
+                  .map((r) => r.commitHash)
+                  .toList(),
         },
       ),
     ];

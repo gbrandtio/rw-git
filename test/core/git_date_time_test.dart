@@ -39,12 +39,16 @@ void main() {
     });
 
     test('throws instead of falling back on malformed input', () {
-      expect(() => GitDateTime.parse('not a date'),
-          throwsA(isA<FormatException>()));
+      expect(
+        () => GitDateTime.parse('not a date'),
+        throwsA(isA<FormatException>()),
+      );
       // A timestamp without an offset is rejected: silently assuming a
       // timezone is exactly the corruption this parser exists to prevent.
-      expect(() => GitDateTime.parse('2026-06-29T00:00:00'),
-          throwsA(isA<FormatException>()));
+      expect(
+        () => GitDateTime.parse('2026-06-29T00:00:00'),
+        throwsA(isA<FormatException>()),
+      );
     });
   });
 }

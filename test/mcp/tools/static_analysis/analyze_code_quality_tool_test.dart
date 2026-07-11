@@ -82,8 +82,9 @@ void main() {
       final megaSb = StringBuffer();
       for (int i = 0; i < 15; i++) {
         megaSb.writeln('hash$i||author||date||Hack message');
-        megaSb
-            .writeln(' 100 files changed, 2000 insertions(+), 10 deletions(-)');
+        megaSb.writeln(
+          ' 100 files changed, 2000 insertions(+), 10 deletions(-)',
+        );
         megaSb.writeln('');
       }
 
@@ -95,7 +96,10 @@ void main() {
       }
 
       final runner = _MockRunner(
-          churnSb.toString(), megaSb.toString(), suspiciousSb.toString());
+        churnSb.toString(),
+        megaSb.toString(),
+        suspiciousSb.toString(),
+      );
       final tool = AnalyzeCodeQualityTool(runner, const _MockGitQuery());
 
       final result = await tool.execute({
@@ -129,7 +133,10 @@ void main() {
       suspiciousSb.writeln('@@ -1 +1 @@ class Alpha { // hack');
 
       final runner = _MockRunner(
-          churnSb.toString(), megaSb.toString(), suspiciousSb.toString());
+        churnSb.toString(),
+        megaSb.toString(),
+        suspiciousSb.toString(),
+      );
       final tool = AnalyzeCodeQualityTool(runner, const _MockGitQuery());
 
       final result = await tool.execute({

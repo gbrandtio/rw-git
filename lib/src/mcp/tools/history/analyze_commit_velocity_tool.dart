@@ -17,7 +17,8 @@ class AnalyzeCommitVelocityTool implements McpTool {
   String get name => 'analyze_commit_velocity';
 
   @override
-  String get description => 'Computes commit velocity over time, bucketed by '
+  String get description =>
+      'Computes commit velocity over time, bucketed by '
       'day, week, or month. Returns time-series data '
       'with per-author breakdown, trend analysis '
       '(accelerating/decelerating/stable), and anomaly '
@@ -27,34 +28,37 @@ class AnalyzeCommitVelocityTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'limit': {
-            'type': 'number',
-            'description': 'Maximum number of commits to analyze.',
-          },
-          'since': {
-            'type': 'string',
-            'description': 'Only commits after this date '
-                '(e.g. "2024-01-01").',
-          },
-          'until': {
-            'type': 'string',
-            'description': 'Only commits before this date '
-                '(e.g. "2024-12-31").',
-          },
-          'granularity': {
-            'type': 'string',
-            'description': 'Time bucket size: "day", "week", or '
-                '"month". Defaults to "week".',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'limit': {
+        'type': 'number',
+        'description': 'Maximum number of commits to analyze.',
+      },
+      'since': {
+        'type': 'string',
+        'description':
+            'Only commits after this date '
+            '(e.g. "2024-01-01").',
+      },
+      'until': {
+        'type': 'string',
+        'description':
+            'Only commits before this date '
+            '(e.g. "2024-12-31").',
+      },
+      'granularity': {
+        'type': 'string',
+        'description':
+            'Time bucket size: "day", "week", or '
+            '"month". Defaults to "week".',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -67,19 +71,22 @@ class AnalyzeCommitVelocityTool implements McpTool {
 
     if (since != null && !isValidDateInput(since)) {
       return jsonEncode({
-        'error': 'Invalid "since" value. Use ISO-8601 (e.g. "2024-01-01") '
+        'error':
+            'Invalid "since" value. Use ISO-8601 (e.g. "2024-01-01") '
             'or a git relative date (e.g. "2 weeks ago").',
       });
     }
     if (until != null && !isValidDateInput(until)) {
       return jsonEncode({
-        'error': 'Invalid "until" value. Use ISO-8601 (e.g. "2024-12-31") '
+        'error':
+            'Invalid "until" value. Use ISO-8601 (e.g. "2024-12-31") '
             'or a git relative date (e.g. "1 month ago").',
       });
     }
 
-    final velocity =
-        await CommitVelocityHeuristic(runner).calculateCommitVelocity(
+    final velocity = await CommitVelocityHeuristic(
+      runner,
+    ).calculateCommitVelocity(
       directory,
       limit: limit,
       since: since,
@@ -97,20 +104,21 @@ class AnalyzeCommitVelocityTool implements McpTool {
       'gini_coefficient': velocity.giniCoefficient,
       'total_burnout_commits': velocity.totalBurnoutCommits,
       'granularity': granularity,
-      'time_series': velocity.buckets
-          .map((b) => {
-                'period': b.period,
-                'total_commits': b.totalCommits,
-                'burnout_commits': b.burnoutCommits,
-                'authors': b.authors,
-              })
-          .toList(),
-      'anomalies': velocity.anomalies
-          .map((b) => {
-                'period': b.period,
-                'total_commits': b.totalCommits,
-              })
-          .toList(),
+      'time_series':
+          velocity.buckets
+              .map(
+                (b) => {
+                  'period': b.period,
+                  'total_commits': b.totalCommits,
+                  'burnout_commits': b.burnoutCommits,
+                  'authors': b.authors,
+                },
+              )
+              .toList(),
+      'anomalies':
+          velocity.anomalies
+              .map((b) => {'period': b.period, 'total_commits': b.totalCommits})
+              .toList(),
     });
   }
 }

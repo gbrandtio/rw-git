@@ -10,11 +10,17 @@ class ResourcesReadRule implements McpRule {
 
   @override
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  ) async {
     final uri = params['uri'] as String?;
     if (uri == null) {
       ctx.sendError(
-          id, jsonRpcInvalidParams, 'Invalid params: missing resource uri');
+        id,
+        jsonRpcInvalidParams,
+        'Invalid params: missing resource uri',
+      );
       return;
     }
     if (!ctx.registry.resources.contains(uri)) {
@@ -24,13 +30,16 @@ class ResourcesReadRule implements McpRule {
     final contents = await ctx.registry.resources.read(uri);
     if (contents == null) {
       ctx.sendError(
-          id, mcpResourceNotFound, 'Resource no longer available: $uri');
+        id,
+        mcpResourceNotFound,
+        'Resource no longer available: $uri',
+      );
       return;
     }
     ctx.sendResponse(id, {
       'contents': [
-        {'uri': uri, 'mimeType': 'application/json', 'text': contents}
-      ]
+        {'uri': uri, 'mimeType': 'application/json', 'text': contents},
+      ],
     });
   }
 }

@@ -23,8 +23,9 @@ class BugHotspotClassifier {
 
   List<Finding> classify(BugHotspotDto dto) {
     final global = dto.globalAverageBugLifetimeInDays;
-    final decileThreshold =
-        RepoStats.topDecileThreshold(dto.fileHotspots.values);
+    final decileThreshold = RepoStats.topDecileThreshold(
+      dto.fileHotspots.values,
+    );
 
     final files = <String>{
       ...dto.fileHotspots.keys,
@@ -58,9 +59,10 @@ class BugHotspotClassifier {
       if (severity == timeSeverity && timeSeverity.rank >= countSeverity.rank) {
         metric = 'file_average_bug_lifetime_in_days';
         value = lifetimeDays;
-        band = timeSeverity == Severity.critical
-            ? '> 2x global average bug lifetime'
-            : '1-2x global average bug lifetime';
+        band =
+            timeSeverity == Severity.critical
+                ? '> 2x global average bug lifetime'
+                : '1-2x global average bug lifetime';
       } else {
         metric = 'bug_introductions';
         value = count;
@@ -68,24 +70,28 @@ class BugHotspotClassifier {
       }
 
       final normalized = PathKey.normalize(file);
-      findings.add(Finding(
-        category: 'bugHotspot',
-        source: [AnalysisType.bugHotspots],
-        severity: severity,
-        subject: normalized,
-        metric: metric,
-        value: value,
-        band: band,
-        evidence: {
-          'bug_introductions': count,
-          if (lifetimeDays != null)
-            'file_average_bug_lifetime_in_days':
-                double.parse(lifetimeDays.toStringAsFixed(2)),
-          'global_average_bug_lifetime_in_days':
-              double.parse(global.toStringAsFixed(2)),
-          'top_decile': topDecile,
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'bugHotspot',
+          source: [AnalysisType.bugHotspots],
+          severity: severity,
+          subject: normalized,
+          metric: metric,
+          value: value,
+          band: band,
+          evidence: {
+            'bug_introductions': count,
+            if (lifetimeDays != null)
+              'file_average_bug_lifetime_in_days': double.parse(
+                lifetimeDays.toStringAsFixed(2),
+              ),
+            'global_average_bug_lifetime_in_days': double.parse(
+              global.toStringAsFixed(2),
+            ),
+            'top_decile': topDecile,
+          },
+        ),
+      );
     }
     return findings;
   }

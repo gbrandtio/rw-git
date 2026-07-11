@@ -20,19 +20,19 @@ class CloneRepositoryTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory to clone the repository into.'
-          },
-          'repository': {
-            'type': 'string',
-            'description': 'The remote repository URL.'
-          }
-        },
-        'required': ['directory', 'repository']
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory to clone the repository into.',
+      },
+      'repository': {
+        'type': 'string',
+        'description': 'The remote repository URL.',
+      },
+    },
+    'required': ['directory', 'repository'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

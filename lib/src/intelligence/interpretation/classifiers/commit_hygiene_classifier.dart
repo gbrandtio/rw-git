@@ -26,11 +26,17 @@ class CommitHygieneClassifier {
   /// [suspiciousCommits] are the formatted lines produced by
   /// `SuspiciousCommitsHeuristic.findSuspiciousCommits`.
   List<Finding> classifySuspiciousCommits(List<String> suspiciousCommits) =>
-      _aggregate(suspiciousCommits,
-          metric: 'suspicious_commits', label: 'suspicious commit(s)');
+      _aggregate(
+        suspiciousCommits,
+        metric: 'suspicious_commits',
+        label: 'suspicious commit(s)',
+      );
 
-  List<Finding> _aggregate(List<String> flaggedCommits,
-      {required String metric, required String label}) {
+  List<Finding> _aggregate(
+    List<String> flaggedCommits, {
+    required String metric,
+    required String label,
+  }) {
     if (flaggedCommits.isEmpty) return const [];
     return [
       Finding(

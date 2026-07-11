@@ -13,8 +13,12 @@ class SuspiciousCommitsHeuristic {
 
   /// Analyzes the commits for suspicious keywords by streaming the output
   /// and scanning both the commit message and added code in the diff.
-  Future<List<String>> findSuspiciousCommits(String directory,
-      {String? limit, String? since, String? until}) async {
+  Future<List<String>> findSuspiciousCommits(
+    String directory, {
+    String? limit,
+    String? since,
+    String? until,
+  }) async {
     final args = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
@@ -31,8 +35,9 @@ class SuspiciousCommitsHeuristic {
 
     final List<String> flaggedCommits = [];
     final regex = RegExp(
-        r'\b(fixme|fix me|to-do|todo|hack|workaround|kludge|temporary|temp|wip|do not touch|dont touch|magic|dirty|ugly|hotfix|quick fix|oops|wtf|password|passwd|secret|api_key|apikey|credentials|creds|bypass|backdoor)\b',
-        caseSensitive: false);
+      r'\b(fixme|fix me|to-do|todo|hack|workaround|kludge|temporary|temp|wip|do not touch|dont touch|magic|dirty|ugly|hotfix|quick fix|oops|wtf|password|passwd|secret|api_key|apikey|credentials|creds|bypass|backdoor)\b',
+      caseSensitive: false,
+    );
 
     String currentCommitHeader = '';
     bool currentCommitFlagged = false;
@@ -57,8 +62,9 @@ class SuspiciousCommitsHeuristic {
           if (regex.hasMatch(message)) {
             currentCommitFlagged = true;
             if (parts.length >= 4) {
-              flaggedCommits
-                  .add('${parts[0]} - ${parts[1]} (${parts[2]}): $message');
+              flaggedCommits.add(
+                '${parts[0]} - ${parts[1]} (${parts[2]}): $message',
+              );
             } else {
               flaggedCommits.add('${parts[0]} - $message');
             }
@@ -74,8 +80,9 @@ class SuspiciousCommitsHeuristic {
           final parts = currentCommitHeader.split('||');
           if (parts.length >= 4) {
             final message = parts.sublist(3).join('||');
-            flaggedCommits
-                .add('${parts[0]} - ${parts[1]} (${parts[2]}): $message');
+            flaggedCommits.add(
+              '${parts[0]} - ${parts[1]} (${parts[2]}): $message',
+            );
           } else if (parts.length >= 2) {
             final message = parts.sublist(1).join('||');
             flaggedCommits.add('${parts[0]} - $message');
@@ -88,8 +95,12 @@ class SuspiciousCommitsHeuristic {
   }
 
   /// Extracts added or modified comments from the diff, along with context.
-  Future<List<Map<String, dynamic>>> extractChangedComments(String directory,
-      {String? limit, String? since, String? until}) async {
+  Future<List<Map<String, dynamic>>> extractChangedComments(
+    String directory, {
+    String? limit,
+    String? since,
+    String? until,
+  }) async {
     final logArgs = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       logArgs.insert(1, '-n');
@@ -101,8 +112,11 @@ class SuspiciousCommitsHeuristic {
     if (until != null) {
       logArgs.add('--until=$until');
     }
-    final result =
-        await runner.run('git', logArgs, workingDirectory: directory);
+    final result = await runner.run(
+      'git',
+      logArgs,
+      workingDirectory: directory,
+    );
     evaluateProcessResult(result);
 
     final rawOutput = result.stdout?.toString() ?? '';
@@ -125,8 +139,10 @@ List<Map<String, dynamic>> _parseChangedComments(String rawLog) {
   final commentRegex = RegExp(r'(?:\/\/|/\*|\*/|^\s*\*\s|#\s|<!--|--\s|^\s*#)');
 
   // To exclude doc-only commits, check if message has keywords like docs, readme.
-  final docOnlyRegex = RegExp(r'^(docs|readme|documentation|chore\(docs\)):?',
-      caseSensitive: false);
+  final docOnlyRegex = RegExp(
+    r'^(docs|readme|documentation|chore\(docs\)):?',
+    caseSensitive: false,
+  );
 
   void flushBlock() {
     if (blockHasComment && currentBlock.isNotEmpty) {

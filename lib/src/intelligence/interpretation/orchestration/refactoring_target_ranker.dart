@@ -44,15 +44,16 @@ class RefactoringTarget {
   });
 
   Map<String, dynamic> toJson() => {
-        'file_path': filePath,
-        'risk_score': double.parse(riskScore.toStringAsFixed(3)),
-        'churn': churn,
-        'churn_percentile': double.parse(churnPercentile.toStringAsFixed(3)),
-        'complexity_metric': complexityMetric,
-        'complexity_value': complexityValue,
-        'complexity_percentile':
-            double.parse(complexityPercentile.toStringAsFixed(3)),
-      };
+    'file_path': filePath,
+    'risk_score': double.parse(riskScore.toStringAsFixed(3)),
+    'churn': churn,
+    'churn_percentile': double.parse(churnPercentile.toStringAsFixed(3)),
+    'complexity_metric': complexityMetric,
+    'complexity_value': complexityValue,
+    'complexity_percentile': double.parse(
+      complexityPercentile.toStringAsFixed(3),
+    ),
+  };
 }
 
 /// Ranks refactoring targets from the churn and complexity data a report
@@ -126,15 +127,17 @@ class RefactoringTargetRanker {
       final riskScore = churnPercentile * complexityPercentile;
       if (riskScore < refactoringTargetMinimumRiskScore) continue;
 
-      targets.add(RefactoringTarget(
-        filePath: file,
-        riskScore: riskScore,
-        churn: entry.value,
-        churnPercentile: churnPercentile,
-        complexityMetric: complexityMetric,
-        complexityValue: complexityValue,
-        complexityPercentile: complexityPercentile,
-      ));
+      targets.add(
+        RefactoringTarget(
+          filePath: file,
+          riskScore: riskScore,
+          churn: entry.value,
+          churnPercentile: churnPercentile,
+          complexityMetric: complexityMetric,
+          complexityValue: complexityValue,
+          complexityPercentile: complexityPercentile,
+        ),
+      );
     }
 
     targets.sort((a, b) => b.riskScore.compareTo(a.riskScore));

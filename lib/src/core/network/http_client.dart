@@ -72,8 +72,11 @@ abstract class RwHttpClient {
       MockHttpClient;
 
   /// Convenience helper for a GET request.
-  Future<RwHttpResponse> get(Uri url,
-      {Map<String, String>? headers, Duration? timeout});
+  Future<RwHttpResponse> get(
+    Uri url, {
+    Map<String, String>? headers,
+    Duration? timeout,
+  });
 
   /// Sends an arbitrary request through the interceptor chain.
   Future<RwHttpResponse> send(RwHttpRequest request);

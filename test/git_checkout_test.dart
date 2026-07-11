@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
 final testDir = "CHECKOUT_TEST_DIR";
-final validRemoteRepository = "https://github.com/gbrandtio/rw-git";
+final validRemoteRepository = "https://github.com/rw-core/rw-git";
 final invalidRemoteRepository = "https://google.com";
 
 void main() {
@@ -21,16 +21,21 @@ void main() {
 
   /// Test group for [rwGit.checkout()] function.
   group('checkout', () {
-    test('will succeed on a valid git repository with a valid branch',
-        () async {
-      (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
-      List<FileSystemEntity> clonedFiles =
-          await Directory(testDir).list().toList();
+    test(
+      'will succeed on a valid git repository with a valid branch',
+      () async {
+        (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
+        List<FileSystemEntity> clonedFiles =
+            await Directory(testDir).list().toList();
 
-      bool isCheckoutSuccess =
-          (await rwGit.checkout(clonedFiles[0].uri.path, "main")).getOrThrow();
-      expect(isCheckoutSuccess, true);
-    });
+        bool isCheckoutSuccess =
+            (await rwGit.checkout(
+              clonedFiles[0].uri.path,
+              "main",
+            )).getOrThrow();
+        expect(isCheckoutSuccess, true);
+      },
+    );
 
     test('will fail if the specified branch is invalid', () async {
       (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
@@ -51,9 +56,10 @@ void main() {
       } on RwGitException catch (e) {
         // the error output should reflect that it tried to checkout refs/heads/-invalid-branch
         expect(
-            e.stderr?.contains('refs/heads/-invalid-branch') == true ||
-                e.stderr?.contains('did not match') == true,
-            true);
+          e.stderr?.contains('refs/heads/-invalid-branch') == true ||
+              e.stderr?.contains('did not match') == true,
+          true,
+        );
       }
     });
   });

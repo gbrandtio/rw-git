@@ -56,21 +56,25 @@ Future<void> main(List<String> args) async {
 
   // Meta: a single pre-interpreted call.
   final meta = Scorecard('meta-tool (generate_technical_report)');
-  final metaResp = await call(
-      'generate_technical_report', {'directory': dir, 'limit': limit});
+  final metaResp = await call('generate_technical_report', {
+    'directory': dir,
+    'limit': limit,
+  });
   meta.record(CallRecord.fromResponse('generate_technical_report', metaResp));
 
   final toolsListBytes =
       utf8.encode(jsonEncode(registry.getToolListings())).length;
 
   if (asJson) {
-    stdout.writeln(const JsonEncoder.withIndent('  ').convert({
-      'directory': dir,
-      'commit_limit': limit,
-      'tools_list_bytes': toolsListBytes,
-      'baseline': baseline.toJson(),
-      'meta': meta.toJson(),
-    }));
+    stdout.writeln(
+      const JsonEncoder.withIndent('  ').convert({
+        'directory': dir,
+        'commit_limit': limit,
+        'tools_list_bytes': toolsListBytes,
+        'baseline': baseline.toJson(),
+        'meta': meta.toJson(),
+      }),
+    );
     return;
   }
 
@@ -84,7 +88,8 @@ void _printReport(
   Scorecard baseline,
   Scorecard meta,
 ) {
-  String row(Scorecard s) => '${s.hopsToReport.toString().padLeft(8)}'
+  String row(Scorecard s) =>
+      '${s.hopsToReport.toString().padLeft(8)}'
       '${s.toolCalls.toString().padLeft(12)}'
       '${s.followupReads.toString().padLeft(12)}'
       '${s.estimatedTokens.toString().padLeft(12)}'
@@ -94,11 +99,15 @@ void _printReport(
   stdout.writeln('rw-git report-quality scorecard');
   stdout.writeln('  directory : $dir');
   stdout.writeln('  limit     : $limit commits');
-  stdout.writeln('  tools/list: $toolsListBytes bytes '
-      '(~${(toolsListBytes / 4).round()} tokens)');
+  stdout.writeln(
+    '  tools/list: $toolsListBytes bytes '
+    '(~${(toolsListBytes / 4).round()} tokens)',
+  );
   stdout.writeln('');
-  stdout.writeln('flow                    hops  toolCalls followupR   ~tokens '
-      'inlineOK');
+  stdout.writeln(
+    'flow                    hops  toolCalls followupR   ~tokens '
+    'inlineOK',
+  );
   stdout.writeln('-' * 74);
   stdout.writeln('baseline           ${row(baseline)}');
   stdout.writeln('meta-tool          ${row(meta)}');
@@ -106,10 +115,12 @@ void _printReport(
 
   final hopsSaved = baseline.hopsToReport - meta.hopsToReport;
   final tokenSaved = baseline.estimatedTokens - meta.estimatedTokens;
-  stdout.writeln('improvement: -$hopsSaved hops, '
-      '~$tokenSaved fewer tokens, '
-      'inline-complete: ${baseline.inlineComplete ? 'yes' : 'no'} -> '
-      '${meta.inlineComplete ? 'yes' : 'no'}');
+  stdout.writeln(
+    'improvement: -$hopsSaved hops, '
+    '~$tokenSaved fewer tokens, '
+    'inline-complete: ${baseline.inlineComplete ? 'yes' : 'no'} -> '
+    '${meta.inlineComplete ? 'yes' : 'no'}',
+  );
   stdout.writeln('');
 }
 

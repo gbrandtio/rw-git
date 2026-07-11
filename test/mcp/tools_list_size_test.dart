@@ -39,19 +39,25 @@ void main() {
       // handful of future additions while guarding against verbose
       // descriptions or broad schemas creeping back in.
       const budgetBytes = 40000;
-      expect(bytes, lessThan(budgetBytes),
-          reason: 'tools/list grew to $bytes bytes (budget $budgetBytes). '
-              'Keep per-tool descriptions terse and defer detail to '
-              'get_rw_git_documentation.');
+      expect(
+        bytes,
+        lessThan(budgetBytes),
+        reason:
+            'tools/list grew to $bytes bytes (budget $budgetBytes). '
+            'Keep per-tool descriptions terse and defer detail to '
+            'get_rw_git_documentation.',
+      );
     });
 
-    test('decorator does not re-stamp the verbose offload paragraph per tool',
-        () {
-      // The long explanation must live in one place, not be duplicated across
-      // every offloaded tool description.
-      final occurrences =
-          'return_full_json: true'.allMatches(serialized).length;
-      expect(occurrences, lessThanOrEqualTo(1));
-    });
+    test(
+      'decorator does not re-stamp the verbose offload paragraph per tool',
+      () {
+        // The long explanation must live in one place, not be duplicated across
+        // every offloaded tool description.
+        final occurrences =
+            'return_full_json: true'.allMatches(serialized).length;
+        expect(occurrences, lessThanOrEqualTo(1));
+      },
+    );
   });
 }

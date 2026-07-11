@@ -13,7 +13,12 @@ void main() {
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
       mock.setMockResult(
-          'git', ['rev-parse', '--is-inside-work-tree'], 0, 'true', '');
+        'git',
+        ['rev-parse', '--is-inside-work-tree'],
+        0,
+        'true',
+        '',
+      );
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = IsGitRepositoryTool(rwGit, ReadOnlyGitQuery(runner));
@@ -35,8 +40,13 @@ void main() {
 
     test('execute returns false on failure', () async {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['rev-parse', '--is-inside-work-tree'], 1, '',
-          'fatal: not a git repository');
+      mock.setMockResult(
+        'git',
+        ['rev-parse', '--is-inside-work-tree'],
+        1,
+        '',
+        'fatal: not a git repository',
+      );
       final rwGit2 = RwGit(runner: mock);
       final tool2 = IsGitRepositoryTool(rwGit2, ReadOnlyGitQuery(mock));
       final result = await tool2.execute({'directory': 'test_dir'});

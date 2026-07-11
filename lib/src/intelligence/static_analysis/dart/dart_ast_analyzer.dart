@@ -147,8 +147,10 @@ class _AstVisitor extends RecursiveAstVisitor<void> {
 
 class DartAstAnalyzer {
   AstAnalysisResult analyzeFile(String filePath, String content) {
-    final parseResult =
-        parseString(content: content, throwIfDiagnostics: false);
+    final parseResult = parseString(
+      content: content,
+      throwIfDiagnostics: false,
+    );
     final visitor = _AstVisitor();
     parseResult.unit.visitChildren(visitor);
 
@@ -172,9 +174,10 @@ class DartAstAnalyzer {
 
     for (final entry in fileImports.entries) {
       final file = entry.key;
-      final targets = entry.value
-          .where((u) => !u.startsWith('package:') && !u.startsWith('dart:'))
-          .toList();
+      final targets =
+          entry.value
+              .where((u) => !u.startsWith('package:') && !u.startsWith('dart:'))
+              .toList();
       graph[file] = targets;
     }
 
@@ -202,10 +205,13 @@ class DartAstAnalyzer {
       } catch (_) {
         continue;
       }
-      fileImports[entry.key] = rawImports
-          .map((uri) => _resolveImportToRepoPath(entry.key, uri, packageName))
-          .whereType<String>()
-          .toList();
+      fileImports[entry.key] =
+          rawImports
+              .map(
+                (uri) => _resolveImportToRepoPath(entry.key, uri, packageName),
+              )
+              .whereType<String>()
+              .toList();
     }
     return _tarjanScc(fileImports);
   }
@@ -214,7 +220,10 @@ class DartAstAnalyzer {
   /// repo-relative path, or null when it cannot point inside the repo
   /// (SDK imports, other packages).
   static String? _resolveImportToRepoPath(
-      String importingFile, String uri, String? packageName) {
+    String importingFile,
+    String uri,
+    String? packageName,
+  ) {
     if (uri.startsWith('dart:')) return null;
     if (uri.startsWith('package:')) {
       if (packageName == null) return null;

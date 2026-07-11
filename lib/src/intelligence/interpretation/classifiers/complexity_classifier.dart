@@ -47,20 +47,22 @@ class ComplexityClassifier {
       }
 
       final normalized = PathKey.normalize(file);
-      findings.add(Finding(
-        category: 'complexity',
-        source: [AnalysisType.codeQuality],
-        severity: severity,
-        subject: normalized,
-        metric: 'file_complexity',
-        value: complexity,
-        band: band,
-        evidence: {
-          'file_complexity': complexity,
-          'repo_median': double.parse(median.toStringAsFixed(2)),
-          'ratio_to_median': double.parse(ratio.toStringAsFixed(2)),
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'complexity',
+          source: [AnalysisType.codeQuality],
+          severity: severity,
+          subject: normalized,
+          metric: 'file_complexity',
+          value: complexity,
+          band: band,
+          evidence: {
+            'file_complexity': complexity,
+            'repo_median': double.parse(median.toStringAsFixed(2)),
+            'ratio_to_median': double.parse(ratio.toStringAsFixed(2)),
+          },
+        ),
+      );
     });
     return findings;
   }

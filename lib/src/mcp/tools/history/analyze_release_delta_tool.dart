@@ -26,28 +26,28 @@ class AnalyzeReleaseDeltaTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory containing the git repository.'
-          },
-          'firstTag': {
-            'type': 'string',
-            'description': 'The older tag or commit hash.'
-          },
-          'secondTag': {
-            'type': 'string',
-            'description': 'The newer tag or commit hash.'
-          },
-          'detailed': {
-            'type': 'boolean',
-            'description':
-                'If true, includes the full list of commits in the response. Defaults to false.'
-          }
-        },
-        'required': ['directory', 'firstTag', 'secondTag']
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory containing the git repository.',
+      },
+      'firstTag': {
+        'type': 'string',
+        'description': 'The older tag or commit hash.',
+      },
+      'secondTag': {
+        'type': 'string',
+        'description': 'The newer tag or commit hash.',
+      },
+      'detailed': {
+        'type': 'boolean',
+        'description':
+            'If true, includes the full list of commits in the response. Defaults to false.',
+      },
+    },
+    'required': ['directory', 'firstTag', 'secondTag'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -57,28 +57,44 @@ class AnalyzeReleaseDeltaTool implements McpTool {
     final detailed = arguments['detailed'] as bool? ?? false;
 
     // 1. Get all commits and authors
-    final logRaw = (await gitQuery.run(localDir,
-            ['log', '$firstTag..$secondTag', '--format=%H||%an||%aI||%s']))
-        .getOrThrow();
+    final logRaw =
+        (await gitQuery.run(localDir, [
+          'log',
+          '$firstTag..$secondTag',
+          '--format=%H||%an||%aI||%s',
+        ])).getOrThrow();
 
     // 2. Get file diff stats
-    final numstatRaw = (await gitQuery
-            .run(localDir, ['diff', '--numstat', firstTag, secondTag]))
-        .getOrThrow();
+    final numstatRaw =
+        (await gitQuery.run(localDir, [
+          'diff',
+          '--numstat',
+          firstTag,
+          secondTag,
+        ])).getOrThrow();
 
     // 3. Get Bug Hotspots and Advanced Metrics (Blast Radius) for context
-    final szzMatches =
-        await SzzAlgorithm(runner).execute(localDir, limit: defaultCommitLimit);
+    final szzMatches = await SzzAlgorithm(
+      runner,
+    ).execute(localDir, limit: defaultCommitLimit);
     final hotspots = BugHotspotsHeuristic().aggregate(szzMatches);
-    final advanced = await AdvancedMetricsHeuristic(runner)
-        .calculateAdvancedMetrics(localDir, limit: defaultCommitLimit);
+    final advanced = await AdvancedMetricsHeuristic(
+      runner,
+    ).calculateAdvancedMetrics(localDir, limit: defaultCommitLimit);
 
     final hotspotFiles = hotspots.fileHotspots.keys.toSet();
     final coChangeMatrix = advanced.coChangeMatrix;
 
     // Offload parsing to an Isolate
-    final resultMap = await Isolate.run(() => _parseReleaseDelta(
-        logRaw, numstatRaw, detailed, hotspotFiles, coChangeMatrix));
+    final resultMap = await Isolate.run(
+      () => _parseReleaseDelta(
+        logRaw,
+        numstatRaw,
+        detailed,
+        hotspotFiles,
+        coChangeMatrix,
+      ),
+    );
 
     return jsonEncode(resultMap);
   }
@@ -89,11 +105,12 @@ class AnalyzeReleaseDeltaTool implements McpTool {
 // -----------------------------------------------------------------------------
 
 Map<String, dynamic> _parseReleaseDelta(
-    String logRaw,
-    String numstatRaw,
-    bool detailed,
-    Set<String> hotspotFiles,
-    Map<String, Map<String, int>> coChangeMatrix) {
+  String logRaw,
+  String numstatRaw,
+  bool detailed,
+  Set<String> hotspotFiles,
+  Map<String, Map<String, int>> coChangeMatrix,
+) {
   int totalCommits = 0;
   final Map<String, int> authors = {};
   final List<String> rawCommits = [];
@@ -133,18 +150,19 @@ Map<String, dynamic> _parseReleaseDelta(
   fileStats.sort((a, b) => b.totalChanges.compareTo(a.totalChanges));
 
   // Top 10 modified files
-  final topModifiedFiles = fileStats.take(10).map((fs) {
-    final isHotspot = hotspotFiles.contains(fs.fileName);
-    final blastRadius = coChangeMatrix[fs.fileName]?.keys.toList() ?? [];
-    return {
-      'file': fs.fileName,
-      'added': fs.added,
-      'removed': fs.removed,
-      'totalChanges': fs.totalChanges,
-      'is_bug_hotspot': isHotspot,
-      'blast_radius_files': blastRadius.take(3).toList(),
-    };
-  }).toList();
+  final topModifiedFiles =
+      fileStats.take(10).map((fs) {
+        final isHotspot = hotspotFiles.contains(fs.fileName);
+        final blastRadius = coChangeMatrix[fs.fileName]?.keys.toList() ?? [];
+        return {
+          'file': fs.fileName,
+          'added': fs.added,
+          'removed': fs.removed,
+          'totalChanges': fs.totalChanges,
+          'is_bug_hotspot': isHotspot,
+          'blast_radius_files': blastRadius.take(3).toList(),
+        };
+      }).toList();
 
   final Map<String, dynamic> result = {
     'total_commits': totalCommits,

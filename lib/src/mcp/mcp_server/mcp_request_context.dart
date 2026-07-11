@@ -26,26 +26,26 @@ class McpRequestContext {
   /// [minimumLogLevel]; silently drops it otherwise, as the host asked.
   void sendLogNotification(McpLogLevel level, String message, {Object? error}) {
     if (level.index < minimumLogLevel.index) return;
-    outputSink.writeln(jsonEncode({
-      'jsonrpc': '2.0',
-      'method': 'notifications/message',
-      'params': {
-        'level': level.wireName,
-        'logger': RwGitLogger.loggerName,
-        'data': {
-          'message': message,
-          if (error != null) 'error': error.toString(),
+    outputSink.writeln(
+      jsonEncode({
+        'jsonrpc': '2.0',
+        'method': 'notifications/message',
+        'params': {
+          'level': level.wireName,
+          'logger': RwGitLogger.loggerName,
+          'data': {
+            'message': message,
+            if (error != null) 'error': error.toString(),
+          },
         },
-      },
-    }));
+      }),
+    );
   }
 
   void sendResponse(dynamic id, Map<String, dynamic> result) {
-    outputSink.writeln(jsonEncode({
-      'jsonrpc': '2.0',
-      'id': id,
-      'result': result,
-    }));
+    outputSink.writeln(
+      jsonEncode({'jsonrpc': '2.0', 'id': id, 'result': result}),
+    );
   }
 
   /// Sends a `tools/call` result. [text] is always delivered as the standard
@@ -53,27 +53,35 @@ class McpRequestContext {
   /// tool advertises an `outputSchema`, per MCP 2025-06-18 (tools declaring a
   /// schema should return machine-readable structured output alongside the
   /// text for backward compatibility).
-  void sendToolResult(dynamic id, String text,
-      {Map<String, dynamic>? structuredContent, bool isError = false}) {
-    outputSink.writeln(jsonEncode({
-      'jsonrpc': '2.0',
-      'id': id,
-      'result': {
-        'content': [
-          {'type': 'text', 'text': text}
-        ],
-        if (structuredContent != null) 'structuredContent': structuredContent,
-        if (isError) 'isError': true,
-      }
-    }));
+  void sendToolResult(
+    dynamic id,
+    String text, {
+    Map<String, dynamic>? structuredContent,
+    bool isError = false,
+  }) {
+    outputSink.writeln(
+      jsonEncode({
+        'jsonrpc': '2.0',
+        'id': id,
+        'result': {
+          'content': [
+            {'type': 'text', 'text': text},
+          ],
+          if (structuredContent != null) 'structuredContent': structuredContent,
+          if (isError) 'isError': true,
+        },
+      }),
+    );
   }
 
   void sendError(dynamic id, int code, String message) {
-    outputSink.writeln(jsonEncode({
-      'jsonrpc': '2.0',
-      'id': id,
-      'error': {'code': code, 'message': message}
-    }));
+    outputSink.writeln(
+      jsonEncode({
+        'jsonrpc': '2.0',
+        'id': id,
+        'error': {'code': code, 'message': message},
+      }),
+    );
   }
 
   String encodeCursor(int offset) =>

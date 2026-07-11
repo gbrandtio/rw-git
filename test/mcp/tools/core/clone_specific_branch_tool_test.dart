@@ -11,10 +11,20 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0,
-          'Cloning...', '');
       mock.setMockResult(
-          'git', ['checkout', 'main'], 0, 'Switched to branch main', '');
+        'git',
+        ['clone', '--', 'https://github.com/repo'],
+        0,
+        'Cloning...',
+        '',
+      );
+      mock.setMockResult(
+        'git',
+        ['checkout', 'main'],
+        0,
+        'Switched to branch main',
+        '',
+      );
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = CloneSpecificBranchTool(rwGit);
@@ -24,7 +34,7 @@ void main() {
       final result = await tool.execute({
         'directory': 'test_dir',
         'repository': 'https://github.com/repo',
-        'branchToCheckout': 'main'
+        'branchToCheckout': 'main',
       });
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);

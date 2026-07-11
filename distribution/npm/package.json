@@ -1,7 +1,7 @@
 {
   "name": "@gbrandtio/rw-git-mcp",
   "version": "3.3.0",
-  "description": "Model Context Protocol (MCP) server for rw-git",
+  "description": "Model Context Protocol (MCP) server for rw-git, a git intelligence library and MCP server, designed to provide deep intelligence via research-backed algorithms.",
   "main": "index.js",
   "scripts": {
     "prepack": "node -e \"const fs = require('fs'); fs.cpSync('../../.agents/skills', './skills', {recursive: true}); fs.copyFileSync('../../README.md', './README.md');\"",
@@ -12,7 +12,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/gbrandtio/rw-git.git"
+    "url": "git+https://github.com/rw-core/rw-git.git"
   },
   "keywords": [
     "mcp",

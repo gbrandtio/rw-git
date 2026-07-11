@@ -46,72 +46,77 @@ void main() {
 
   void mockSingleBugChain(MockProcessRunner runner) {
     runner.mockResult(
-        'git',
-        [
-          'log',
-          '-n',
-          '500',
-          '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
-          '-i',
-          '--no-merges',
-          '--format=format:%H%x09%aI%x09%s'
-        ],
-        '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
+      'git',
+      [
+        'log',
+        '-n',
+        '500',
+        '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+        '-i',
+        '--no-merges',
+        '--format=format:%H%x09%aI%x09%s',
+      ],
+      '0123456789abcdef0123456789abcdef01234567\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
+    );
 
     runner.mockResult(
-        'git',
-        [
-          'log',
-          '-1',
-          '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
-          '0123456789abcdef0123456789abcdef01234567'
-        ],
-        '0123456789abcdef0123456789abcdef01234567\tFixer\tfixer@author.com\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n');
+      'git',
+      [
+        'log',
+        '-1',
+        '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
+        '0123456789abcdef0123456789abcdef01234567',
+      ],
+      '0123456789abcdef0123456789abcdef01234567\tFixer\tfixer@author.com\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
+    );
+
+    runner.mockResult('git', [
+      'rev-parse',
+      '0123456789abcdef0123456789abcdef01234567^',
+    ], '1111222233334444555566667777888899990000\n');
 
     runner.mockResult(
-        'git',
-        ['rev-parse', '0123456789abcdef0123456789abcdef01234567^'],
-        '1111222233334444555566667777888899990000\n');
+      'git',
+      [
+        'diff',
+        '-M',
+        '-w',
+        '--ignore-blank-lines',
+        '1111222233334444555566667777888899990000',
+        '0123456789abcdef0123456789abcdef01234567',
+      ],
+      '--- a/test_file.dart\n+++ b/test_file.dart\n@@ -5 +5,0 @@\n- deleted_line_1\n',
+    );
 
     runner.mockResult(
-        'git',
-        [
-          'diff',
-          '-M',
-          '-w',
-          '--ignore-blank-lines',
-          '1111222233334444555566667777888899990000',
-          '0123456789abcdef0123456789abcdef01234567'
-        ],
-        '--- a/test_file.dart\n+++ b/test_file.dart\n@@ -5 +5,0 @@\n- deleted_line_1\n');
+      'git',
+      [
+        'blame',
+        '--date=iso-strict',
+        '-l',
+        '-w',
+        '-C',
+        '-C',
+        '-M',
+        '-L',
+        '5,5',
+        '1111222233334444555566667777888899990000',
+        '--',
+        'test_file.dart',
+      ],
+      'fedcba9876543210fedcba9876543210fedcba98 (Target Author 2023-01-01T12:00:00+00:00 5) deleted_line_1\n',
+    );
 
     runner.mockResult(
-        'git',
-        [
-          'blame',
-          '--date=iso-strict',
-          '-l',
-          '-w',
-          '-C',
-          '-C',
-          '-M',
-          '-L',
-          '5,5',
-          '1111222233334444555566667777888899990000',
-          '--',
-          'test_file.dart'
-        ],
-        'fedcba9876543210fedcba9876543210fedcba98 (Target Author 2023-01-01T12:00:00+00:00 5) deleted_line_1\n');
-
-    runner.mockResult(
-        'git',
-        [
-          'log',
-          '-1',
-          '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
-          'fedcba9876543210fedcba9876543210fedcba98'
-        ],
-        'fedcba9876543210fedcba9876543210fedcba98\tTarget Author\ttarget@author.com\t2023-01-01T12:00:00Z\tfeat: introduced bug\n');
+      'git',
+      [
+        'log',
+        '-1',
+        '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
+        'fedcba9876543210fedcba9876543210fedcba98',
+      ],
+      'fedcba9876543210fedcba9876543210fedcba98\tTarget Author\ttarget@author.com\t2023-01-01T12:00:00Z\tfeat: introduced bug\n',
+    );
   }
 
   group('AnalyzeBugHotspotsTool', () {
@@ -183,8 +188,10 @@ void main() {
       expect(bugs.length, 1);
 
       final bug = bugs[0] as Map<String, dynamic>;
-      expect(bug['introducing_commit'],
-          'fedcba9876543210fedcba9876543210fedcba98');
+      expect(
+        bug['introducing_commit'],
+        'fedcba9876543210fedcba9876543210fedcba98',
+      );
       expect(bug['fixing_commit'], '0123456789abcdef0123456789abcdef01234567');
       // Introduced 2023-01-01T12:00Z, fixed 2023-01-02T12:00Z: the SZZ bug
       // lifetime is exactly one day. Reporting days (not hours) is the

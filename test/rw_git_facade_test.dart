@@ -6,7 +6,7 @@ import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
 final testDir = "CLONE_SPECIFIC_BRANCH_TEST_DIR";
-final validRemoteRepository = "https://github.com/gbrandtio/rw-git";
+final validRemoteRepository = "https://github.com/rw-core/rw-git";
 final repositoryWithTags = "https://github.com/google/material-design-lite";
 final String branch = "flaky-tests-support-branch";
 final String invalidBranch = "invalid-branch";
@@ -26,31 +26,42 @@ void main() {
 
   group('cloneSpecificBranch', () {
     test(
-        'will create a local directory and clone the specified repository inside'
-        ' while also checking out the specified branch', () async {
-      bool specificBranchClonedSuccessfully = (await rwGit.cloneSpecificBranch(
-              testDir, validRemoteRepository, 'main'))
-          .getOrThrow();
-      expect(specificBranchClonedSuccessfully, true);
-    }, timeout: const Timeout(Duration(minutes: 2)));
+      'will create a local directory and clone the specified repository inside'
+      ' while also checking out the specified branch',
+      () async {
+        bool specificBranchClonedSuccessfully =
+            (await rwGit.cloneSpecificBranch(
+              testDir,
+              validRemoteRepository,
+              'main',
+            )).getOrThrow();
+        expect(specificBranchClonedSuccessfully, true);
+      },
+      timeout: const Timeout(Duration(minutes: 2)),
+    );
 
     test(
-        'will try to clone the remote repository and checkout an invalid branch',
-        () async {
-      try {
-        (await rwGit.cloneSpecificBranch(
-                testDir, validRemoteRepository, invalidBranch))
-            .getOrThrow();
-        fail('Should throw RwGitException for invalid branch');
-      } on RwGitException catch (e) {
-        expect(e.exitCode != 0, true);
-      }
-    });
+      'will try to clone the remote repository and checkout an invalid branch',
+      () async {
+        try {
+          (await rwGit.cloneSpecificBranch(
+            testDir,
+            validRemoteRepository,
+            invalidBranch,
+          )).getOrThrow();
+          fail('Should throw RwGitException for invalid branch');
+        } on RwGitException catch (e) {
+          expect(e.exitCode != 0, true);
+        }
+      },
+    );
     test('will throw RwGitException if clone fails', () async {
       try {
         (await rwGit.cloneSpecificBranch(
-                testDir, 'invalid_repository_url_12345', branch))
-            .getOrThrow();
+          testDir,
+          'invalid_repository_url_12345',
+          branch,
+        )).getOrThrow();
         fail('Should throw RwGitException');
       } catch (e) {
         expect(e, isA<RwGitException>());
@@ -60,16 +71,30 @@ void main() {
     test('will throw RwGitException if checkout fails', () async {
       final mockRunner = ProcessRunner.mock() as MockProcessRunner;
       mockRunner.setMockResult(
-          'git', ['clone', validRemoteRepository], 0, '', '');
-      mockRunner.setMockResult('git', ['checkout', invalidBranch], 128, '',
-          'fatal: pathspec did not match any file(s) known to git');
+        'git',
+        ['clone', validRemoteRepository],
+        0,
+        '',
+        '',
+      );
+      mockRunner.setMockResult(
+        'git',
+        ['checkout', invalidBranch],
+        128,
+        '',
+        'fatal: pathspec did not match any file(s) known to git',
+      );
 
       final mockGit = RwGit(runner: mockRunner);
       expect(
-          () async => (await mockGit.cloneSpecificBranch(
-                  testDir, validRemoteRepository, invalidBranch))
-              .getOrThrow(),
-          throwsA(isA<RwGitException>()));
+        () async =>
+            (await mockGit.cloneSpecificBranch(
+              testDir,
+              validRemoteRepository,
+              invalidBranch,
+            )).getOrThrow(),
+        throwsA(isA<RwGitException>()),
+      );
     });
   });
 

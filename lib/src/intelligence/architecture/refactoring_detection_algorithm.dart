@@ -30,7 +30,7 @@ class RefactoringDetectionAlgorithm {
       '-M',
       '--name-status',
       '--shortstat',
-      '--format=COMMIT||%H||%an||%aI||%s'
+      '--format=COMMIT||%H||%an||%aI||%s',
     ];
     if (limit != null) {
       args.insert(1, '-n');
@@ -66,8 +66,9 @@ List<RefactoringDto> _parseRefactorings(String rawLog) {
   int deleted = 0;
 
   final refactorRegex = RegExp(
-      r'\b(refactor|rewrite|restructure|clean|cleanup)\b',
-      caseSensitive: false);
+    r'\b(refactor|rewrite|restructure|clean|cleanup)\b',
+    caseSensitive: false,
+  );
 
   void flushCommit() {
     if (hash.isNotEmpty) {
@@ -81,16 +82,18 @@ List<RefactoringDto> _parseRefactorings(String rawLog) {
       bool isSimplification = deleted > 50 && (inserted < (deleted * 0.2));
 
       if (isRefactor || isSimplification) {
-        results.add(RefactoringDto(
-          commitHash: hash,
-          author: author,
-          date: date,
-          message: message,
-          renamedFiles: renamedFiles,
-          linesInserted: inserted,
-          linesDeleted: deleted,
-          isSimplification: isSimplification,
-        ));
+        results.add(
+          RefactoringDto(
+            commitHash: hash,
+            author: author,
+            date: date,
+            message: message,
+            renamedFiles: renamedFiles,
+            linesInserted: inserted,
+            linesDeleted: deleted,
+            isSimplification: isSimplification,
+          ),
+        );
       }
     }
 

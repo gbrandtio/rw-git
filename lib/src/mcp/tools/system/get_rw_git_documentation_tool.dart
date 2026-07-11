@@ -18,8 +18,11 @@ class GetRwGitDocumentationTool implements McpTool {
       'To invoke this tool, no arguments are required.';
 
   @override
-  Map<String, dynamic> get inputSchema =>
-      {'type': 'object', 'properties': {}, 'required': []};
+  Map<String, dynamic> get inputSchema => {
+    'type': 'object',
+    'properties': {},
+    'required': [],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -30,6 +33,8 @@ class GetRwGitDocumentationTool implements McpTool {
         .join('\n');
 
     return rwGitDocumentationTemplate.replaceAll(
-        '{{toolsMarkdown}}', toolsMarkdown);
+      '{{toolsMarkdown}}',
+      toolsMarkdown,
+    );
   }
 }

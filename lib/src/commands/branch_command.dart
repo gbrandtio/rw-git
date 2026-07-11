@@ -7,10 +7,17 @@ class BranchCommand extends GitCommand<List<GitBranch>> {
   BranchCommand(super.runner);
 
   @override
-  Future<List<GitBranch>> run(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false}) async {
-    final result = await runner.run('git', ['branch', ...extraArgs],
-        workingDirectory: directory, streamOutput: streamOutput);
+  Future<List<GitBranch>> run(
+    String directory, {
+    List<String> extraArgs = const [],
+    bool streamOutput = false,
+  }) async {
+    final result = await runner.run(
+      'git',
+      ['branch', ...extraArgs],
+      workingDirectory: directory,
+      streamOutput: streamOutput,
+    );
     evaluateProcessResult(result);
     return RwGitParser.parseBranches(result.stdout?.toString() ?? '');
   }

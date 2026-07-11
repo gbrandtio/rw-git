@@ -8,10 +8,17 @@ class DiffCommand extends GitCommand<GitDiff> {
   DiffCommand(super.runner);
 
   @override
-  Future<GitDiff> run(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false}) async {
-    final result = await runner.run('git', ['diff', ...extraArgs],
-        workingDirectory: directory, streamOutput: streamOutput);
+  Future<GitDiff> run(
+    String directory, {
+    List<String> extraArgs = const [],
+    bool streamOutput = false,
+  }) async {
+    final result = await runner.run(
+      'git',
+      ['diff', ...extraArgs],
+      workingDirectory: directory,
+      streamOutput: streamOutput,
+    );
     evaluateProcessResult(result);
     final stdout = result.stdout?.toString() ?? '';
     if (stdout.length > 10000) {

@@ -27,12 +27,12 @@ class CleanCodeMetricsDto {
   });
 
   Map<String, dynamic> toJson() => {
-        'file_path': filePath,
-        'total_lines': totalLines,
-        'max_indentation_level': maxIndentationLevel,
-        'long_lines': longLines,
-        'magic_numbers': magicNumbers,
-        'duplicate_lines': duplicateLines,
-        'clean_code_issues': issues,
-      };
+    'file_path': filePath,
+    'total_lines': totalLines,
+    'max_indentation_level': maxIndentationLevel,
+    'long_lines': longLines,
+    'magic_numbers': magicNumbers,
+    'duplicate_lines': duplicateLines,
+    'clean_code_issues': issues,
+  };
 }

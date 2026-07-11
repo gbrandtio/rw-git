@@ -11,11 +11,14 @@ void main() {
       final strWithNewLineMacOSCharacters = "AAA \r BBB \r CCC";
 
       List<String> windowsLines = RwGitParser.parseGitStdoutBasedOnNewLine(
-          strWithNewLineWindowsCharacters);
+        strWithNewLineWindowsCharacters,
+      );
       List<String> linuxLines = RwGitParser.parseGitStdoutBasedOnNewLine(
-          strWithNewLineLinuxCharacters);
+        strWithNewLineLinuxCharacters,
+      );
       List<String> macosLines = RwGitParser.parseGitStdoutBasedOnNewLine(
-          strWithNewLineMacOSCharacters);
+        strWithNewLineMacOSCharacters,
+      );
 
       for (int i = 0; i < 3; i++) {
         expect(windowsLines[i].isEmpty, false);
@@ -26,8 +29,9 @@ void main() {
 
     test('will return an empty list, if passed an empty string', () {
       final emptyString = "";
-      List<String> mustBeAnEmptyList =
-          RwGitParser.parseGitStdoutBasedOnNewLine(emptyString);
+      List<String> mustBeAnEmptyList = RwGitParser.parseGitStdoutBasedOnNewLine(
+        emptyString,
+      );
       expect(mustBeAnEmptyList.isEmpty, true);
     });
   });
@@ -43,66 +47,94 @@ void main() {
     });
 
     test(
-        'will return all the values between the supplied tags of even number, including the last tag',
-        () {
-      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
-          fakeTagsEvenNumber, "v1.0.1", "v1.0.3");
-      expect(tagsInBetween.length, 2);
-      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
-    });
+      'will return all the values between the supplied tags of even number, including the last tag',
+      () {
+        List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber,
+          "v1.0.1",
+          "v1.0.3",
+        );
+        expect(tagsInBetween.length, 2);
+        expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
+      },
+    );
 
     test(
-        'will return only one tag, which will be the last one, if there are not any in between tags',
-        () {
-      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
-          fakeTagsEvenNumber, "v1.0.1", "v1.0.2");
-      expect(tagsInBetween.length, 1);
-      expect(tagsInBetween[0], "v1.0.2");
-    });
+      'will return only one tag, which will be the last one, if there are not any in between tags',
+      () {
+        List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber,
+          "v1.0.1",
+          "v1.0.2",
+        );
+        expect(tagsInBetween.length, 1);
+        expect(tagsInBetween[0], "v1.0.2");
+      },
+    );
 
     test(
-        'will return all the values between the supplied tags of odd number, including the last tag',
-        () {
-      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
-          fakeTagsOddNumber, "v1.0.1", "v1.0.3");
+      'will return all the values between the supplied tags of odd number, including the last tag',
+      () {
+        List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
+          fakeTagsOddNumber,
+          "v1.0.1",
+          "v1.0.3",
+        );
 
-      expect(tagsInBetween.length, 2);
-      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
-    });
-
-    test(
-        'will return a list containing all the tags till the end, if the end tag does not exist (for even number of tags)',
-        () {
-      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
-          fakeTagsEvenNumber, "v1.0.0", "v1.0.7");
-      expect(tagsInBetween.length, 3);
-    });
+        expect(tagsInBetween.length, 2);
+        expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
+      },
+    );
 
     test(
-        'will return a list containing all the tags till the end, if the end tag does not exist (for odd number of tags)',
-        () {
-      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
-          fakeTagsOddNumber, "v1.0.0", "v1.0.7");
-      expect(tagsInBetween.length, 4);
-    });
+      'will return a list containing all the tags till the end, if the end tag does not exist (for even number of tags)',
+      () {
+        List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber,
+          "v1.0.0",
+          "v1.0.7",
+        );
+        expect(tagsInBetween.length, 3);
+      },
+    );
 
     test(
-        'will return a list containing all the tags till the end, when the new tag is the last tag (for even number of tags)',
-        () {
-      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
-          fakeTagsEvenNumber, "v1.0.1", "v1.0.3");
-      expect(tagsInBetween.length, 2);
-      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
-    });
+      'will return a list containing all the tags till the end, if the end tag does not exist (for odd number of tags)',
+      () {
+        List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
+          fakeTagsOddNumber,
+          "v1.0.0",
+          "v1.0.7",
+        );
+        expect(tagsInBetween.length, 4);
+      },
+    );
 
     test(
-        'will return a list containing all the tags till the end, when the new tag is the last tag (for odd number of tags)',
-        () {
-      List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
-          fakeTagsOddNumber, "v1.0.1", "v1.0.4");
-      expect(tagsInBetween.length, 3);
-      expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.4");
-    });
+      'will return a list containing all the tags till the end, when the new tag is the last tag (for even number of tags)',
+      () {
+        List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
+          fakeTagsEvenNumber,
+          "v1.0.1",
+          "v1.0.3",
+        );
+        expect(tagsInBetween.length, 2);
+        expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.3");
+      },
+    );
+
+    test(
+      'will return a list containing all the tags till the end, when the new tag is the last tag (for odd number of tags)',
+      () {
+        List<String> tagsInBetween = RwGitParser.retrieveTagsInBetweenOf(
+          fakeTagsOddNumber,
+          "v1.0.1",
+          "v1.0.4",
+        );
+        expect(tagsInBetween.length, 3);
+        expect(tagsInBetween[tagsInBetween.length - 1], "v1.0.4");
+      },
+    );
   });
 
   /// Test group for [parseGitShortStatStdout] function.
@@ -110,8 +142,9 @@ void main() {
     test('will parse a sample line into a ShortStatDto object', () {
       final sampleShortStatRawString =
           " 3 files changed, 455 insertions(+), 12 deletions(-) ";
-      ShortStatDto shortStatDto =
-          RwGitParser.parseGitShortStatStdout(sampleShortStatRawString);
+      ShortStatDto shortStatDto = RwGitParser.parseGitShortStatStdout(
+        sampleShortStatRawString,
+      );
 
       expect(shortStatDto.numberOfChangedFiles, 3);
       expect(shortStatDto.insertions, 455);
@@ -119,42 +152,49 @@ void main() {
     });
 
     test(
-        'will have default values for all properties if the line failed to be parsed',
-        () {
-      final sampleShortStatRawString =
-          " 3fileschanged455insertions(+)12deletions(-) ";
-      ShortStatDto shortStatDto =
-          RwGitParser.parseGitShortStatStdout(sampleShortStatRawString);
+      'will have default values for all properties if the line failed to be parsed',
+      () {
+        final sampleShortStatRawString =
+            " 3fileschanged455insertions(+)12deletions(-) ";
+        ShortStatDto shortStatDto = RwGitParser.parseGitShortStatStdout(
+          sampleShortStatRawString,
+        );
 
-      expect(shortStatDto.numberOfChangedFiles, -1);
-      expect(shortStatDto.insertions, -1);
-      expect(shortStatDto.deletions, -1);
-    });
+        expect(shortStatDto.numberOfChangedFiles, -1);
+        expect(shortStatDto.insertions, -1);
+        expect(shortStatDto.deletions, -1);
+      },
+    );
   });
 
   /// Test group for [parseGitShortLogStdout] function.
   group('parseGitShortLogStdout', () {
     test('will return default values given a string with invalid format', () {
       final invalidShortLogString = "InvalidShortLogString";
-      ShortLogDto shortLogDto =
-          RwGitParser.parseGitShortLogStdout(invalidShortLogString);
+      ShortLogDto shortLogDto = RwGitParser.parseGitShortLogStdout(
+        invalidShortLogString,
+      );
 
       expect(shortLogDto.numberOfContributions, isNegative);
       expect(shortLogDto.authorName, isEmpty);
     });
 
     test(
-        'will correctly parse a valid shortlog string with a multi-word author name',
-        () {
-      final validShortLogString =
-          "   156 Ioannis Brant-Ioannidis (Some Extra Words)";
-      ShortLogDto shortLogDto =
-          RwGitParser.parseGitShortLogStdout(validShortLogString);
+      'will correctly parse a valid shortlog string with a multi-word author name',
+      () {
+        final validShortLogString =
+            "   156 Ioannis Brant-Ioannidis (Some Extra Words)";
+        ShortLogDto shortLogDto = RwGitParser.parseGitShortLogStdout(
+          validShortLogString,
+        );
 
-      expect(shortLogDto.numberOfContributions, 156);
-      expect(
-          shortLogDto.authorName, "Ioannis Brant-Ioannidis (Some Extra Words)");
-    });
+        expect(shortLogDto.numberOfContributions, 156);
+        expect(
+          shortLogDto.authorName,
+          "Ioannis Brant-Ioannidis (Some Extra Words)",
+        );
+      },
+    );
   });
 
   group('parseBlame', () {
@@ -167,7 +207,9 @@ void main() {
       // 00:00 at +04:00 is 20:00 UTC on the previous day; stripping the
       // offset would have produced 2026-06-29T00:00:00Z instead.
       expect(
-          blame.lines.first.date.toUtc(), DateTime.utc(2026, 6, 28, 20, 0, 0));
+        blame.lines.first.date.toUtc(),
+        DateTime.utc(2026, 6, 28, 20, 0, 0),
+      );
     });
 
     test('parses boundary-commit lines (^-prefixed hash)', () {
@@ -177,7 +219,9 @@ void main() {
       expect(blame.lines.single.commitHash, '^1234abc');
       expect(blame.lines.single.lineNumber, 3);
       expect(
-          blame.lines.single.date.toUtc(), DateTime.utc(2021, 1, 1, 15, 30, 0));
+        blame.lines.single.date.toUtc(),
+        DateTime.utc(2021, 1, 1, 15, 30, 0),
+      );
     });
 
     test('throws GitOutputParseException on a malformed line', () {
@@ -186,8 +230,13 @@ void main() {
 
       expect(
         () => RwGitParser.parseBlame(stdout),
-        throwsA(isA<GitOutputParseException>().having(
-            (e) => e.offendingLine, 'offendingLine', contains('93f2f810'))),
+        throwsA(
+          isA<GitOutputParseException>().having(
+            (e) => e.offendingLine,
+            'offendingLine',
+            contains('93f2f810'),
+          ),
+        ),
       );
     });
   });

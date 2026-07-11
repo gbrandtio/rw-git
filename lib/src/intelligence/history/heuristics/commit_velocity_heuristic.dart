@@ -33,11 +33,7 @@ class CommitVelocityHeuristic {
       args.add('--until=$until');
     }
 
-    final result = await runner.run(
-      'git',
-      args,
-      workingDirectory: directory,
-    );
+    final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);
     final rawOutput = result.stdout?.toString() ?? '';
 
@@ -103,12 +99,14 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
     final total = authors.values.fold<int>(0, (sum, v) => sum + v);
     final burnout = bucketBurnout[key] ?? 0;
     commitCounts.add(total);
-    buckets.add(TimeBucket(
-      period: key,
-      totalCommits: total,
-      authors: authors,
-      burnoutCommits: burnout,
-    ));
+    buckets.add(
+      TimeBucket(
+        period: key,
+        totalCommits: total,
+        authors: authors,
+        burnoutCommits: burnout,
+      ),
+    );
   }
 
   final totalCommits = commitCounts.fold<int>(0, (sum, v) => sum + v);
@@ -122,7 +120,7 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
         commitCounts.take(mid).fold<int>(0, (sum, v) => sum + v) / mid;
     final secondHalfAvg =
         commitCounts.skip(mid).fold<int>(0, (sum, v) => sum + v) /
-            (buckets.length - mid);
+        (buckets.length - mid);
     if (secondHalfAvg > firstHalfAvg * 1.2) {
       trend = 'accelerating';
     } else if (secondHalfAvg < firstHalfAvg * 0.8) {
@@ -134,8 +132,11 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
   final anomalies = <TimeBucket>[];
   if (commitCounts.length >= 3) {
     final mean = avg;
-    final variance = commitCounts.fold<double>(
-            0.0, (sum, v) => sum + (v - mean) * (v - mean)) /
+    final variance =
+        commitCounts.fold<double>(
+          0.0,
+          (sum, v) => sum + (v - mean) * (v - mean),
+        ) /
         commitCounts.length;
     final stdDev = sqrt(variance);
     final threshold = mean + 2 * stdDev;
@@ -147,8 +148,10 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
     }
   }
 
-  final totalBurnoutCommits =
-      buckets.fold<int>(0, (sum, b) => sum + b.burnoutCommits);
+  final totalBurnoutCommits = buckets.fold<int>(
+    0,
+    (sum, b) => sum + b.burnoutCommits,
+  );
 
   // Gini coefficient over all author commit totals (project-wide inequality).
   final Map<String, int> authorTotals = {};

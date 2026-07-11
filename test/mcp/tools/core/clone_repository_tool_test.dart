@@ -11,16 +11,23 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['clone', '--', 'https://github.com/repo'], 0,
-          'Cloning...', '');
+      mock.setMockResult(
+        'git',
+        ['clone', '--', 'https://github.com/repo'],
+        0,
+        'Cloning...',
+        '',
+      );
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = CloneRepositoryTool(rwGit);
     });
 
     test('execute returns success', () async {
-      final result = await tool.execute(
-          {'directory': 'test_dir', 'repository': 'https://github.com/repo'});
+      final result = await tool.execute({
+        'directory': 'test_dir',
+        'repository': 'https://github.com/repo',
+      });
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);
     });

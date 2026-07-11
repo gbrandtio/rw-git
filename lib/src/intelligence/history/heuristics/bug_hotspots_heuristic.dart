@@ -27,7 +27,7 @@ class BugHotspotsHeuristic {
       // or months; whole-hour truncation would be false precision.
       final lifetimeDays =
           match.fixingDate.difference(match.introducingDate).inMinutes.abs() /
-              minutesPerDay;
+          minutesPerDay;
 
       uniqueFixCommits.add(match.fixingCommitHash);
 

@@ -24,14 +24,19 @@ class StandardHttpClient implements RwHttpClient {
   }) : _client = client ?? http.Client();
 
   @override
-  Future<RwHttpResponse> get(Uri url,
-      {Map<String, String>? headers, Duration? timeout}) {
-    return send(RwHttpRequest(
-      method: 'GET',
-      url: url,
-      headers: headers ?? const {},
-      timeout: timeout,
-    ));
+  Future<RwHttpResponse> get(
+    Uri url, {
+    Map<String, String>? headers,
+    Duration? timeout,
+  }) {
+    return send(
+      RwHttpRequest(
+        method: 'GET',
+        url: url,
+        headers: headers ?? const {},
+        timeout: timeout,
+      ),
+    );
   }
 
   @override

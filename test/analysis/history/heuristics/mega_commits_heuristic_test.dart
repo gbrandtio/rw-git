@@ -24,8 +24,11 @@ class MockProcessRunner implements ProcessRunner {
   }
 
   @override
-  Stream<String> runStream(String executable, List<String> arguments,
-      {String? workingDirectory}) {
+  Stream<String> runStream(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  }) {
     throw UnimplementedError();
   }
 }
@@ -42,38 +45,47 @@ void main() {
   group('MegaCommitsHeuristic', () {
     test('detects mega commits', () async {
       mockRunner.mockResult(
-          'git',
-          ['log', '--shortstat', '--format=%H||%an||%aI||%s'],
-          'hash1||Alice||2023-01-01T12:00:00Z||msg1\n 25 files changed, 500 insertions(+), 50 deletions(-)\n');
+        'git',
+        ['log', '--shortstat', '--format=%H||%an||%aI||%s'],
+        'hash1||Alice||2023-01-01T12:00:00Z||msg1\n 25 files changed, 500 insertions(+), 50 deletions(-)\n',
+      );
 
-      final results =
-          await heuristic.findMegaCommits('./test', lineThreshold: 100);
+      final results = await heuristic.findMegaCommits(
+        './test',
+        lineThreshold: 100,
+      );
 
       expect(results.length, 1);
       expect(results[0].contains('hash1'), isTrue);
     });
 
     test('handles empty git log', () async {
-      mockRunner.mockResult(
-          'git', ['log', '--shortstat', '--format=%H||%an||%aI||%s'], '');
-      final results =
-          await heuristic.findMegaCommits('./test', lineThreshold: 100);
+      mockRunner.mockResult('git', [
+        'log',
+        '--shortstat',
+        '--format=%H||%an||%aI||%s',
+      ], '');
+      final results = await heuristic.findMegaCommits(
+        './test',
+        lineThreshold: 100,
+      );
       expect(results, isEmpty);
     });
 
     test('forwards since/until as git flags', () async {
-      mockRunner.mockResult(
-          'git',
-          [
-            'log',
-            '--shortstat',
-            '--format=%H||%an||%aI||%s',
-            '--since=2024-01-01',
-            '--until=2024-12-31',
-          ],
-          '');
-      final results = await heuristic.findMegaCommits('./test',
-          lineThreshold: 100, since: '2024-01-01', until: '2024-12-31');
+      mockRunner.mockResult('git', [
+        'log',
+        '--shortstat',
+        '--format=%H||%an||%aI||%s',
+        '--since=2024-01-01',
+        '--until=2024-12-31',
+      ], '');
+      final results = await heuristic.findMegaCommits(
+        './test',
+        lineThreshold: 100,
+        since: '2024-01-01',
+        until: '2024-12-31',
+      );
       expect(results, isEmpty);
     });
   });

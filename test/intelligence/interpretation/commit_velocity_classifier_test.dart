@@ -14,17 +14,16 @@ void main() {
     int burnout = 0,
     int total = 100,
     List<TimeBucket> buckets = const [],
-  }) =>
-      CommitVelocityDto(
-        buckets: buckets,
-        totalCommits: total,
-        averagePerPeriod: 10,
-        trend: trend,
-        anomalies: const [],
-        totalBurnoutCommits: burnout,
-        giniCoefficient: gini,
-        velocitySlope: slope,
-      );
+  }) => CommitVelocityDto(
+    buckets: buckets,
+    totalCommits: total,
+    averagePerPeriod: 10,
+    trend: trend,
+    anomalies: const [],
+    totalBurnoutCommits: burnout,
+    giniCoefficient: gini,
+    velocitySlope: slope,
+  );
 
   test('healthy cadence yields no findings', () {
     expect(fc.fromCommitVelocity(dto()), isEmpty);
@@ -35,24 +34,28 @@ void main() {
   });
 
   test('declining trend with negative slope is Elevated', () {
-    final findings =
-        fc.fromCommitVelocity(dto(trend: 'declining', slope: -1.5));
+    final findings = fc.fromCommitVelocity(
+      dto(trend: 'declining', slope: -1.5),
+    );
     expect(findings.single.severity, Severity.elevated);
     expect(findings.single.metric, 'velocity_slope');
     expect(findings.single.subject, 'repository');
   });
 
   test('Gini above 0.6 is High and names the top author', () {
-    final findings = fc.fromCommitVelocity(dto(
-      gini: 0.75,
-      buckets: const [
-        TimeBucket(
+    final findings = fc.fromCommitVelocity(
+      dto(
+        gini: 0.75,
+        buckets: const [
+          TimeBucket(
             period: '2026-W01',
             totalCommits: 9,
             authors: {'alice': 8, 'bob': 1},
-            burnoutCommits: 0),
-      ],
-    ));
+            burnoutCommits: 0,
+          ),
+        ],
+      ),
+    );
     expect(findings.single.severity, Severity.high);
     expect(findings.single.metric, 'gini_coefficient');
     expect(findings.single.subject, 'alice');

@@ -12,19 +12,23 @@ void main() {
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
       mock.setMockResult(
-          'git',
-          ['log', '--pretty=format:%H|%an|%ae|%aI|%s', 'v1...v2'],
-          0,
-          'hash1|A|B|C|commit1\nhash2|A|B|C|commit2',
-          '');
+        'git',
+        ['log', '--pretty=format:%H|%an|%ae|%aI|%s', 'v1...v2'],
+        0,
+        'hash1|A|B|C|commit1\nhash2|A|B|C|commit2',
+        '',
+      );
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = GetCommitsBetweenTool(rwGit);
     });
 
     test('execute returns commits', () async {
-      final result = await tool.execute(
-          {'directory': 'test_dir', 'firstTag': 'v1', 'secondTag': 'v2'});
+      final result = await tool.execute({
+        'directory': 'test_dir',
+        'firstTag': 'v1',
+        'secondTag': 'v2',
+      });
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect((json['commits'] as List).length, 2);
     });

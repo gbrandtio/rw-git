@@ -13,12 +13,15 @@ void main() async {
       "https://github.com/jasontaylordev/CleanArchitecture";
 
   // Create a local directory and clone into it.
-  String localDirectoryToCloneInto =
-      _createCheckoutDirectory(localDirectoryName);
+  String localDirectoryToCloneInto = _createCheckoutDirectory(
+    localDirectoryName,
+  );
 
   print("Cloning repository...");
-  final cloneResult =
-      await rwGit.clone(localDirectoryToCloneInto, repositoryToClone);
+  final cloneResult = await rwGit.clone(
+    localDirectoryToCloneInto,
+    repositoryToClone,
+  );
 
   // You can use getOrThrow() to easily extract the value or throw if it's an error.
   cloneResult.getOrThrow();
@@ -28,8 +31,10 @@ void main() async {
   List<GitBranch> branches =
       (await rwGit.branch(localDirectoryToCloneInto)).getOrThrow();
   print("Number of branches: ${branches.length}");
-  final currentBranch =
-      branches.firstWhere((b) => b.isCurrent, orElse: () => branches.first);
+  final currentBranch = branches.firstWhere(
+    (b) => b.isCurrent,
+    orElse: () => branches.first,
+  );
   print("Current branch: ${currentBranch.name}\n");
 
   // 3. Status: Check working directory state
@@ -46,8 +51,10 @@ void main() async {
 
   // 4. Show: View the HEAD commit details
   GitCommit headCommit =
-      (await rwGit.show(localDirectoryToCloneInto, extraArgs: ["HEAD"]))
-          .getOrThrow();
+      (await rwGit.show(
+        localDirectoryToCloneInto,
+        extraArgs: ["HEAD"],
+      )).getOrThrow();
   print("HEAD Commit Details:");
   print("  Hash: ${headCommit.hash}");
   print("  Author: ${headCommit.authorName} <${headCommit.authorEmail}>");
@@ -63,17 +70,24 @@ void main() async {
     final newTag = tags.last.name;
 
     // 6. Get the commits between two tags
-    List<GitCommit> listOfCommitsBetweenTwoTags = (await rwGit
-            .getCommitsBetween(localDirectoryToCloneInto, oldTag, newTag))
-        .getOrThrow();
+    List<GitCommit> listOfCommitsBetweenTwoTags =
+        (await rwGit.getCommitsBetween(
+          localDirectoryToCloneInto,
+          oldTag,
+          newTag,
+        )).getOrThrow();
     print(
-        "Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}\n");
+      "Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}\n",
+    );
 
     // 7. Retrieve lines of code inserted, deleted and number of changed files
     // between two tags.
     ShortStatDto shortStatDto =
-        (await rwGit.stats(localDirectoryToCloneInto, oldTag, newTag))
-            .getOrThrow();
+        (await rwGit.stats(
+          localDirectoryToCloneInto,
+          oldTag,
+          newTag,
+        )).getOrThrow();
     print('Number of lines inserted: ${shortStatDto.insertions}');
     print('Number of lines deleted: ${shortStatDto.deletions}');
     print('Number of files changed: ${shortStatDto.numberOfChangedFiles}\n');

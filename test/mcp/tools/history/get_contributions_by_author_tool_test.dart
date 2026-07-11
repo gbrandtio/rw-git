@@ -11,31 +11,35 @@ void main() {
 
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
-      mock.setMockResult('git', ['shortlog', 'HEAD', '-s', '-n', '--no-merges'],
-          0, '    10\tJohnDoe\n     5\tJaneDoe', '');
       mock.setMockResult(
-          'git',
-          [
-            'shortlog',
-            'HEAD',
-            '-s',
-            '-n',
-            '--no-merges',
-            '--since=2024-01-01',
-            '--until=2024-12-31',
-          ],
-          0,
-          '    3\tJohnDoe',
-          '');
+        'git',
+        ['shortlog', 'HEAD', '-s', '-n', '--no-merges'],
+        0,
+        '    10\tJohnDoe\n     5\tJaneDoe',
+        '',
+      );
+      mock.setMockResult(
+        'git',
+        [
+          'shortlog',
+          'HEAD',
+          '-s',
+          '-n',
+          '--no-merges',
+          '--since=2024-01-01',
+          '--until=2024-12-31',
+        ],
+        0,
+        '    3\tJohnDoe',
+        '',
+      );
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = GetContributionsByAuthorTool(rwGit);
     });
 
     test('execute returns contributions', () async {
-      final result = await tool.execute({
-        'directory': 'test_dir',
-      });
+      final result = await tool.execute({'directory': 'test_dir'});
       final json = jsonDecode(result) as Map<String, dynamic>;
       final contributions = json['contributions'] as List;
       expect(contributions.length, 2);

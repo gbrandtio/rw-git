@@ -13,18 +13,21 @@ class DependencyManifestParser {
   /// Reads dependency manifests from the git working tree
   /// and parses them for pinned/floating analysis.
   Future<DependencyManifestDto> parseDependencyManifests(
-      String directory) async {
+    String directory,
+  ) async {
     // Check which manifest files exist in HEAD
-    final lsResult = await runner.run(
-      'git',
-      ['ls-tree', '-r', '--name-only', 'HEAD'],
-      workingDirectory: directory,
-    );
+    final lsResult = await runner.run('git', [
+      'ls-tree',
+      '-r',
+      '--name-only',
+      'HEAD',
+    ], workingDirectory: directory);
     evaluateProcessResult(lsResult);
-    final allFiles = (lsResult.stdout?.toString() ?? '')
-        .split('\n')
-        .where((l) => l.trim().isNotEmpty)
-        .toList();
+    final allFiles =
+        (lsResult.stdout?.toString() ?? '')
+            .split('\n')
+            .where((l) => l.trim().isNotEmpty)
+            .toList();
 
     final manifestMap = <String, String>{
       'pubspec.yaml': 'dart',
@@ -48,36 +51,31 @@ class DependencyManifestParser {
 
     for (final entry in manifestMap.entries) {
       // Find manifests at any path depth
-      final matches = allFiles
-          .where(
-            (f) => f == entry.key || f.endsWith('/${entry.key}'),
-          )
-          .toList();
+      final matches =
+          allFiles
+              .where((f) => f == entry.key || f.endsWith('/${entry.key}'))
+              .toList();
 
       for (final manifestPath in matches) {
         // Read manifest content via git show
-        final showResult = await runner.run(
-          'git',
-          ['show', 'HEAD:$manifestPath'],
-          workingDirectory: directory,
-        );
+        final showResult = await runner.run('git', [
+          'show',
+          'HEAD:$manifestPath',
+        ], workingDirectory: directory);
         evaluateProcessResult(showResult);
         final content = showResult.stdout?.toString() ?? '';
 
         // Check for corresponding lock file
         final lockFileName = lockFileMap[entry.value] ?? '';
-        final dir = manifestPath.contains('/')
-            ? manifestPath.substring(0, manifestPath.lastIndexOf('/') + 1)
-            : '';
+        final dir =
+            manifestPath.contains('/')
+                ? manifestPath.substring(0, manifestPath.lastIndexOf('/') + 1)
+                : '';
         final hasLock = allFiles.contains('$dir$lockFileName');
 
         final report = await Isolate.run(
-          () => _parseSingleManifest(
-            content,
-            entry.value,
-            manifestPath,
-            hasLock,
-          ),
+          () =>
+              _parseSingleManifest(content, entry.value, manifestPath, hasLock),
         );
         ecosystems.add(report);
       }
@@ -98,10 +96,7 @@ EcosystemReport _parseSingleManifest(
   switch (ecosystemType) {
     case 'dart':
       // Parse pubspec.yaml dependencies
-      final depRegex = RegExp(
-        r'^\s+(\w[\w_]*):\s*(.+)$',
-        multiLine: true,
-      );
+      final depRegex = RegExp(r'^\s+(\w[\w_]*):\s*(.+)$', multiLine: true);
       bool inDeps = false;
       for (final line in content.split('\n')) {
         if (line.startsWith('dependencies:') ||
@@ -121,20 +116,20 @@ EcosystemReport _parseSingleManifest(
           if (match != null) {
             final name = match.group(1)?.trim() ?? '';
             final version = match.group(2)?.trim() ?? '';
-            entries.add(DependencyEntry(
-              name: name,
-              declaredVersion: version,
-              isPinned: _isPinnedVersion(version),
-            ));
+            entries.add(
+              DependencyEntry(
+                name: name,
+                declaredVersion: version,
+                isPinned: _isPinnedVersion(version),
+              ),
+            );
           }
         }
       }
 
     case 'npm':
       // Parse package.json dependencies
-      final depRegex = RegExp(
-        r'"([^"]+)"\s*:\s*"([^"]+)"',
-      );
+      final depRegex = RegExp(r'"([^"]+)"\s*:\s*"([^"]+)"');
       bool inDeps = false;
       int braceDepth = 0;
       for (final line in content.split('\n')) {
@@ -155,11 +150,13 @@ EcosystemReport _parseSingleManifest(
           if (match != null) {
             final name = match.group(1) ?? '';
             final version = match.group(2) ?? '';
-            entries.add(DependencyEntry(
-              name: name,
-              declaredVersion: version,
-              isPinned: _isNpmPinned(version),
-            ));
+            entries.add(
+              DependencyEntry(
+                name: name,
+                declaredVersion: version,
+                isPinned: _isNpmPinned(version),
+              ),
+            );
           }
         }
       }
@@ -175,17 +172,21 @@ EcosystemReport _parseSingleManifest(
         if (operatorMatch != null) {
           final name = trimmed.substring(0, operatorMatch.start).trim();
           final version = trimmed.substring(operatorMatch.start).trim();
-          entries.add(DependencyEntry(
-            name: name,
-            declaredVersion: version,
-            isPinned: trimmed.contains('=='),
-          ));
+          entries.add(
+            DependencyEntry(
+              name: name,
+              declaredVersion: version,
+              isPinned: trimmed.contains('=='),
+            ),
+          );
         } else {
-          entries.add(DependencyEntry(
-            name: trimmed,
-            declaredVersion: '',
-            isPinned: false,
-          ));
+          entries.add(
+            DependencyEntry(
+              name: trimmed,
+              declaredVersion: '',
+              isPinned: false,
+            ),
+          );
         }
       }
 
@@ -206,11 +207,9 @@ EcosystemReport _parseSingleManifest(
         final parts = trimmed.split(RegExp(r'\s+'));
         final name = parts.isNotEmpty ? parts[0] : trimmed;
         final version = parts.length > 1 ? parts[1] : '';
-        entries.add(DependencyEntry(
-          name: name,
-          declaredVersion: version,
-          isPinned: true,
-        ));
+        entries.add(
+          DependencyEntry(name: name, declaredVersion: version, isPinned: true),
+        );
       }
 
     case 'rust':
@@ -229,13 +228,16 @@ EcosystemReport _parseSingleManifest(
         if (inDeps && trimmed.contains('=')) {
           final name = trimmed.substring(0, trimmed.indexOf('=')).trim();
           final version = trimmed.substring(trimmed.indexOf('=') + 1).trim();
-          final isPinned = trimmed.contains('"=') ||
+          final isPinned =
+              trimmed.contains('"=') ||
               RegExp(r'"\d+\.\d+\.\d+"').hasMatch(trimmed);
-          entries.add(DependencyEntry(
-            name: name,
-            declaredVersion: version,
-            isPinned: isPinned,
-          ));
+          entries.add(
+            DependencyEntry(
+              name: name,
+              declaredVersion: version,
+              isPinned: isPinned,
+            ),
+          );
         }
       }
 
@@ -257,17 +259,21 @@ EcosystemReport _parseSingleManifest(
           final parts = trimmed.split(',');
           if (parts.length > 1) {
             final versionPart = parts[1].trim();
-            entries.add(DependencyEntry(
-              name: name,
-              declaredVersion: versionPart.replaceAll("'", ''),
-              isPinned: !versionPart.startsWith("'~>"),
-            ));
+            entries.add(
+              DependencyEntry(
+                name: name,
+                declaredVersion: versionPart.replaceAll("'", ''),
+                isPinned: !versionPart.startsWith("'~>"),
+              ),
+            );
           } else {
-            entries.add(DependencyEntry(
-              name: name,
-              declaredVersion: '',
-              isPinned: false, // No version = floating
-            ));
+            entries.add(
+              DependencyEntry(
+                name: name,
+                declaredVersion: '',
+                isPinned: false, // No version = floating
+              ),
+            );
           }
         }
       }

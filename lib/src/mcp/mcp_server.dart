@@ -40,9 +40,9 @@ class McpServer {
     IOSink? outputSink,
     IOSink? errorSink,
     this.toolsPageSize,
-  })  : inputStream = inputStream ?? stdin,
-        outputSink = outputSink ?? stdout,
-        errorSink = errorSink ?? stderr {
+  }) : inputStream = inputStream ?? stdin,
+       outputSink = outputSink ?? stdout,
+       errorSink = errorSink ?? stderr {
     _context = McpRequestContext(
       registry: registry,
       outputSink: this.outputSink,
@@ -51,8 +51,9 @@ class McpServer {
     // Forward the library's structured log events to the connected host as
     // notifications/message, filtered by the host-selected minimum level
     // (ADR-0012).
-    RwGitLogger.instance.listener = (level, message, error) =>
-        _context.sendLogNotification(level, message, error: error);
+    RwGitLogger.instance.listener =
+        (level, message, error) =>
+            _context.sendLogNotification(level, message, error: error);
     // Order mirrors the original if-else dispatch chain.
     _rules = [
       InitializeRule(),
@@ -71,10 +72,9 @@ class McpServer {
 
   /// Starts listening to the input stream for JSON-RPC messages.
   void start() {
-    inputStream
-        .transform(utf8.decoder)
-        .transform(const LineSplitter())
-        .listen((line) async {
+    inputStream.transform(utf8.decoder).transform(const LineSplitter()).listen((
+      line,
+    ) async {
       try {
         final request = jsonDecode(line);
         if (request is! Map<String, dynamic>) return;

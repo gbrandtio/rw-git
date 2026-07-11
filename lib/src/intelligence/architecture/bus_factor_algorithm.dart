@@ -40,11 +40,15 @@ class BusFactorAlgorithm {
     final rawOutput = result.stdout?.toString() ?? '';
     if (rawOutput.isEmpty) {
       return BusFactorDto(
-          busFactor: 0, totalDevelopers: 0, topContributors: []);
+        busFactor: 0,
+        totalDevelopers: 0,
+        topContributors: [],
+      );
     }
 
     return await Isolate.run(
-        () => _parseBusFactor(rawOutput, knowledgeThreshold));
+      () => _parseBusFactor(rawOutput, knowledgeThreshold),
+    );
   }
 }
 
@@ -65,8 +69,9 @@ BusFactorDto _parseBusFactor(String rawLog, double threshold) {
     return BusFactorDto(busFactor: 0, totalDevelopers: 0, topContributors: []);
   }
 
-  final sortedAuthors = authorCommits.entries.toList()
-    ..sort((a, b) => b.value.compareTo(a.value));
+  final sortedAuthors =
+      authorCommits.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
 
   int busFactor = 0;
   int cumulativeCommits = 0;
@@ -76,11 +81,13 @@ BusFactorDto _parseBusFactor(String rawLog, double threshold) {
     cumulativeCommits += entry.value;
     busFactor++;
 
-    contributors.add(DeveloperContribution(
-      author: entry.key,
-      contributions: entry.value,
-      percentage: entry.value / totalCommits,
-    ));
+    contributors.add(
+      DeveloperContribution(
+        author: entry.key,
+        contributions: entry.value,
+        percentage: entry.value / totalCommits,
+      ),
+    );
 
     if ((cumulativeCommits / totalCommits) >= threshold) {
       break; // Reached the knowledge threshold

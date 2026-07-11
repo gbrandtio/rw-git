@@ -13,7 +13,10 @@ class ToolsListRule implements McpRule {
 
   @override
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  ) async {
     final all = ctx.registry.getToolListings();
     final pageSize = ctx.toolsPageSize;
 

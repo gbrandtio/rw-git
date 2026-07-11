@@ -12,7 +12,9 @@ import '../core/result.dart';
 /// raw git access is restricted to an allowlist of inspection subcommands.
 abstract class GitQuery {
   Future<Result<String, RwGitException>> run(
-      String directory, List<String> args);
+    String directory,
+    List<String> args,
+  );
 }
 
 /// [ProcessRunner]-backed implementation that refuses any git subcommand
@@ -41,10 +43,15 @@ class ReadOnlyGitQuery implements GitQuery {
 
   @override
   Future<Result<String, RwGitException>> run(
-      String directory, List<String> args) async {
+    String directory,
+    List<String> args,
+  ) async {
     if (args.isEmpty || !_readOnlySubcommands.contains(args.first)) {
-      throw ArgumentError.value(args.join(' '), 'args',
-          'Only read-only git subcommands may be executed');
+      throw ArgumentError.value(
+        args.join(' '),
+        'args',
+        'Only read-only git subcommands may be executed',
+      );
     }
 
     final result = await runner.run('git', args, workingDirectory: directory);

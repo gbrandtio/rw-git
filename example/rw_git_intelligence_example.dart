@@ -30,11 +30,15 @@ void main() async {
   // 1. Bus factor: how many developers would need to leave before knowledge
   // of the codebase is lost.
   final busFactor = await BusFactorAlgorithm(runner).execute(dir);
-  print("Bus factor: ${busFactor.busFactor} "
-      "(of ${busFactor.totalDevelopers} developers)");
-  print("Top contributor: "
-      "${busFactor.topContributors.first.author} "
-      "(${busFactor.topContributors.first.percentage.toStringAsFixed(1)}%)\n");
+  print(
+    "Bus factor: ${busFactor.busFactor} "
+    "(of ${busFactor.totalDevelopers} developers)",
+  );
+  print(
+    "Top contributor: "
+    "${busFactor.topContributors.first.author} "
+    "(${busFactor.topContributors.first.percentage.toStringAsFixed(1)}%)\n",
+  );
 
   // 2. Logical coupling: files that tend to change together, even without a
   // structural (import) dependency.
@@ -42,8 +46,10 @@ void main() async {
   print("Logical coupling pairs found: ${coupling.length}");
   if (coupling.isNotEmpty) {
     final top = coupling.first;
-    print("  ${top.fileA} <-> ${top.fileB} "
-        "(${top.coChangeCount} co-changes)\n");
+    print(
+      "  ${top.fileA} <-> ${top.fileB} "
+      "(${top.coChangeCount} co-changes)\n",
+    );
   }
 
   // 3. Refactoring detection: commits that look like pure renames/moves.
@@ -59,8 +65,10 @@ void main() async {
   print("Files analyzed for volatility: ${volatility.length}");
   if (volatility.isNotEmpty) {
     final top = volatility.first;
-    print("  Most volatile: ${top.filePath} "
-        "(score ${top.volatilityScore.toStringAsFixed(2)})\n");
+    print(
+      "  Most volatile: ${top.filePath} "
+      "(score ${top.volatilityScore.toStringAsFixed(2)})\n",
+    );
   }
 
   // 5. SZZ algorithm: links bug-fixing commits back to the commits that
@@ -74,34 +82,47 @@ void main() async {
 
   // 6. Advanced metrics: complexity, co-change matrix, churn and
   // architecture distribution in one pass.
-  final advancedMetrics =
-      await AdvancedMetricsHeuristic(runner).calculateAdvancedMetrics(dir);
-  print("Files with complexity scores: "
-      "${advancedMetrics.fileComplexity.length}\n");
+  final advancedMetrics = await AdvancedMetricsHeuristic(
+    runner,
+  ).calculateAdvancedMetrics(dir);
+  print(
+    "Files with complexity scores: "
+    "${advancedMetrics.fileComplexity.length}\n",
+  );
 
   // 7. Bug hotspots: aggregates the SZZ matches from step 5 by file/author.
   final bugHotspots = BugHotspotsHeuristic().aggregate(szzMatches);
-  print("Total fix commits analyzed: "
-      "${bugHotspots.totalFixCommitsAnalyzed}");
-  print("Global average bug lifetime: "
-      "${bugHotspots.globalAverageBugLifetimeInDays.toStringAsFixed(1)} days\n");
+  print(
+    "Total fix commits analyzed: "
+    "${bugHotspots.totalFixCommitsAnalyzed}",
+  );
+  print(
+    "Global average bug lifetime: "
+    "${bugHotspots.globalAverageBugLifetimeInDays.toStringAsFixed(1)} days\n",
+  );
 
   // 8. Churn: how much a file/class/block has changed over its history.
   final churn = await ChurnHeuristic(runner).calculateChurn(dir);
   print("Total commits considered for churn: ${churn.totalCommits}");
   print("Files with churn data: ${churn.fileChurn.length}");
 
-  final churnWithAuthors =
-      await ChurnHeuristic(runner).calculateChurnWithAuthors(dir);
-  print("Files with per-author churn data: "
-      "${churnWithAuthors.fileChurn.length}\n");
+  final churnWithAuthors = await ChurnHeuristic(
+    runner,
+  ).calculateChurnWithAuthors(dir);
+  print(
+    "Files with per-author churn data: "
+    "${churnWithAuthors.fileChurn.length}\n",
+  );
 
   // 9. Commit velocity: commit pace over time, including burnout signals.
-  final velocity =
-      await CommitVelocityHeuristic(runner).calculateCommitVelocity(dir);
+  final velocity = await CommitVelocityHeuristic(
+    runner,
+  ).calculateCommitVelocity(dir);
   print("Commit velocity trend: ${velocity.trend}");
-  print("Average commits per period: "
-      "${velocity.averagePerPeriod.toStringAsFixed(2)}\n");
+  print(
+    "Average commits per period: "
+    "${velocity.averagePerPeriod.toStringAsFixed(2)}\n",
+  );
 
   // 10. Mega commits: unusually large commits that are hard to review.
   final megaCommits = await MegaCommitsHeuristic(runner).findMegaCommits(dir);
@@ -109,8 +130,9 @@ void main() async {
 
   // 11. Suspicious commits: messages/patterns that hint at low-quality or
   // risky changes.
-  final suspiciousCommits =
-      await SuspiciousCommitsHeuristic(runner).findSuspiciousCommits(dir);
+  final suspiciousCommits = await SuspiciousCommitsHeuristic(
+    runner,
+  ).findSuspiciousCommits(dir);
   print("Suspicious commits found: ${suspiciousCommits.length}\n");
 
   // ---------------------------------------------------------------------
@@ -120,19 +142,26 @@ void main() async {
   // 12. Compliance: unsigned, empty-message, unrecognized-author and
   // non-conventional commits.
   final compliance = await ComplianceScanner(runner).scanComplianceIssues(dir);
-  print("Commits scanned for compliance: "
-      "${compliance.totalCommitsScanned}");
-  print("Non-conventional commits: "
-      "${compliance.nonConventionalCommits.length}\n");
+  print(
+    "Commits scanned for compliance: "
+    "${compliance.totalCommitsScanned}",
+  );
+  print(
+    "Non-conventional commits: "
+    "${compliance.nonConventionalCommits.length}\n",
+  );
 
   // 13. Dependency manifests: declared dependencies per ecosystem, and
   // whether they are version-pinned.
-  final manifests =
-      await DependencyManifestParser(runner).parseDependencyManifests(dir);
+  final manifests = await DependencyManifestParser(
+    runner,
+  ).parseDependencyManifests(dir);
   print("Dependency ecosystems found: ${manifests.ecosystems.length}");
   for (final eco in manifests.ecosystems) {
-    print("  ${eco.type}: ${eco.totalDependencies} dependencies "
-        "(${eco.pinnedCount} pinned, ${eco.floatingCount} floating)");
+    print(
+      "  ${eco.type}: ${eco.totalDependencies} dependencies "
+      "(${eco.pinnedCount} pinned, ${eco.floatingCount} floating)",
+    );
   }
   print("");
 
@@ -158,8 +187,10 @@ class Greeter {
   }
 }
 ''';
-  final astResult =
-      DartAstAnalyzer().analyzeFile("greeter.dart", sampleDartSource);
+  final astResult = DartAstAnalyzer().analyzeFile(
+    "greeter.dart",
+    sampleDartSource,
+  );
   print("Imports: ${astResult.imports}");
   print("Public API signatures: ${astResult.apiSignatures}");
 }

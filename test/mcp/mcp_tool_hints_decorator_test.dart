@@ -58,7 +58,9 @@ void main() {
   group('McpToolHintsDecorator', () {
     test('injects catalog hints into a successful payload', () async {
       final decorator = McpToolHintsDecorator(
-          MockCatalogedTool(() => {'bus_factor': 1}), AnalysisType.busFactor);
+        MockCatalogedTool(() => {'bus_factor': 1}),
+        AnalysisType.busFactor,
+      );
 
       final result =
           jsonDecode(await decorator.execute({})) as Map<String, dynamic>;
@@ -67,33 +69,48 @@ void main() {
       final hints = result['hints'] as Map<String, dynamic>;
       expect(hints.containsKey('interpretation'), isTrue);
       expect(hints.containsKey('pair_with'), isTrue);
-      expect((hints['interpretation'] as List).first,
-          contains('Avelino et al. 2016'));
-    });
-
-    test('unions a tool-provided conditional hints object with the catalog',
-        () async {
-      final decorator = McpToolHintsDecorator(
-          MockCatalogedTool(() => {
-                'bus_factor': 1,
-                'hints': {
-                  'interpretation': ['A conditional, argument-driven hint.'],
-                },
-              }),
-          AnalysisType.busFactor);
-
-      final result =
-          jsonDecode(await decorator.execute({})) as Map<String, dynamic>;
-      final interpretation = (result['hints'] as Map)['interpretation'] as List;
-
-      expect(interpretation, contains('A conditional, argument-driven hint.'));
       expect(
-          interpretation.any((h) => h.toString().contains('Avelino')), isTrue);
+        (hints['interpretation'] as List).first,
+        contains('Avelino et al. 2016'),
+      );
     });
+
+    test(
+      'unions a tool-provided conditional hints object with the catalog',
+      () async {
+        final decorator = McpToolHintsDecorator(
+          MockCatalogedTool(
+            () => {
+              'bus_factor': 1,
+              'hints': {
+                'interpretation': ['A conditional, argument-driven hint.'],
+              },
+            },
+          ),
+          AnalysisType.busFactor,
+        );
+
+        final result =
+            jsonDecode(await decorator.execute({})) as Map<String, dynamic>;
+        final interpretation =
+            (result['hints'] as Map)['interpretation'] as List;
+
+        expect(
+          interpretation,
+          contains('A conditional, argument-driven hint.'),
+        );
+        expect(
+          interpretation.any((h) => h.toString().contains('Avelino')),
+          isTrue,
+        );
+      },
+    );
 
     test('passes error payloads through untouched', () async {
-      final decorator =
-          McpToolHintsDecorator(MockErrorTool(), AnalysisType.busFactor);
+      final decorator = McpToolHintsDecorator(
+        MockErrorTool(),
+        AnalysisType.busFactor,
+      );
       final resultString = await decorator.execute({});
       final result = jsonDecode(resultString) as Map<String, dynamic>;
 
@@ -102,21 +119,25 @@ void main() {
     });
 
     test('passes non-JSON output through untouched', () async {
-      final decorator =
-          McpToolHintsDecorator(MockNonJsonTool(), AnalysisType.busFactor);
+      final decorator = McpToolHintsDecorator(
+        MockNonJsonTool(),
+        AnalysisType.busFactor,
+      );
       final resultString = await decorator.execute({});
 
       expect(resultString, 'not json at all');
     });
 
-    test('name, description and inputSchema delegate to the inner tool',
-        () async {
-      final inner = MockCatalogedTool(() => {});
-      final decorator = McpToolHintsDecorator(inner, AnalysisType.busFactor);
+    test(
+      'name, description and inputSchema delegate to the inner tool',
+      () async {
+        final inner = MockCatalogedTool(() => {});
+        final decorator = McpToolHintsDecorator(inner, AnalysisType.busFactor);
 
-      expect(decorator.name, inner.name);
-      expect(decorator.description, inner.description);
-      expect(decorator.inputSchema, inner.inputSchema);
-    });
+        expect(decorator.name, inner.name);
+        expect(decorator.description, inner.description);
+        expect(decorator.inputSchema, inner.inputSchema);
+      },
+    );
   });
 }

@@ -5,11 +5,7 @@
 class GitTag {
   final String name;
 
-  const GitTag({
-    required this.name,
-  });
+  const GitTag({required this.name});
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-      };
+  Map<String, dynamic> toJson() => {'name': name};
 }

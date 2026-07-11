@@ -9,7 +9,10 @@ class PingRule implements McpRule {
 
   @override
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  ) async {
     ctx.sendResponse(id, {});
   }
 }

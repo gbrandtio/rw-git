@@ -6,20 +6,20 @@ import 'package:test/test.dart';
 /// `analysis_hints_catalog_test.dart` for the per-tool catalog contract this
 /// builds on.
 void main() {
-  Finding findingFrom(List<AnalysisType> source,
-          {String subject = 'lib/x.dart'}) =>
-      Finding(
-        category: 'test',
-        source: source,
-        severity: Severity.critical,
-        subject: subject,
-        metric: 'm',
-        value: 1,
-        band: 'b',
-      );
+  Finding findingFrom(
+    List<AnalysisType> source, {
+    String subject = 'lib/x.dart',
+  }) => Finding(
+    category: 'test',
+    source: source,
+    severity: Severity.critical,
+    subject: subject,
+    metric: 'm',
+    value: 1,
+    band: 'b',
+  );
 
-  test(
-      'a pair_with entry survives even when the same source also has a '
+  test('a pair_with entry survives even when the same source also has a '
       'caveat', () {
     // analyze_bus_factor has both a non-empty caveats and pairWith entry in
     // the catalog — the bug this aggregation fixes is a caveat silently
@@ -31,15 +31,19 @@ void main() {
     final payload = ReportPayload.fromFindings(
       reportType: 'technical',
       findings: [
-        findingFrom([AnalysisType.busFactor])
+        findingFrom([AnalysisType.busFactor]),
       ],
       compounds: const [],
     );
 
-    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.caveats,
-        equals(catalogEntry.caveats));
-    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.pairWith,
-        equals(catalogEntry.pairWith));
+    expect(
+      payload.hints.bySource[AnalysisType.busFactor.name]!.caveats,
+      equals(catalogEntry.caveats),
+    );
+    expect(
+      payload.hints.bySource[AnalysisType.busFactor.name]!.pairWith,
+      equals(catalogEntry.pairWith),
+    );
   });
 
   test('aggregates every category across multiple distinct sources', () {
@@ -55,25 +59,35 @@ void main() {
     final busFactor = analysisHintsCatalog[AnalysisType.busFactor]!;
     final bugHotspots = analysisHintsCatalog[AnalysisType.bugHotspots]!;
 
-    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.interpretation,
-        equals(busFactor.interpretation));
     expect(
-        payload.hints.bySource[AnalysisType.bugHotspots.name]!.interpretation,
-        equals(bugHotspots.interpretation));
+      payload.hints.bySource[AnalysisType.busFactor.name]!.interpretation,
+      equals(busFactor.interpretation),
+    );
+    expect(
+      payload.hints.bySource[AnalysisType.bugHotspots.name]!.interpretation,
+      equals(bugHotspots.interpretation),
+    );
 
-    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.caveats,
-        equals(busFactor.caveats));
-    expect(payload.hints.bySource[AnalysisType.bugHotspots.name]!.caveats,
-        equals(bugHotspots.caveats));
+    expect(
+      payload.hints.bySource[AnalysisType.busFactor.name]!.caveats,
+      equals(busFactor.caveats),
+    );
+    expect(
+      payload.hints.bySource[AnalysisType.bugHotspots.name]!.caveats,
+      equals(bugHotspots.caveats),
+    );
 
-    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.pairWith,
-        equals(busFactor.pairWith));
-    expect(payload.hints.bySource[AnalysisType.bugHotspots.name]!.pairWith,
-        equals(bugHotspots.pairWith));
+    expect(
+      payload.hints.bySource[AnalysisType.busFactor.name]!.pairWith,
+      equals(busFactor.pairWith),
+    );
+    expect(
+      payload.hints.bySource[AnalysisType.bugHotspots.name]!.pairWith,
+      equals(bugHotspots.pairWith),
+    );
   });
 
-  test(
-      'is not capped: every distinct catalog string across many sources '
+  test('is not capped: every distinct catalog string across many sources '
       'survives', () {
     final manySources = [
       AnalysisType.busFactor,
@@ -94,7 +108,9 @@ void main() {
       final aggregatedHints = payload.hints.bySource[source.name]!;
 
       expect(
-          aggregatedHints.interpretation, equals(catalogHints.interpretation));
+        aggregatedHints.interpretation,
+        equals(catalogHints.interpretation),
+      );
       expect(aggregatedHints.caveats, equals(catalogHints.caveats));
       expect(aggregatedHints.pairWith, equals(catalogHints.pairWith));
     }
@@ -128,13 +144,14 @@ void main() {
   });
 
   test('toJson emits a hints object with only non-empty category keys', () {
-    final withHints = ReportPayload.fromFindings(
-      reportType: 'technical',
-      findings: [
-        findingFrom([AnalysisType.bugHotspots])
-      ],
-      compounds: const [],
-    ).toJson();
+    final withHints =
+        ReportPayload.fromFindings(
+          reportType: 'technical',
+          findings: [
+            findingFrom([AnalysisType.bugHotspots]),
+          ],
+          compounds: const [],
+        ).toJson();
     final keys = withHints.keys.toList();
 
     expect(withHints.containsKey('hints'), isTrue);
@@ -145,16 +162,16 @@ void main() {
       expect(value, isNotEmpty);
     }
 
-    final withoutHints = ReportPayload.fromFindings(
-      reportType: 'technical',
-      findings: [findingFrom([])],
-      compounds: const [],
-    ).toJson();
+    final withoutHints =
+        ReportPayload.fromFindings(
+          reportType: 'technical',
+          findings: [findingFrom([])],
+          compounds: const [],
+        ).toJson();
     expect(withoutHints.containsKey('hints'), isFalse);
   });
 
-  test(
-      'compound findings contribute hints: their joined source string is '
+  test('compound findings contribute hints: their joined source string is '
       'split back into catalog keys', () {
     // A compound's source is 'tool_a + tool_b' — before the split fix,
     // that string matched no catalog key and compounds (the highest-
@@ -170,11 +187,13 @@ void main() {
     final bugHotspots = analysisHintsCatalog[AnalysisType.bugHotspots]!;
     final ownership = analysisHintsCatalog[AnalysisType.fileOwnership]!;
     expect(
-        payload.hints.bySource[AnalysisType.bugHotspots.name]!.interpretation,
-        equals(bugHotspots.interpretation));
+      payload.hints.bySource[AnalysisType.bugHotspots.name]!.interpretation,
+      equals(bugHotspots.interpretation),
+    );
     expect(
-        payload.hints.bySource[AnalysisType.fileOwnership.name]!.interpretation,
-        equals(ownership.interpretation));
+      payload.hints.bySource[AnalysisType.fileOwnership.name]!.interpretation,
+      equals(ownership.interpretation),
+    );
   });
 
   test('toJson emits refactoring_targets with basis only when non-empty', () {
@@ -187,12 +206,13 @@ void main() {
       complexityValue: 30,
       complexityPercentile: 0.95,
     );
-    final withTargets = ReportPayload.fromFindings(
-      reportType: 'technical',
-      findings: const [],
-      compounds: const [],
-      refactoringTargets: const [target],
-    ).toJson();
+    final withTargets =
+        ReportPayload.fromFindings(
+          reportType: 'technical',
+          findings: const [],
+          compounds: const [],
+          refactoringTargets: const [target],
+        ).toJson();
 
     final targetsJson = withTargets['refactoring_targets'] as Map;
     expect(targetsJson['basis'], contains('Tornhill'));
@@ -200,11 +220,12 @@ void main() {
         (targetsJson['targets'] as List).single as Map<String, dynamic>;
     expect(targetJson['file_path'], 'lib/hot.dart');
 
-    final withoutTargets = ReportPayload.fromFindings(
-      reportType: 'pm',
-      findings: const [],
-      compounds: const [],
-    ).toJson();
+    final withoutTargets =
+        ReportPayload.fromFindings(
+          reportType: 'pm',
+          findings: const [],
+          compounds: const [],
+        ).toJson();
     expect(withoutTargets.containsKey('refactoring_targets'), isFalse);
   });
 }

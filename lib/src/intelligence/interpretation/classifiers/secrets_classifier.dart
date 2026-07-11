@@ -20,16 +20,18 @@ class SecretsClassifier {
     for (final raw in rawFindings) {
       final file = _extractFile(raw);
       final normalized = file.isEmpty ? '' : PathKey.normalize(file);
-      findings.add(Finding(
-        category: 'secret',
-        source: [AnalysisType.detectSecrets],
-        severity: Severity.critical,
-        subject: normalized.isEmpty ? 'unknown' : normalized,
-        metric: 'exposed_secret',
-        value: 'redacted',
-        band: 'credential exposed in history',
-        evidence: {'detail': raw},
-      ));
+      findings.add(
+        Finding(
+          category: 'secret',
+          source: [AnalysisType.detectSecrets],
+          severity: Severity.critical,
+          subject: normalized.isEmpty ? 'unknown' : normalized,
+          metric: 'exposed_secret',
+          value: 'redacted',
+          band: 'credential exposed in history',
+          evidence: {'detail': raw},
+        ),
+      );
     }
     return findings;
   }

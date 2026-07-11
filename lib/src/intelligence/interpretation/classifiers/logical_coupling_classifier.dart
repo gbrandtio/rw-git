@@ -39,22 +39,24 @@ class LogicalCouplingClassifier {
       final crossModule =
           PathKey.topDir(normalizedPathA) != PathKey.topDir(normalizedPathB);
       final pct = (confidence * 100).toStringAsFixed(1);
-      findings.add(Finding(
-        category: 'coupling',
-        source: [AnalysisType.logicalCoupling],
-        severity: severity,
-        subject: normalizedPathA,
-        metric: 'co_change_confidence',
-        value: double.parse((confidence * 100).toStringAsFixed(2)),
-        band: band,
-        evidence: {
-          'file_a': normalizedPathA,
-          'file_b': normalizedPathB,
-          'co_change_count': pair.coChangeCount,
-          'confidence_percentage': pct,
-          'cross_module': crossModule,
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'coupling',
+          source: [AnalysisType.logicalCoupling],
+          severity: severity,
+          subject: normalizedPathA,
+          metric: 'co_change_confidence',
+          value: double.parse((confidence * 100).toStringAsFixed(2)),
+          band: band,
+          evidence: {
+            'file_a': normalizedPathA,
+            'file_b': normalizedPathB,
+            'co_change_count': pair.coChangeCount,
+            'confidence_percentage': pct,
+            'cross_module': crossModule,
+          },
+        ),
+      );
     }
     return findings;
   }

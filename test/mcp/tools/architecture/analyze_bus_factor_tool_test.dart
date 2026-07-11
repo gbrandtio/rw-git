@@ -21,8 +21,11 @@ void main() {
 
     test('executes successfully on this repo', () async {
       try {
-        final result = await tool.execute(
-            {'directory': './', 'limit': 2, 'knowledge_threshold': 0.6});
+        final result = await tool.execute({
+          'directory': './',
+          'limit': 2,
+          'knowledge_threshold': 0.6,
+        });
         expect(result, isNotNull);
       } catch (e) {
         // Just in case it still fails

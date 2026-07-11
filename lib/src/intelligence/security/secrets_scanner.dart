@@ -13,8 +13,13 @@ class SecretsScanner {
 
   /// Scans commit diffs for exposed secrets, API keys, or sensitive credentials.
   /// Offloads the heavy regex scanning to an Isolate.
-  Future<List<String>> findSecrets(String directory,
-      {String? limit, String? since, String? until, String? branch}) async {
+  Future<List<String>> findSecrets(
+    String directory, {
+    String? limit,
+    String? since,
+    String? until,
+    String? branch,
+  }) async {
     final args = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
@@ -118,7 +123,8 @@ List<String> _parseSecrets(String rawLog) {
     } else if (line.startsWith('+') && !line.startsWith('+++')) {
       if (skipBlob) continue;
       // Add Context-Aware Risk Scoring (ignoring test/, etc.)
-      final isTestOrMock = currentFile.contains('test/') ||
+      final isTestOrMock =
+          currentFile.contains('test/') ||
           currentFile.contains('tests/') ||
           currentFile.contains('__tests__/') ||
           currentFile.contains('spec/') ||
@@ -130,7 +136,8 @@ List<String> _parseSecrets(String rawLog) {
           currentFile.endsWith('.md');
 
       // Exclude lock files entirely
-      final isLockFile = currentFile.endsWith('package-lock.json') ||
+      final isLockFile =
+          currentFile.endsWith('package-lock.json') ||
           currentFile.endsWith('yarn.lock') ||
           currentFile.endsWith('pnpm-lock.yaml') ||
           currentFile.endsWith('pubspec.lock') ||
@@ -160,12 +167,14 @@ List<String> _parseSecrets(String rawLog) {
         }
 
         // Redact the secret for reporting to avoid exposing it again
-        final redacted = secretVal.length > 6
-            ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
-            : '***';
+        final redacted =
+            secretVal.length > 6
+                ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
+                : '***';
 
         detectedSecrets.add(
-            'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret (Regex): $redacted');
+          'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret (Regex): $redacted',
+        );
       }
 
       // Context-aware Shannon Entropy Detection.
@@ -196,16 +205,19 @@ List<String> _parseSecrets(String rawLog) {
           final redacted =
               '${word.substring(0, 3)}***${word.substring(word.length - 3)}';
           detectedSecrets.add(
-              'Commit: $currentCommitHeader\nFile: $currentFile\n'
-              'Found Potential Secret (High Entropy: ${entropy.toStringAsFixed(2)}): $redacted');
+            'Commit: $currentCommitHeader\nFile: $currentFile\n'
+            'Found Potential Secret (High Entropy: ${entropy.toStringAsFixed(2)}): $redacted',
+          );
         }
 
         // Base64 decode and re-scan: if the word looks like valid base64,
         // decode it and check for well-known secret patterns in the payload.
         if (word.length % 4 == 0 && _base64Charset.hasMatch(word)) {
           try {
-            final decoded =
-                utf8.decode(base64.decode(word), allowMalformed: false);
+            final decoded = utf8.decode(
+              base64.decode(word),
+              allowMalformed: false,
+            );
             final decodedMatches = secretRegex.allMatches(decoded);
             for (final dm in decodedMatches) {
               final secretVal = dm.group(0) ?? '';
@@ -216,12 +228,14 @@ List<String> _parseSecrets(String rawLog) {
                   lowerSec.contains('your_')) {
                 continue;
               }
-              final redacted = secretVal.length > 6
-                  ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
-                  : '***';
+              final redacted =
+                  secretVal.length > 6
+                      ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
+                      : '***';
               detectedSecrets.add(
-                  'Commit: $currentCommitHeader\nFile: $currentFile\n'
-                  'Found Potential Secret (Base64-encoded Regex): $redacted');
+                'Commit: $currentCommitHeader\nFile: $currentFile\n'
+                'Found Potential Secret (Base64-encoded Regex): $redacted',
+              );
             }
           } catch (_) {
             // Not valid UTF-8 base64; skip.

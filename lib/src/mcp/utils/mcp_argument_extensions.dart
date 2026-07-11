@@ -13,7 +13,8 @@ extension McpArgumentExtensions on Map<String, dynamic> {
     final value = this[key];
     if (value is! String) {
       throw ArgumentError(
-          'Argument $key must be a string, but got: ${value.runtimeType}');
+        'Argument $key must be a string, but got: ${value.runtimeType}',
+      );
     }
     return value;
   }
@@ -28,7 +29,8 @@ extension McpArgumentExtensions on Map<String, dynamic> {
     final value = this[key];
     if (value is! String) {
       throw ArgumentError(
-          'Argument $key must be a string if provided, but got: ${value.runtimeType}');
+        'Argument $key must be a string if provided, but got: ${value.runtimeType}',
+      );
     }
     return value;
   }
@@ -43,7 +45,8 @@ extension McpArgumentExtensions on Map<String, dynamic> {
     final value = this[key];
     if (value is! bool) {
       throw ArgumentError(
-          'Argument $key must be a bool if provided, but got: ${value.runtimeType}');
+        'Argument $key must be a bool if provided, but got: ${value.runtimeType}',
+      );
     }
     return value;
   }

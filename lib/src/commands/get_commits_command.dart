@@ -8,15 +8,24 @@ class GetCommitsCommand extends GitCommand<List<GitCommit>> {
   final String firstTag;
   final String secondTag;
 
-  GetCommitsCommand(super.runner,
-      {required this.firstTag, required this.secondTag});
+  GetCommitsCommand(
+    super.runner, {
+    required this.firstTag,
+    required this.secondTag,
+  });
 
   @override
-  Future<List<GitCommit>> run(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false}) async {
-    final result = await runner.run('git',
-        ['log', '--pretty=format:%H|%an|%ae|%aI|%s', '$firstTag...$secondTag'],
-        workingDirectory: directory, streamOutput: streamOutput);
+  Future<List<GitCommit>> run(
+    String directory, {
+    List<String> extraArgs = const [],
+    bool streamOutput = false,
+  }) async {
+    final result = await runner.run(
+      'git',
+      ['log', '--pretty=format:%H|%an|%ae|%aI|%s', '$firstTag...$secondTag'],
+      workingDirectory: directory,
+      streamOutput: streamOutput,
+    );
     evaluateProcessResult(result);
     final stdout = result.stdout?.toString() ?? '';
     if (stdout.length > 10000) {

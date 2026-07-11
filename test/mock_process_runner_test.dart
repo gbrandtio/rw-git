@@ -14,20 +14,29 @@ void main() {
 
     test('clone uses mock runner and parses stdout correctly', () async {
       mockRunner.setMockResult(
-          'git',
-          ['clone', '--', 'https://fake.url/repo.git'],
-          0,
-          'Cloning into repo...',
-          '');
+        'git',
+        ['clone', '--', 'https://fake.url/repo.git'],
+        0,
+        'Cloning into repo...',
+        '',
+      );
 
-      final result = (await rwGit.clone('my_dir', 'https://fake.url/repo.git'))
-          .getOrThrow();
+      final result =
+          (await rwGit.clone(
+            'my_dir',
+            'https://fake.url/repo.git',
+          )).getOrThrow();
       expect(result, true);
     });
 
     test('clone handles mock failure', () async {
-      mockRunner.setMockResult('git', ['clone', '--', 'bad_url'], 128, '',
-          'fatal: repository not found');
+      mockRunner.setMockResult(
+        'git',
+        ['clone', '--', 'bad_url'],
+        128,
+        '',
+        'fatal: repository not found',
+      );
 
       try {
         (await rwGit.clone('my_dir', 'bad_url')).getOrThrow();
@@ -39,8 +48,13 @@ void main() {
     });
 
     test('stats parses mock shortstat correctly', () async {
-      mockRunner.setMockResult('git', ['diff', '--shortstat', 'v1', 'v2'], 0,
-          ' 3 files changed, 50 insertions(+), 10 deletions(-)', '');
+      mockRunner.setMockResult(
+        'git',
+        ['diff', '--shortstat', 'v1', 'v2'],
+        0,
+        ' 3 files changed, 50 insertions(+), 10 deletions(-)',
+        '',
+      );
 
       final stats = (await rwGit.stats('my_dir', 'v1', 'v2')).getOrThrow();
       expect(stats.numberOfChangedFiles, 3);

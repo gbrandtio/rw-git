@@ -11,10 +11,7 @@ class ContributionStats {
   final int total;
   final Map<String, int> authors;
 
-  const ContributionStats({
-    required this.total,
-    required this.authors,
-  });
+  const ContributionStats({required this.total, required this.authors});
 }
 
 class ChurnMetricsWithAuthorsDto {
@@ -28,9 +25,6 @@ class ChurnMetricsWithAuthorsDto {
 
   /// Factory constructor returning an empty instance.
   factory ChurnMetricsWithAuthorsDto.empty() {
-    return const ChurnMetricsWithAuthorsDto(
-      fileChurn: {},
-      totalCommits: 0,
-    );
+    return const ChurnMetricsWithAuthorsDto(fileChurn: {}, totalCommits: 0);
   }
 }

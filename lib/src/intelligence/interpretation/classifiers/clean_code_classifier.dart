@@ -27,25 +27,28 @@ class CleanCodeClassifier {
       if (file.issues.isEmpty) continue;
       final normalized = PathKey.normalize(file.filePath);
       final escalated = file.issues.length >= cleanCodeHighSeverityIssueCount;
-      findings.add(Finding(
-        category: 'cleanCode',
-        source: [AnalysisType.cleanCode],
-        severity: escalated ? Severity.high : Severity.elevated,
-        subject: normalized,
-        metric: 'clean_code_issues',
-        value: file.issues.length,
-        band: escalated
-            ? '>= $cleanCodeHighSeverityIssueCount clean-code heuristics '
-                'crossed'
-            : 'clean-code threshold crossed',
-        evidence: {
-          'total_lines': file.totalLines,
-          'max_indentation_level': file.maxIndentationLevel,
-          'long_lines': file.longLines,
-          'magic_numbers': file.magicNumbers,
-          'duplicate_lines': file.duplicateLines,
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'cleanCode',
+          source: [AnalysisType.cleanCode],
+          severity: escalated ? Severity.high : Severity.elevated,
+          subject: normalized,
+          metric: 'clean_code_issues',
+          value: file.issues.length,
+          band:
+              escalated
+                  ? '>= $cleanCodeHighSeverityIssueCount clean-code heuristics '
+                      'crossed'
+                  : 'clean-code threshold crossed',
+          evidence: {
+            'total_lines': file.totalLines,
+            'max_indentation_level': file.maxIndentationLevel,
+            'long_lines': file.longLines,
+            'magic_numbers': file.magicNumbers,
+            'duplicate_lines': file.duplicateLines,
+          },
+        ),
+      );
     }
     return findings;
   }

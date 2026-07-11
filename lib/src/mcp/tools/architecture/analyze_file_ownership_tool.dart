@@ -18,7 +18,8 @@ class AnalyzeFileOwnershipTool implements McpTool {
   String get name => 'analyze_file_ownership';
 
   @override
-  String get description => 'Reads the CODEOWNERS file and cross-references '
+  String get description =>
+      'Reads the CODEOWNERS file and cross-references '
       'it with git blame history to detect ownership '
       'drift. Identifies files with no owner and files '
       'where the declared owner differs from the top '
@@ -28,20 +29,21 @@ class AnalyzeFileOwnershipTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'limit': {
-            'type': 'number',
-            'description': 'Number of commits to analyze for '
-                'authorship (default: 100).',
-          },
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'limit': {
+        'type': 'number',
+        'description':
+            'Number of commits to analyze for '
+            'authorship (default: 100).',
+      },
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -52,17 +54,13 @@ class AnalyzeFileOwnershipTool implements McpTool {
     String codeownersContent = '';
     bool codeownersFound = false;
 
-    for (final path in [
-      'CODEOWNERS',
-      '.github/CODEOWNERS',
-      'doc/CODEOWNERS',
-    ]) {
+    for (final path in ['CODEOWNERS', '.github/CODEOWNERS', 'doc/CODEOWNERS']) {
       try {
-        codeownersContent = (await gitQuery.run(
-          directory,
-          ['show', 'HEAD:$path'],
-        ))
-            .getOrThrow();
+        codeownersContent =
+            (await gitQuery.run(directory, [
+              'show',
+              'HEAD:$path',
+            ])).getOrThrow();
         codeownersFound = true;
         break;
       } on RwGitException {
@@ -72,14 +70,12 @@ class AnalyzeFileOwnershipTool implements McpTool {
     }
 
     // 2. Get churn data with authors for 1 year and 90 days
-    final churn1Year = await ChurnHeuristic(runner).calculateChurnWithAuthors(
-      directory,
-      since: '1.year.ago',
-    );
-    final churn90Days = await ChurnHeuristic(runner).calculateChurnWithAuthors(
-      directory,
-      since: '90.days.ago',
-    );
+    final churn1Year = await ChurnHeuristic(
+      runner,
+    ).calculateChurnWithAuthors(directory, since: '1.year.ago');
+    final churn90Days = await ChurnHeuristic(
+      runner,
+    ).calculateChurnWithAuthors(directory, since: '90.days.ago');
 
     // 3. Parse CODEOWNERS and cross-reference
     final churnMap1Year = <String, Map<String, int>>{};
@@ -150,8 +146,10 @@ Map<String, dynamic> _analyzeOwnership(
     String topContributor90Days = _getTopContributor(authors90Days);
 
     final totalChanges1Year = authors1Year.values.fold<int>(0, (s, v) => s + v);
-    final totalChanges90Days =
-        authors90Days.values.fold<int>(0, (s, v) => s + v);
+    final totalChanges90Days = authors90Days.values.fold<int>(
+      0,
+      (s, v) => s + v,
+    );
 
     // Detect ownership drift against codeowners
     bool hasCodeownersDrift = false;
@@ -161,9 +159,7 @@ Map<String, dynamic> _analyzeOwnership(
       final ownerMatches = declaredOwners.any(
         (owner) =>
             owner.contains(topContributor1Year) ||
-            topContributor1Year.contains(
-              owner.replaceAll('@', ''),
-            ),
+            topContributor1Year.contains(owner.replaceAll('@', '')),
       );
       hasCodeownersDrift = !ownerMatches;
     }
@@ -198,8 +194,9 @@ Map<String, dynamic> _analyzeOwnership(
 
   // Sort by total changes descending
   files.sort(
-    (a, b) => (b['total_changes_1_year'] as int)
-        .compareTo(a['total_changes_1_year'] as int),
+    (a, b) => (b['total_changes_1_year'] as int).compareTo(
+      a['total_changes_1_year'] as int,
+    ),
   );
 
   return {

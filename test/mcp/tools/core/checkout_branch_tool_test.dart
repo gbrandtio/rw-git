@@ -12,15 +12,22 @@ void main() {
     setUp(() {
       final mock = ProcessRunner.mock() as MockProcessRunner;
       mock.setMockResult(
-          'git', ['checkout', 'main'], 0, 'Switched to branch main', '');
+        'git',
+        ['checkout', 'main'],
+        0,
+        'Switched to branch main',
+        '',
+      );
       runner = mock;
       rwGit = RwGit(runner: runner);
       tool = CheckoutBranchTool(rwGit);
     });
 
     test('execute returns success', () async {
-      final result = await tool
-          .execute({'directory': 'test_dir', 'branchToCheckout': 'main'});
+      final result = await tool.execute({
+        'directory': 'test_dir',
+        'branchToCheckout': 'main',
+      });
       final json = jsonDecode(result) as Map<String, dynamic>;
       expect(json['success'], isTrue);
     });

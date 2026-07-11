@@ -19,80 +19,99 @@ import 'package:test/test.dart';
 /// the relevant report method's source text is both deterministic and a
 /// faithful proxy for "this tool's classifier runs in this report."
 void main() {
-  test('every tool name in reportAnalysisSources is a analysisHintsCatalog key',
-      () {
-    for (final entry in reportAnalysisSources.entries) {
-      for (final type in entry.value) {
-        expect(analysisHintsCatalog.containsKey(type), isTrue,
+  test(
+    'every tool name in reportAnalysisSources is a analysisHintsCatalog key',
+    () {
+      for (final entry in reportAnalysisSources.entries) {
+        for (final type in entry.value) {
+          expect(
+            analysisHintsCatalog.containsKey(type),
+            isTrue,
             reason:
                 'reportAnalysisSources[\'${entry.key}\'] references unknown '
-                'catalog type $type');
+                'catalog type $type',
+          );
+        }
       }
-    }
-  });
+    },
+  );
 
   test('reportAnalysisSources has exactly the five known report types', () {
-    expect(
-      reportAnalysisSources.keys.toSet(),
-      {'technical', 'security', 'pm', 'code_review', 'repository_audit'},
-    );
+    expect(reportAnalysisSources.keys.toSet(), {
+      'technical',
+      'security',
+      'pm',
+      'code_review',
+      'repository_audit',
+    });
   });
 
   test(
-      'reportAnalysisSources exactly matches the classifiers ReportOrchestrator '
-      'invokes per report', () {
-    final source =
-        File('lib/src/mcp/reports/report_orchestrator.dart').readAsStringSync();
+    'reportAnalysisSources exactly matches the classifiers ReportOrchestrator '
+    'invokes per report',
+    () {
+      final source =
+          File(
+            'lib/src/mcp/reports/report_orchestrator.dart',
+          ).readAsStringSync();
 
-    String methodBody(String signature) {
-      final start = source.indexOf(signature);
-      expect(start, greaterThanOrEqualTo(0),
-          reason: 'report_orchestrator.dart no longer declares $signature');
-      final end = source.indexOf('Future<', start + signature.length);
-      return source.substring(start, end == -1 ? source.length : end);
-    }
-
-    String combinedBody(List<String> signatures) =>
-        signatures.map(methodBody).join('\n');
-
-    final reportMethodSignatures = <String, List<String>>{
-      'technical': [
-        'Future<ReportPayload> technicalReport(',
-        'Future<TechnicalAnalysis> _technicalFindings(',
-        'Future<List<List<String>>> _detectImportCycles(',
-      ],
-      'security': [
-        'Future<ReportPayload> securityReport(',
-        'Future<List<Finding>> _securityFindings(',
-      ],
-      'pm': ['Future<ReportPayload> pmReport('],
-      'code_review': ['Future<ReportPayload> codeReviewReport('],
-      'repository_audit': [
-        'Future<ReportPayload> repositoryAudit(',
-        'Future<TechnicalAnalysis> _technicalFindings(',
-        'Future<List<List<String>>> _detectImportCycles(',
-        'Future<List<Finding>> _securityFindings(',
-      ],
-    };
-
-    for (final reportType in reportAnalysisSources.keys) {
-      final body = combinedBody(reportMethodSignatures[reportType]!);
-      final declared = reportAnalysisSources[reportType]!.toSet();
-
-      for (final entry in _toolMarkers.entries) {
-        final invoked = body.contains(entry.value);
-        final isDeclared = declared.contains(entry.key);
-        expect(invoked, isDeclared,
-            reason: invoked
-                ? 'reportAnalysisSources[\'$reportType\'] is missing '
-                    '${entry.key} (its classifier, ${entry.value}, is '
-                    'invoked by this report)'
-                : 'reportAnalysisSources[\'$reportType\'] declares '
-                    '${entry.key}, but its classifier, ${entry.value}, is '
-                    'never invoked by this report');
+      String methodBody(String signature) {
+        final start = source.indexOf(signature);
+        expect(
+          start,
+          greaterThanOrEqualTo(0),
+          reason: 'report_orchestrator.dart no longer declares $signature',
+        );
+        final end = source.indexOf('Future<', start + signature.length);
+        return source.substring(start, end == -1 ? source.length : end);
       }
-    }
-  });
+
+      String combinedBody(List<String> signatures) =>
+          signatures.map(methodBody).join('\n');
+
+      final reportMethodSignatures = <String, List<String>>{
+        'technical': [
+          'Future<ReportPayload> technicalReport(',
+          'Future<TechnicalAnalysis> _technicalFindings(',
+          'Future<List<List<String>>> _detectImportCycles(',
+        ],
+        'security': [
+          'Future<ReportPayload> securityReport(',
+          'Future<List<Finding>> _securityFindings(',
+        ],
+        'pm': ['Future<ReportPayload> pmReport('],
+        'code_review': ['Future<ReportPayload> codeReviewReport('],
+        'repository_audit': [
+          'Future<ReportPayload> repositoryAudit(',
+          'Future<TechnicalAnalysis> _technicalFindings(',
+          'Future<List<List<String>>> _detectImportCycles(',
+          'Future<List<Finding>> _securityFindings(',
+        ],
+      };
+
+      for (final reportType in reportAnalysisSources.keys) {
+        final body = combinedBody(reportMethodSignatures[reportType]!);
+        final declared = reportAnalysisSources[reportType]!.toSet();
+
+        for (final entry in _toolMarkers.entries) {
+          final invoked = body.contains(entry.value);
+          final isDeclared = declared.contains(entry.key);
+          expect(
+            invoked,
+            isDeclared,
+            reason:
+                invoked
+                    ? 'reportAnalysisSources[\'$reportType\'] is missing '
+                        '${entry.key} (its classifier, ${entry.value}, is '
+                        'invoked by this report)'
+                    : 'reportAnalysisSources[\'$reportType\'] declares '
+                        '${entry.key}, but its classifier, ${entry.value}, is '
+                        'never invoked by this report',
+          );
+        }
+      }
+    },
+  );
 }
 
 /// Maps each catalog tool this project's reports can produce findings for to

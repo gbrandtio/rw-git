@@ -79,10 +79,11 @@ void main() {
 
       // Should be: int, x, =, 5, ;, \n, int, y, =, 6, ;
       expect(
-          tokens
-              .where((t) => t.type == TokenType.identifier)
-              .map((t) => t.lexeme),
-          ['int', 'x', 'int', 'y']);
+        tokens
+            .where((t) => t.type == TokenType.identifier)
+            .map((t) => t.lexeme),
+        ['int', 'x', 'int', 'y'],
+      );
       expect(tokens.any((t) => t.lexeme.contains('comment')), isFalse);
     });
 
@@ -91,10 +92,11 @@ void main() {
       final tokens = lexer.tokenize();
 
       expect(
-          tokens
-              .where((t) => t.type == TokenType.identifier)
-              .map((t) => t.lexeme),
-          ['class', 'Test']);
+        tokens
+            .where((t) => t.type == TokenType.identifier)
+            .map((t) => t.lexeme),
+        ['class', 'Test'],
+      );
       expect(tokens.any((t) => t.lexeme.contains('Block')), isFalse);
     });
 

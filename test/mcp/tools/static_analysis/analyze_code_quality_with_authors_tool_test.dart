@@ -20,8 +20,11 @@ void main() {
 
     test('executes with author breakdown on this repo', () async {
       try {
-        final resultStr = await tool
-            .execute({'directory': './', 'limit': 2, 'includeAuthors': true});
+        final resultStr = await tool.execute({
+          'directory': './',
+          'limit': 2,
+          'includeAuthors': true,
+        });
         final result = jsonDecode(resultStr) as Map<String, dynamic>;
         expect(result.containsKey('high_churn_files'), isTrue);
         // When any high-churn file surfaces, it must carry the per-author map.

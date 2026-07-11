@@ -47,7 +47,8 @@ void main() {
 
     test('acyclic imports and foreign packages produce no cycles', () {
       final cycles = analyzer.detectImportCyclesInSources({
-        'lib/a.dart': "import 'dart:io';\nimport 'package:test/test.dart';\n"
+        'lib/a.dart':
+            "import 'dart:io';\nimport 'package:test/test.dart';\n"
             "import 'b.dart';\nclass A {}",
         'lib/b.dart': 'class B {}',
       }, packageName: 'demo');

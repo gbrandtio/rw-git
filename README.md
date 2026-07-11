@@ -2,14 +2,14 @@
   <picture>
     <source
       media="(prefers-color-scheme: dark)"
-      srcset="https://raw.githubusercontent.com/gbrandtio/rw-git/main/branding/lockup-dark.png">
-    <img src="https://raw.githubusercontent.com/gbrandtio/rw-git/main/branding/lockup.png" alt="rw_git" width="310">
+      srcset="https://raw.githubusercontent.com/rw-core/rw-git/main/branding/lockup-dark.png">
+    <img src="https://raw.githubusercontent.com/rw-core/rw-git/main/branding/lockup.png" alt="rw_git" width="310">
   </picture>
 </p>
 <p align="center">
-  <img src="https://github.com/gbrandtio/rw-git/actions/workflows/dart.yml/badge.svg" alt="Github action dart.yml badge"/>
-  <img src="https://github.com/gbrandtio/rw-git/actions/workflows/coverage.yml/badge.svg" alt="Code Coverage"/>
-  <a href="https://codecov.io/gh/gbrandtio/rw-git" ><img src="https://codecov.io/gh/gbrandtio/rw-git/branch/main/graph/badge.svg?token=ETZPSI51EH"/></a>
+  <img src="https://github.com/rw-core/rw-git/actions/workflows/dart.yml/badge.svg" alt="Github action dart.yml badge"/>
+  <img src="https://github.com/rw-core/rw-git/actions/workflows/coverage.yml/badge.svg" alt="Code Coverage"/>
+  <a href="https://codecov.io/gh/rw-core/rw-git" ><img src="https://codecov.io/gh/rw-core/rw-git/branch/main/graph/badge.svg?token=ETZPSI51EH"/></a>
   <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
   <a href="https://pub.dev/packages/rw_git"><img src="https://img.shields.io/pub/v/rw_git.svg" alt="Pub Version"></a>
   <a href="https://pub.dev/packages/rw_git/score"><img src="https://img.shields.io/pub/points/rw_git" alt="Pub Points"></a>
@@ -131,7 +131,7 @@ Every finding names the research behind its band in a compact `basis` tag (e.g. 
 The MCP Prompts above are propagated through the MCP offerring also shipped as file-based agent skills. To install them locally:
 
 ```bash
-npx @gbrandtio/rw-git-mcp install-skills
+npx @rw-core/rw-git-mcp install-skills
 ```
 *(Or `rw-git-mcp install-skills` if installed globally)*
 
@@ -141,7 +141,7 @@ This extracts skills to `./.agents/skills/rw-git-mcp/` for local agent usage.
 
 **NPM / NPX (Recommended for Claude/Cursor/AGY)**:
 ```bash
-npx -y @gbrandtio/rw-git-mcp
+npx -y @rw-core/rw-git-mcp
 ```
 
 **Dart SDK**:
@@ -149,13 +149,13 @@ npx -y @gbrandtio/rw-git-mcp
 dart pub global activate rw_git
 ```
 
-**Pre-compiled Binaries**: Download native executables from [GitHub Releases](https://github.com/gbrandtio/rw-git/releases).
+**Pre-compiled Binaries**: Download native executables from [GitHub Releases](https://github.com/rw-core/rw-git/releases).
 
 #### Client Configurations
 
 **Claude Code (CLI)**:
 ```bash
-claude mcp add rw_git --scope user -- npx -y @gbrandtio/rw-git-mcp
+claude mcp add rw_git --scope user -- npx -y @rw-core/rw-git-mcp
 ```
 
 **Claude Desktop** (`claude_desktop_config.json`):
@@ -164,7 +164,7 @@ claude mcp add rw_git --scope user -- npx -y @gbrandtio/rw-git-mcp
   "mcpServers": {
     "rw_git": {
       "command": "npx",
-      "args": ["-y", "@gbrandtio/rw-git-mcp"]
+      "args": ["-y", "@rw-core/rw-git-mcp"]
     }
   }
 }
@@ -176,7 +176,7 @@ claude mcp add rw_git --scope user -- npx -y @gbrandtio/rw-git-mcp
   "mcpServers": {
     "rw_git": {
       "command": "npx",
-      "args": ["-y", "@gbrandtio/rw-git-mcp"]
+      "args": ["-y", "@rw-core/rw-git-mcp"]
     }
   }
 }
@@ -266,4 +266,4 @@ Contributions are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) for de
 
 ## Additional information
 
-Please file any issues on the [github issue tracker](https://github.com/gbrandtio/rw-git/issues).
+Please file any issues on the [github issue tracker](https://github.com/rw-core/rw-git/issues).

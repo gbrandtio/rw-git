@@ -3,8 +3,12 @@ import 'package:rw_git/src/intelligence/static_analysis/metrics/agnostic/lexer/t
 
 void main() {
   test('Token toString', () {
-    const token =
-        Token(type: TokenType.identifier, start: 0, end: 4, source: 'test');
+    const token = Token(
+      type: TokenType.identifier,
+      start: 0,
+      end: 4,
+      source: 'test',
+    );
     expect(token.toString(), 'Token(TokenType.identifier, "test")');
   });
 }

@@ -21,16 +21,18 @@ class DartAstClassifier {
     final findings = <Finding>[];
     for (final cycle in cycles) {
       final normalizedMembers = cycle.map(PathKey.normalize).toList()..sort();
-      findings.add(Finding(
-        category: 'dartAst',
-        source: [AnalysisType.dartAstQuality],
-        severity: Severity.high,
-        subject: normalizedMembers.first,
-        metric: 'import_cycle',
-        value: normalizedMembers.length,
-        band: 'circular import chain',
-        evidence: {'cycle_members': normalizedMembers},
-      ));
+      findings.add(
+        Finding(
+          category: 'dartAst',
+          source: [AnalysisType.dartAstQuality],
+          severity: Severity.high,
+          subject: normalizedMembers.first,
+          metric: 'import_cycle',
+          value: normalizedMembers.length,
+          band: 'circular import chain',
+          evidence: {'cycle_members': normalizedMembers},
+        ),
+      );
     }
     return findings;
   }

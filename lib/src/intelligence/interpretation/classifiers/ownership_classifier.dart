@@ -42,8 +42,9 @@ class OwnershipClassifier {
       if (stats.total <= 0 || stats.authors.isEmpty) return;
       final normalized = PathKey.normalize(file);
 
-      final top =
-          stats.authors.entries.reduce((a, b) => a.value >= b.value ? a : b);
+      final top = stats.authors.entries.reduce(
+        (a, b) => a.value >= b.value ? a : b,
+      );
       final share = top.value / stats.total;
       if (share >= _minShare) {
         final Severity severity;
@@ -56,47 +57,57 @@ class OwnershipClassifier {
           band = '30-50% single-author ownership';
         }
 
-        findings.add(Finding(
-          category: 'ownership',
-          source: [AnalysisType.fileOwnership],
-          severity: severity,
-          subject: normalized,
-          metric: 'single_author_ownership',
-          value: double.parse((share * 100).toStringAsFixed(2)),
-          band: band,
-          evidence: {
-            'top_author': top.key,
-            'author_changes': top.value,
-            'total_changes': stats.total,
-          },
-        ));
+        findings.add(
+          Finding(
+            category: 'ownership',
+            source: [AnalysisType.fileOwnership],
+            severity: severity,
+            subject: normalized,
+            metric: 'single_author_ownership',
+            value: double.parse((share * 100).toStringAsFixed(2)),
+            band: band,
+            evidence: {
+              'top_author': top.key,
+              'author_changes': top.value,
+              'total_changes': stats.total,
+            },
+          ),
+        );
       }
 
       // Bird's second finding: many minor contributors predict defects
       // independently of who the majority owner is.
-      final minorContributors = stats.authors.entries
-          .where((author) =>
-              author.value / stats.total < birdMinorContributorShareThreshold)
-          .map((author) => author.key)
-          .toList();
+      final minorContributors =
+          stats.authors.entries
+              .where(
+                (author) =>
+                    author.value / stats.total <
+                    birdMinorContributorShareThreshold,
+              )
+              .map((author) => author.key)
+              .toList();
       if (minorContributors.length >= birdMinorContributorMinimumCount) {
-        findings.add(Finding(
-          category: 'ownership',
-          source: [AnalysisType.fileOwnership],
-          severity: Severity.elevated,
-          subject: normalized,
-          metric: 'minor_contributor_count',
-          value: minorContributors.length,
-          band: '>= $birdMinorContributorMinimumCount contributors below '
-              '${(birdMinorContributorShareThreshold * 100).round()}% share',
-          evidence: {
-            'minor_contributor_count': minorContributors.length,
-            'minor_contributors_sample': minorContributors
-                .take(aggregateFindingEvidenceSampleSize)
-                .toList(),
-            'total_authors': stats.authors.length,
-          },
-        ));
+        findings.add(
+          Finding(
+            category: 'ownership',
+            source: [AnalysisType.fileOwnership],
+            severity: Severity.elevated,
+            subject: normalized,
+            metric: 'minor_contributor_count',
+            value: minorContributors.length,
+            band:
+                '>= $birdMinorContributorMinimumCount contributors below '
+                '${(birdMinorContributorShareThreshold * 100).round()}% share',
+            evidence: {
+              'minor_contributor_count': minorContributors.length,
+              'minor_contributors_sample':
+                  minorContributors
+                      .take(aggregateFindingEvidenceSampleSize)
+                      .toList(),
+              'total_authors': stats.authors.length,
+            },
+          ),
+        );
       }
     });
     return findings;

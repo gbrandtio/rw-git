@@ -23,15 +23,12 @@ class IsGitRepositoryTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The directory to check.'
-          }
-        },
-        'required': ['directory']
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {'type': 'string', 'description': 'The directory to check.'},
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -63,8 +60,11 @@ class IsGitRepositoryTool implements McpTool {
       lastCommitDate = logRes?.trim() ?? '';
 
       final countRes =
-          (await gitQuery.run(dir, ['rev-list', '--count', 'HEAD']))
-              .getOrNull();
+          (await gitQuery.run(dir, [
+            'rev-list',
+            '--count',
+            'HEAD',
+          ])).getOrNull();
       totalCommits = int.tryParse(countRes?.trim() ?? '') ?? 0;
     } catch (_) {
       // Ignore errors if health data cannot be fetched
@@ -77,7 +77,7 @@ class IsGitRepositoryTool implements McpTool {
         'has_uncommitted_changes': hasUncommittedChanges,
         'last_commit_date': lastCommitDate,
         'total_commits': totalCommits,
-      }
+      },
     });
   }
 }

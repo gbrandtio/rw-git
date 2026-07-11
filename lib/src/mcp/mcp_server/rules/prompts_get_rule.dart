@@ -10,11 +10,17 @@ class PromptsGetRule implements McpRule {
 
   @override
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  ) async {
     final promptName = params['name'] as String?;
     if (promptName == null) {
       ctx.sendError(
-          id, jsonRpcInvalidParams, 'Invalid params: missing prompt name');
+        id,
+        jsonRpcInvalidParams,
+        'Invalid params: missing prompt name',
+      );
       return;
     }
 

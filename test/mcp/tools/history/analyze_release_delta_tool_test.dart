@@ -20,8 +20,11 @@ void main() {
 
     test('executes successfully on this repo', () async {
       try {
-        final result = await tool.execute(
-            {'directory': './', 'firstTag': 'HEAD~1', 'secondTag': 'HEAD'});
+        final result = await tool.execute({
+          'directory': './',
+          'firstTag': 'HEAD~1',
+          'secondTag': 'HEAD',
+        });
         expect(result, isNotNull);
       } catch (e) {
         // Just in case it still fails

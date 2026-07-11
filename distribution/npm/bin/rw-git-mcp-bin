@@ -124,7 +124,7 @@
   <meta name="github-keyboard-shortcuts" content="copilot" data-turbo-transient="true" />
   
 
-  <meta name="selected-link" value="/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" data-turbo-transient>
+  <meta name="selected-link" value="/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" data-turbo-transient>
   <link rel="assets" href="https://github.githubassets.com/">
 
     <meta name="google-site-verification" content="Apib7-x98H0j5cPqHWwSMm6dNU4GmODRoqxLiDzdx9I">
@@ -156,7 +156,7 @@
 
     <link rel="fluid-icon" href="https://github.com/fluidicon.png" title="GitHub">
     <meta property="fb:app_id" content="1401488693436528">
-    <meta name="apple-itunes-app" content="app-id=1477376905, app-argument=https://github.com/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" />
+    <meta name="apple-itunes-app" content="app-id=1477376905, app-argument=https://github.com/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" />
 
       <meta property="og:url" content="https://github.com">
   <meta property="og:site_name" content="GitHub">
@@ -211,7 +211,7 @@
 
 
 
-      <link rel="canonical" href="https://github.com/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" data-turbo-transient>
+      <link rel="canonical" href="https://github.com/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" data-turbo-transient>
 
 
     <meta name="turbo-body-classes" content="logged-out env-production page-responsive min-height-full d-flex flex-column">
@@ -312,9 +312,9 @@
 
       <div class="d-flex flex-1 flex-order-2 text-right d-lg-none gap-2 flex-justify-end">
           <a
-            href="/login?return_to=https%3A%2F%2Fgithub.com%2Fgbrandtio%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64"
+            href="/login?return_to=https%3A%2F%2Fgithub.com%2Frw-core%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64"
             class="HeaderMenu-link HeaderMenu-button d-inline-flex f5 no-underline border color-border-default rounded-2 px-2 py-1 color-fg-inherit js-prevent-focus-on-mobile-nav"
-            data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="607086378378779e58c0349df00ab7535b06b1b242c79e50ba447d4663d71ee4"
+            data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="607086378378779e58c0349df00ab7535b06b1b242c79e50ba447d4663d71ee4"
             data-analytics-event="{&quot;category&quot;:&quot;Marketing nav&quot;,&quot;action&quot;:&quot;click to Sign in&quot;,&quot;label&quot;:&quot;ref_page:Marketing;ref_cta:Sign in;ref_loc:Header&quot;}"
           >
             Sign in
@@ -372,7 +372,7 @@
                 
 
 
-<qbsearch-input class="search-input" data-scope="owner:gbrandtio" data-custom-scopes-path="/search/custom_scopes" data-delete-custom-scopes-csrf="2SL38e6koeWkkm3b8bvTAXVrOQmhtWwShv2DvoL8IS_5r0idBy1VpiOtPbhyso8cWCM5nlQFrDceK11984aVPA" data-max-custom-scopes="10" data-header-redesign-enabled="false" data-initial-value="" data-blackbird-suggestions-path="/search/suggestions" data-jump-to-suggestions-path="/_graphql/GetSuggestedNavigationDestinations" data-current-repository="" data-current-org="" data-current-owner="" data-logged-in="false" data-copilot-chat-enabled="false" data-nl-search-enabled="false" data-retain-scroll-position="true">
+<qbsearch-input class="search-input" data-scope="owner:rw-core" data-custom-scopes-path="/search/custom_scopes" data-delete-custom-scopes-csrf="2SL38e6koeWkkm3b8bvTAXVrOQmhtWwShv2DvoL8IS_5r0idBy1VpiOtPbhyso8cWCM5nlQFrDceK11984aVPA" data-max-custom-scopes="10" data-header-redesign-enabled="false" data-initial-value="" data-blackbird-suggestions-path="/search/suggestions" data-jump-to-suggestions-path="/_graphql/GetSuggestedNavigationDestinations" data-current-repository="" data-current-org="" data-current-owner="" data-logged-in="false" data-copilot-chat-enabled="false" data-nl-search-enabled="false" data-retain-scroll-position="true">
   <div
     class="search-input-container search-with-dialog position-relative d-flex flex-row flex-items-center tmp-mr-4 rounded"
     data-action="click:qbsearch-input#searchInputContainerClicked"
@@ -816,10 +816,10 @@
 
             <div class="position-relative HeaderMenu-link-wrap d-lg-inline-block">
               <a
-                href="/login?return_to=https%3A%2F%2Fgithub.com%2Fgbrandtio%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64"
+                href="/login?return_to=https%3A%2F%2Fgithub.com%2Frw-core%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64"
                 class="HeaderMenu-link HeaderMenu-link--sign-in HeaderMenu-button flex-shrink-0 no-underline d-none d-lg-inline-flex border border-lg-0 rounded px-2 py-1"
                 style="margin-left: 12px;"
-                data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="607086378378779e58c0349df00ab7535b06b1b242c79e50ba447d4663d71ee4"
+                data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="607086378378779e58c0349df00ab7535b06b1b242c79e50ba447d4663d71ee4"
                 data-analytics-event="{&quot;category&quot;:&quot;Marketing nav&quot;,&quot;action&quot;:&quot;click to go to homepage&quot;,&quot;label&quot;:&quot;ref_page:Marketing;ref_cta:Sign in;ref_loc:Header&quot;}"
               >
                 Sign in
@@ -847,7 +847,7 @@
 <input type="hidden" class="js-support" name="javascript-support" value="unknown">
 <input type="hidden" class="js-webauthn-support" name="webauthn-support" value="unknown">
 <input type="hidden" class="js-webauthn-iuvpaa-support" name="webauthn-iuvpaa-support" value="unknown">
-<input type="hidden" name="return_to" id="return_to" value="https://github.com/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" autocomplete="off" class="form-control" />
+<input type="hidden" name="return_to" id="return_to" value="https://github.com/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64" autocomplete="off" class="form-control" />
 <input type="hidden" name="allow_signup" id="allow_signup" autocomplete="off" class="form-control" />
 <input type="hidden" name="client_id" id="client_id" autocomplete="off" class="form-control" />
 <input type="hidden" name="integration" id="integration" autocomplete="off" class="form-control" />
@@ -857,7 +857,7 @@
   </div>
 </form>  <webauthn-status class="js-webauthn-login-emu-control">
         <div data-target="webauthn-status.partial" class="d-flex flex-justify-between flex-column tmp-mt-3 mb-0" hidden>
-          <a href="/login?return_to=https%3A%2F%2Fgithub.com%2Fgbrandtio%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64" data-analytics-event="{&quot;category&quot;:&quot;passkey_404_login&quot;,&quot;action&quot;:&quot;clicked&quot;,&quot;label&quot;:null}" data-view-component="true" class="Button--link Button--medium Button">  <span class="Button-content">
+          <a href="/login?return_to=https%3A%2F%2Fgithub.com%2Frw-core%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64" data-analytics-event="{&quot;category&quot;:&quot;passkey_404_login&quot;,&quot;action&quot;:&quot;clicked&quot;,&quot;label&quot;:null}" data-view-component="true" class="Button--link Button--medium Button">  <span class="Button-content">
     <span class="Button-label">or continue with other methods</span>
   </span>
 </a>
@@ -867,10 +867,10 @@
 
 </div></div>            </div>
 
-              <a href="/signup?ref_cta=Sign+up&amp;ref_loc=header+logged+out&amp;ref_page=%2Fgbrandtio%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64&amp;source=header"
+              <a href="/signup?ref_cta=Sign+up&amp;ref_loc=header+logged+out&amp;ref_page=%2Frw-core%2Frw-git%2Freleases%2Fdownload%2Fv3.0.0%2Frw_git_mcp_macos_arm64&amp;source=header"
                 class="HeaderMenu-link HeaderMenu-link--sign-up HeaderMenu-button flex-shrink-0 d-flex d-lg-inline-flex no-underline border color-border-default rounded px-2 py-1"
-                data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="607086378378779e58c0349df00ab7535b06b1b242c79e50ba447d4663d71ee4"
-                data-analytics-event="{&quot;category&quot;:&quot;Sign up&quot;,&quot;action&quot;:&quot;click to sign up for account&quot;,&quot;label&quot;:&quot;ref_page:/gbrandtio/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64;ref_cta:Sign up;ref_loc:header logged out&quot;}"
+                data-hydro-click="{&quot;event_type&quot;:&quot;authentication.click&quot;,&quot;payload&quot;:{&quot;location_in_page&quot;:&quot;site header menu&quot;,&quot;repository_id&quot;:null,&quot;auth_type&quot;:&quot;SIGN_UP&quot;,&quot;originating_url&quot;:&quot;https://github.com/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64&quot;,&quot;user_id&quot;:null}}" data-hydro-click-hmac="607086378378779e58c0349df00ab7535b06b1b242c79e50ba447d4663d71ee4"
+                data-analytics-event="{&quot;category&quot;:&quot;Sign up&quot;,&quot;action&quot;:&quot;click to sign up for account&quot;,&quot;label&quot;:&quot;ref_page:/rw-core/rw-git/releases/download/v3.0.0/rw_git_mcp_macos_arm64;ref_cta:Sign up;ref_loc:header logged out&quot;}"
               >
                 Sign up
               </a>

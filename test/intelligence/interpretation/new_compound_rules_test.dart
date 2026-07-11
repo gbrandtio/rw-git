@@ -22,35 +22,39 @@ void main() {
       for (var i = 0; i < minorContributors; i++) 'minor$i': 1,
     };
     final total = authors.values.fold<int>(0, (sum, value) => sum + value);
-    return fc.fromOwnership(ChurnMetricsWithAuthorsDto(
-      fileChurn: {file: ContributionStats(total: total, authors: authors)},
-      totalCommits: total,
-    ));
+    return fc.fromOwnership(
+      ChurnMetricsWithAuthorsDto(
+        fileChurn: {file: ContributionStats(total: total, authors: authors)},
+        totalCommits: total,
+      ),
+    );
   }
 
   /// Bug-hotspot findings for [files] (each above 2x the global lifetime).
-  List<Finding> hotspotsOn(List<String> files) =>
-      fc.fromBugHotspots(BugHotspotDto(
-        fileHotspots: {for (final f in files) f: 5},
-        authorHotspots: const {},
-        totalFixCommitsAnalyzed: files.length * 5,
-        globalAverageBugLifetimeInDays: 10,
-        fileAverageBugLifetimeInDays: {for (final f in files) f: 30},
-        authorAverageBugLifetimeInDays: const {},
-      ));
+  List<Finding> hotspotsOn(List<String> files) => fc.fromBugHotspots(
+    BugHotspotDto(
+      fileHotspots: {for (final f in files) f: 5},
+      authorHotspots: const {},
+      totalFixCommitsAnalyzed: files.length * 5,
+      globalAverageBugLifetimeInDays: 10,
+      fileAverageBugLifetimeInDays: {for (final f in files) f: 30},
+      authorAverageBugLifetimeInDays: const {},
+    ),
+  );
 
   /// A High burnout finding (>15% of commits in the burnout window).
-  List<Finding> burnoutFindings() =>
-      fc.fromCommitVelocity(const CommitVelocityDto(
-        buckets: [],
-        totalCommits: 100,
-        averagePerPeriod: 10,
-        trend: 'stable',
-        anomalies: [],
-        totalBurnoutCommits: 30,
-        giniCoefficient: 0.2,
-        velocitySlope: 1,
-      ));
+  List<Finding> burnoutFindings() => fc.fromCommitVelocity(
+    const CommitVelocityDto(
+      buckets: [],
+      totalCommits: 100,
+      averagePerPeriod: 10,
+      trend: 'stable',
+      anomalies: [],
+      totalBurnoutCommits: 30,
+      giniCoefficient: 0.2,
+      velocitySlope: 1,
+    ),
+  );
 
   group('Rule 6: author-level knowledge loss', () {
     test('fires when one author solely owns 2+ bug-hotspot files', () {
@@ -75,10 +79,11 @@ void main() {
       ];
 
       expect(
-          correlator
-              .correlate(findings)
-              .where((c) => c.metric == 'knowledge_loss_risk'),
-          isEmpty);
+        correlator
+            .correlate(findings)
+            .where((c) => c.metric == 'knowledge_loss_risk'),
+        isEmpty,
+      );
     });
   });
 
@@ -100,10 +105,11 @@ void main() {
       final findings = ownershipOn('lib/quiet.dart', minorContributors: 4);
 
       expect(
-          correlator
-              .correlate(findings)
-              .where((c) => c.metric == 'minor_contributors_x_hotspot'),
-          isEmpty);
+        correlator
+            .correlate(findings)
+            .where((c) => c.metric == 'minor_contributors_x_hotspot'),
+        isEmpty,
+      );
     });
   });
 
@@ -124,17 +130,20 @@ void main() {
 
     test('stays silent without hotspots', () {
       expect(
-          correlator
-              .correlate(burnoutFindings())
-              .where((c) => c.metric == 'burnout_x_bug_introduction'),
-          isEmpty);
+        correlator
+            .correlate(burnoutFindings())
+            .where((c) => c.metric == 'burnout_x_bug_introduction'),
+        isEmpty,
+      );
     });
   });
 
   group('Bird minor-contributor classifier finding', () {
     test('3+ minor contributors band Elevated with a sample in evidence', () {
-      final finding = ownershipOn('lib/x.dart', minorContributors: 3)
-          .singleWhere((f) => f.metric == 'minor_contributor_count');
+      final finding = ownershipOn(
+        'lib/x.dart',
+        minorContributors: 3,
+      ).singleWhere((f) => f.metric == 'minor_contributor_count');
 
       expect(finding.severity, Severity.elevated);
       expect(finding.value, 3);
@@ -143,9 +152,12 @@ void main() {
 
     test('fewer than 3 minor contributors stay silent', () {
       expect(
-          ownershipOn('lib/x.dart', minorContributors: 2)
-              .where((f) => f.metric == 'minor_contributor_count'),
-          isEmpty);
+        ownershipOn(
+          'lib/x.dart',
+          minorContributors: 2,
+        ).where((f) => f.metric == 'minor_contributor_count'),
+        isEmpty,
+      );
     });
   });
 }

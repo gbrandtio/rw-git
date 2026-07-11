@@ -53,10 +53,7 @@ void main() {
 
       expect(parsed['total_commits_scanned'], 2);
       expect((parsed['unsigned_commits'] as List).length, 1);
-      expect(
-        (parsed['unsigned_commits'] as List).first['hash'],
-        'aaa',
-      );
+      expect((parsed['unsigned_commits'] as List).first['hash'], 'aaa');
     });
 
     test('detects unrecognized emails', () async {

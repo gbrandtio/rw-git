@@ -24,9 +24,10 @@ void main() {
   });
 
   test('one crossed heuristic bands Elevated', () {
-    final finding = fc.fromCleanCode([
-      metrics('lib/one.dart', const ['too long'])
-    ]).single;
+    final finding =
+        fc.fromCleanCode([
+          metrics('lib/one.dart', const ['too long']),
+        ]).single;
 
     expect(finding.severity, Severity.elevated);
     expect(finding.category, 'cleanCode');
@@ -35,18 +36,24 @@ void main() {
   });
 
   test('three or more agreeing heuristics escalate to High', () {
-    final finding = fc.fromCleanCode([
-      metrics('lib/bad.dart', const ['too long', 'nesting', 'magic numbers'])
-    ]).single;
+    final finding =
+        fc.fromCleanCode([
+          metrics('lib/bad.dart', const [
+            'too long',
+            'nesting',
+            'magic numbers',
+          ]),
+        ]).single;
 
     expect(finding.severity, Severity.high);
     expect(finding.band, contains('3'));
   });
 
   test('evidence carries the full measured metrics', () {
-    final finding = fc.fromCleanCode([
-      metrics('lib/one.dart', const ['issue'])
-    ]).single;
+    final finding =
+        fc.fromCleanCode([
+          metrics('lib/one.dart', const ['issue']),
+        ]).single;
 
     expect(finding.evidence.keys, [
       'total_lines',

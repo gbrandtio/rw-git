@@ -43,20 +43,25 @@ class CompoundFindingCorrelator {
     // Rule 1: bug hotspot + single-owner (per-file bus factor Critical) on the
     // same file → undocumented tribal knowledge in the buggiest code.
     for (final hotspot in of('bugHotspot')) {
-      final owner =
-          onSubject('ownership', hotspot.subject, atLeast: Severity.critical);
+      final owner = onSubject(
+        'ownership',
+        hotspot.subject,
+        atLeast: Severity.critical,
+      );
       if (owner != null) {
-        compounds.add(_compound(
-          subject: hotspot.subject,
-          metric: 'bug_hotspot_x_single_owner',
-          band: 'bug hotspot owned by a single author',
-          sources: const [
-            AnalysisType.bugHotspots,
-            AnalysisType.fileOwnership,
-            AnalysisType.compound
-          ],
-          evidence: {'bug_hotspot': _ref(hotspot), 'ownership': _ref(owner)},
-        ));
+        compounds.add(
+          _compound(
+            subject: hotspot.subject,
+            metric: 'bug_hotspot_x_single_owner',
+            band: 'bug hotspot owned by a single author',
+            sources: const [
+              AnalysisType.bugHotspots,
+              AnalysisType.fileOwnership,
+              AnalysisType.compound,
+            ],
+            evidence: {'bug_hotspot': _ref(hotspot), 'ownership': _ref(owner)},
+          ),
+        );
       }
     }
 
@@ -66,13 +71,15 @@ class CompoundFindingCorrelator {
       if (cx.severity.rank < Severity.high.rank) continue;
       final churn = onSubject('churn', cx.subject);
       if (churn != null) {
-        compounds.add(_compound(
-          subject: cx.subject,
-          metric: 'complexity_x_churn',
-          band: 'complex, actively-changing code',
-          sources: const [AnalysisType.codeQuality, AnalysisType.compound],
-          evidence: {'complexity': _ref(cx), 'churn': _ref(churn)},
-        ));
+        compounds.add(
+          _compound(
+            subject: cx.subject,
+            metric: 'complexity_x_churn',
+            band: 'complex, actively-changing code',
+            sources: const [AnalysisType.codeQuality, AnalysisType.compound],
+            evidence: {'complexity': _ref(cx), 'churn': _ref(churn)},
+          ),
+        );
       }
     }
 
@@ -81,14 +88,19 @@ class CompoundFindingCorrelator {
     for (final c in of('coupling')) {
       if (c.severity.rank < Severity.high.rank) continue;
       if (c.evidence['cross_module'] == true) {
-        compounds.add(_compound(
-          subject: c.subject,
-          metric: 'cross_module_coupling',
-          band: 'strong coupling across modules',
-          sources: const [AnalysisType.logicalCoupling, AnalysisType.compound],
-          evidence: c.evidence,
-          severity: Severity.high,
-        ));
+        compounds.add(
+          _compound(
+            subject: c.subject,
+            metric: 'cross_module_coupling',
+            band: 'strong coupling across modules',
+            sources: const [
+              AnalysisType.logicalCoupling,
+              AnalysisType.compound,
+            ],
+            evidence: c.evidence,
+            severity: Severity.high,
+          ),
+        );
       }
     }
 
@@ -99,20 +111,22 @@ class CompoundFindingCorrelator {
     if (staleDeps.isNotEmpty) {
       for (final secret in of('secret')) {
         if (_looksLikeDependencyConfig(secret.subject)) {
-          compounds.add(_compound(
-            subject: secret.subject,
-            metric: 'stale_dependency_x_secret',
-            band: 'exposed secret alongside outdated dependencies',
-            sources: const [
-              AnalysisType.detectSecrets,
-              AnalysisType.dependencyDrift,
-              AnalysisType.compound,
-            ],
-            evidence: {
-              'secret': _ref(secret),
-              'stale_dependencies': staleDeps.map((d) => d.subject).toList(),
-            },
-          ));
+          compounds.add(
+            _compound(
+              subject: secret.subject,
+              metric: 'stale_dependency_x_secret',
+              band: 'exposed secret alongside outdated dependencies',
+              sources: const [
+                AnalysisType.detectSecrets,
+                AnalysisType.dependencyDrift,
+                AnalysisType.compound,
+              ],
+              evidence: {
+                'secret': _ref(secret),
+                'stale_dependencies': staleDeps.map((d) => d.subject).toList(),
+              },
+            ),
+          );
         }
       }
     }
@@ -123,17 +137,22 @@ class CompoundFindingCorrelator {
       if (lexical.severity.rank < Severity.high.rank) continue;
       final churn = onSubject('churn', lexical.subject);
       if (churn != null) {
-        compounds.add(_compound(
-          subject: lexical.subject,
-          metric: 'real_complexity_x_churn',
-          band: 'high McCabe complexity in actively-changing code',
-          sources: const [
-            AnalysisType.universalLexicalMetrics,
-            AnalysisType.codeQuality,
-            AnalysisType.compound,
-          ],
-          evidence: {'lexical_complexity': _ref(lexical), 'churn': _ref(churn)},
-        ));
+        compounds.add(
+          _compound(
+            subject: lexical.subject,
+            metric: 'real_complexity_x_churn',
+            band: 'high McCabe complexity in actively-changing code',
+            sources: const [
+              AnalysisType.universalLexicalMetrics,
+              AnalysisType.codeQuality,
+              AnalysisType.compound,
+            ],
+            evidence: {
+              'lexical_complexity': _ref(lexical),
+              'churn': _ref(churn),
+            },
+          ),
+        );
       }
     }
 
@@ -151,17 +170,19 @@ class CompoundFindingCorrelator {
     for (final entry in hotspotFilesByOwner.entries) {
       if (entry.value.length < knowledgeLossMinimumFiles) continue;
       final files = entry.value..sort();
-      compounds.add(_compound(
-        subject: entry.key,
-        metric: 'knowledge_loss_risk',
-        band: '>= $knowledgeLossMinimumFiles single-owner bug hotspots',
-        sources: const [
-          AnalysisType.fileOwnership,
-          AnalysisType.bugHotspots,
-          AnalysisType.compound
-        ],
-        evidence: {'author': entry.key, 'at_risk_files': files},
-      ));
+      compounds.add(
+        _compound(
+          subject: entry.key,
+          metric: 'knowledge_loss_risk',
+          band: '>= $knowledgeLossMinimumFiles single-owner bug hotspots',
+          sources: const [
+            AnalysisType.fileOwnership,
+            AnalysisType.bugHotspots,
+            AnalysisType.compound,
+          ],
+          evidence: {'author': entry.key, 'at_risk_files': files},
+        ),
+      );
     }
 
     // Rule 7: many minor contributors on a file SZZ marks a bug hotspot →
@@ -170,18 +191,20 @@ class CompoundFindingCorrelator {
       if (owner.metric != 'minor_contributor_count') continue;
       final hotspot = onSubject('bugHotspot', owner.subject);
       if (hotspot != null) {
-        compounds.add(_compound(
-          subject: owner.subject,
-          metric: 'minor_contributors_x_hotspot',
-          band: 'many minor contributors on a bug hotspot',
-          sources: const [
-            AnalysisType.fileOwnership,
-            AnalysisType.bugHotspots,
-            AnalysisType.compound
-          ],
-          evidence: {'ownership': _ref(owner), 'bug_hotspot': _ref(hotspot)},
-          severity: Severity.high,
-        ));
+        compounds.add(
+          _compound(
+            subject: owner.subject,
+            metric: 'minor_contributors_x_hotspot',
+            band: 'many minor contributors on a bug hotspot',
+            sources: const [
+              AnalysisType.fileOwnership,
+              AnalysisType.bugHotspots,
+              AnalysisType.compound,
+            ],
+            evidence: {'ownership': _ref(owner), 'bug_hotspot': _ref(hotspot)},
+            severity: Severity.high,
+          ),
+        );
       }
     }
 
@@ -189,30 +212,37 @@ class CompoundFindingCorrelator {
     // bug hotspots → the delivery-health and defect problems reinforce each
     // other. Repo-level co-occurrence, deliberately not a per-commit causal
     // attribution (SZZ dates are UTC-normalized; burnout is wall-clock).
-    final burnout = of('velocity')
-        .where((v) =>
-            v.metric == 'burnout_commit_share' &&
-            v.severity.rank >= Severity.high.rank)
-        .toList();
-    final activeHotspots = of('bugHotspot')
-        .where((h) => h.severity.rank >= Severity.elevated.rank)
-        .toList();
+    final burnout =
+        of('velocity')
+            .where(
+              (v) =>
+                  v.metric == 'burnout_commit_share' &&
+                  v.severity.rank >= Severity.high.rank,
+            )
+            .toList();
+    final activeHotspots =
+        of(
+          'bugHotspot',
+        ).where((h) => h.severity.rank >= Severity.elevated.rank).toList();
     if (burnout.isNotEmpty && activeHotspots.isNotEmpty) {
-      compounds.add(_compound(
-        subject: 'repository',
-        metric: 'burnout_x_bug_introduction',
-        band: 'sustained off-hours work alongside active bug hotspots',
-        sources: const [
-          AnalysisType.commitVelocity,
-          AnalysisType.bugHotspots,
-          AnalysisType.compound
-        ],
-        evidence: {
-          'burnout': _ref(burnout.first),
-          'active_bug_hotspots': activeHotspots.map((h) => h.subject).toList(),
-        },
-        severity: Severity.high,
-      ));
+      compounds.add(
+        _compound(
+          subject: 'repository',
+          metric: 'burnout_x_bug_introduction',
+          band: 'sustained off-hours work alongside active bug hotspots',
+          sources: const [
+            AnalysisType.commitVelocity,
+            AnalysisType.bugHotspots,
+            AnalysisType.compound,
+          ],
+          evidence: {
+            'burnout': _ref(burnout.first),
+            'active_bug_hotspots':
+                activeHotspots.map((h) => h.subject).toList(),
+          },
+          severity: Severity.high,
+        ),
+      );
     }
 
     return compounds;
@@ -222,10 +252,10 @@ class CompoundFindingCorrelator {
   /// compound without embedding the full finding (which would bloat the
   /// payload and push it past the inline threshold).
   Map<String, dynamic> _ref(Finding f) => {
-        'subject': f.subject,
-        'severity': f.severity.label,
-        'band': f.band,
-      };
+    'subject': f.subject,
+    'severity': f.severity.label,
+    'band': f.band,
+  };
 
   Finding _compound({
     required String subject,

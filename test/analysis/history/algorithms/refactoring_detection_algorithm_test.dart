@@ -24,8 +24,11 @@ class MockProcessRunner implements ProcessRunner {
   }
 
   @override
-  Stream<String> runStream(String executable, List<String> arguments,
-      {String? workingDirectory}) {
+  Stream<String> runStream(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  }) {
     throw UnimplementedError();
   }
 }
@@ -42,17 +45,18 @@ void main() {
   group('RefactoringDetectionAlgorithm', () {
     test('detects refactoring correctly', () async {
       mockRunner.mockResult(
-          'git',
-          [
-            'log',
-            '-n',
-            '100',
-            '-M',
-            '--name-status',
-            '--shortstat',
-            '--format=COMMIT||%H||%an||%aI||%s'
-          ],
-          'COMMIT||hash123||Alice||2023-01-01T00:00:00Z||refactor: cleanup code\n 2 files changed, 100 insertions(+), 50 deletions(-)\n');
+        'git',
+        [
+          'log',
+          '-n',
+          '100',
+          '-M',
+          '--name-status',
+          '--shortstat',
+          '--format=COMMIT||%H||%an||%aI||%s',
+        ],
+        'COMMIT||hash123||Alice||2023-01-01T00:00:00Z||refactor: cleanup code\n 2 files changed, 100 insertions(+), 50 deletions(-)\n',
+      );
 
       final results = await algorithm.execute('./test', limit: '100');
 
@@ -62,37 +66,34 @@ void main() {
     });
 
     test('handles empty git log', () async {
-      mockRunner.mockResult(
-          'git',
-          [
-            'log',
-            '-n',
-            '100',
-            '-M',
-            '--name-status',
-            '--shortstat',
-            '--format=COMMIT||%H||%an||%aI||%s'
-          ],
-          '');
+      mockRunner.mockResult('git', [
+        'log',
+        '-n',
+        '100',
+        '-M',
+        '--name-status',
+        '--shortstat',
+        '--format=COMMIT||%H||%an||%aI||%s',
+      ], '');
       final results = await algorithm.execute('./test', limit: '100');
       expect(results, isEmpty);
     });
 
     test('forwards since/until as git flags', () async {
-      mockRunner.mockResult(
-          'git',
-          [
-            'log',
-            '-M',
-            '--name-status',
-            '--shortstat',
-            '--format=COMMIT||%H||%an||%aI||%s',
-            '--since=2024-01-01',
-            '--until=2024-12-31',
-          ],
-          '');
-      final results = await algorithm.execute('./test',
-          since: '2024-01-01', until: '2024-12-31');
+      mockRunner.mockResult('git', [
+        'log',
+        '-M',
+        '--name-status',
+        '--shortstat',
+        '--format=COMMIT||%H||%an||%aI||%s',
+        '--since=2024-01-01',
+        '--until=2024-12-31',
+      ], '');
+      final results = await algorithm.execute(
+        './test',
+        since: '2024-01-01',
+        until: '2024-12-31',
+      );
       expect(results, isEmpty);
     });
   });

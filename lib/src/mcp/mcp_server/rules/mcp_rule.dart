@@ -7,5 +7,8 @@ abstract class McpRule {
   bool matches(String? method);
 
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params);
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  );
 }

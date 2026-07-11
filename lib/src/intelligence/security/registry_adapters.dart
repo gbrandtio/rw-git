@@ -25,7 +25,9 @@ class RegistryRequest {
 /// Returns null for ecosystems with no known registry lookup (e.g. unsupported
 /// types), so callers can classify those as 'unknown' instead of crashing.
 RegistryRequest? buildRegistryRequest(
-    String ecosystemType, String packageName) {
+  String ecosystemType,
+  String packageName,
+) {
   switch (ecosystemType) {
     case 'dart':
       return RegistryRequest(
@@ -40,7 +42,8 @@ RegistryRequest? buildRegistryRequest(
     case 'npm':
       return RegistryRequest(
         uri: Uri.parse(
-            'https://registry.npmjs.org/${_encodeNpmPackageName(packageName)}/latest'),
+          'https://registry.npmjs.org/${_encodeNpmPackageName(packageName)}/latest',
+        ),
         extractVersion: (json) => json['version'] as String?,
       );
 
@@ -58,7 +61,7 @@ RegistryRequest? buildRegistryRequest(
       return RegistryRequest(
         uri: Uri.parse('https://crates.io/api/v1/crates/$packageName'),
         headers: const {
-          'User-Agent': 'rw-git (https://github.com/gbrandtio/rw-git)',
+          'User-Agent': 'rw-git (https://github.com/rw-core/rw-git)',
         },
         extractVersion: (json) {
           final crate = json['crate'];

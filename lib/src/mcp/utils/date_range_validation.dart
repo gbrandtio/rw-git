@@ -19,8 +19,5 @@ bool isValidDateInput(String value) {
   ).hasMatch(value)) {
     return true;
   }
-  return RegExp(
-    r'^yesterday$',
-    caseSensitive: false,
-  ).hasMatch(value);
+  return RegExp(r'^yesterday$', caseSensitive: false).hasMatch(value);
 }

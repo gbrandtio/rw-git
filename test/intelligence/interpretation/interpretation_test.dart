@@ -40,7 +40,9 @@ void main() {
 
     test('topDecileThreshold', () {
       expect(
-          RepoStats.topDecileThreshold(const [1, 1, 1, 10]), greaterThan(1.0));
+        RepoStats.topDecileThreshold(const [1, 1, 1, 10]),
+        greaterThan(1.0),
+      );
     });
   });
 
@@ -61,13 +63,16 @@ void main() {
 
   group('BusFactorClassifier', () {
     BusFactorDto dto(double topPct) => BusFactorDto(
-          busFactor: 1,
-          totalDevelopers: 3,
-          topContributors: [
-            DeveloperContribution(
-                author: 'A', contributions: 10, percentage: topPct),
-          ],
-        );
+      busFactor: 1,
+      totalDevelopers: 3,
+      topContributors: [
+        DeveloperContribution(
+          author: 'A',
+          contributions: 10,
+          percentage: topPct,
+        ),
+      ],
+    );
 
     test('bands', () {
       expect(fc.fromBusFactor(dto(0.7)).single.severity, Severity.critical);
@@ -77,8 +82,9 @@ void main() {
 
     test('empty contributors yields nothing', () {
       expect(
-        fc.fromBusFactor(BusFactorDto(
-            busFactor: 0, totalDevelopers: 0, topContributors: [])),
+        fc.fromBusFactor(
+          BusFactorDto(busFactor: 0, totalDevelopers: 0, topContributors: []),
+        ),
         isEmpty,
       );
     });
@@ -89,19 +95,26 @@ void main() {
         ChurnMetricsWithAuthorsDto(
           fileChurn: {
             'lib/x.dart': ContributionStats(
-                total: authors.values.fold(0, (a, b) => a + b),
-                authors: authors)
+              total: authors.values.fold(0, (a, b) => a + b),
+              authors: authors,
+            ),
           },
           totalCommits: 10,
         );
 
     test('critical, moderate, and skipped bands', () {
-      expect(fc.fromOwnership(dto({'A': 9, 'B': 1})).single.severity,
-          Severity.critical);
-      expect(fc.fromOwnership(dto({'A': 4, 'B': 3, 'C': 3})).single.severity,
-          Severity.moderate);
-      expect(fc.fromOwnership(dto({'A': 2, 'B': 2, 'C': 2, 'D': 2, 'E': 2})),
-          isEmpty);
+      expect(
+        fc.fromOwnership(dto({'A': 9, 'B': 1})).single.severity,
+        Severity.critical,
+      );
+      expect(
+        fc.fromOwnership(dto({'A': 4, 'B': 3, 'C': 3})).single.severity,
+        Severity.moderate,
+      );
+      expect(
+        fc.fromOwnership(dto({'A': 2, 'B': 2, 'C': 2, 'D': 2, 'E': 2})),
+        isEmpty,
+      );
     });
 
     test('empty stats skipped', () {
@@ -140,7 +153,7 @@ void main() {
           'f3': 10,
           'f4': 10,
           'big': 30,
-          'mid': 15
+          'mid': 15,
         },
         coChangeMatrix: const {},
         architectureDistribution: const {},
@@ -153,11 +166,13 @@ void main() {
 
     test('empty or zero-median yields nothing', () {
       expect(
-        fc.fromComplexity(AdvancedCodeQualityDto(
-          fileComplexity: const {},
-          coChangeMatrix: const {},
-          architectureDistribution: const {},
-        )),
+        fc.fromComplexity(
+          AdvancedCodeQualityDto(
+            fileComplexity: const {},
+            coChangeMatrix: const {},
+            architectureDistribution: const {},
+          ),
+        ),
         isEmpty,
       );
     });
@@ -199,20 +214,23 @@ void main() {
     test('strong, moderate, skip and cross-module flag', () {
       final findings = fc.fromLogicalCoupling([
         LogicalCouplingDto(
-            fileA: 'lib/a.dart',
-            fileB: 'test/b.dart',
-            coChangeCount: 9,
-            confidence: 0.8),
+          fileA: 'lib/a.dart',
+          fileB: 'test/b.dart',
+          coChangeCount: 9,
+          confidence: 0.8,
+        ),
         LogicalCouplingDto(
-            fileA: 'lib/a.dart',
-            fileB: 'lib/c.dart',
-            coChangeCount: 4,
-            confidence: 0.4),
+          fileA: 'lib/a.dart',
+          fileB: 'lib/c.dart',
+          coChangeCount: 4,
+          confidence: 0.4,
+        ),
         LogicalCouplingDto(
-            fileA: 'lib/a.dart',
-            fileB: 'lib/d.dart',
-            coChangeCount: 1,
-            confidence: 0.1),
+          fileA: 'lib/a.dart',
+          fileB: 'lib/d.dart',
+          coChangeCount: 1,
+          confidence: 0.1,
+        ),
       ]);
       expect(findings.length, 2);
       expect(findings[0].severity, Severity.high);
@@ -226,25 +244,29 @@ void main() {
     test('flags top-decile volatility', () {
       final findings = fc.fromVolatility([
         CodeVolatilityDto(
-            filePath: 'lib/hot.dart',
-            totalChanges: 40,
-            uniqueAuthors: 5,
-            volatilityScore: 200),
+          filePath: 'lib/hot.dart',
+          totalChanges: 40,
+          uniqueAuthors: 5,
+          volatilityScore: 200,
+        ),
         CodeVolatilityDto(
-            filePath: 'lib/a.dart',
-            totalChanges: 2,
-            uniqueAuthors: 1,
-            volatilityScore: 2),
+          filePath: 'lib/a.dart',
+          totalChanges: 2,
+          uniqueAuthors: 1,
+          volatilityScore: 2,
+        ),
         CodeVolatilityDto(
-            filePath: 'lib/b.dart',
-            totalChanges: 2,
-            uniqueAuthors: 1,
-            volatilityScore: 2),
+          filePath: 'lib/b.dart',
+          totalChanges: 2,
+          uniqueAuthors: 1,
+          volatilityScore: 2,
+        ),
         CodeVolatilityDto(
-            filePath: 'lib/c.dart',
-            totalChanges: 2,
-            uniqueAuthors: 1,
-            volatilityScore: 2),
+          filePath: 'lib/c.dart',
+          totalChanges: 2,
+          uniqueAuthors: 1,
+          volatilityScore: 2,
+        ),
       ]);
       expect(findings.single.subject, 'lib/hot.dart');
     });
@@ -254,19 +276,25 @@ void main() {
     test('freshness bands', () {
       final findings = fc.fromDependencyFreshness([
         const FreshnessResult(
-            name: 'p1',
-            declaredVersion: '1.0.0',
-            classification: 'major_behind'),
+          name: 'p1',
+          declaredVersion: '1.0.0',
+          classification: 'major_behind',
+        ),
         const FreshnessResult(
-            name: 'p2',
-            declaredVersion: '1.0.0',
-            classification: 'minor_behind'),
+          name: 'p2',
+          declaredVersion: '1.0.0',
+          classification: 'minor_behind',
+        ),
         const FreshnessResult(
-            name: 'p3',
-            declaredVersion: '1.0.0',
-            classification: 'patch_behind'),
+          name: 'p3',
+          declaredVersion: '1.0.0',
+          classification: 'patch_behind',
+        ),
         const FreshnessResult(
-            name: 'p4', declaredVersion: '1.0.0', classification: 'current'),
+          name: 'p4',
+          declaredVersion: '1.0.0',
+          classification: 'current',
+        ),
       ]);
       final byName = {for (final f in findings) f.subject: f.severity};
       expect(byName['p1'], Severity.critical);
@@ -279,14 +307,21 @@ void main() {
   group('ComplianceClassifier', () {
     test('per-violation findings', () {
       const v = ComplianceViolation(
-          hash: 'abc', author: 'A', message: 'm', email: 'a@x', date: 'd');
-      final findings = fc.fromCompliance(const ComplianceReportDto(
-        totalCommitsScanned: 20,
-        unsignedCommits: [v],
-        emptyMessageCommits: [v],
-        unrecognizedAuthorCommits: [],
-        nonConventionalCommits: [],
-      ));
+        hash: 'abc',
+        author: 'A',
+        message: 'm',
+        email: 'a@x',
+        date: 'd',
+      );
+      final findings = fc.fromCompliance(
+        const ComplianceReportDto(
+          totalCommitsScanned: 20,
+          unsignedCommits: [v],
+          emptyMessageCommits: [v],
+          unrecognizedAuthorCommits: [],
+          nonConventionalCommits: [],
+        ),
+      );
       final byMetric = {for (final f in findings) f.metric: f.severity};
       expect(byMetric['unsigned_commits'], Severity.moderate);
       expect(byMetric['empty_message_commits'], Severity.low);
@@ -311,39 +346,49 @@ void main() {
 
     test('rule 1: bug hotspot + single-owner file', () {
       final findings = [
-        ...fc.fromBugHotspots(BugHotspotDto(
-          fileHotspots: {'lib/x.dart': 5},
-          authorHotspots: const {},
-          totalFixCommitsAnalyzed: 5,
-          globalAverageBugLifetimeInDays: 10,
-          fileAverageBugLifetimeInDays: {'lib/x.dart': 100},
-          authorAverageBugLifetimeInDays: const {},
-        )),
-        ...fc.fromOwnership(const ChurnMetricsWithAuthorsDto(
-          fileChurn: {
-            'lib/x.dart': ContributionStats(total: 10, authors: {'A': 10})
-          },
-          totalCommits: 10,
-        )),
+        ...fc.fromBugHotspots(
+          BugHotspotDto(
+            fileHotspots: {'lib/x.dart': 5},
+            authorHotspots: const {},
+            totalFixCommitsAnalyzed: 5,
+            globalAverageBugLifetimeInDays: 10,
+            fileAverageBugLifetimeInDays: {'lib/x.dart': 100},
+            authorAverageBugLifetimeInDays: const {},
+          ),
+        ),
+        ...fc.fromOwnership(
+          const ChurnMetricsWithAuthorsDto(
+            fileChurn: {
+              'lib/x.dart': ContributionStats(total: 10, authors: {'A': 10}),
+            },
+            totalCommits: 10,
+          ),
+        ),
       ];
       final compounds = correlator.correlate(findings);
-      expect(compounds.any((c) => c.metric == 'bug_hotspot_x_single_owner'),
-          isTrue);
+      expect(
+        compounds.any((c) => c.metric == 'bug_hotspot_x_single_owner'),
+        isTrue,
+      );
       expect(compounds.first.category, 'compound');
       expect(compounds.first.severity, Severity.critical);
     });
 
     test('rule 2: complexity outlier + churn', () {
       final findings = [
-        ...fc.fromComplexity(AdvancedCodeQualityDto(
-          fileComplexity: {'lib/x.dart': 30, 'a': 10, 'b': 10, 'c': 10},
-          coChangeMatrix: const {},
-          architectureDistribution: const {},
-        )),
-        ...fc.fromChurn(const ChurnMetricsDto(
-          fileChurn: {'lib/x.dart': 10, 'a': 1, 'b': 1, 'c': 1},
-          totalCommits: 13,
-        )),
+        ...fc.fromComplexity(
+          AdvancedCodeQualityDto(
+            fileComplexity: {'lib/x.dart': 30, 'a': 10, 'b': 10, 'c': 10},
+            coChangeMatrix: const {},
+            architectureDistribution: const {},
+          ),
+        ),
+        ...fc.fromChurn(
+          const ChurnMetricsDto(
+            fileChurn: {'lib/x.dart': 10, 'a': 1, 'b': 1, 'c': 1},
+            totalCommits: 13,
+          ),
+        ),
       ];
       final compounds = correlator.correlate(findings);
       expect(compounds.any((c) => c.metric == 'complexity_x_churn'), isTrue);
@@ -352,10 +397,11 @@ void main() {
     test('rule 3: strong cross-module coupling', () {
       final findings = fc.fromLogicalCoupling([
         LogicalCouplingDto(
-            fileA: 'lib/a.dart',
-            fileB: 'app/b.dart',
-            coChangeCount: 9,
-            confidence: 0.9),
+          fileA: 'lib/a.dart',
+          fileB: 'app/b.dart',
+          coChangeCount: 9,
+          confidence: 0.9,
+        ),
       ]);
       final compounds = correlator.correlate(findings);
       expect(compounds.single.metric, 'cross_module_coupling');
@@ -366,30 +412,37 @@ void main() {
       final findings = [
         ...fc.fromDependencyFreshness([
           const FreshnessResult(
-              name: 'p',
-              declaredVersion: '1.0.0',
-              classification: 'major_behind'),
+            name: 'p',
+            declaredVersion: '1.0.0',
+            classification: 'major_behind',
+          ),
         ]),
         ...fc.fromSecrets([
           'Commit: x\nFile: pubspec.yaml\nFound Potential Secret (Regex): a***b',
         ]),
       ];
       final compounds = correlator.correlate(findings);
-      expect(compounds.any((c) => c.metric == 'stale_dependency_x_secret'),
-          isTrue);
+      expect(
+        compounds.any((c) => c.metric == 'stale_dependency_x_secret'),
+        isTrue,
+      );
     });
 
     test('no compound when subjects differ', () {
       final findings = [
-        ...fc.fromComplexity(AdvancedCodeQualityDto(
-          fileComplexity: {'lib/x.dart': 30, 'a': 10, 'b': 10, 'c': 10},
-          coChangeMatrix: const {},
-          architectureDistribution: const {},
-        )),
-        ...fc.fromChurn(const ChurnMetricsDto(
-          fileChurn: {'lib/other.dart': 10, 'a': 1, 'b': 1, 'c': 1},
-          totalCommits: 13,
-        )),
+        ...fc.fromComplexity(
+          AdvancedCodeQualityDto(
+            fileComplexity: {'lib/x.dart': 30, 'a': 10, 'b': 10, 'c': 10},
+            coChangeMatrix: const {},
+            architectureDistribution: const {},
+          ),
+        ),
+        ...fc.fromChurn(
+          const ChurnMetricsDto(
+            fileChurn: {'lib/other.dart': 10, 'a': 1, 'b': 1, 'c': 1},
+            totalCommits: 13,
+          ),
+        ),
       ];
       expect(correlator.correlate(findings), isEmpty);
     });
@@ -423,7 +476,9 @@ void main() {
       // Compounds live in their own list, not duplicated inside top_findings.
       expect(payload.compoundFindings.single.metric, 'complexity_x_churn');
       expect(
-          payload.topFindings.every((f) => f.category != 'compound'), isTrue);
+        payload.topFindings.every((f) => f.category != 'compound'),
+        isTrue,
+      );
       expect(payload.summaryBySeverity['Critical'], 1);
       expect(payload.summaryBySeverity['High'], 1);
 

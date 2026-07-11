@@ -20,31 +20,38 @@ void main() {
   /// Test group for [rwGit.getCommitsBetween()] function.
   group('getCommitsBetween', () {
     test(
-        'output count will be greater than 0, if the provided repository and tags are valid',
-        () async {
-      (await rwGit.clone(testDir, repository)).getOrThrow();
-      List<FileSystemEntity> clonedFiles =
-          await Directory(testDir).list().toList();
+      'output count will be greater than 0, if the provided repository and tags are valid',
+      () async {
+        (await rwGit.clone(testDir, repository)).getOrThrow();
+        List<FileSystemEntity> clonedFiles =
+            await Directory(testDir).list().toList();
 
-      List<GitCommit> commitsBetweenTags = (await rwGit.getCommitsBetween(
-              clonedFiles[0].uri.path, 'v1.0.4', 'v1.0.6'))
-          .getOrThrow();
+        List<GitCommit> commitsBetweenTags =
+            (await rwGit.getCommitsBetween(
+              clonedFiles[0].uri.path,
+              'v1.0.4',
+              'v1.0.6',
+            )).getOrThrow();
 
-      expect(commitsBetweenTags.isNotEmpty, true);
-    });
+        expect(commitsBetweenTags.isNotEmpty, true);
+      },
+    );
 
     test(
-        'will throw RwGitException if the provided tags or directory are invalid',
-        () async {
-      await Directory(testDir).create();
-      try {
-        (await rwGit.getCommitsBetween(
-                testDir, 'v1.0.0_extinct', 'v1.0.1_extinct'))
-            .getOrThrow();
-        fail('Should have thrown RwGitException');
-      } on RwGitException catch (e) {
-        expect(e.exitCode != 0, true);
-      }
-    });
+      'will throw RwGitException if the provided tags or directory are invalid',
+      () async {
+        await Directory(testDir).create();
+        try {
+          (await rwGit.getCommitsBetween(
+            testDir,
+            'v1.0.0_extinct',
+            'v1.0.1_extinct',
+          )).getOrThrow();
+          fail('Should have thrown RwGitException');
+        } on RwGitException catch (e) {
+          expect(e.exitCode != 0, true);
+        }
+      },
+    );
   });
 }

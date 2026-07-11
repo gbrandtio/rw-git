@@ -9,8 +9,10 @@ void main() {
   const fc = FindingClassifier();
 
   test('mega commits aggregate into one Moderate finding with samples', () {
-    final flagged =
-        List.generate(8, (i) => 'hash$i - author (2026-01-01): big change $i');
+    final flagged = List.generate(
+      8,
+      (i) => 'hash$i - author (2026-01-01): big change $i',
+    );
     final findings = fc.fromMegaCommits(flagged);
 
     final finding = findings.single;

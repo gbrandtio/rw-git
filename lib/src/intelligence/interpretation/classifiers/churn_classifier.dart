@@ -29,19 +29,21 @@ class ChurnClassifier {
     churn.forEach((file, count) {
       if (count < threshold) return;
       final normalized = PathKey.normalize(file);
-      findings.add(Finding(
-        category: 'churn',
-        source: [AnalysisType.codeQuality],
-        severity: Severity.elevated,
-        subject: normalized,
-        metric: 'file_churn',
-        value: count,
-        band: 'top-decile change frequency',
-        evidence: {
-          'file_churn': count,
-          'top_decile_threshold': double.parse(threshold.toStringAsFixed(2)),
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'churn',
+          source: [AnalysisType.codeQuality],
+          severity: Severity.elevated,
+          subject: normalized,
+          metric: 'file_churn',
+          value: count,
+          band: 'top-decile change frequency',
+          evidence: {
+            'file_churn': count,
+            'top_decile_threshold': double.parse(threshold.toStringAsFixed(2)),
+          },
+        ),
+      );
     });
     return findings;
   }

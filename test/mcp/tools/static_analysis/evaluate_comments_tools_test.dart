@@ -6,15 +6,10 @@ import 'package:rw_git/rw_git.dart';
 void main() {
   late MockProcessRunner runner;
 
-  const gitArgs = [
-    'log',
-    '-n',
-    '500',
-    '-p',
-    '--format=%H||%an||%aI||%s',
-  ];
+  const gitArgs = ['log', '-n', '500', '-p', '--format=%H||%an||%aI||%s'];
 
-  const sampleDiff = '+++ b/test.dart\n'
+  const sampleDiff =
+      '+++ b/test.dart\n'
       '@@ -1,1 +1,2 @@\n'
       '+ // comment';
 
@@ -34,15 +29,20 @@ void main() {
       final tool = EvaluateCommentsTool(runner);
       runner.setMockResult('git', gitArgs, 0, sampleDiff, '');
 
-      final result = jsonDecode(await tool.execute({'directory': 'fake_dir'}))
-          as Map<String, dynamic>;
+      final result =
+          jsonDecode(await tool.execute({'directory': 'fake_dir'}))
+              as Map<String, dynamic>;
 
-      expect(result['aspects'],
-          containsAll(['quality', 'necessity', 'llm_generation']));
+      expect(
+        result['aspects'],
+        containsAll(['quality', 'necessity', 'llm_generation']),
+      );
 
       final criteria = result['evaluation_criteria'] as Map<String, dynamic>;
-      expect(criteria.keys,
-          containsAll(['quality', 'necessity', 'llm_generation']));
+      expect(
+        criteria.keys,
+        containsAll(['quality', 'necessity', 'llm_generation']),
+      );
       expect(
         (criteria['llm_generation'] as List).any(
           (c) => (c as String).contains('LLM artifacts'),
@@ -69,9 +69,14 @@ void main() {
       final tool = EvaluateCommentsTool(runner);
       runner.setMockResult('git', gitArgs, 0, sampleDiff, '');
 
-      final result = jsonDecode(await tool
-              .execute({'directory': 'fake_dir', 'aspects': 'quality'}))
-          as Map<String, dynamic>;
+      final result =
+          jsonDecode(
+                await tool.execute({
+                  'directory': 'fake_dir',
+                  'aspects': 'quality',
+                }),
+              )
+              as Map<String, dynamic>;
 
       expect(result['aspects'], ['quality']);
       final criteria = result['evaluation_criteria'] as Map<String, dynamic>;
@@ -82,9 +87,14 @@ void main() {
       final tool = EvaluateCommentsTool(runner);
       runner.setMockResult('git', gitArgs, 0, sampleDiff, '');
 
-      final result = jsonDecode(
-              await tool.execute({'directory': 'fake_dir', 'aspects': 'bogus'}))
-          as Map<String, dynamic>;
+      final result =
+          jsonDecode(
+                await tool.execute({
+                  'directory': 'fake_dir',
+                  'aspects': 'bogus',
+                }),
+              )
+              as Map<String, dynamic>;
 
       expect((result['aspects'] as List).length, 3);
     });
@@ -101,8 +111,9 @@ void main() {
         '',
       );
 
-      final result = jsonDecode(await tool.execute({'directory': 'fake_dir'}))
-          as Map<String, dynamic>;
+      final result =
+          jsonDecode(await tool.execute({'directory': 'fake_dir'}))
+              as Map<String, dynamic>;
 
       expect(result['status'], 'no_comments_found');
       expect(result['message'], contains('No comments found'));

@@ -32,8 +32,9 @@ void main() {
       final e1 = GitExecutableNotFoundException();
       expect(e1.message, contains('Failed to execute git'));
 
-      final e2 =
-          GitExecutableNotFoundException(message: 'Custom git path missing');
+      final e2 = GitExecutableNotFoundException(
+        message: 'Custom git path missing',
+      );
       expect(e2.message, 'Custom git path missing');
     });
 

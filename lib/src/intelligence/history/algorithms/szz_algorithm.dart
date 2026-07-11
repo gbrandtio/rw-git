@@ -32,10 +32,11 @@ class SzzAlgorithm {
   /// AST differencing is not available (the same trade-off as
   /// `RefactoringDetectionAlgorithm`).
   static final RegExp _refactoringSubjectPattern = RegExp(
-      r'\b(refactor(ing|ed)?|rewrite|rewrote|rename(d|s)?|restructure(d)?|'
-      r'reformat(ted)?|format(ting)?|style|clean|cleanup|clean-up|move(d)?|'
-      r'extract(ed)?|inline(d)?)\b',
-      caseSensitive: false);
+    r'\b(refactor(ing|ed)?|rewrite|rewrote|rename(d|s)?|restructure(d)?|'
+    r'reformat(ted)?|format(ting)?|style|clean|cleanup|clean-up|move(d)?|'
+    r'extract(ed)?|inline(d)?)\b',
+    caseSensitive: false,
+  );
 
   /// `git blame -l` line shape:
   /// `[^]<hash>[ <file>] (<author> <iso-strict date> <lineno>)`.
@@ -43,7 +44,8 @@ class SzzAlgorithm {
   /// digit to keep the column width); the optional filename column appears
   /// when `-C -C` attributes the line to content moved from another file.
   static final RegExp _blameLinePattern = RegExp(
-      r'^(\^?[a-f0-9]{39,40})(?:\s+(.+?))?\s+\((.*?)\s*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:?\d{2}))\s+\d+\)');
+    r'^(\^?[a-f0-9]{39,40})(?:\s+(.+?))?\s+\((.*?)\s*(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:Z|[+-]\d{2}:?\d{2}))\s+\d+\)',
+  );
 
   /// Identifies bug introductions across the repository history:
   /// 1. Find bug-fix commits via keyword heuristics (positive/negative
@@ -63,7 +65,7 @@ class SzzAlgorithm {
       '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
       '-i',
       '--no-merges',
-      '--format=format:%H%x09%aI%x09%s'
+      '--format=format:%H%x09%aI%x09%s',
     ];
 
     if (limit != null) {
@@ -86,19 +88,23 @@ class SzzAlgorithm {
     final lines = rawOutput.split('\n');
     final fixCommits = <_FixCommitInfo>[];
 
-    final posRegex = positiveRegex != null
-        ? RegExp(positiveRegex, caseSensitive: false)
-        : null;
-    final negRegex = negativeRegex != null
-        ? RegExp(negativeRegex, caseSensitive: false)
-        : null;
+    final posRegex =
+        positiveRegex != null
+            ? RegExp(positiveRegex, caseSensitive: false)
+            : null;
+    final negRegex =
+        negativeRegex != null
+            ? RegExp(negativeRegex, caseSensitive: false)
+            : null;
 
     final defaultPosRegex = RegExp(
-        r'\b(fix|fixes|fixed|fixing|bug|bugs|patch|issue|resolve|resolves|resolved)\b',
-        caseSensitive: false);
+      r'\b(fix|fixes|fixed|fixing|bug|bugs|patch|issue|resolve|resolves|resolved)\b',
+      caseSensitive: false,
+    );
     final defaultNegRegex = RegExp(
-        r'\b(typo|docs?|documentation|readme|format|formatting|style|cleanup|refactor)\b',
-        caseSensitive: false);
+      r'\b(typo|docs?|documentation|readme|format|formatting|style|cleanup|refactor)\b',
+      caseSensitive: false,
+    );
 
     final rPos = posRegex ?? defaultPosRegex;
     final rNeg = negRegex ?? defaultNegRegex;
@@ -123,8 +129,10 @@ class SzzAlgorithm {
     const chunkSize = 10;
     for (var i = 0; i < fixCommits.length; i += chunkSize) {
       final chunk = fixCommits.skip(i).take(chunkSize);
-      final futures = chunk.map((fixInfo) =>
-          _traceIntroducingCommits(directory, fixInfo.hash, fixInfo.date));
+      final futures = chunk.map(
+        (fixInfo) =>
+            _traceIntroducingCommits(directory, fixInfo.hash, fixInfo.date),
+      );
       final results = await Future.wait(futures);
       matches.addAll(results.expand((m) => m));
     }
@@ -140,7 +148,9 @@ class SzzAlgorithm {
   /// Returns an empty list when [fixCommitHash] cannot be resolved: a
   /// missing commit cannot be diffed or blamed either.
   Future<List<SzzMatch>> traceFixCommit(
-      String directory, String fixCommitHash) async {
+    String directory,
+    String fixCommitHash,
+  ) async {
     final metadata = await _commitMetadata(directory, fixCommitHash);
     if (metadata == null) return [];
     final fixDate = GitDateTime.parse(metadata.isoAuthorDate).utc;
@@ -159,21 +169,31 @@ class SzzAlgorithm {
   ///    is itself a refactoring commit — the buggy code predates it, so
   ///    blaming the refactoring author would be a false attribution.
   Future<List<SzzMatch>> _traceIntroducingCommits(
-      String directory, String commit, DateTime fixDate) async {
+    String directory,
+    String commit,
+    DateTime fixDate,
+  ) async {
     final matches = <SzzMatch>[];
 
     // Get parent of fix commit
-    final parentRes = await runner.run('git', ['rev-parse', '$commit^'],
-        workingDirectory: directory);
+    final parentRes = await runner.run('git', [
+      'rev-parse',
+      '$commit^',
+    ], workingDirectory: directory);
     if (parentRes.exitCode != 0) return matches;
     final parent = parentRes.stdout?.toString().trim() ?? '';
     if (parent.isEmpty) return matches;
 
     // MA-SZZ: ignore whitespace and blank-line changes to avoid attributing
     // cosmetic edits as bug introductions (da Costa et al., 2017).
-    final diffRes = await runner.run(
-        'git', ['diff', '-M', '-w', '--ignore-blank-lines', parent, commit],
-        workingDirectory: directory);
+    final diffRes = await runner.run('git', [
+      'diff',
+      '-M',
+      '-w',
+      '--ignore-blank-lines',
+      parent,
+      commit,
+    ], workingDirectory: directory);
     if (diffRes.exitCode != 0) return matches;
 
     final commitDiff = _parseUnifiedDiff(diffRes.stdout?.toString() ?? '');
@@ -183,26 +203,24 @@ class SzzAlgorithm {
 
       // RA-SZZ line filter: a deleted line whose content re-appears among
       // the commit's added lines was moved, not fixed (Neto et al., 2018).
-      final survivingLines = entry.value
-          .where((deleted) => !commitDiff.isMovedLine(deleted.content))
-          .toList();
+      final survivingLines =
+          entry.value
+              .where((deleted) => !commitDiff.isMovedLine(deleted.content))
+              .toList();
 
       for (final range in _contiguousRanges(survivingLines)) {
-        final blameRes = await runner.run(
-            'git',
-            [
-              'blame',
-              '--date=iso-strict',
-              '-l', // long hash
-              '-w', // ignore whitespace
-              '-C', '-C', '-M', // detect moves and copies
-              '-L',
-              '${range.start},${range.end}',
-              parent,
-              '--',
-              filePath
-            ],
-            workingDirectory: directory);
+        final blameRes = await runner.run('git', [
+          'blame',
+          '--date=iso-strict',
+          '-l', // long hash
+          '-w', // ignore whitespace
+          '-C', '-C', '-M', // detect moves and copies
+          '-L',
+          '${range.start},${range.end}',
+          parent,
+          '--',
+          filePath,
+        ], workingDirectory: directory);
         if (blameRes.exitCode != 0) continue;
 
         final blameLines = (blameRes.stdout?.toString() ?? '')
@@ -216,7 +234,8 @@ class SzzAlgorithm {
             // corrupt the analysis.
             throw GitOutputParseException(
               offendingLine: blameLine,
-              reason: 'does not match the git blame -l --date=iso-strict '
+              reason:
+                  'does not match the git blame -l --date=iso-strict '
                   'format',
             );
           }
@@ -238,14 +257,16 @@ class SzzAlgorithm {
             continue;
           }
 
-          matches.add(SzzMatch(
-            introducingCommitHash: introHash,
-            introducingDate: introDate,
-            introducingAuthor: author,
-            fixingCommitHash: commit,
-            fixingDate: fixDate,
-            filePath: filePath,
-          ));
+          matches.add(
+            SzzMatch(
+              introducingCommitHash: introHash,
+              introducingDate: introDate,
+              introducingAuthor: author,
+              fixingCommitHash: commit,
+              fixingDate: fixDate,
+              filePath: filePath,
+            ),
+          );
         }
       }
     }
@@ -258,15 +279,20 @@ class SzzAlgorithm {
   /// semantics (keep the attribution for the RA-SZZ commit filter; skip the
   /// trace entirely for [traceFixCommit]).
   Future<_CommitMetadata?> _commitMetadata(
-      String directory, String hash) async {
+    String directory,
+    String hash,
+  ) async {
     final cacheKey = '$directory@$hash';
     if (_commitMetadataCache.containsKey(cacheKey)) {
       return _commitMetadataCache[cacheKey];
     }
 
-    final res = await runner.run('git',
-        ['log', '-1', '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s', hash],
-        workingDirectory: directory);
+    final res = await runner.run('git', [
+      'log',
+      '-1',
+      '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
+      hash,
+    ], workingDirectory: directory);
 
     _CommitMetadata? metadata;
     if (res.exitCode == 0) {
@@ -285,7 +311,8 @@ class SzzAlgorithm {
   /// Groups [sortedDeletedLines] (ascending by line number) into contiguous
   /// line ranges so each surviving block costs one `git blame -L` call.
   static List<_LineRange> _contiguousRanges(
-      List<_DeletedLine> sortedDeletedLines) {
+    List<_DeletedLine> sortedDeletedLines,
+  ) {
     final ranges = <_LineRange>[];
     for (final deleted in sortedDeletedLines) {
       if (ranges.isNotEmpty && ranges.last.end == deleted.lineNumber - 1) {

@@ -37,7 +37,10 @@ class RwGitParser {
   /// that contains only the tags between the [oldTag] and the [newTag], including
   /// the [newTag] (but not the [oldTag]).
   static List<String> retrieveTagsInBetweenOf(
-      List<String> allTags, String oldTag, String newTag) {
+    List<String> allTags,
+    String oldTag,
+    String newTag,
+  ) {
     int oldTagIndex = allTags.indexOf(oldTag) + 1;
     int newTagIndex = allTags.indexOf(newTag);
 
@@ -153,11 +156,13 @@ class RwGitParser {
       } else {
         if (indexStatusCode != ' ' && indexStatusCode != '?') {
           staged.add(
-              GitFileChange(path: path, status: mapStatus(indexStatusCode)));
+            GitFileChange(path: path, status: mapStatus(indexStatusCode)),
+          );
         }
         if (worktreeStatusCode != ' ' && worktreeStatusCode != '?') {
           unstaged.add(
-              GitFileChange(path: path, status: mapStatus(worktreeStatusCode)));
+            GitFileChange(path: path, status: mapStatus(worktreeStatusCode)),
+          );
         }
       }
     }
@@ -175,13 +180,15 @@ class RwGitParser {
     for (final line in lines) {
       final parts = line.split('|');
       if (parts.length >= 5) {
-        commits.add(GitCommit(
-          hash: parts[0],
-          authorName: parts[1],
-          authorEmail: parts[2],
-          date: parts[3],
-          message: parts.sublist(4).join('|'),
-        ));
+        commits.add(
+          GitCommit(
+            hash: parts[0],
+            authorName: parts[1],
+            authorEmail: parts[2],
+            date: parts[3],
+            message: parts.sublist(4).join('|'),
+          ),
+        );
       }
     }
     return commits;
@@ -213,12 +220,14 @@ class RwGitParser {
         }
       }
 
-      files.add(GitFileDiff(
-        path: path,
-        additions: additions,
-        deletions: deletions,
-        contentDiff: 'diff --git $chunk',
-      ));
+      files.add(
+        GitFileDiff(
+          path: path,
+          additions: additions,
+          deletions: deletions,
+          contentDiff: 'diff --git $chunk',
+        ),
+      );
     }
 
     return GitDiff(files: files);
@@ -231,7 +240,8 @@ class RwGitParser {
 
     // Example: 93f2f810 (Ioannis 2026-06-29 00:00:00 +0400 1) content
     final regex = RegExp(
-        r'^([a-f0-9\^]+)\s+\((.*?)\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(?:Z|[+-]\d{2}:?\d{2}))\s+(\d+)\)\s?(.*)$');
+      r'^([a-f0-9\^]+)\s+\((.*?)\s*(\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}:\d{2}\s+(?:Z|[+-]\d{2}:?\d{2}))\s+(\d+)\)\s?(.*)$',
+    );
 
     for (final line in lines) {
       final match = regex.firstMatch(line);
@@ -250,13 +260,15 @@ class RwGitParser {
       // corrupt every date-based metric downstream.
       final parsedDate = GitDateTime.parse(match.group(3)!).utc;
 
-      blameLines.add(GitBlameLine(
-        commitHash: match.group(1) ?? '',
-        author: match.group(2) ?? '',
-        date: parsedDate,
-        lineNumber: int.tryParse(match.group(4) ?? '') ?? 0,
-        content: match.group(5) ?? '',
-      ));
+      blameLines.add(
+        GitBlameLine(
+          commitHash: match.group(1) ?? '',
+          author: match.group(2) ?? '',
+          date: parsedDate,
+          lineNumber: int.tryParse(match.group(4) ?? '') ?? 0,
+          content: match.group(5) ?? '',
+        ),
+      );
     }
     return GitBlame(lines: blameLines);
   }

@@ -24,8 +24,11 @@ void main() {
       ]) {
         final ann = byName(name)['annotations'] as Map<String, dynamic>?;
         expect(ann, isNotNull, reason: '$name should be annotated');
-        expect(ann!['readOnlyHint'], isTrue,
-            reason: '$name should be read-only');
+        expect(
+          ann!['readOnlyHint'],
+          isTrue,
+          reason: '$name should be read-only',
+        );
       }
     });
 
@@ -42,8 +45,7 @@ void main() {
       }
     });
 
-    test(
-        'per-tool offload thresholds are wired into the advertised '
+    test('per-tool offload thresholds are wired into the advertised '
         'descriptions', () {
       // ADR-0011: report meta-tools offload aggressively, compact history
       // tools stay inline longer, everything else keeps the 8 KiB default.
@@ -53,8 +55,7 @@ void main() {
       expect(byName('analyze_bug_hotspots')['description'], contains('>8KB'));
     });
 
-    test(
-        'outputSchema is advertised only for stable shapes that drive '
+    test('outputSchema is advertised only for stable shapes that drive '
         'structuredContent (ADR-0013)', () {
       // Report meta-tools and a handful of fixed-shape tools carry a schema.
       for (final name in [
@@ -87,19 +88,28 @@ void main() {
         'read_report_slice',
         'get_rw_git_documentation',
       ]) {
-        expect(byName(name).containsKey('outputSchema'), isFalse,
-            reason: '$name must not advertise an outputSchema');
+        expect(
+          byName(name).containsKey('outputSchema'),
+          isFalse,
+          reason: '$name must not advertise an outputSchema',
+        );
       }
     });
 
     test('report meta-tool schema pins the classified-findings contract', () {
-      final schema = byName('generate_technical_report')['outputSchema']
-          as Map<String, dynamic>;
+      final schema =
+          byName('generate_technical_report')['outputSchema']
+              as Map<String, dynamic>;
       final properties = schema['properties'] as Map;
       expect(
-          properties.keys,
-          containsAll(
-              ['report_type', 'summary', 'top_findings', 'compound_findings']));
+        properties.keys,
+        containsAll([
+          'report_type',
+          'summary',
+          'top_findings',
+          'compound_findings',
+        ]),
+      );
     });
   });
 }

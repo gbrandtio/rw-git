@@ -22,23 +22,23 @@ class AnalyzeDartAstQualityTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'baseBranch': {
-            'type': 'string',
-            'description': 'The base branch to compare against.',
-          },
-          'targetBranch': {
-            'type': 'string',
-            'description': 'The target branch with changes.',
-          },
-        },
-        'required': ['directory', 'baseBranch', 'targetBranch'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'baseBranch': {
+        'type': 'string',
+        'description': 'The base branch to compare against.',
+      },
+      'targetBranch': {
+        'type': 'string',
+        'description': 'The target branch with changes.',
+      },
+    },
+    'required': ['directory', 'baseBranch', 'targetBranch'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -47,28 +47,36 @@ class AnalyzeDartAstQualityTool implements McpTool {
     final targetBranch = arguments.getStringArgument('targetBranch');
 
     // 1. Get changed files
-    final mergeBaseRes =
-        await gitQuery.run(directory, ['merge-base', baseBranch, targetBranch]);
+    final mergeBaseRes = await gitQuery.run(directory, [
+      'merge-base',
+      baseBranch,
+      targetBranch,
+    ]);
     final mergeBase = mergeBaseRes.getOrNull()?.trim() ?? '';
 
     if (mergeBase.isEmpty) {
       return jsonEncode({
         'error':
-            'Could not determine merge base between $baseBranch and $targetBranch'
+            'Could not determine merge base between $baseBranch and $targetBranch',
       });
     }
 
-    final diffRes = await gitQuery
-        .run(directory, ['diff', '--name-only', mergeBase, targetBranch]);
-    final changedFiles = (diffRes.getOrNull()?.trim() ?? '')
-        .split('\n')
-        .where((f) => f.endsWith('.dart'))
-        .toList();
+    final diffRes = await gitQuery.run(directory, [
+      'diff',
+      '--name-only',
+      mergeBase,
+      targetBranch,
+    ]);
+    final changedFiles =
+        (diffRes.getOrNull()?.trim() ?? '')
+            .split('\n')
+            .where((f) => f.endsWith('.dart'))
+            .toList();
 
     if (changedFiles.isEmpty) {
       return jsonEncode({
         'message':
-            'No Dart files modified between $baseBranch and $targetBranch'
+            'No Dart files modified between $baseBranch and $targetBranch',
       });
     }
 
@@ -94,21 +102,24 @@ class AnalyzeDartAstQualityTool implements McpTool {
     }
 
     if (filesContent.isEmpty) {
-      return jsonEncode(
-          {'message': 'No valid Dart files found on disk to parse.'});
+      return jsonEncode({
+        'message': 'No valid Dart files found on disk to parse.',
+      });
     }
 
     // Run heavy AST parsing in a background Isolate
-    final analysisResults =
-        await Isolate.run(() => _runAstAnalysis(filesContent));
+    final analysisResults = await Isolate.run(
+      () => _runAstAnalysis(filesContent),
+    );
 
     // Collect per-file imports for cycle detection.
     final fileImports = <String, List<String>>{};
     for (final entry in analysisResults.entries) {
       final perFile = entry.value as Map<String, dynamic>?;
       if (perFile != null && perFile.containsKey('imports')) {
-        fileImports[entry.key] =
-            List<String>.from(perFile['imports'] as List<dynamic>? ?? []);
+        fileImports[entry.key] = List<String>.from(
+          perFile['imports'] as List<dynamic>? ?? [],
+        );
       }
     }
     final cycles = DartAstAnalyzer().detectImportCycles(fileImports);
@@ -122,12 +133,13 @@ class AnalyzeDartAstQualityTool implements McpTool {
         'Check "api_signatures" for unintended breaking changes to public interfaces.',
         'Use "internal_methods" and "invocations" to audit for dead code. If an internal method is never invoked in the same file or its dependencies, it might be dead code.',
         'If "import_cycles" is non-empty, the listed files form circular import chains. Break cycles by extracting shared types into a separate module.',
-      ]
+      ],
     });
   }
 
   static Map<String, dynamic> _runAstAnalysis(
-      Map<String, String> filesContent) {
+    Map<String, String> filesContent,
+  ) {
     final analyzer = DartAstAnalyzer();
     final Map<String, dynamic> results = {};
 

@@ -15,8 +15,9 @@ import 'package:rw_git/rw_git.dart';
 void main() async {
   final registry = buildDefaultRegistry();
   // Optionally page `tools/list` for clients with very small context windows.
-  final pageSize =
-      int.tryParse(Platform.environment['RW_GIT_TOOLS_PAGE_SIZE'] ?? '');
+  final pageSize = int.tryParse(
+    Platform.environment['RW_GIT_TOOLS_PAGE_SIZE'] ?? '',
+  );
   final server = McpServer(registry: registry, toolsPageSize: pageSize);
   server.start();
 }

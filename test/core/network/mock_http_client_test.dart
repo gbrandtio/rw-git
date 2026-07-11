@@ -41,10 +41,7 @@ void main() {
       final url = Uri.parse('https://example.com/timeout');
       client.setMockError('GET', url, Exception('boom'));
 
-      expect(
-        () => client.get(url),
-        throwsA(isA<RwHttpTransportException>()),
-      );
+      expect(() => client.get(url), throwsA(isA<RwHttpTransportException>()));
     });
 
     test('captures sent requests', () async {

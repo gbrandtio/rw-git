@@ -19,16 +19,15 @@ void main() {
     int npath = 1,
     int cognitive = 0,
     double deliveredBugs = 0,
-  }) =>
-      FileLexicalMetricsDto(
-        filePath: path,
-        cyclomaticComplexity: cc,
-        maintainabilityIndex: mi,
-        abcScore: abc,
-        npathComplexity: npath,
-        cognitiveComplexity: cognitive,
-        halsteadDeliveredBugs: deliveredBugs,
-      );
+  }) => FileLexicalMetricsDto(
+    filePath: path,
+    cyclomaticComplexity: cc,
+    maintainabilityIndex: mi,
+    abcScore: abc,
+    npathComplexity: npath,
+    cognitiveComplexity: cognitive,
+    halsteadDeliveredBugs: deliveredBugs,
+  );
 
   test('McCabe bands: >50 critical, 21-50 high, 11-20 elevated, <=10 skip', () {
     final findings = fc.fromLexicalMetrics([
@@ -89,23 +88,24 @@ void main() {
     expect(bySubject.containsKey('lib/npath_ok.dart'), isFalse);
   });
 
-  test('cognitive bands: >25 high, >15 elevated, <=15 skip (Campbell 2018)',
-      () {
-    final findings = fc.fromLexicalMetrics([
-      metrics('lib/cog_high.dart', 5, 95, cognitive: 26),
-      metrics('lib/cog_elevated.dart', 5, 95, cognitive: 16),
-      metrics('lib/cog_ok.dart', 5, 95, cognitive: 15),
-    ]);
-    final bySubject = {for (final f in findings) f.subject: f};
-
-    expect(bySubject['lib/cog_high.dart']!.severity, Severity.high);
-    expect(bySubject['lib/cog_high.dart']!.metric, 'cognitive_complexity');
-    expect(bySubject['lib/cog_elevated.dart']!.severity, Severity.elevated);
-    expect(bySubject.containsKey('lib/cog_ok.dart'), isFalse);
-  });
-
   test(
-      'Halstead delivered-bugs band: >2.0 elevated, <=2.0 skip '
+    'cognitive bands: >25 high, >15 elevated, <=15 skip (Campbell 2018)',
+    () {
+      final findings = fc.fromLexicalMetrics([
+        metrics('lib/cog_high.dart', 5, 95, cognitive: 26),
+        metrics('lib/cog_elevated.dart', 5, 95, cognitive: 16),
+        metrics('lib/cog_ok.dart', 5, 95, cognitive: 15),
+      ]);
+      final bySubject = {for (final f in findings) f.subject: f};
+
+      expect(bySubject['lib/cog_high.dart']!.severity, Severity.high);
+      expect(bySubject['lib/cog_high.dart']!.metric, 'cognitive_complexity');
+      expect(bySubject['lib/cog_elevated.dart']!.severity, Severity.elevated);
+      expect(bySubject.containsKey('lib/cog_ok.dart'), isFalse);
+    },
+  );
+
+  test('Halstead delivered-bugs band: >2.0 elevated, <=2.0 skip '
       '(Halstead 1977)', () {
     final findings = fc.fromLexicalMetrics([
       metrics('lib/buggy_estimate.dart', 5, 95, deliveredBugs: 2.1),
@@ -114,15 +114,24 @@ void main() {
     final bySubject = {for (final f in findings) f.subject: f};
 
     expect(bySubject['lib/buggy_estimate.dart']!.severity, Severity.elevated);
-    expect(bySubject['lib/buggy_estimate.dart']!.metric,
-        'halstead_delivered_bugs');
+    expect(
+      bySubject['lib/buggy_estimate.dart']!.metric,
+      'halstead_delivered_bugs',
+    );
     expect(bySubject.containsKey('lib/clean_estimate.dart'), isFalse);
   });
 
   test('one finding per file: the worst metric wins, all ride in evidence', () {
     final findings = fc.fromLexicalMetrics([
-      metrics('lib/both.dart', 25, 60,
-          abc: 16, npath: 300, cognitive: 20, deliveredBugs: 2.5),
+      metrics(
+        'lib/both.dart',
+        25,
+        60,
+        abc: 16,
+        npath: 300,
+        cognitive: 20,
+        deliveredBugs: 2.5,
+      ),
     ]);
 
     final finding = findings.single;

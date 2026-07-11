@@ -7,15 +7,23 @@ class CheckoutCommand extends GitCommand<bool> {
   CheckoutCommand(super.runner, {required this.branchToCheckout});
 
   @override
-  Future<bool> run(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+  Future<bool> run(
+    String directory, {
+    List<String> extraArgs = const [],
+    bool streamOutput = false,
+  }) async {
     // Ensure branchToCheckout doesn't start with hyphen to prevent flag injection.
     // We cannot use '--' before the branch name because git treats it as a pathspec.
-    final sanitizedBranch = branchToCheckout.startsWith('-')
-        ? 'refs/heads/$branchToCheckout'
-        : branchToCheckout;
-    final result = await runner.run('git', ['checkout', sanitizedBranch],
-        workingDirectory: directory, streamOutput: streamOutput);
+    final sanitizedBranch =
+        branchToCheckout.startsWith('-')
+            ? 'refs/heads/$branchToCheckout'
+            : branchToCheckout;
+    final result = await runner.run(
+      'git',
+      ['checkout', sanitizedBranch],
+      workingDirectory: directory,
+      streamOutput: streamOutput,
+    );
     evaluateProcessResult(result);
     return result.exitCode == 0;
   }

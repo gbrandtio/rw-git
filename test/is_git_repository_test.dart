@@ -20,12 +20,14 @@ void main() {
 
   /// Test group for [rwGit.isGitRepository()] function.
   group('isGitRepository', () {
-    test('will succeed if the specified repository is a git repository',
-        () async {
-      (await rwGit.init(testDir)).getOrThrow();
-      bool isGitRepository =
-          (await rwGit.isGitRepository(testDir)).getOrThrow();
-      expect(isGitRepository, true);
-    });
+    test(
+      'will succeed if the specified repository is a git repository',
+      () async {
+        (await rwGit.init(testDir)).getOrThrow();
+        bool isGitRepository =
+            (await rwGit.isGitRepository(testDir)).getOrThrow();
+        expect(isGitRepository, true);
+      },
+    );
   });
 }

@@ -26,7 +26,7 @@ if (platform === 'linux' && arch === 'x64') {
   process.exit(1);
 }
 
-const url = `https://github.com/gbrandtio/rw-git/releases/download/v${version}/${artifactName}`;
+const url = `https://github.com/rw-core/rw-git/releases/download/v${version}/${artifactName}`;
 const destPath = path.join(binDir, platform === 'win32' ? 'rw-git-mcp-bin.exe' : 'rw-git-mcp-bin');
 
 console.log(`Downloading ${url} ...`);

@@ -21,7 +21,8 @@ class GenerateChangelogTool implements McpTool {
   String get name => 'generate_changelog';
 
   @override
-  String get description => 'Generates a structured changelog between two tags '
+  String get description =>
+      'Generates a structured changelog between two tags '
       'or commits. Enriches the output with RA-SZZ algorithm '
       'results (linking fixes to bug-introducing commits) '
       'and structural impact (changed files) for deep '
@@ -31,23 +32,20 @@ class GenerateChangelogTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local repository path.',
-          },
-          'from': {
-            'type': 'string',
-            'description': 'The starting tag or commit hash.',
-          },
-          'to': {
-            'type': 'string',
-            'description': 'The ending tag or commit hash.',
-          },
-        },
-        'required': ['directory', 'from', 'to'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local repository path.',
+      },
+      'from': {
+        'type': 'string',
+        'description': 'The starting tag or commit hash.',
+      },
+      'to': {'type': 'string', 'description': 'The ending tag or commit hash.'},
+    },
+    'required': ['directory', 'from', 'to'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -55,19 +53,14 @@ class GenerateChangelogTool implements McpTool {
     final from = arguments.getStringArgument('from');
     final toReference = arguments.getStringArgument('to');
 
-    final logRaw = (await gitQuery.run(
-      directory,
-      [
-        'log',
-        '$from..$toReference',
-        '--format=%H||%an||%s',
-      ],
-    ))
-        .getOrThrow();
+    final logRaw =
+        (await gitQuery.run(directory, [
+          'log',
+          '$from..$toReference',
+          '--format=%H||%an||%s',
+        ])).getOrThrow();
 
-    final parsed = await Isolate.run(
-      () => parseConventionalCommits(logRaw),
-    );
+    final parsed = await Isolate.run(() => parseConventionalCommits(logRaw));
 
     // Enrich fixes with SZZ outputs
     final enrichedFixes = <Map<String, dynamic>>[];
@@ -142,7 +135,8 @@ class GenerateChangelogTool implements McpTool {
     }
     contributors.removeWhere((c) => c.isEmpty);
 
-    final totalCommits = enrichedFeatures.length +
+    final totalCommits =
+        enrichedFeatures.length +
         enrichedFixes.length +
         enrichedBreaking.length +
         enrichedOther.length;
@@ -165,10 +159,12 @@ class GenerateChangelogTool implements McpTool {
   }
 
   Future<List<String>> _getChangedFiles(String directory, String commit) async {
-    final res = await gitQuery.run(
-      directory,
-      ['show', '--name-only', '--format=', commit],
-    );
+    final res = await gitQuery.run(directory, [
+      'show',
+      '--name-only',
+      '--format=',
+      commit,
+    ]);
     if (res.isFailure) return [];
     final out = res.getOrThrow().trim();
     if (out.isEmpty) return [];
@@ -184,7 +180,9 @@ class GenerateChangelogTool implements McpTool {
   /// commit with the temporal context the changelog contract documents
   /// (`introduced_date`, `days_bug_lived`).
   Future<List<Map<String, dynamic>>> _runSzzForCommit(
-      String directory, String commit) async {
+    String directory,
+    String commit,
+  ) async {
     final matches = await szzAlgorithm.traceFixCommit(directory, commit);
 
     final byIntroducingHash = <String, Map<String, dynamic>>{};
@@ -192,7 +190,7 @@ class GenerateChangelogTool implements McpTool {
       byIntroducingHash.putIfAbsent(match.introducingCommitHash, () {
         final daysBugLived =
             match.fixingDate.difference(match.introducingDate).inMinutes /
-                minutesPerDay;
+            minutesPerDay;
         return {
           'introducing_commit': match.introducingCommitHash,
           'introduced_date': match.introducingDate.toIso8601String(),

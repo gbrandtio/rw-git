@@ -10,8 +10,12 @@ class ChurnHeuristic {
 
   ChurnHeuristic(this.runner);
 
-  Future<ChurnMetricsDto> calculateChurn(String directory,
-      {String? limit, String? since, String? until}) async {
+  Future<ChurnMetricsDto> calculateChurn(
+    String directory, {
+    String? limit,
+    String? since,
+    String? until,
+  }) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
       countArgs.add('-n');
@@ -24,8 +28,11 @@ class ChurnHeuristic {
       countArgs.add('--until=$until');
     }
     countArgs.add('HEAD');
-    final commitCountResult =
-        await runner.run('git', countArgs, workingDirectory: directory);
+    final commitCountResult = await runner.run(
+      'git',
+      countArgs,
+      workingDirectory: directory,
+    );
     evaluateProcessResult(commitCountResult);
     final totalCommits =
         int.tryParse(commitCountResult.stdout?.toString().trim() ?? '0') ?? 0;
@@ -42,8 +49,11 @@ class ChurnHeuristic {
       logArgs.add('--until=$until');
     }
 
-    final stream =
-        runner.runStream('git', logArgs, workingDirectory: directory);
+    final stream = runner.runStream(
+      'git',
+      logArgs,
+      workingDirectory: directory,
+    );
 
     final Map<String, int> fileChurn = {};
 
@@ -54,14 +64,15 @@ class ChurnHeuristic {
       fileChurn[trimmedLine] = (fileChurn[trimmedLine] ?? 0) + 1;
     }
 
-    return ChurnMetricsDto(
-      fileChurn: fileChurn,
-      totalCommits: totalCommits,
-    );
+    return ChurnMetricsDto(fileChurn: fileChurn, totalCommits: totalCommits);
   }
 
-  Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(String directory,
-      {String? limit, String? since, String? until}) async {
+  Future<ChurnMetricsWithAuthorsDto> calculateChurnWithAuthors(
+    String directory, {
+    String? limit,
+    String? since,
+    String? until,
+  }) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
       countArgs.add('-n');
@@ -74,8 +85,11 @@ class ChurnHeuristic {
       countArgs.add('--until=$until');
     }
     countArgs.add('HEAD');
-    final commitCountResult =
-        await runner.run('git', countArgs, workingDirectory: directory);
+    final commitCountResult = await runner.run(
+      'git',
+      countArgs,
+      workingDirectory: directory,
+    );
     evaluateProcessResult(commitCountResult);
     final totalCommits =
         int.tryParse(commitCountResult.stdout?.toString().trim() ?? '0') ?? 0;
@@ -92,8 +106,11 @@ class ChurnHeuristic {
       logArgs.add('--until=$until');
     }
 
-    final stream =
-        runner.runStream('git', logArgs, workingDirectory: directory);
+    final stream = runner.runStream(
+      'git',
+      logArgs,
+      workingDirectory: directory,
+    );
 
     final Map<String, Map<String, int>> fileChurn = {};
 
@@ -116,8 +133,10 @@ class ChurnHeuristic {
       final result = <String, ContributionStats>{};
       for (final entry in map.entries) {
         final total = entry.value.values.fold<int>(0, (sum, val) => sum + val);
-        result[entry.key] =
-            ContributionStats(total: total, authors: entry.value);
+        result[entry.key] = ContributionStats(
+          total: total,
+          authors: entry.value,
+        );
       }
       return result;
     }

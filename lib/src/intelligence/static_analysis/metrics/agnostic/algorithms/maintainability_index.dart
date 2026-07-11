@@ -20,7 +20,9 @@ class MaintainabilityIndexAlgorithm
   MaintainabilityResult calculate(List<Token> tokens, LanguageProfile profile) {
     if (tokens.isEmpty) {
       return const MaintainabilityResult(
-          score: 100.0, category: 'Highly Maintainable');
+        score: 100.0,
+        category: 'Highly Maintainable',
+      );
     }
 
     final halstead = _halsteadAlgorithm.calculate(tokens, profile);

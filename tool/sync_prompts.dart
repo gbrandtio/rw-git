@@ -23,8 +23,9 @@ void main(List<String> args) {
   final promptsDir = Directory('lib/src/mcp/prompts');
 
   if (!skillsDir.existsSync()) {
-    stderr
-        .writeln('Run from the repository root: ${skillsDir.path} not found.');
+    stderr.writeln(
+      'Run from the repository root: ${skillsDir.path} not found.',
+    );
     exit(2);
   }
 
@@ -45,19 +46,27 @@ void main(List<String> args) {
       exit(2);
     }
 
-    final withIncludes =
-        expandIncludes(templateFile.readAsStringSync(), readPartial);
+    final withIncludes = expandIncludes(
+      templateFile.readAsStringSync(),
+      readPartial,
+    );
     final expanded = expandGenerated(
-        withIncludes,
-        (directive, reportType) => switch (directive) {
-              'deep_dive_tools' => renderDeepDiveTools(reportType),
-              _ => throw FormatException('Unknown generate directive: '
-                  '$directive'),
-            });
+      withIncludes,
+      (directive, reportType) => switch (directive) {
+        'deep_dive_tools' => renderDeepDiveTools(reportType),
+        _ =>
+          throw FormatException(
+            'Unknown generate directive: '
+            '$directive',
+          ),
+      },
+    );
     final doc = parseSkill(expanded);
     if (!bodyIsRawSafe(doc.body)) {
-      stderr.writeln("$skillName: body contains \"'''\" which cannot be "
-          'emitted as a raw Dart string.');
+      stderr.writeln(
+        "$skillName: body contains \"'''\" which cannot be "
+        'emitted as a raw Dart string.',
+      );
       exit(2);
     }
 
@@ -69,8 +78,10 @@ void main(List<String> args) {
     if (check) {
       if (!skillFile.existsSync() ||
           skillFile.readAsStringSync() != generatedSkill) {
-        stderr.writeln('DRIFT: ${skillFile.path} is out of sync with '
-            '${templateFile.path}. Run `dart run tool/sync_prompts.dart`.');
+        stderr.writeln(
+          'DRIFT: ${skillFile.path} is out of sync with '
+          '${templateFile.path}. Run `dart run tool/sync_prompts.dart`.',
+        );
         drift = true;
       }
       if (!promptFile.existsSync()) {
@@ -81,12 +92,15 @@ void main(List<String> args) {
       // Format-independent comparison: the on-disk prompt is in sync if its
       // name, description, and body match the canonical expanded template.
       final onDisk = extractFromPromptSource(promptFile.readAsStringSync());
-      final inSync = onDisk.name == doc.name &&
+      final inSync =
+          onDisk.name == doc.name &&
           onDisk.description == doc.description &&
           onDisk.body.trimRight() == doc.body.trimRight();
       if (!inSync) {
-        stderr.writeln('DRIFT: ${promptFile.path} is out of sync with '
-            '${templateFile.path}. Run `dart run tool/sync_prompts.dart`.');
+        stderr.writeln(
+          'DRIFT: ${promptFile.path} is out of sync with '
+          '${templateFile.path}. Run `dart run tool/sync_prompts.dart`.',
+        );
         drift = true;
       }
     } else {
@@ -98,7 +112,8 @@ void main(List<String> args) {
 
   if (check && drift) exit(1);
   if (!check) {
-    stdout
-        .writeln('Done. Run: dart format --line-length=80 ${promptsDir.path}');
+    stdout.writeln(
+      'Done. Run: dart format --line-length=80 ${promptsDir.path}',
+    );
   }
 }

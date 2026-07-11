@@ -43,8 +43,11 @@ void main() {
     for (final name in analysisTools) {
       final type = analysisTypeForMcpTool[name];
       expect(type, isNotNull, reason: '$name has no AnalysisType mapping');
-      expect(analysisHintsCatalog.containsKey(type), isTrue,
-          reason: '$name is registered but missing from analysisHintsCatalog');
+      expect(
+        analysisHintsCatalog.containsKey(type),
+        isTrue,
+        reason: '$name is registered but missing from analysisHintsCatalog',
+      );
     }
   });
 
@@ -53,9 +56,13 @@ void main() {
       if (type == AnalysisType.compound) continue;
       final name = mcpToolNameForAnalysis[type];
       expect(name, isNotNull, reason: '$type has no MCP tool mapping');
-      expect(registeredToolNames.contains(name), isTrue,
-          reason: "analysisHintsCatalog has an entry for '$type', which is not "
-              'a registered tool name');
+      expect(
+        registeredToolNames.contains(name),
+        isTrue,
+        reason:
+            "analysisHintsCatalog has an entry for '$type', which is not "
+            'a registered tool name',
+      );
     }
   });
 
@@ -63,9 +70,13 @@ void main() {
     for (final name in toolsWithoutHints) {
       final type = analysisTypeForMcpTool[name];
       if (type != null) {
-        expect(analysisHintsCatalog.containsKey(type), isFalse,
-            reason: "'$name' has no academic basis and should not carry "
-                'invented hints');
+        expect(
+          analysisHintsCatalog.containsKey(type),
+          isFalse,
+          reason:
+              "'$name' has no academic basis and should not carry "
+              'invented hints',
+        );
       }
     }
   });
@@ -77,7 +88,7 @@ void main() {
       final all = [
         ...hints.interpretation,
         ...hints.caveats,
-        ...hints.pairWith
+        ...hints.pairWith,
       ];
 
       test('$name has at least one hint', () {
@@ -88,21 +99,29 @@ void main() {
         if (hints.interpretation.isEmpty) {
           return;
         }
-        final hasCitation = hints.interpretation
-            .any((hint) => citationYearPattern.hasMatch(hint));
-        expect(hasCitation, isTrue,
-            reason: '$name interpretation hints lack any citation year.');
+        final hasCitation = hints.interpretation.any(
+          (hint) => citationYearPattern.hasMatch(hint),
+        );
+        expect(
+          hasCitation,
+          isTrue,
+          reason: '$name interpretation hints lack any citation year.',
+        );
       });
 
       test('$name pair_with hints name a registered tool', () {
         if (hints.pairWith.isEmpty || entry.key == AnalysisType.compound) {
           return;
         }
-        final hasRegisteredTool = hints.pairWith.any((hint) =>
-            registeredToolNames.any((toolName) => hint.contains(toolName)));
-        expect(hasRegisteredTool, isTrue,
-            reason:
-                "$name pair_with hints don't mention a registered tool name.");
+        final hasRegisteredTool = hints.pairWith.any(
+          (hint) =>
+              registeredToolNames.any((toolName) => hint.contains(toolName)),
+        );
+        expect(
+          hasRegisteredTool,
+          isTrue,
+          reason: "$name pair_with hints don't mention a registered tool name.",
+        );
       });
     }
   });

@@ -13,8 +13,12 @@ class AdvancedMetricsHeuristic {
   /// Computes advanced codebase metrics such as cyclomatic complexity
   /// approximations, co-change matrices, and architectural
   /// distribution.
-  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(String directory,
-      {String? limit, String? since, String? until}) async {
+  Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(
+    String directory, {
+    String? limit,
+    String? since,
+    String? until,
+  }) async {
     final args = ['log', '-p', '--format=COMMIT:%H'];
     if (limit != null) {
       args.insert(1, '-n');
@@ -27,17 +31,11 @@ class AdvancedMetricsHeuristic {
       args.add('--until=$until');
     }
 
-    final result = await runner.run(
-      'git',
-      args,
-      workingDirectory: directory,
-    );
+    final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);
     final rawOutput = result.stdout?.toString() ?? '';
 
-    return await Isolate.run(
-      () => _parseAdvancedCodeQuality(rawOutput),
-    );
+    return await Isolate.run(() => _parseAdvancedCodeQuality(rawOutput));
   }
 }
 
@@ -100,12 +98,15 @@ AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
   flushCommit();
 
   final architectureDistribution = <String, double>{};
-  final totalDirCommits =
-      dirCommits.values.fold<int>(0, (sum, val) => sum + val);
+  final totalDirCommits = dirCommits.values.fold<int>(
+    0,
+    (sum, val) => sum + val,
+  );
   if (totalDirCommits > 0) {
     for (final entry in dirCommits.entries) {
-      architectureDistribution[entry.key] =
-          double.parse((entry.value / totalDirCommits).toStringAsFixed(3));
+      architectureDistribution[entry.key] = double.parse(
+        (entry.value / totalDirCommits).toStringAsFixed(3),
+      );
     }
   }
 

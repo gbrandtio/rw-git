@@ -15,15 +15,12 @@ class MockTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The repo directory.',
-          }
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {'type': 'string', 'description': 'The repo directory.'},
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -45,15 +42,12 @@ class MockSmallTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The repo directory.',
-          }
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {'type': 'string', 'description': 'The repo directory.'},
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -72,12 +66,12 @@ class MockFindingsTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {'type': 'string', 'description': 'The repo directory.'}
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {'type': 'string', 'description': 'The repo directory.'},
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -89,7 +83,8 @@ class MockFindingsTool implements McpTool {
           'subject': 'lib/x.dart',
           'message': 'bad',
           'basis': 'Churn (Nagappan & Ball 2005)',
-          'rationale': 'Churn predicts defect density (Nagappan & Ball, '
+          'rationale':
+              'Churn predicts defect density (Nagappan & Ball, '
               'ICSE 2005).',
         },
       ],
@@ -110,12 +105,12 @@ class MockHintedTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {'type': 'string'}
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {'type': 'string'},
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -139,12 +134,12 @@ class MockStructuredTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {'type': 'string'}
-        },
-        'required': ['directory'],
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {'type': 'string'},
+    },
+    'required': ['directory'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -174,14 +169,16 @@ void main() {
   });
 
   group('McpToolFileOffloadDecorator', () {
-    test('modifies inputSchema to include output_file and return_full_json',
-        () {
-      final schema = decorator.inputSchema;
-      final properties = schema['properties'] as Map<String, dynamic>;
+    test(
+      'modifies inputSchema to include output_file and return_full_json',
+      () {
+        final schema = decorator.inputSchema;
+        final properties = schema['properties'] as Map<String, dynamic>;
 
-      expect(properties.containsKey('output_file'), isTrue);
-      expect(properties.containsKey('return_full_json'), isTrue);
-    });
+        expect(properties.containsKey('output_file'), isTrue);
+        expect(properties.containsKey('return_full_json'), isTrue);
+      },
+    );
 
     test('appends a terse offloading pointer to the description', () {
       final desc = decorator.description;
@@ -192,48 +189,52 @@ void main() {
       expect(desc, isNot(contains('return_full_json')));
     });
 
-    test('offloaded report stays actionable: preview carries top_findings',
-        () async {
-      final decorator = McpToolFileOffloadDecorator(MockFindingsTool());
-      final result =
-          jsonDecode(await decorator.execute({'directory': tempDir.path}))
-              as Map<String, dynamic>;
+    test(
+      'offloaded report stays actionable: preview carries top_findings',
+      () async {
+        final decorator = McpToolFileOffloadDecorator(MockFindingsTool());
+        final result =
+            jsonDecode(await decorator.execute({'directory': tempDir.path}))
+                as Map<String, dynamic>;
 
-      // Large payload still offloads to disk...
-      expect(result.containsKey('file'), isTrue);
-      // ...but the preview echoes the ranked findings so a small model can
-      // narrate the report without a second read.
-      final preview = result['preview'] as Map<String, dynamic>;
-      expect(preview.containsKey('top_findings'), isTrue);
-      final topFindings = preview['top_findings'] as List<dynamic>;
-      final firstFinding = topFindings.first as Map<String, dynamic>;
-      expect(firstFinding['severity'], 'Critical');
-      expect(preview.containsKey('summary'), isTrue);
+        // Large payload still offloads to disk...
+        expect(result.containsKey('file'), isTrue);
+        // ...but the preview echoes the ranked findings so a small model can
+        // narrate the report without a second read.
+        final preview = result['preview'] as Map<String, dynamic>;
+        expect(preview.containsKey('top_findings'), isTrue);
+        final topFindings = preview['top_findings'] as List<dynamic>;
+        final firstFinding = topFindings.first as Map<String, dynamic>;
+        expect(firstFinding['severity'], 'Critical');
+        expect(preview.containsKey('summary'), isTrue);
 
-      // The preview carries the finding in full, including the verbose
-      // rationale, so it stays actionable without a second read.
-      expect(firstFinding['basis'], contains('Nagappan'));
-      expect(firstFinding['rationale'], contains('Nagappan'));
-      final offloadedFile = File(result['file'] as String);
-      expect(await offloadedFile.readAsString(), contains('rationale'));
-    });
+        // The preview carries the finding in full, including the verbose
+        // rationale, so it stays actionable without a second read.
+        expect(firstFinding['basis'], contains('Nagappan'));
+        expect(firstFinding['rationale'], contains('Nagappan'));
+        final offloadedFile = File(result['file'] as String);
+        expect(await offloadedFile.readAsString(), contains('rationale'));
+      },
+    );
 
-    test('writes to auto-generated file by default and returns summary',
-        () async {
-      final resultString = await decorator.execute({
-        'directory': tempDir.path,
-      });
+    test(
+      'writes to auto-generated file by default and returns summary',
+      () async {
+        final resultString = await decorator.execute({
+          'directory': tempDir.path,
+        });
 
-      final result = jsonDecode(resultString) as Map<String, dynamic>;
-      expect(result['status'], equals('success'));
-      expect(result['file'], isNotNull);
+        final result = jsonDecode(resultString) as Map<String, dynamic>;
+        expect(result['status'], equals('success'));
+        expect(result['file'], isNotNull);
 
-      final writtenFile = File(result['file'] as String);
-      expect(await writtenFile.exists(), isTrue);
+        final writtenFile = File(result['file'] as String);
+        expect(await writtenFile.exists(), isTrue);
 
-      final content = await writtenFile.readAsString();
-      expect(content, contains('massive JSON payload'));
-    });
+        final content = await writtenFile.readAsString();
+        expect(content, contains('massive JSON payload'));
+      },
+    );
 
     test('writes to specific output_file when provided securely', () async {
       final specificPath = p.join(tempDir.path, 'custom_report.json');
@@ -277,16 +278,18 @@ void main() {
 
     test('uses file_path when directory is not provided', () async {
       final mockFilePath = p.join(tempDir.path, 'some_file.dart');
-      final resultString = await decorator.execute({
-        'file_path': mockFilePath,
-      });
+      final resultString = await decorator.execute({'file_path': mockFilePath});
       final result = jsonDecode(resultString) as Map<String, dynamic>;
       expect(result['status'], equals('success'));
     });
 
     test('creates parent directory if it does not exist', () async {
-      final specificPath =
-          p.join(tempDir.path, 'nested', 'dir', 'custom_report.json');
+      final specificPath = p.join(
+        tempDir.path,
+        'nested',
+        'dir',
+        'custom_report.json',
+      );
 
       final resultString = await decorator.execute({
         'directory': tempDir.path,
@@ -331,81 +334,90 @@ void main() {
     });
 
     test('offloads large payloads to disk', () async {
-      final resultString = await decorator.execute({
-        'directory': tempDir.path,
-      });
+      final resultString = await decorator.execute({'directory': tempDir.path});
 
       final result = jsonDecode(resultString) as Map<String, dynamic>;
       expect(result['status'], equals('success'));
       expect(result['file'], isNotNull);
     });
 
-    test('still offloads a small payload when output_file is explicit',
-        () async {
-      final smallDecorator = McpToolFileOffloadDecorator(MockSmallTool());
-      final specificPath = p.join(tempDir.path, 'forced_small.json');
+    test(
+      'still offloads a small payload when output_file is explicit',
+      () async {
+        final smallDecorator = McpToolFileOffloadDecorator(MockSmallTool());
+        final specificPath = p.join(tempDir.path, 'forced_small.json');
 
-      final resultString = await smallDecorator.execute({
-        'directory': tempDir.path,
-        'output_file': specificPath,
-      });
+        final resultString = await smallDecorator.execute({
+          'directory': tempDir.path,
+          'output_file': specificPath,
+        });
 
-      final result = jsonDecode(resultString) as Map<String, dynamic>;
-      expect(result['status'], equals('success'));
-      expect(await File(specificPath).exists(), isTrue);
-    });
-
-    test('return_full_json=true skips offload and returns raw output',
-        () async {
-      final resultString = await decorator.execute({
-        'directory': tempDir.path,
-        'return_full_json': true,
-      });
-
-      expect(resultString, contains('massive JSON payload'));
-      final reportsDir = Directory(p.join(tempDir.path, '.rw_git', 'reports'));
-      expect(await reportsDir.exists(), isFalse);
-    });
+        final result = jsonDecode(resultString) as Map<String, dynamic>;
+        expect(result['status'], equals('success'));
+        expect(await File(specificPath).exists(), isTrue);
+      },
+    );
 
     test(
-        'return_full_json=true takes precedence even with output_file provided',
-        () async {
-      final specificPath = p.join(tempDir.path, 'should_not_exist.json');
+      'return_full_json=true skips offload and returns raw output',
+      () async {
+        final resultString = await decorator.execute({
+          'directory': tempDir.path,
+          'return_full_json': true,
+        });
 
-      final resultString = await decorator.execute({
-        'directory': tempDir.path,
-        'output_file': specificPath,
-        'return_full_json': true,
-      });
-
-      expect(resultString, contains('massive JSON payload'));
-      expect(await File(specificPath).exists(), isFalse);
-    });
+        expect(resultString, contains('massive JSON payload'));
+        final reportsDir = Directory(
+          p.join(tempDir.path, '.rw_git', 'reports'),
+        );
+        expect(await reportsDir.exists(), isFalse);
+      },
+    );
 
     test(
-        'per-tool threshold: a lower gate offloads payloads the global '
+      'return_full_json=true takes precedence even with output_file provided',
+      () async {
+        final specificPath = p.join(tempDir.path, 'should_not_exist.json');
+
+        final resultString = await decorator.execute({
+          'directory': tempDir.path,
+          'output_file': specificPath,
+          'return_full_json': true,
+        });
+
+        expect(resultString, contains('massive JSON payload'));
+        expect(await File(specificPath).exists(), isFalse);
+      },
+    );
+
+    test('per-tool threshold: a lower gate offloads payloads the global '
         'default would keep inline', () async {
       // MockSmallTool's payload is well under the 8 KiB global default, so a
       // decorator with a 16-byte gate must offload it: the per-tool value,
       // not the global constant, decides (ADR-0011).
-      final aggressiveDecorator = McpToolFileOffloadDecorator(MockSmallTool(),
-          offloadThresholdBytes: 16);
+      final aggressiveDecorator = McpToolFileOffloadDecorator(
+        MockSmallTool(),
+        offloadThresholdBytes: 16,
+      );
 
-      final result = jsonDecode(await aggressiveDecorator.execute({
-        'directory': tempDir.path,
-      })) as Map<String, dynamic>;
+      final result =
+          jsonDecode(
+                await aggressiveDecorator.execute({'directory': tempDir.path}),
+              )
+              as Map<String, dynamic>;
 
       expect(result['status'], equals('success'));
       expect(result['file'], isNotNull);
     });
 
-    test(
-        'per-tool threshold: a higher gate keeps payloads inline that the '
+    test('per-tool threshold: a higher gate keeps payloads inline that the '
         'global default would offload', () async {
       // MockTool's ~9 KB payload exceeds the 8 KiB global default but not a
       // 32 KiB per-tool gate, so it must be returned inline.
-      final relaxedDecorator =
-          McpToolFileOffloadDecorator(MockTool(), offloadThresholdBytes: 32768);
+      final relaxedDecorator = McpToolFileOffloadDecorator(
+        MockTool(),
+        offloadThresholdBytes: 32768,
+      );
 
       final resultString = await relaxedDecorator.execute({
         'directory': tempDir.path,
@@ -416,16 +428,21 @@ void main() {
       expect(await reportsDir.exists(), isFalse);
     });
 
-    test('description advertises the per-tool threshold, not the global one',
-        () {
-      final relaxedDecorator =
-          McpToolFileOffloadDecorator(MockTool(), offloadThresholdBytes: 16384);
-      expect(relaxedDecorator.description, contains('>16KB'));
-    });
+    test(
+      'description advertises the per-tool threshold, not the global one',
+      () {
+        final relaxedDecorator = McpToolFileOffloadDecorator(
+          MockTool(),
+          offloadThresholdBytes: 16384,
+        );
+        expect(relaxedDecorator.description, contains('>16KB'));
+      },
+    );
 
     test('includes a structural preview in the offload summary', () async {
-      final structuredDecorator =
-          McpToolFileOffloadDecorator(MockStructuredTool());
+      final structuredDecorator = McpToolFileOffloadDecorator(
+        MockStructuredTool(),
+      );
 
       final resultString = await structuredDecorator.execute({
         'directory': tempDir.path,
@@ -445,8 +462,7 @@ void main() {
       expect(preview.containsKey('value_types'), isFalse);
     });
 
-    test(
-        'preview carries all hints uncapped, caveats first, then pair_with, '
+    test('preview carries all hints uncapped, caveats first, then pair_with, '
         'then interpretation', () async {
       final hintedDecorator = McpToolFileOffloadDecorator(MockHintedTool());
 
@@ -462,9 +478,7 @@ void main() {
     });
 
     test('preview omits hints when the payload carries none', () async {
-      final resultString = await decorator.execute({
-        'directory': tempDir.path,
-      });
+      final resultString = await decorator.execute({'directory': tempDir.path});
 
       final result = jsonDecode(resultString) as Map<String, dynamic>;
       final preview = result['preview'] as Map<String, dynamic>;
@@ -472,8 +486,9 @@ void main() {
     });
 
     test('offload summary hint is the short centralized constant', () async {
-      final structuredDecorator =
-          McpToolFileOffloadDecorator(MockStructuredTool());
+      final structuredDecorator = McpToolFileOffloadDecorator(
+        MockStructuredTool(),
+      );
 
       final resultString = await structuredDecorator.execute({
         'directory': tempDir.path,
@@ -493,9 +508,7 @@ class MockEmptySchemaTool implements McpTool {
   String get description => 'desc';
 
   @override
-  Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-      };
+  Map<String, dynamic> get inputSchema => {'type': 'object'};
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

@@ -19,10 +19,7 @@ class MockMcpTool implements McpTool {
   String get description => 'A test tool';
 
   @override
-  Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {},
-      };
+  Map<String, dynamic> get inputSchema => {'type': 'object', 'properties': {}};
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) =>
@@ -40,8 +37,8 @@ class MockMcpPrompt implements McpPrompt {
 
   @override
   List<Map<String, dynamic>> get messages => [
-        {'role': 'user', 'content': 'hello'}
-      ];
+    {'role': 'user', 'content': 'hello'},
+  ];
 }
 
 void main() {
@@ -82,68 +79,68 @@ void main() {
 
     test('responds to initialize', () async {
       server.start();
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 1,
-        'method': 'initialize',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 1, 'method': 'initialize'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 1);
       // No version requested -> server advertises its latest implemented one.
       expect(response['result']['protocolVersion'], '2025-06-18');
-      expect(response['result']['capabilities'],
-          containsPair('resources', anything));
+      expect(
+        response['result']['capabilities'],
+        containsPair('resources', anything),
+      );
     });
 
     test('initialize advertises the logging capability', () async {
       server.start();
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 1,
-        'method': 'initialize',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 1, 'method': 'initialize'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
-      expect(response['result']['capabilities'],
-          containsPair('logging', anything));
-    });
-
-    test('logging/setLevel rejects an unknown level as invalid params',
-        () async {
-      server.start();
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 7,
-        'method': 'logging/setLevel',
-        'params': {'level': 'verbose'},
-      });
-
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
-
-      final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
-      expect(response['error']['code'], -32602);
-      expect(response['error']['message'], contains('verbose'));
+      expect(
+        response['result']['capabilities'],
+        containsPair('logging', anything),
+      );
     });
 
     test(
-        'library log events reach the host as notifications/message once '
+      'logging/setLevel rejects an unknown level as invalid params',
+      () async {
+        server.start();
+        sendInput({
+          'jsonrpc': '2.0',
+          'id': 7,
+          'method': 'logging/setLevel',
+          'params': {'level': 'verbose'},
+        });
+
+        final outputLines =
+            await outputStreamController.stream
+                .transform(utf8.decoder)
+                .transform(const LineSplitter())
+                .take(1)
+                .toList();
+
+        final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
+        expect(response['error']['code'], -32602);
+        expect(response['error']['message'], contains('verbose'));
+      },
+    );
+
+    test('library log events reach the host as notifications/message once '
         'the host lowers the level via logging/setLevel', () async {
       server.start();
       sendInput({
@@ -179,29 +176,27 @@ void main() {
       expect(notification['method'], 'notifications/message');
       expect(notification['params']['level'], 'debug');
       expect(notification['params']['logger'], 'rw_git');
-      expect(notification['params']['data']['message'],
-          contains('Executing GitCommand'));
+      expect(
+        notification['params']['data']['message'],
+        contains('Executing GitCommand'),
+      );
     });
 
-    test(
-        'debug events are suppressed at the default warning level so an '
+    test('debug events are suppressed at the default warning level so an '
         'idle host is not flooded', () async {
       server.start();
 
       // A debug event before any logging/setLevel call must be dropped;
       // the next real response proves nothing was written before it.
       RwGitLogger.instance.debug('should be suppressed');
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 9,
-        'method': 'ping',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 9, 'method': 'ping'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 9);
@@ -210,17 +205,14 @@ void main() {
 
     test('responds to ping', () async {
       server.start();
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 99,
-        'method': 'ping',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 99, 'method': 'ping'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 99);
@@ -229,17 +221,14 @@ void main() {
 
     test('responds to resources/list', () async {
       server.start();
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 100,
-        'method': 'resources/list',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 100, 'method': 'resources/list'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 100);
@@ -254,11 +243,12 @@ void main() {
         'method': 'resources/templates/list',
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 100);
@@ -267,17 +257,14 @@ void main() {
 
     test('responds to prompts/list', () async {
       server.start();
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 101,
-        'method': 'prompts/list',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 101, 'method': 'prompts/list'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 101);
@@ -288,17 +275,14 @@ void main() {
       registry.registerTool(MockMcpTool('test_tool', (_) async => ''));
       server.start();
 
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 2,
-        'method': 'tools/list',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 2, 'method': 'tools/list'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 2);
@@ -313,14 +297,15 @@ void main() {
         'jsonrpc': '2.0',
         'id': 102,
         'method': 'prompts/get',
-        'params': {'name': 'test_prompt'}
+        'params': {'name': 'test_prompt'},
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 102);
@@ -331,14 +316,19 @@ void main() {
     test('prompts/get missing name returns error', () async {
       server.start();
 
-      sendInput(
-          {'jsonrpc': '2.0', 'id': 103, 'method': 'prompts/get', 'params': {}});
+      sendInput({
+        'jsonrpc': '2.0',
+        'id': 103,
+        'method': 'prompts/get',
+        'params': {},
+      });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32602);
@@ -352,24 +342,31 @@ void main() {
         'jsonrpc': '2.0',
         'id': 104,
         'method': 'prompts/get',
-        'params': {'name': 'unknown_prompt'}
+        'params': {'name': 'unknown_prompt'},
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32601);
-      expect(response['error']['message'],
-          contains('Prompt not found: unknown_prompt'));
+      expect(
+        response['error']['message'],
+        contains('Prompt not found: unknown_prompt'),
+      );
     });
 
     test('responds to tools/call successfully', () async {
-      registry.registerTool(MockMcpTool(
-          'test_tool', (args) async => 'Tool output: ${args["param"]}'));
+      registry.registerTool(
+        MockMcpTool(
+          'test_tool',
+          (args) async => 'Tool output: ${args["param"]}',
+        ),
+      );
       server.start();
 
       sendInput({
@@ -378,15 +375,16 @@ void main() {
         'method': 'tools/call',
         'params': {
           'name': 'test_tool',
-          'arguments': {'param': 'value'}
-        }
+          'arguments': {'param': 'value'},
+        },
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 3);
@@ -400,14 +398,15 @@ void main() {
         'jsonrpc': '2.0',
         'id': 4,
         'method': 'tools/call',
-        'params': {'arguments': {}}
+        'params': {'arguments': {}},
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32602);
@@ -421,118 +420,126 @@ void main() {
         'jsonrpc': '2.0',
         'id': 5,
         'method': 'tools/call',
-        'params': {'name': 'unknown_tool'}
+        'params': {'name': 'unknown_tool'},
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32601);
-      expect(response['error']['message'],
-          contains('Method not found: unknown_tool'));
+      expect(
+        response['error']['message'],
+        contains('Method not found: unknown_tool'),
+      );
     });
 
     test('tools/call tool throws RwGitException returns error', () async {
-      registry.registerTool(MockMcpTool(
+      registry.registerTool(
+        MockMcpTool(
           'test_tool',
-          (_) async => throw RwGitException(
-              message: 'Custom Git Error',
-              exitCode: 128,
-              stderr: 'stderr msg')));
+          (_) async =>
+              throw RwGitException(
+                message: 'Custom Git Error',
+                exitCode: 128,
+                stderr: 'stderr msg',
+              ),
+        ),
+      );
       server.start();
 
       sendInput({
         'jsonrpc': '2.0',
         'id': 6,
         'method': 'tools/call',
-        'params': {'name': 'test_tool'}
+        'params': {'name': 'test_tool'},
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 6);
       expect(response['result']['isError'], isTrue);
-      expect(response['result']['content'][0]['text'],
-          contains('Custom Git Error'));
+      expect(
+        response['result']['content'][0]['text'],
+        contains('Custom Git Error'),
+      );
     });
 
     test('tools/call tool throws generic exception returns error', () async {
-      registry.registerTool(MockMcpTool(
-          'test_tool', (_) async => throw Exception('Generic error')));
+      registry.registerTool(
+        MockMcpTool('test_tool', (_) async => throw Exception('Generic error')),
+      );
       server.start();
 
       sendInput({
         'jsonrpc': '2.0',
         'id': 7,
         'method': 'tools/call',
-        'params': {'name': 'test_tool'}
+        'params': {'name': 'test_tool'},
       });
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 7);
       expect(response['result']['isError'], isTrue);
       expect(
-          response['result']['content'][0]['text'], contains('Generic error'));
+        response['result']['content'][0]['text'],
+        contains('Generic error'),
+      );
     });
 
     test('unknown method returns error', () async {
       server.start();
 
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 8,
-        'method': 'unknown/method',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 8, 'method': 'unknown/method'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32601);
-      expect(response['error']['message'],
-          contains('Method not found: unknown/method'));
+      expect(
+        response['error']['message'],
+        contains('Method not found: unknown/method'),
+      );
     });
 
     test('notifications/initialized is ignored without response', () async {
       server.start();
 
-      sendInput({
-        'jsonrpc': '2.0',
-        'method': 'notifications/initialized',
-      });
+      sendInput({'jsonrpc': '2.0', 'method': 'notifications/initialized'});
       // Give it a tick to process
       await Future.delayed(const Duration(milliseconds: 10));
       // No output should be sent
       // We check this by sending another request and expecting only one response
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 9,
-        'method': 'initialize',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 9, 'method': 'initialize'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 9);
@@ -543,11 +550,12 @@ void main() {
 
       inputStreamController.add(utf8.encode('invalid json\n'));
 
-      final errorLines = await errorStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final errorLines =
+          await errorStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       expect(errorLines.first, contains('Error processing message'));
     });
@@ -560,17 +568,14 @@ void main() {
       // Give it a tick to process
       await Future.delayed(const Duration(milliseconds: 10));
       // No output should be sent
-      sendInput({
-        'jsonrpc': '2.0',
-        'id': 10,
-        'method': 'initialize',
-      });
+      sendInput({'jsonrpc': '2.0', 'id': 10, 'method': 'initialize'});
 
-      final outputLines = await outputStreamController.stream
-          .transform(utf8.decoder)
-          .transform(const LineSplitter())
-          .take(1)
-          .toList();
+      final outputLines =
+          await outputStreamController.stream
+              .transform(utf8.decoder)
+              .transform(const LineSplitter())
+              .take(1)
+              .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 10);

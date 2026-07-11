@@ -16,19 +16,27 @@ void main() {
 
     await rwGit.init(tempDir.path);
 
-    await runner.run('git', ['config', 'user.name', 'Test User'],
-        workingDirectory: tempDir.path);
-    await runner.run('git', ['config', 'user.email', 'test@example.com'],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'config',
+      'user.name',
+      'Test User',
+    ], workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'config',
+      'user.email',
+      'test@example.com',
+    ], workingDirectory: tempDir.path);
 
     final pkgJson = File('${tempDir.path}/package.json');
     await pkgJson.writeAsString(
-        '{\n"dependencies": {\n"lodash": "^4.17.21"\n},\n"devDependencies": {\n"jest": "27.0.0"\n}\n}');
+      '{\n"dependencies": {\n"lodash": "^4.17.21"\n},\n"devDependencies": {\n"jest": "27.0.0"\n}\n}',
+    );
 
     // Create a pubspec.yaml
     final pubspec = File('${tempDir.path}/pubspec.yaml');
     await pubspec.writeAsString(
-        'dependencies:\n  http: ^0.13.3\ndev_dependencies:\n  test: 1.16.0');
+      'dependencies:\n  http: ^0.13.3\ndev_dependencies:\n  test: 1.16.0',
+    );
 
     // Create requirements.txt
     final reqs = File('${tempDir.path}/requirements.txt');
@@ -37,17 +45,20 @@ void main() {
     // Create go.mod
     final goMod = File('${tempDir.path}/go.mod');
     await goMod.writeAsString(
-        'module example\ngo 1.16\nrequire (\n\tgithub.com/gin-gonic/gin v1.7.4\n)');
+      'module example\ngo 1.16\nrequire (\n\tgithub.com/gin-gonic/gin v1.7.4\n)',
+    );
 
     // Create Cargo.toml
     final cargo = File('${tempDir.path}/Cargo.toml');
-    await cargo
-        .writeAsString('[dependencies]\nserde = "1.0"\nserde_json = "=1.0.64"');
+    await cargo.writeAsString(
+      '[dependencies]\nserde = "1.0"\nserde_json = "=1.0.64"',
+    );
 
     // Create Gemfile
     final gemfile = File('${tempDir.path}/Gemfile');
     await gemfile.writeAsString(
-        "source 'https://rubygems.org'\ngem 'rails', '~> 6.1.4'\ngem 'sqlite3', '1.4.2'");
+      "source 'https://rubygems.org'\ngem 'rails', '~> 6.1.4'\ngem 'sqlite3', '1.4.2'",
+    );
 
     // Add lockfiles
     final pubspecLock = File('${tempDir.path}/pubspec.lock');
@@ -56,8 +67,11 @@ void main() {
     await packageLock.writeAsString('lock');
 
     await runner.run('git', ['add', '.'], workingDirectory: tempDir.path);
-    await runner.run('git', ['commit', '-m', 'Initial'],
-        workingDirectory: tempDir.path);
+    await runner.run('git', [
+      'commit',
+      '-m',
+      'Initial',
+    ], workingDirectory: tempDir.path);
   });
 
   tearDown(() async {
@@ -129,10 +143,7 @@ void main() {
       expect(go.totalDependencies, 1);
       expect(go.pinnedCount, 1);
       expect(go.floatingCount, 0);
-      expect(
-        go.dependencies.first.name,
-        'github.com/gin-gonic/gin',
-      );
+      expect(go.dependencies.first.name, 'github.com/gin-gonic/gin');
 
       final rust = result.ecosystems.firstWhere((e) => e.type == 'rust');
       expect(rust.totalDependencies, 2);

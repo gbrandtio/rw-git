@@ -7,11 +7,9 @@ import 'git_blame_line.dart';
 class GitBlame {
   final List<GitBlameLine> lines;
 
-  const GitBlame({
-    this.lines = const [],
-  });
+  const GitBlame({this.lines = const []});
 
   Map<String, dynamic> toJson() => {
-        'lines': lines.map((e) => e.toJson()).toList(),
-      };
+    'lines': lines.map((e) => e.toJson()).toList(),
+  };
 }

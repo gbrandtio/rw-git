@@ -29,16 +29,20 @@ void main() {
     for (final entry in map.entries) {
       if (content.contains("source: ${entry.key}")) {
         content = content.replaceAll(
-            "source: ${entry.key}", "source: ${entry.value}");
+          "source: ${entry.key}",
+          "source: ${entry.value}",
+        );
         changed = true;
       }
     }
 
     if (changed) {
       if (!content.contains(
-              "import 'package:rw_git/src/intelligence/interpretation.dart';") &&
+            "import 'package:rw_git/src/intelligence/interpretation.dart';",
+          ) &&
           !content.contains(
-              "import 'package:rw_git/src/intelligence/interpretation/models/analysis_type.dart';")) {
+            "import 'package:rw_git/src/intelligence/interpretation/models/analysis_type.dart';",
+          )) {
         content =
             "import 'package:rw_git/src/intelligence/interpretation/models/analysis_type.dart';\n$content";
       }

@@ -28,19 +28,27 @@ class LexicalMetricsRunner {
 
     return FileLexicalMetricsDto(
       filePath: filePath,
-      cyclomaticComplexity:
-          CyclomaticComplexityAlgorithm().calculate(tokens, activeProfile),
-      maintainabilityIndex: MaintainabilityIndexAlgorithm()
-          .calculate(tokens, activeProfile)
-          .score,
+      cyclomaticComplexity: CyclomaticComplexityAlgorithm().calculate(
+        tokens,
+        activeProfile,
+      ),
+      maintainabilityIndex:
+          MaintainabilityIndexAlgorithm()
+              .calculate(tokens, activeProfile)
+              .score,
       abcScore: AbcScoreAlgorithm().calculate(tokens, activeProfile).score,
-      npathComplexity:
-          NpathComplexityAlgorithm().calculate(tokens, activeProfile),
-      cognitiveComplexity:
-          CognitiveComplexityAlgorithm().calculate(tokens, activeProfile),
-      halsteadDeliveredBugs: HalsteadComplexityAlgorithm()
-          .calculate(tokens, activeProfile)
-          .deliveredBugs,
+      npathComplexity: NpathComplexityAlgorithm().calculate(
+        tokens,
+        activeProfile,
+      ),
+      cognitiveComplexity: CognitiveComplexityAlgorithm().calculate(
+        tokens,
+        activeProfile,
+      ),
+      halsteadDeliveredBugs:
+          HalsteadComplexityAlgorithm()
+              .calculate(tokens, activeProfile)
+              .deliveredBugs,
     );
   }
 }

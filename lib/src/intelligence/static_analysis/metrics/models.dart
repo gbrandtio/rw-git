@@ -19,14 +19,14 @@ class HalsteadResult {
   });
 
   Map<String, dynamic> toJson() => {
-        'vocabulary': vocabulary,
-        'length': length,
-        'volume': volume,
-        'difficulty': difficulty,
-        'effort': effort,
-        'timeRequired': timeRequired,
-        'deliveredBugs': deliveredBugs,
-      };
+    'vocabulary': vocabulary,
+    'length': length,
+    'volume': volume,
+    'difficulty': difficulty,
+    'effort': effort,
+    'timeRequired': timeRequired,
+    'deliveredBugs': deliveredBugs,
+  };
 }
 
 /// Encapsulates the ABC Software Size Metric (Fitzpatrick, 1997).
@@ -47,11 +47,11 @@ class AbcScore {
   });
 
   Map<String, dynamic> toJson() => {
-        'assignments': assignments,
-        'branches': branches,
-        'conditions': conditions,
-        'score': score,
-      };
+    'assignments': assignments,
+    'branches': branches,
+    'conditions': conditions,
+    'score': score,
+  };
 }
 
 /// Encapsulates the results of the composite Maintainability Index algorithm.
@@ -59,13 +59,7 @@ class MaintainabilityResult {
   final double score;
   final String category; // e.g., 'Highly Maintainable', 'Moderate', 'Low'
 
-  const MaintainabilityResult({
-    required this.score,
-    required this.category,
-  });
+  const MaintainabilityResult({required this.score, required this.category});
 
-  Map<String, dynamic> toJson() => {
-        'score': score,
-        'category': category,
-      };
+  Map<String, dynamic> toJson() => {'score': score, 'category': category};
 }

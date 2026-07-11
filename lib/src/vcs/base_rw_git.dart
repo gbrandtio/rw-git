@@ -12,20 +12,28 @@ abstract class BaseRwGit implements RwGit {
 
   @override
   Future<Result<bool, RwGitException>> cloneSpecificBranch(
-      String localDirectoryToCloneInto,
-      String repository,
-      String branchToCheckout,
-      {bool streamOutput = false}) async {
-    final cloneResult = await clone(localDirectoryToCloneInto, repository,
-        streamOutput: streamOutput);
+    String localDirectoryToCloneInto,
+    String repository,
+    String branchToCheckout, {
+    bool streamOutput = false,
+  }) async {
+    final cloneResult = await clone(
+      localDirectoryToCloneInto,
+      repository,
+      streamOutput: streamOutput,
+    );
 
     return cloneResult.fold((_) {
-      String localCheckoutDirectory = localDirectoryToCloneInto +
+      String localCheckoutDirectory =
+          localDirectoryToCloneInto +
           Platform.pathSeparator +
           GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
 
-      return checkout(localCheckoutDirectory, branchToCheckout,
-          streamOutput: streamOutput);
+      return checkout(
+        localCheckoutDirectory,
+        branchToCheckout,
+        streamOutput: streamOutput,
+      );
     }, (e) => Failure(e));
   }
 }

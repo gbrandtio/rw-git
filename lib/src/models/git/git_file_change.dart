@@ -10,7 +10,7 @@ enum GitFileStatus {
   renamed,
   copied,
   untracked,
-  unknown
+  unknown,
 }
 
 /// Represents a file change in a Git status output.
@@ -18,13 +18,7 @@ class GitFileChange {
   final String path;
   final GitFileStatus status;
 
-  const GitFileChange({
-    required this.path,
-    required this.status,
-  });
+  const GitFileChange({required this.path, required this.status});
 
-  Map<String, dynamic> toJson() => {
-        'path': path,
-        'status': status.name,
-      };
+  Map<String, dynamic> toJson() => {'path': path, 'status': status.name};
 }

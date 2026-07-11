@@ -10,12 +10,14 @@ class MegaCommitsHeuristic {
   MegaCommitsHeuristic(this.runner);
 
   /// Identifies mega-commits (e.g. ones that touch more than 500 lines or 20 files)
-  Future<List<String>> findMegaCommits(String directory,
-      {int lineThreshold = 500,
-      int fileThreshold = 20,
-      String? limit,
-      String? since,
-      String? until}) async {
+  Future<List<String>> findMegaCommits(
+    String directory, {
+    int lineThreshold = 500,
+    int fileThreshold = 20,
+    String? limit,
+    String? since,
+    String? until,
+  }) async {
     final args = ['log', '--shortstat', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
@@ -34,12 +36,16 @@ class MegaCommitsHeuristic {
 
     // Offload parsing to an Isolate
     return await Isolate.run(
-        () => _parseMegaCommits(rawOutput, lineThreshold, fileThreshold));
+      () => _parseMegaCommits(rawOutput, lineThreshold, fileThreshold),
+    );
   }
 }
 
 List<String> _parseMegaCommits(
-    String rawLog, int lineThreshold, int fileThreshold) {
+  String rawLog,
+  int lineThreshold,
+  int fileThreshold,
+) {
   final List<String> flaggedCommits = [];
 
   final lines = rawLog.split('\n');

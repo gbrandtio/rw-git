@@ -15,14 +15,18 @@ class LoggingSetLevelRule implements McpRule {
 
   @override
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  ) async {
     final level = McpLogLevel.fromWireName(params['level'] as String?);
     if (level == null) {
       ctx.sendError(
-          id,
-          jsonRpcInvalidParams,
-          'Invalid log level: ${params['level']}. Expected one of: '
-          '${McpLogLevel.values.map((l) => l.wireName).join(', ')}.');
+        id,
+        jsonRpcInvalidParams,
+        'Invalid log level: ${params['level']}. Expected one of: '
+        '${McpLogLevel.values.map((l) => l.wireName).join(', ')}.',
+      );
       return;
     }
     ctx.minimumLogLevel = level;

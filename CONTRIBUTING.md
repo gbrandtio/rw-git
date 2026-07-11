@@ -5,10 +5,10 @@ report issues, propose changes, and get a development environment running.
 
 ## Reporting issues
 
-Search the [issue tracker](https://github.com/gbrandtio/rw-git/issues) before
+Search the [issue tracker](https://github.com/rw-core/rw-git/issues) before
 opening a new issue. When filing a bug, please include:
 
-- The `rw_git` version (`pubspec.yaml` or `npx @gbrandtio/rw-git-mcp --version`)
+- The `rw_git` version (`pubspec.yaml` or `npx @rw-core/rw-git-mcp --version`)
 - Steps to reproduce, including the Dart/Flutter SDK version
 - Expected vs. actual behavior, with relevant git history/repo state if possible
 
@@ -26,7 +26,7 @@ Requirements:
 - Flutter `>=3.29.0`
 
 ```bash
-git clone https://github.com/gbrandtio/rw-git.git
+git clone https://github.com/rw-core/rw-git.git
 cd rw-git
 dart pub get
 flutter pub get

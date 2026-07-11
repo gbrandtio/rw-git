@@ -17,10 +17,16 @@ void main() {
     testDir = Directory.systemTemp.createTempSync('rw_git_test_');
     await rwGit.init(testDir.path);
 
-    await runner.run('git', ['config', 'user.name', 'Test User'],
-        workingDirectory: testDir.path);
-    await runner.run('git', ['config', 'user.email', 'test@example.com'],
-        workingDirectory: testDir.path);
+    await runner.run('git', [
+      'config',
+      'user.name',
+      'Test User',
+    ], workingDirectory: testDir.path);
+    await runner.run('git', [
+      'config',
+      'user.email',
+      'test@example.com',
+    ], workingDirectory: testDir.path);
 
     // Create CODEOWNERS with various patterns
     final codeowners = File('${testDir.path}/CODEOWNERS');
@@ -53,45 +59,36 @@ utils/exact.dart @exact-owner
 
     // Commit the changes
     await runner.run('git', ['add', '.'], workingDirectory: testDir.path);
-    await runner.run(
-        'git',
-        [
-          'commit',
-          '-m',
-          'Initial commit',
-          '--author',
-          'Author One <one@example.com>'
-        ],
-        workingDirectory: testDir.path);
+    await runner.run('git', [
+      'commit',
+      '-m',
+      'Initial commit',
+      '--author',
+      'Author One <one@example.com>',
+    ], workingDirectory: testDir.path);
 
     // Create recent changes to trigger drift and multiple changes for sorting
     await dartFile.writeAsString('void main() { print("hello"); }');
     await exactFile.writeAsString('void main() { print("exact"); }');
     await unownedFile.writeAsString('hello world');
     await runner.run('git', ['add', '.'], workingDirectory: testDir.path);
-    await runner.run(
-        'git',
-        [
-          'commit',
-          '-m',
-          'Second commit',
-          '--author',
-          'Author Two <two@example.com>'
-        ],
-        workingDirectory: testDir.path);
+    await runner.run('git', [
+      'commit',
+      '-m',
+      'Second commit',
+      '--author',
+      'Author Two <two@example.com>',
+    ], workingDirectory: testDir.path);
 
     await dartFile.writeAsString('void main() { print("hello2"); }');
     await runner.run('git', ['add', '.'], workingDirectory: testDir.path);
-    await runner.run(
-        'git',
-        [
-          'commit',
-          '-m',
-          'Third commit',
-          '--author',
-          'Author Two <two@example.com>'
-        ],
-        workingDirectory: testDir.path);
+    await runner.run('git', [
+      'commit',
+      '-m',
+      'Third commit',
+      '--author',
+      'Author Two <two@example.com>',
+    ], workingDirectory: testDir.path);
   });
 
   tearDown(() {
@@ -106,8 +103,10 @@ utils/exact.dart @exact-owner
     });
 
     test('executes successfully and detects codeowners', () async {
-      final resultString =
-          await tool.execute({'directory': testDir.path, 'limit': 3});
+      final resultString = await tool.execute({
+        'directory': testDir.path,
+        'limit': 3,
+      });
       expect(resultString, isNotNull);
 
       final parsed = jsonDecode(resultString) as Map<String, dynamic>;
@@ -118,21 +117,22 @@ utils/exact.dart @exact-owner
     });
 
     test('handles missing CODEOWNERS', () async {
-      await runner.run('git', ['rm', 'CODEOWNERS'],
-          workingDirectory: testDir.path);
-      await runner.run(
-          'git',
-          [
-            'commit',
-            '-m',
-            'remove codeowners',
-            '--author',
-            'Author Two <two@example.com>'
-          ],
-          workingDirectory: testDir.path);
+      await runner.run('git', [
+        'rm',
+        'CODEOWNERS',
+      ], workingDirectory: testDir.path);
+      await runner.run('git', [
+        'commit',
+        '-m',
+        'remove codeowners',
+        '--author',
+        'Author Two <two@example.com>',
+      ], workingDirectory: testDir.path);
 
-      final resultString =
-          await tool.execute({'directory': testDir.path, 'limit': 3});
+      final resultString = await tool.execute({
+        'directory': testDir.path,
+        'limit': 3,
+      });
       expect(resultString, isNotNull);
       final parsed = jsonDecode(resultString) as Map<String, dynamic>;
       expect(parsed['codeowners_found'], isFalse);

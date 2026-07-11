@@ -11,13 +11,17 @@ class InitializeRule implements McpRule {
 
   @override
   Future<void> handle(
-      McpRequestContext ctx, dynamic id, Map<String, dynamic> params) async {
+    McpRequestContext ctx,
+    dynamic id,
+    Map<String, dynamic> params,
+  ) async {
     // Echo the client's protocol version when we support it; otherwise fall
     // back to our latest implemented revision.
     final requested = params['protocolVersion'] as String?;
-    final version = supportedMcpProtocolVersions.contains(requested)
-        ? requested!
-        : mcpProtocolVersion;
+    final version =
+        supportedMcpProtocolVersions.contains(requested)
+            ? requested!
+            : mcpProtocolVersion;
     ctx.sendResponse(id, {
       'protocolVersion': version,
       'capabilities': {
@@ -26,7 +30,7 @@ class InitializeRule implements McpRule {
         'prompts': {'listChanged': false},
         'logging': {},
       },
-      'serverInfo': {'name': 'rw_git_mcp', 'version': rwGitMcpVersion}
+      'serverInfo': {'name': 'rw_git_mcp', 'version': rwGitMcpVersion},
     });
   }
 }

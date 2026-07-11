@@ -21,14 +21,15 @@ void main() {
     });
 
     test(
-        'StandardProcessRunner throws GitExecutableNotFoundException on ProcessException',
-        () async {
-      final runner = ProcessRunner.defaultRunner();
-      expect(
-        () => runner.run('non_existent_executable_123', []),
-        throwsA(isA<GitExecutableNotFoundException>()),
-      );
-    });
+      'StandardProcessRunner throws GitExecutableNotFoundException on ProcessException',
+      () async {
+        final runner = ProcessRunner.defaultRunner();
+        expect(
+          () => runner.run('non_existent_executable_123', []),
+          throwsA(isA<GitExecutableNotFoundException>()),
+        );
+      },
+    );
 
     test('MockProcessRunner returns mocked result', () async {
       final runner = MockProcessRunner();
@@ -39,14 +40,16 @@ void main() {
       expect(result.stdout, 'clean');
     });
 
-    test('MockProcessRunner returns mocked result with streamOutput=true',
-        () async {
-      final runner = MockProcessRunner();
-      runner.setMockResult('git', ['status'], 0, 'clean', '');
+    test(
+      'MockProcessRunner returns mocked result with streamOutput=true',
+      () async {
+        final runner = MockProcessRunner();
+        runner.setMockResult('git', ['status'], 0, 'clean', '');
 
-      final result = await runner.run('git', ['status'], streamOutput: true);
-      expect(result.exitCode, 0);
-    });
+        final result = await runner.run('git', ['status'], streamOutput: true);
+        expect(result.exitCode, 0);
+      },
+    );
 
     test('MockProcessRunner returns error for unmocked result', () async {
       final runner = MockProcessRunner();
@@ -55,33 +58,33 @@ void main() {
       expect(result.stderr, contains('Mock result not found'));
     });
 
-    test('StandardProcessRunner runStream returns Stream of ProcessResult',
-        () async {
-      final runner = ProcessRunner.defaultRunner();
-      final stream = runner.runStream('echo', ['hello\nworld']);
-      final lines = await stream.toList();
-      expect(lines, contains('hello'));
-      expect(lines, contains('world'));
-    });
+    test(
+      'StandardProcessRunner runStream returns Stream of ProcessResult',
+      () async {
+        final runner = ProcessRunner.defaultRunner();
+        final stream = runner.runStream('echo', ['hello\nworld']);
+        final lines = await stream.toList();
+        expect(lines, contains('hello'));
+        expect(lines, contains('world'));
+      },
+    );
 
     test('StandardProcessRunner runStream throws on failure', () async {
       final runner = ProcessRunner.defaultRunner();
       final stream = runner.runStream('ls', ['/non_existent_directory_123']);
-      expect(
-        stream.toList(),
-        throwsA(isA<RwGitException>()),
-      );
+      expect(stream.toList(), throwsA(isA<RwGitException>()));
     });
 
     test(
-        'StandardProcessRunner runStream throws GitExecutableNotFoundException on ProcessException',
-        () async {
-      final runner = ProcessRunner.defaultRunner();
-      expect(
-        runner.runStream('non_existent_executable_123', []).toList(),
-        throwsA(isA<GitExecutableNotFoundException>()),
-      );
-    });
+      'StandardProcessRunner runStream throws GitExecutableNotFoundException on ProcessException',
+      () async {
+        final runner = ProcessRunner.defaultRunner();
+        expect(
+          runner.runStream('non_existent_executable_123', []).toList(),
+          throwsA(isA<GitExecutableNotFoundException>()),
+        );
+      },
+    );
 
     test('MockProcessRunner runStream returns mocked stream', () async {
       final runner = MockProcessRunner();
@@ -95,32 +98,39 @@ void main() {
       expect(lines[2], 'line3');
     });
 
-    test('MockProcessRunner runStream evaluates ProcessResult if exitCode != 0',
-        () async {
-      final runner = MockProcessRunner();
-      runner.setMockResult(
-          'git', ['badcmd'], 1, 'output', 'fatal: not a git repository');
+    test(
+      'MockProcessRunner runStream evaluates ProcessResult if exitCode != 0',
+      () async {
+        final runner = MockProcessRunner();
+        runner.setMockResult(
+          'git',
+          ['badcmd'],
+          1,
+          'output',
+          'fatal: not a git repository',
+        );
 
-      expect(
-        runner.runStream('git', ['badcmd']).toList(),
-        throwsA(isA<GitNotInitializedException>()),
-      );
-    });
+        expect(
+          runner.runStream('git', ['badcmd']).toList(),
+          throwsA(isA<GitNotInitializedException>()),
+        );
+      },
+    );
 
-    test('MockProcessRunner runStream returns error for unmocked stream',
-        () async {
-      final runner = MockProcessRunner();
-      final stream = runner.runStream('git', ['unknown']);
-      expect(
-        stream.toList(),
-        throwsA(isA<RwGitException>()),
-      );
-    });
+    test(
+      'MockProcessRunner runStream returns error for unmocked stream',
+      () async {
+        final runner = MockProcessRunner();
+        final stream = runner.runStream('git', ['unknown']);
+        expect(stream.toList(), throwsA(isA<RwGitException>()));
+      },
+    );
 
     test('run with streamOutput writes stderr', () async {
       final runner = ProcessRunner.defaultRunner();
-      final result = await runner.run('dart', ['--unknown-flag-for-test'],
-          streamOutput: true);
+      final result = await runner.run('dart', [
+        '--unknown-flag-for-test',
+      ], streamOutput: true);
       expect(result.exitCode, isNonZero);
     });
   });
@@ -133,27 +143,39 @@ void main() {
 
     test('throws GitBranchNotFoundException', () {
       final result = ProcessResult(
-          0, 1, '', 'error: pathspec did not match any file(s) known to git');
-      expect(() => evaluateProcessResult(result),
-          throwsA(isA<GitBranchNotFoundException>()));
+        0,
+        1,
+        '',
+        'error: pathspec did not match any file(s) known to git',
+      );
+      expect(
+        () => evaluateProcessResult(result),
+        throwsA(isA<GitBranchNotFoundException>()),
+      );
     });
 
     test('throws GitNotInitializedException', () {
       final result = ProcessResult(0, 128, '', 'fatal: not a git repository');
-      expect(() => evaluateProcessResult(result),
-          throwsA(isA<GitNotInitializedException>()));
+      expect(
+        () => evaluateProcessResult(result),
+        throwsA(isA<GitNotInitializedException>()),
+      );
     });
 
     test('throws GitMergeConflictException', () {
       final result = ProcessResult(0, 1, '', 'conflict');
-      expect(() => evaluateProcessResult(result),
-          throwsA(isA<GitMergeConflictException>()));
+      expect(
+        () => evaluateProcessResult(result),
+        throwsA(isA<GitMergeConflictException>()),
+      );
     });
 
     test('throws RwGitException for other errors', () {
       final result = ProcessResult(0, 2, '', 'some unknown error');
       expect(
-          () => evaluateProcessResult(result), throwsA(isA<RwGitException>()));
+        () => evaluateProcessResult(result),
+        throwsA(isA<RwGitException>()),
+      );
     });
   });
 }

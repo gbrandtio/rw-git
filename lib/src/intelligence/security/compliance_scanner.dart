@@ -18,10 +18,7 @@ class ComplianceScanner {
     String? until,
     List<String> allowedEmails = const [],
   }) async {
-    final args = [
-      'log',
-      '--format=%H||%G?||%ae||%an||%aI||%s',
-    ];
+    final args = ['log', '--format=%H||%G?||%ae||%an||%aI||%s'];
     if (limit != null) {
       args.insert(1, '-n');
       args.insert(2, limit);
@@ -33,11 +30,7 @@ class ComplianceScanner {
       args.add('--until=$until');
     }
 
-    final result = await runner.run(
-      'git',
-      args,
-      workingDirectory: directory,
-    );
+    final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);
     final rawOutput = result.stdout?.toString() ?? '';
 
@@ -48,7 +41,9 @@ class ComplianceScanner {
 }
 
 ComplianceReportDto _parseComplianceIssues(
-    String rawLog, List<String> allowedEmails) {
+  String rawLog,
+  List<String> allowedEmails,
+) {
   final lines = rawLog.split('\n');
   final unsigned = <ComplianceViolation>[];
   final emptyMsg = <ComplianceViolation>[];
@@ -136,11 +131,7 @@ Map<String, List<Map<String, String>>> parseConventionalCommits(String rawLog) {
     final author = parts[1].trim();
     final message = parts.sublist(2).join('||').trim();
 
-    final entry = {
-      'hash': hash,
-      'author': author,
-      'message': message,
-    };
+    final entry = {'hash': hash, 'author': author, 'message': message};
 
     // Check for breaking changes
     if (message.toUpperCase().contains('BREAKING CHANGE') ||

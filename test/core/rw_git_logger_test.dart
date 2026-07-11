@@ -22,11 +22,13 @@ void main() {
       ]);
     });
 
-    test('enum order is severity order so index comparison filters correctly',
-        () {
-      expect(McpLogLevel.debug.index < McpLogLevel.warning.index, isTrue);
-      expect(McpLogLevel.emergency.index > McpLogLevel.error.index, isTrue);
-    });
+    test(
+      'enum order is severity order so index comparison filters correctly',
+      () {
+        expect(McpLogLevel.debug.index < McpLogLevel.warning.index, isTrue);
+        expect(McpLogLevel.emergency.index > McpLogLevel.error.index, isTrue);
+      },
+    );
 
     test('fromWireName resolves valid names and rejects unknown ones', () {
       expect(McpLogLevel.fromWireName('warning'), McpLogLevel.warning);

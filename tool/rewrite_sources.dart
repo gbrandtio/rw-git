@@ -29,7 +29,9 @@ void main() {
     for (final entry in map.entries) {
       if (content.contains("source: ${entry.key}")) {
         content = content.replaceAll(
-            "source: ${entry.key}", "source: ${entry.value}");
+          "source: ${entry.key}",
+          "source: ${entry.value}",
+        );
         changed = true;
       }
     }

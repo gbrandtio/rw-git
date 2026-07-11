@@ -11,8 +11,10 @@ void main() {
     });
 
     test('GitStatus toJson', () {
-      const change =
-          GitFileChange(status: GitFileStatus.modified, path: 'file.txt');
+      const change = GitFileChange(
+        status: GitFileStatus.modified,
+        path: 'file.txt',
+      );
       const model = GitStatus(stagedChanges: [change]);
       final json = model.toJson();
       expect(json['stagedChanges'], isA<List>());
@@ -21,8 +23,10 @@ void main() {
     });
 
     test('GitFileChange toJson', () {
-      const model =
-          GitFileChange(status: GitFileStatus.added, path: 'new.dart');
+      const model = GitFileChange(
+        status: GitFileStatus.added,
+        path: 'new.dart',
+      );
       final json = model.toJson();
       expect(json['status'], 'added');
       expect(json['path'], 'new.dart');
@@ -30,10 +34,11 @@ void main() {
 
     test('GitFileDiff toJson', () {
       const model = GitFileDiff(
-          path: 'test.dart',
-          additions: 2,
-          deletions: 1,
-          contentDiff: 'modified');
+        path: 'test.dart',
+        additions: 2,
+        deletions: 1,
+        contentDiff: 'modified',
+      );
       final json = model.toJson();
       expect(json['path'], 'test.dart');
       expect(json['additions'], 2);
@@ -43,9 +48,15 @@ void main() {
 
     test('GitDiff toJson', () {
       const fileDiff = GitFileDiff(
-          path: 'f.txt', additions: 1, deletions: 0, contentDiff: 'added');
-      const model =
-          GitDiff(files: [fileDiff], shortStat: ShortStatDto(1, 1, 0));
+        path: 'f.txt',
+        additions: 1,
+        deletions: 0,
+        contentDiff: 'added',
+      );
+      const model = GitDiff(
+        files: [fileDiff],
+        shortStat: ShortStatDto(1, 1, 0),
+      );
       final json = model.toJson();
       expect(json['files'], isA<List>());
       final shortStat = json['shortStat'] as Map<String, dynamic>;
@@ -57,11 +68,12 @@ void main() {
     test('GitBlameLine toJson', () {
       final date = DateTime.now();
       final model = GitBlameLine(
-          commitHash: 'hash',
-          author: 'Alice',
-          date: date,
-          lineNumber: 1,
-          content: 'text');
+        commitHash: 'hash',
+        author: 'Alice',
+        date: date,
+        lineNumber: 1,
+        content: 'text',
+      );
       final json = model.toJson();
       expect(json['commitHash'], 'hash');
       expect(json['author'], 'Alice');
@@ -72,11 +84,12 @@ void main() {
 
     test('GitBlame toJson', () {
       final line = GitBlameLine(
-          commitHash: 'h',
-          author: 'A',
-          date: DateTime.now(),
-          lineNumber: 1,
-          content: 'c');
+        commitHash: 'h',
+        author: 'A',
+        date: DateTime.now(),
+        lineNumber: 1,
+        content: 'c',
+      );
       final model = GitBlame(lines: [line]);
       final json = model.toJson();
       expect(json['lines'], isA<List>());

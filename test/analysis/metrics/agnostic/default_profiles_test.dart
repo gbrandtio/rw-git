@@ -17,19 +17,29 @@ void main() {
     test('getProfileForFile returns correct profiles', () {
       expect(DefaultProfiles.getProfileForFile('test.dart').name, 'Dart');
       expect(DefaultProfiles.getProfileForFile('test.py').name, 'Python');
-      expect(DefaultProfiles.getProfileForFile('test.js').name,
-          'JavaScript/TypeScript');
-      expect(DefaultProfiles.getProfileForFile('test.ts').name,
-          'JavaScript/TypeScript');
-      expect(DefaultProfiles.getProfileForFile('test.jsx').name,
-          'JavaScript/TypeScript');
-      expect(DefaultProfiles.getProfileForFile('test.tsx').name,
-          'JavaScript/TypeScript');
+      expect(
+        DefaultProfiles.getProfileForFile('test.js').name,
+        'JavaScript/TypeScript',
+      );
+      expect(
+        DefaultProfiles.getProfileForFile('test.ts').name,
+        'JavaScript/TypeScript',
+      );
+      expect(
+        DefaultProfiles.getProfileForFile('test.jsx').name,
+        'JavaScript/TypeScript',
+      );
+      expect(
+        DefaultProfiles.getProfileForFile('test.tsx').name,
+        'JavaScript/TypeScript',
+      );
       expect(DefaultProfiles.getProfileForFile('test.java').name, 'Java/C#');
       expect(DefaultProfiles.getProfileForFile('test.cs').name, 'Java/C#');
       expect(DefaultProfiles.getProfileForFile('test.go').name, 'Go');
-      expect(DefaultProfiles.getProfileForFile('test.txt').name,
-          'Generic/C-Family');
+      expect(
+        DefaultProfiles.getProfileForFile('test.txt').name,
+        'Generic/C-Family',
+      );
     });
   });
 }

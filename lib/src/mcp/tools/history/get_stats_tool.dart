@@ -23,23 +23,23 @@ class GetStatsTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory containing the git repository.'
-          },
-          'oldTag': {
-            'type': 'string',
-            'description': 'The older tag or commit hash.'
-          },
-          'newTag': {
-            'type': 'string',
-            'description': 'The newer tag or commit hash.'
-          }
-        },
-        'required': ['directory', 'oldTag', 'newTag']
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory containing the git repository.',
+      },
+      'oldTag': {
+        'type': 'string',
+        'description': 'The older tag or commit hash.',
+      },
+      'newTag': {
+        'type': 'string',
+        'description': 'The newer tag or commit hash.',
+      },
+    },
+    'required': ['directory', 'oldTag', 'newTag'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -49,11 +49,13 @@ class GetStatsTool implements McpTool {
     final stats = (await rwGit.stats(localDir, oldTag, newTag)).getOrThrow();
 
     // Group insertions/deletions by file extension
-    final numstatResult = (await gitQuery.run(
-      localDir,
-      ['diff', '--numstat', oldTag, newTag],
-    ))
-        .getOrThrow();
+    final numstatResult =
+        (await gitQuery.run(localDir, [
+          'diff',
+          '--numstat',
+          oldTag,
+          newTag,
+        ])).getOrThrow();
 
     final Map<String, Map<String, int>> statsByExtension = {};
     for (final line in numstatResult.split('\n')) {
@@ -65,12 +67,15 @@ class GetStatsTool implements McpTool {
         final fileName = parts.sublist(2).join(' ');
 
         final extIndex = fileName.lastIndexOf('.');
-        final ext = (extIndex > 0 && extIndex < fileName.length - 1)
-            ? fileName.substring(extIndex)
-            : 'no_extension';
+        final ext =
+            (extIndex > 0 && extIndex < fileName.length - 1)
+                ? fileName.substring(extIndex)
+                : 'no_extension';
 
         statsByExtension.putIfAbsent(
-            ext, () => {'insertions': 0, 'deletions': 0});
+          ext,
+          () => {'insertions': 0, 'deletions': 0},
+        );
         statsByExtension[ext]!['insertions'] =
             (statsByExtension[ext]!['insertions'] ?? 0) + ins;
         statsByExtension[ext]!['deletions'] =

@@ -25,13 +25,16 @@ class _MockGitQuery implements GitQuery {
 void main() {
   test('AnalyzeArchitectureDriftTool properties', () async {
     final tool = AnalyzeArchitectureDriftTool(
-        ReadOnlyGitQuery(ProcessRunner.defaultRunner()));
+      ReadOnlyGitQuery(ProcessRunner.defaultRunner()),
+    );
     expect(tool.name, 'analyze_architecture_drift');
     expect(tool.description, isNotEmpty);
     expect(tool.inputSchema, isNotEmpty);
 
-    final res = await tool
-        .execute({'directory': '.', 'layer_patterns': <String, dynamic>{}});
+    final res = await tool.execute({
+      'directory': '.',
+      'layer_patterns': <String, dynamic>{},
+    });
     expect(res, isNotNull);
   });
 
@@ -39,22 +42,24 @@ void main() {
     final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(shouldFail: true));
     final res = await tool.execute({
       'directory': '.',
-      'layer_patterns': {'ui': 'lib/ui'}
+      'layer_patterns': {'ui': 'lib/ui'},
     });
     expect(res, contains('error'));
   });
 
-  test('AnalyzeArchitectureDriftTool rejects malformed regex pattern',
-      () async {
-    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery());
-    final res = await tool.execute({
-      'directory': '.',
-      'layer_patterns': {'ui': '(unclosed'},
-    });
-    final data = jsonDecode(res) as Map<String, dynamic>;
-    expect(data['error'], contains('Invalid regex pattern'));
-    expect(data['error'], contains('ui'));
-  });
+  test(
+    'AnalyzeArchitectureDriftTool rejects malformed regex pattern',
+    () async {
+      final tool = AnalyzeArchitectureDriftTool(_MockGitQuery());
+      final res = await tool.execute({
+        'directory': '.',
+        'layer_patterns': {'ui': '(unclosed'},
+      });
+      final data = jsonDecode(res) as Map<String, dynamic>;
+      expect(data['error'], contains('Invalid regex pattern'));
+      expect(data['error'], contains('ui'));
+    },
+  );
 
   test('AnalyzeArchitectureDriftTool detects coupling matrix', () async {
     final logOut = '''
@@ -68,10 +73,7 @@ lib/ui/another.dart
     final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(logOutput: logOut));
     final res = await tool.execute({
       'directory': '.',
-      'layer_patterns': {
-        'ui': 'lib/ui/',
-        'data': 'lib/data/',
-      }
+      'layer_patterns': {'ui': 'lib/ui/', 'data': 'lib/data/'},
     });
 
     final data = jsonDecode(res) as Map<String, dynamic>;
@@ -88,9 +90,9 @@ lib/ui/another.dart
   });
 
   test(
-      'AnalyzeArchitectureDriftTool returns coupling_ratio and coupling_density',
-      () async {
-    final logOut = '''
+    'AnalyzeArchitectureDriftTool returns coupling_ratio and coupling_density',
+    () async {
+      final logOut = '''
 hash1||commit 1
 lib/ui/widget.dart
 lib/data/repo.dart
@@ -98,25 +100,25 @@ lib/data/repo.dart
 hash2||commit 2
 lib/ui/another.dart
 ''';
-    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(logOutput: logOut));
-    final res = await tool.execute({
-      'directory': '.',
-      'layer_patterns': {
-        'ui': 'lib/ui/',
-        'data': 'lib/data/',
-      }
-    });
+      final tool = AnalyzeArchitectureDriftTool(
+        _MockGitQuery(logOutput: logOut),
+      );
+      final res = await tool.execute({
+        'directory': '.',
+        'layer_patterns': {'ui': 'lib/ui/', 'data': 'lib/data/'},
+      });
 
-    final data = jsonDecode(res) as Map<String, dynamic>;
-    expect(data.containsKey('coupling_ratio'), isTrue);
-    expect(data.containsKey('coupling_density'), isTrue);
-    expect(data['coupling_ratio'], isA<double>());
-    expect(data['coupling_density'], isA<double>());
-    // 1 drift commit out of 2 total → ratio = 0.5
-    expect(data['coupling_ratio'], closeTo(0.5, 0.001));
-    // 2 layers, 1 possible pair, 1 coupled → density = 1.0
-    expect(data['coupling_density'], closeTo(1.0, 0.001));
-  });
+      final data = jsonDecode(res) as Map<String, dynamic>;
+      expect(data.containsKey('coupling_ratio'), isTrue);
+      expect(data.containsKey('coupling_density'), isTrue);
+      expect(data['coupling_ratio'], isA<double>());
+      expect(data['coupling_density'], isA<double>());
+      // 1 drift commit out of 2 total → ratio = 0.5
+      expect(data['coupling_ratio'], closeTo(0.5, 0.001));
+      // 2 layers, 1 possible pair, 1 coupled → density = 1.0
+      expect(data['coupling_density'], closeTo(1.0, 0.001));
+    },
+  );
 
   test('AnalyzeArchitectureDriftTool detects God Component smell', () async {
     // All 3 drift commits involve the 'core' layer → God Component
@@ -143,7 +145,7 @@ lib/docs/readme.md
         'core': 'lib/core/',
         'ui': 'lib/ui/',
         'data': 'lib/data/',
-      }
+      },
     });
 
     final data = jsonDecode(res) as Map<String, dynamic>;
@@ -151,28 +153,34 @@ lib/docs/readme.md
     expect(smells.any((s) => (s as Map)['type'] == 'God Component'), isTrue);
   });
 
-  test('AnalyzeArchitectureDriftTool detects Scattered Functionality smell',
-      () async {
-    // One commit touches 3 layers → Scattered Functionality
-    final logOut = '''
+  test(
+    'AnalyzeArchitectureDriftTool detects Scattered Functionality smell',
+    () async {
+      // One commit touches 3 layers → Scattered Functionality
+      final logOut = '''
 h1||feat
 lib/ui/a.dart
 lib/data/b.dart
 lib/core/c.dart
 ''';
-    final tool = AnalyzeArchitectureDriftTool(_MockGitQuery(logOutput: logOut));
-    final res = await tool.execute({
-      'directory': '.',
-      'layer_patterns': {
-        'core': 'lib/core/',
-        'ui': 'lib/ui/',
-        'data': 'lib/data/',
-      }
-    });
+      final tool = AnalyzeArchitectureDriftTool(
+        _MockGitQuery(logOutput: logOut),
+      );
+      final res = await tool.execute({
+        'directory': '.',
+        'layer_patterns': {
+          'core': 'lib/core/',
+          'ui': 'lib/ui/',
+          'data': 'lib/data/',
+        },
+      });
 
-    final data = jsonDecode(res) as Map<String, dynamic>;
-    final smells = data['architectural_smells'] as List<dynamic>;
-    expect(smells.any((s) => (s as Map)['type'] == 'Scattered Functionality'),
-        isTrue);
-  });
+      final data = jsonDecode(res) as Map<String, dynamic>;
+      final smells = data['architectural_smells'] as List<dynamic>;
+      expect(
+        smells.any((s) => (s as Map)['type'] == 'Scattered Functionality'),
+        isTrue,
+      );
+    },
+  );
 }

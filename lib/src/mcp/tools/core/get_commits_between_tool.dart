@@ -20,23 +20,23 @@ class GetCommitsBetweenTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-        'type': 'object',
-        'properties': {
-          'directory': {
-            'type': 'string',
-            'description': 'The local directory containing the git repository.'
-          },
-          'firstTag': {
-            'type': 'string',
-            'description': 'The older tag or commit hash.'
-          },
-          'secondTag': {
-            'type': 'string',
-            'description': 'The newer tag or commit hash.'
-          }
-        },
-        'required': ['directory', 'firstTag', 'secondTag']
-      };
+    'type': 'object',
+    'properties': {
+      'directory': {
+        'type': 'string',
+        'description': 'The local directory containing the git repository.',
+      },
+      'firstTag': {
+        'type': 'string',
+        'description': 'The older tag or commit hash.',
+      },
+      'secondTag': {
+        'type': 'string',
+        'description': 'The newer tag or commit hash.',
+      },
+    },
+    'required': ['directory', 'firstTag', 'secondTag'],
+  };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -44,8 +44,11 @@ class GetCommitsBetweenTool implements McpTool {
     final firstTag = arguments.getStringArgument('firstTag');
     final secondTag = arguments.getStringArgument('secondTag');
     final commits =
-        (await rwGit.getCommitsBetween(localDir, firstTag, secondTag))
-            .getOrThrow();
+        (await rwGit.getCommitsBetween(
+          localDir,
+          firstTag,
+          secondTag,
+        )).getOrThrow();
     return jsonEncode({'commits': commits});
   }
 }

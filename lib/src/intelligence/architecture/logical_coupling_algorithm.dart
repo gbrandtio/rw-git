@@ -40,13 +40,16 @@ class LogicalCouplingAlgorithm {
     if (rawOutput.isEmpty) return [];
 
     return await Isolate.run(
-        () => _parseLogicalCoupling(rawOutput, minCoChanges));
+      () => _parseLogicalCoupling(rawOutput, minCoChanges),
+    );
   }
 }
 
 /// Isolate entry point for parsing and calculating logical coupling.
 List<LogicalCouplingDto> _parseLogicalCoupling(
-    String rawLog, int minCoChanges) {
+  String rawLog,
+  int minCoChanges,
+) {
   final lines = rawLog.split('\n');
   final List<List<String>> transactions = [];
   List<String> currentTransaction = [];
@@ -110,12 +113,14 @@ List<LogicalCouplingDto> _parseLogicalCoupling(
       final confB = entry.value / countB;
       final maxConfidence = confA > confB ? confA : confB;
 
-      results.add(LogicalCouplingDto(
-        fileA: fileA,
-        fileB: fileB,
-        coChangeCount: entry.value,
-        confidence: maxConfidence,
-      ));
+      results.add(
+        LogicalCouplingDto(
+          fileA: fileA,
+          fileB: fileB,
+          coChangeCount: entry.value,
+          confidence: maxConfidence,
+        ),
+      );
     }
   }
 

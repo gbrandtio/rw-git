@@ -26,7 +26,8 @@ class GitDateTime {
   /// optional fractional-seconds part, and a mandatory `Z` or `±hh[:]mm`
   /// offset optionally preceded by a space.
   static final RegExp _gitTimestampPattern = RegExp(
-      r'^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2}(?:\.\d+)?)\s*(Z|[+-]\d{2}:?\d{2})$');
+    r'^(\d{4}-\d{2}-\d{2})[T ](\d{2}:\d{2}:\d{2}(?:\.\d+)?)\s*(Z|[+-]\d{2}:?\d{2})$',
+  );
 
   /// Throws a [FormatException] when [raw] is not a timezone-qualified git
   /// timestamp. Callers must not substitute a fallback value (such as
@@ -36,7 +37,9 @@ class GitDateTime {
     final match = _gitTimestampPattern.firstMatch(raw.trim());
     if (match == null) {
       throw FormatException(
-          'Not an ISO 8601 git timestamp with a UTC offset', raw);
+        'Not an ISO 8601 git timestamp with a UTC offset',
+        raw,
+      );
     }
 
     // Parsing the wall-clock portion with a forced `Z` keeps the author's
@@ -49,7 +52,8 @@ class GitDateTime {
       offset = Duration.zero;
     } else {
       final digits = zone.substring(1).replaceAll(':', '');
-      offset = Duration(
+      offset =
+          Duration(
             hours: int.parse(digits.substring(0, 2)),
             minutes: int.parse(digits.substring(2, 4)),
           ) *

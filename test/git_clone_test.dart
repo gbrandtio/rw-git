@@ -5,7 +5,7 @@ import 'package:test/test.dart';
 
 final invalidResult = "INVALID";
 final testDir = "CLONE_TEST_DIR";
-final validRemoteRepository = "https://github.com/gbrandtio/rw-git";
+final validRemoteRepository = "https://github.com/rw-core/rw-git";
 final invalidRemoteRepository = "https://google.com";
 
 void main() {
@@ -23,21 +23,24 @@ void main() {
   /// Test group for [rwGit.clone()] function.
   group('clone', () {
     test(
-        'will create a local directory and clone the specified repository inside',
-        () async {
-      bool isCloneSuccess =
-          (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
-      expect(isCloneSuccess, true);
-    });
+      'will create a local directory and clone the specified repository inside',
+      () async {
+        bool isCloneSuccess =
+            (await rwGit.clone(testDir, validRemoteRepository)).getOrThrow();
+        expect(isCloneSuccess, true);
+      },
+    );
 
-    test('will create a local directory that will be empty, if the clone fails',
-        () async {
-      try {
-        (await rwGit.clone(testDir, invalidRemoteRepository)).getOrThrow();
-        fail('Should have thrown RwGitException');
-      } on RwGitException catch (e) {
-        expect(e.exitCode != 0, true);
-      }
-    });
+    test(
+      'will create a local directory that will be empty, if the clone fails',
+      () async {
+        try {
+          (await rwGit.clone(testDir, invalidRemoteRepository)).getOrThrow();
+          fail('Should have thrown RwGitException');
+        } on RwGitException catch (e) {
+          expect(e.exitCode != 0, true);
+        }
+      },
+    );
   });
 }

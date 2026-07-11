@@ -8,11 +8,17 @@ class StatusCommand extends GitCommand<GitStatus> {
   StatusCommand(super.runner);
 
   @override
-  Future<GitStatus> run(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+  Future<GitStatus> run(
+    String directory, {
+    List<String> extraArgs = const [],
+    bool streamOutput = false,
+  }) async {
     final result = await runner.run(
-        'git', ['status', '--porcelain', ...extraArgs],
-        workingDirectory: directory, streamOutput: streamOutput);
+      'git',
+      ['status', '--porcelain', ...extraArgs],
+      workingDirectory: directory,
+      streamOutput: streamOutput,
+    );
     evaluateProcessResult(result);
     final stdout = result.stdout?.toString() ?? '';
 

@@ -43,47 +43,53 @@ int classify(int a, int b) {
     await file.writeAsString(content);
   }
 
-  test('computes metrics for the top-churn files, keyed by the churn path',
-      () async {
-    await writeSource('lib/a.dart', branchySource);
-    await writeSource('lib/b.dart', 'int x() { return 1; }\n');
+  test(
+    'computes metrics for the top-churn files, keyed by the churn path',
+    () async {
+      await writeSource('lib/a.dart', branchySource);
+      await writeSource('lib/b.dart', 'int x() { return 1; }\n');
 
-    final metrics = await sampler
-        .sampleTopChurnFiles(tempDir.path, {'lib/a.dart': 10, 'lib/b.dart': 5});
+      final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+        'lib/a.dart': 10,
+        'lib/b.dart': 5,
+      });
 
-    expect(metrics.length, 2);
-    final byPath = {for (final m in metrics) m.filePath: m};
-    // The churn key is preserved verbatim so findings join on the same
-    // subject as churn findings.
-    expect(byPath.keys, containsAll(['lib/a.dart', 'lib/b.dart']));
-    expect(byPath['lib/a.dart']!.cyclomaticComplexity,
-        greaterThan(byPath['lib/b.dart']!.cyclomaticComplexity));
-    expect(byPath['lib/a.dart']!.maintainabilityIndex, greaterThan(0));
-  });
+      expect(metrics.length, 2);
+      final byPath = {for (final m in metrics) m.filePath: m};
+      // The churn key is preserved verbatim so findings join on the same
+      // subject as churn findings.
+      expect(byPath.keys, containsAll(['lib/a.dart', 'lib/b.dart']));
+      expect(
+        byPath['lib/a.dart']!.cyclomaticComplexity,
+        greaterThan(byPath['lib/b.dart']!.cyclomaticComplexity),
+      );
+      expect(byPath['lib/a.dart']!.maintainabilityIndex, greaterThan(0));
+    },
+  );
 
-  test('honours the maxFiles bound, taking the highest-churn files first',
-      () async {
-    await writeSource('lib/high.dart', branchySource);
-    await writeSource('lib/low.dart', branchySource);
+  test(
+    'honours the maxFiles bound, taking the highest-churn files first',
+    () async {
+      await writeSource('lib/high.dart', branchySource);
+      await writeSource('lib/low.dart', branchySource);
 
-    final metrics = await sampler.sampleTopChurnFiles(
-      tempDir.path,
-      {'lib/high.dart': 100, 'lib/low.dart': 1},
-      maxFiles: 1,
-    );
+      final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+        'lib/high.dart': 100,
+        'lib/low.dart': 1,
+      }, maxFiles: 1);
 
-    expect(metrics.single.filePath, 'lib/high.dart');
-  });
+      expect(metrics.single.filePath, 'lib/high.dart');
+    },
+  );
 
   test('skips oversized files instead of lexing them', () async {
     await writeSource('lib/huge.dart', branchySource);
     await writeSource('lib/small.dart', branchySource);
 
-    final metrics = await sampler.sampleTopChurnFiles(
-      tempDir.path,
-      {'lib/huge.dart': 100, 'lib/small.dart': 1},
-      maxFileSizeBytes: 10,
-    );
+    final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+      'lib/huge.dart': 100,
+      'lib/small.dart': 1,
+    }, maxFileSizeBytes: 10);
 
     expect(metrics, isEmpty);
   });
@@ -91,8 +97,10 @@ int classify(int a, int b) {
   test('skips deleted files without failing the report', () async {
     await writeSource('lib/present.dart', branchySource);
 
-    final metrics = await sampler.sampleTopChurnFiles(
-        tempDir.path, {'lib/deleted.dart': 100, 'lib/present.dart': 1});
+    final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+      'lib/deleted.dart': 100,
+      'lib/present.dart': 1,
+    });
 
     expect(metrics.single.filePath, 'lib/present.dart');
   });
@@ -102,8 +110,9 @@ int classify(int a, int b) {
     await outside.writeAsString(branchySource);
     addTearDown(() => outside.delete());
 
-    final metrics = await sampler
-        .sampleTopChurnFiles(tempDir.path, {'../outside_sampler.dart': 100});
+    final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+      '../outside_sampler.dart': 100,
+    });
 
     expect(metrics, isEmpty);
   });
@@ -112,11 +121,10 @@ int classify(int a, int b) {
     await writeSource('CHANGELOG.md', '# if for while, a prose file\n');
     await writeSource('lib/code.dart', branchySource);
 
-    final metrics = await sampler.sampleTopChurnFiles(
-      tempDir.path,
-      {'CHANGELOG.md': 100, 'lib/code.dart': 1},
-      maxFiles: 1,
-    );
+    final metrics = await sampler.sampleTopChurnFiles(tempDir.path, {
+      'CHANGELOG.md': 100,
+      'lib/code.dart': 1,
+    }, maxFiles: 1);
 
     // The single slot goes to the source file, not the hotter prose file.
     expect(metrics.single.filePath, 'lib/code.dart');

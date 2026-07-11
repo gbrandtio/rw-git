@@ -8,15 +8,14 @@ SzzMatch _match({
   required DateTime fixingDate,
   String introducingCommitHash = 'intro',
   String fixingCommitHash = 'fix',
-}) =>
-    SzzMatch(
-      introducingCommitHash: introducingCommitHash,
-      introducingDate: introducingDate,
-      introducingAuthor: author,
-      fixingCommitHash: fixingCommitHash,
-      fixingDate: fixingDate,
-      filePath: file,
-    );
+}) => SzzMatch(
+  introducingCommitHash: introducingCommitHash,
+  introducingDate: introducingDate,
+  introducingAuthor: author,
+  fixingCommitHash: fixingCommitHash,
+  fixingDate: fixingDate,
+  filePath: file,
+);
 
 void main() {
   group('BugHotspotsHeuristic.aggregate', () {

@@ -22,12 +22,18 @@ abstract class GitCommand<T> {
   Future<void> onBeforeRun(String directory, List<String> extraArgs) async {}
 
   /// Hook method executed after the command finishes (success or failure).
-  Future<void> onAfterRun(String directory, List<String> extraArgs,
-      Result<T, RwGitException> result) async {}
+  Future<void> onAfterRun(
+    String directory,
+    List<String> extraArgs,
+    Result<T, RwGitException> result,
+  ) async {}
 
   /// Executes the git command within the given [directory]
-  Future<Result<T, RwGitException>> execute(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false}) async {
+  Future<Result<T, RwGitException>> execute(
+    String directory, {
+    List<String> extraArgs = const [],
+    bool streamOutput = false,
+  }) async {
     // 3.2 Security: Path validation to prevent directory traversal
     final sanitizedDir = p.normalize(directory);
 
@@ -42,26 +48,35 @@ abstract class GitCommand<T> {
 
     Result<T, RwGitException> result;
     try {
-      final value = await run(sanitizedDir,
-          extraArgs: extraArgs, streamOutput: streamOutput);
+      final value = await run(
+        sanitizedDir,
+        extraArgs: extraArgs,
+        streamOutput: streamOutput,
+      );
       stopwatch.stop();
       RwGitLogger.instance.debug(
-          'Command $runtimeType completed in ${stopwatch.elapsedMilliseconds}ms');
+        'Command $runtimeType completed in ${stopwatch.elapsedMilliseconds}ms',
+      );
       result = Success(value);
     } on RwGitException catch (e) {
       stopwatch.stop();
       RwGitLogger.instance.error(
-          'Command $runtimeType failed in ${stopwatch.elapsedMilliseconds}ms with exit code ${e.exitCode}',
-          error: e);
+        'Command $runtimeType failed in ${stopwatch.elapsedMilliseconds}ms with exit code ${e.exitCode}',
+        error: e,
+      );
       result = Failure(e);
     } catch (e) {
       stopwatch.stop();
       RwGitLogger.instance.error(
-          'Command $runtimeType failed unexpectedly in ${stopwatch.elapsedMilliseconds}ms',
-          error: e);
-      result = Failure(RwGitException(
+        'Command $runtimeType failed unexpectedly in ${stopwatch.elapsedMilliseconds}ms',
+        error: e,
+      );
+      result = Failure(
+        RwGitException(
           message: 'Unexpected error executing git command',
-          originalException: e));
+          originalException: e,
+        ),
+      );
     }
 
     // 3.3 Extensibility: Hooks
@@ -70,6 +85,9 @@ abstract class GitCommand<T> {
   }
 
   /// Internal implementation to be provided by subclasses.
-  Future<T> run(String directory,
-      {List<String> extraArgs = const [], bool streamOutput = false});
+  Future<T> run(
+    String directory, {
+    List<String> extraArgs = const [],
+    bool streamOutput = false,
+  });
 }

@@ -19,9 +19,7 @@ import 'package:rw_git/src/mcp/utils/mcp_analysis_mapping.dart';
 /// report-selection table and per-report deep-dive subsections;
 /// `rw-git-mcp-installation` is intentionally excluded — it is a human
 /// setup guide, not an agent workflow.
-const List<String> promptSkillNames = [
-  'rw-git-mcp-reporting',
-];
+const List<String> promptSkillNames = ['rw-git-mcp-reporting'];
 
 /// A parsed SKILL.md: its frontmatter `name`/`description` and markdown body.
 class SkillDoc {
@@ -37,19 +35,24 @@ SkillDoc parseSkill(String raw) {
   final normalized = raw.replaceAll('\r\n', '\n');
   if (!normalized.startsWith('---')) {
     throw const FormatException(
-        'SKILL.md must start with a "---" frontmatter block.');
+      'SKILL.md must start with a "---" frontmatter block.',
+    );
   }
   final end = normalized.indexOf('\n---', 3);
   if (end == -1) {
     throw const FormatException(
-        'SKILL.md frontmatter is not terminated by "---".');
+      'SKILL.md frontmatter is not terminated by "---".',
+    );
   }
   final frontmatter = normalized.substring(3, end);
   // Body starts after the line that closes the frontmatter.
   final afterClose = normalized.indexOf('\n', end + 1);
-  final body = afterClose == -1
-      ? ''
-      : normalized.substring(afterClose + 1).replaceFirst(RegExp(r'^\n+'), '');
+  final body =
+      afterClose == -1
+          ? ''
+          : normalized
+              .substring(afterClose + 1)
+              .replaceFirst(RegExp(r'^\n+'), '');
 
   String? name;
   String? description;
@@ -66,7 +69,8 @@ SkillDoc parseSkill(String raw) {
   }
   if (description == null || description.isEmpty) {
     throw const FormatException(
-        'SKILL.md frontmatter is missing "description".');
+      'SKILL.md frontmatter is missing "description".',
+    );
   }
   return SkillDoc(name, description, body);
 }
@@ -82,11 +86,12 @@ String _unquote(String rawValue) {
 
 /// `rw-git-mcp-pm-reporting` -> `RwGitMcpPmReportingPrompt`.
 String dartClassName(String skillName) {
-  final pascal = skillName
-      .split('-')
-      .where((p) => p.isNotEmpty)
-      .map((p) => p[0].toUpperCase() + p.substring(1))
-      .join();
+  final pascal =
+      skillName
+          .split('-')
+          .where((p) => p.isNotEmpty)
+          .map((p) => p[0].toUpperCase() + p.substring(1))
+          .join();
   return '${pascal}Prompt';
 }
 
@@ -150,9 +155,13 @@ final RegExp includeMarkerPattern = RegExp(r'<!--\s*include:([^\s]+)\s*-->');
 /// path). Pure so the generator CLI and the drift-guard test can never
 /// disagree about what an expanded skill looks like.
 String expandIncludes(
-    String template, String Function(String relativePath) readPartial) {
-  return template.replaceAllMapped(includeMarkerPattern,
-      (match) => readPartial(match.group(1)!).trimRight());
+  String template,
+  String Function(String relativePath) readPartial,
+) {
+  return template.replaceAllMapped(
+    includeMarkerPattern,
+    (match) => readPartial(match.group(1)!).trimRight(),
+  );
 }
 
 /// Matches a generation marker in a `SKILL.template.md`, e.g.
@@ -160,17 +169,22 @@ String expandIncludes(
 /// [includeMarkerPattern], the substituted content is derived from Dart data
 /// ([reportToolSources]) rather than a static partial file, so it needs its
 /// own directive name and report-type parameter.
-final RegExp generateMarkerPattern =
-    RegExp(r'<!--\s*generate:(\w+)\s+report=(\w+)\s*-->');
+final RegExp generateMarkerPattern = RegExp(
+  r'<!--\s*generate:(\w+)\s+report=(\w+)\s*-->',
+);
 
 /// Expands every `<!-- generate:directive report=reportType -->` marker in
 /// [template] by calling [render] with the directive name and report type.
 /// Pure — mirrors [expandIncludes], so a typo'd `report=` value fails loudly
 /// through whatever [render] throws rather than emitting nothing.
-String expandGenerated(String template,
-    String Function(String directive, String reportType) render) {
-  return template.replaceAllMapped(generateMarkerPattern,
-      (match) => render(match.group(1)!, match.group(2)!).trimRight());
+String expandGenerated(
+  String template,
+  String Function(String directive, String reportType) render,
+) {
+  return template.replaceAllMapped(
+    generateMarkerPattern,
+    (match) => render(match.group(1)!, match.group(2)!).trimRight(),
+  );
 }
 
 /// Renders the `<deep_dive>` raw-tool list for [reportType] from
@@ -182,8 +196,9 @@ String renderDeepDiveTools(String reportType) {
   final tools = reportAnalysisSources[reportType];
   if (tools == null) {
     throw FormatException(
-        'Unknown report type in generate:deep_dive_tools marker: '
-        '$reportType. Known types: ${reportAnalysisSources.keys.join(', ')}.');
+      'Unknown report type in generate:deep_dive_tools marker: '
+      '$reportType. Known types: ${reportAnalysisSources.keys.join(', ')}.',
+    );
   }
 
   final entries = tools.map((type) => '`${mcpToolNameForAnalysis[type]}`');
@@ -204,12 +219,14 @@ String renderGeneratedSkill(String expandedTemplate) {
   final frontmatterEnd = normalized.indexOf('\n---', 3);
   if (!normalized.startsWith('---') || frontmatterEnd == -1) {
     throw const FormatException(
-        'SKILL.template.md must start with a "---" frontmatter block.');
+      'SKILL.template.md must start with a "---" frontmatter block.',
+    );
   }
   final afterClose = normalized.indexOf('\n', frontmatterEnd + 1);
   final head = normalized.substring(0, afterClose + 1);
-  final body =
-      normalized.substring(afterClose + 1).replaceFirst(RegExp(r'^\n+'), '');
+  final body = normalized
+      .substring(afterClose + 1)
+      .replaceFirst(RegExp(r'^\n+'), '');
   return '$head\n$generatedSkillNotice\n\n$body';
 }
 
@@ -223,10 +240,12 @@ String _escapeSingleQuoted(String rawValue) => rawValue
 /// on-disk prompts against their canonical skill without depending on exact
 /// formatting.
 SkillDoc extractFromPromptSource(String source) {
-  final nameMatch =
-      RegExp(r"String get name =>\s*'([^']*)'").firstMatch(source);
-  final descMatch = RegExp(r"String get description =>\s*'((?:\\.|[^'\\])*)'")
-      .firstMatch(source);
+  final nameMatch = RegExp(
+    r"String get name =>\s*'([^']*)'",
+  ).firstMatch(source);
+  final descMatch = RegExp(
+    r"String get description =>\s*'((?:\\.|[^'\\])*)'",
+  ).firstMatch(source);
   final start = source.indexOf("r'''");
   final bodyStart = source.indexOf('\n', start) + 1;
   final bodyEnd = source.lastIndexOf("'''");

@@ -40,10 +40,10 @@ void main() {
       // path; parseBlame now throws on malformed lines, so arbitrary filler
       // no longer works here.
       final longBlameOutput = List.generate(
-              200,
-              (i) =>
-                  '1234abcd (Author 2021-01-01 00:00:00 +0000 ${i + 1}) some line content')
-          .join('\n');
+        200,
+        (i) =>
+            '1234abcd (Author 2021-01-01 00:00:00 +0000 ${i + 1}) some line content',
+      ).join('\n');
       final runner = _MockRunner(longBlameOutput);
       final cmd = BlameCommand(runner);
       final res = await cmd.run('/test');

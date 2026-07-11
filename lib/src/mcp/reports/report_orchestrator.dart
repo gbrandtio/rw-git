@@ -51,10 +51,8 @@ import 'package:rw_git/src/intelligence/interpretation/models/report_payload.dar
 
 /// The findings plus the ranked Tornhill refactoring targets a technical
 /// analysis pass produces from one shared set of git data.
-typedef TechnicalAnalysis = ({
-  List<Finding> findings,
-  List<RefactoringTarget> refactoringTargets,
-});
+typedef TechnicalAnalysis =
+    ({List<Finding> findings, List<RefactoringTarget> refactoringTargets});
 
 /// Builds pre-interpreted report payloads for the report meta-tools.
 class ReportOrchestrator {
@@ -80,8 +78,12 @@ class ReportOrchestrator {
     String? until,
   }) async {
     final lim = limit ?? defaultCommitLimit;
-    final technical =
-        await _technicalFindings(directory, lim, since: since, until: until);
+    final technical = await _technicalFindings(
+      directory,
+      lim,
+      since: since,
+      until: until,
+    );
     return ReportPayload.fromFindings(
       reportType: 'technical',
       findings: technical.findings,
@@ -142,19 +144,26 @@ class ReportOrchestrator {
     String? until,
   }) async {
     final lim = limit ?? defaultCommitLimit;
-    final busFactorFuture = BusFactorAlgorithm(runner)
-        .execute(directory, limit: lim, since: since, until: until);
+    final busFactorFuture = BusFactorAlgorithm(
+      runner,
+    ).execute(directory, limit: lim, since: since, until: until);
     final churnAuthorsFuture = ChurnHeuristic(runner).calculateChurnWithAuthors(
-        directory,
-        limit: lim,
-        since: since,
-        until: until);
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+    );
     final hotspotsFuture = SzzAlgorithm(runner)
         .execute(directory, limit: lim, since: since, until: until)
         .then((matches) => BugHotspotsHeuristic().aggregate(matches));
-    final velocityFuture = CommitVelocityHeuristic(runner)
-        .calculateCommitVelocity(directory,
-            limit: lim, since: since, until: until);
+    final velocityFuture = CommitVelocityHeuristic(
+      runner,
+    ).calculateCommitVelocity(
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+    );
 
     final findings = <Finding>[
       ..._classifier.fromBusFactor(await busFactorFuture),
@@ -188,21 +197,33 @@ class ReportOrchestrator {
     String? branch,
   }) async {
     final lim = limit ?? defaultCommitLimit;
-    final advancedFuture = AdvancedMetricsHeuristic(runner)
-        .calculateAdvancedMetrics(directory,
-            limit: lim, since: since, until: until);
+    final advancedFuture = AdvancedMetricsHeuristic(
+      runner,
+    ).calculateAdvancedMetrics(
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+    );
     final churnAuthorsFuture = ChurnHeuristic(runner).calculateChurnWithAuthors(
-        directory,
-        limit: lim,
-        since: since,
-        until: until);
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+    );
     final hotspotsFuture = SzzAlgorithm(runner)
         .execute(directory, limit: lim, since: since, until: until)
         .then((matches) => BugHotspotsHeuristic().aggregate(matches));
-    final secretsFuture = SecretsScanner(runner).findSecrets(directory,
-        limit: lim, since: since, until: until, branch: branch);
-    final refactoringsFuture = RefactoringDetectionAlgorithm(runner)
-        .execute(directory, limit: lim, since: since, until: until);
+    final secretsFuture = SecretsScanner(runner).findSecrets(
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+      branch: branch,
+    );
+    final refactoringsFuture = RefactoringDetectionAlgorithm(
+      runner,
+    ).execute(directory, limit: lim, since: since, until: until);
 
     final advanced = await advancedFuture;
     final churnAuthors = await churnAuthorsFuture;
@@ -210,11 +231,14 @@ class ReportOrchestrator {
     // One bounded top-churn sample feeds both the genuine lexical suite
     // and the clean-code heuristics on the code under review.
     const sampler = BoundedLexicalMetricsSampler();
-    final topChurnSources =
-        await sampler.readTopChurnSources(directory, churn.fileChurn);
+    final topChurnSources = await sampler.readTopChurnSources(
+      directory,
+      churn.fileChurn,
+    );
     final lexicalMetrics = await sampler.lexSources(topChurnSources);
-    final cleanCode =
-        await const CleanCodeAnalyzer().analyzeSources(topChurnSources);
+    final cleanCode = await const CleanCodeAnalyzer().analyzeSources(
+      topChurnSources,
+    );
     final refactorings = await refactoringsFuture;
 
     final findings = <Finding>[
@@ -229,8 +253,10 @@ class ReportOrchestrator {
     // Refactoring-aware pass (RA-SZZ insight): churn findings on files the
     // refactorings renamed are downgraded one band, exactly as in the
     // technical report — a review must not flag paid-down debt as risk.
-    final contextualized =
-        _classifier.applyRefactoringContext(findings, refactorings);
+    final contextualized = _classifier.applyRefactoringContext(
+      findings,
+      refactorings,
+    );
     return ReportPayload.fromFindings(
       reportType: 'code_review',
       findings: contextualized,
@@ -262,16 +288,23 @@ class ReportOrchestrator {
     String? branch,
   }) async {
     final lim = limit ?? defaultCommitLimit;
-    final busFactorFuture = BusFactorAlgorithm(runner)
-        .execute(directory, limit: lim, since: since, until: until);
-    final megaCommitsFuture = MegaCommitsHeuristic(runner)
-        .findMegaCommits(directory, limit: lim, since: since, until: until);
-    final suspiciousCommitsFuture = SuspiciousCommitsHeuristic(runner)
-        .findSuspiciousCommits(directory,
-            limit: lim, since: since, until: until);
-    final velocityFuture = CommitVelocityHeuristic(runner)
-        .calculateCommitVelocity(directory,
-            limit: lim, since: since, until: until);
+    final busFactorFuture = BusFactorAlgorithm(
+      runner,
+    ).execute(directory, limit: lim, since: since, until: until);
+    final megaCommitsFuture = MegaCommitsHeuristic(
+      runner,
+    ).findMegaCommits(directory, limit: lim, since: since, until: until);
+    final suspiciousCommitsFuture = SuspiciousCommitsHeuristic(
+      runner,
+    ).findSuspiciousCommits(directory, limit: lim, since: since, until: until);
+    final velocityFuture = CommitVelocityHeuristic(
+      runner,
+    ).calculateCommitVelocity(
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+    );
     final securityFuture = _securityFindings(
       directory,
       lim,
@@ -282,8 +315,12 @@ class ReportOrchestrator {
       branch: branch,
     );
 
-    final technical =
-        await _technicalFindings(directory, lim, since: since, until: until);
+    final technical = await _technicalFindings(
+      directory,
+      lim,
+      since: since,
+      until: until,
+    );
     final findings = <Finding>[
       ..._classifier.fromBusFactor(await busFactorFuture),
       ..._classifier.fromMegaCommits(await megaCommitsFuture),
@@ -314,23 +351,32 @@ class ReportOrchestrator {
     String? since,
     String? until,
   }) async {
-    final advancedFuture = AdvancedMetricsHeuristic(runner)
-        .calculateAdvancedMetrics(directory,
-            limit: lim, since: since, until: until);
+    final advancedFuture = AdvancedMetricsHeuristic(
+      runner,
+    ).calculateAdvancedMetrics(
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+    );
     final churnAuthorsFuture = ChurnHeuristic(runner).calculateChurnWithAuthors(
-        directory,
-        limit: lim,
-        since: since,
-        until: until);
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+    );
     final hotspotsFuture = SzzAlgorithm(runner)
         .execute(directory, limit: lim, since: since, until: until)
         .then((matches) => BugHotspotsHeuristic().aggregate(matches));
-    final couplingFuture = LogicalCouplingAlgorithm(runner)
-        .execute(directory, limit: lim, since: since, until: until);
-    final volatilityFuture = CodeVolatilityAlgorithm(runner)
-        .execute(directory, limit: lim, since: since, until: until);
-    final refactoringsFuture = RefactoringDetectionAlgorithm(runner)
-        .execute(directory, limit: lim, since: since, until: until);
+    final couplingFuture = LogicalCouplingAlgorithm(
+      runner,
+    ).execute(directory, limit: lim, since: since, until: until);
+    final volatilityFuture = CodeVolatilityAlgorithm(
+      runner,
+    ).execute(directory, limit: lim, since: since, until: until);
+    final refactoringsFuture = RefactoringDetectionAlgorithm(
+      runner,
+    ).execute(directory, limit: lim, since: since, until: until);
 
     // One churn computation serves both the churn and ownership classifiers
     // (the per-author breakdown carries the plain totals), and its file list
@@ -342,27 +388,34 @@ class ReportOrchestrator {
     // suite, the clean-code heuristics, and Dart import-cycle detection —
     // no extra git calls, only N bounded file reads shared by all three.
     const sampler = BoundedLexicalMetricsSampler();
-    final topChurnSources =
-        await sampler.readTopChurnSources(directory, churn.fileChurn);
+    final topChurnSources = await sampler.readTopChurnSources(
+      directory,
+      churn.fileChurn,
+    );
     final lexicalMetrics = await sampler.lexSources(topChurnSources);
-    final cleanCode =
-        await const CleanCodeAnalyzer().analyzeSources(topChurnSources);
+    final cleanCode = await const CleanCodeAnalyzer().analyzeSources(
+      topChurnSources,
+    );
     final importCycles = await _detectImportCycles(directory, topChurnSources);
 
     // Architecture drift over layers inferred from the churned file paths:
     // no extra file-system walk, and single-layer repositories are skipped
     // (no boundaries to violate).
-    final inferredLayers =
-        ArchitectureDriftAlgorithm.inferLayerPatterns(churn.fileChurn.keys);
-    final drift = inferredLayers.isEmpty
-        ? const ArchitectureDriftDto.empty()
-        : await ArchitectureDriftAlgorithm(ReadOnlyGitQuery(runner)).execute(
-            directory,
-            inferredLayers,
-            limit: lim,
-            since: since,
-            until: until,
-          );
+    final inferredLayers = ArchitectureDriftAlgorithm.inferLayerPatterns(
+      churn.fileChurn.keys,
+    );
+    final drift =
+        inferredLayers.isEmpty
+            ? const ArchitectureDriftDto.empty()
+            : await ArchitectureDriftAlgorithm(
+              ReadOnlyGitQuery(runner),
+            ).execute(
+              directory,
+              inferredLayers,
+              limit: lim,
+              since: since,
+              until: until,
+            );
 
     final advanced = await advancedFuture;
     final refactorings = await refactoringsFuture;
@@ -419,12 +472,18 @@ class ReportOrchestrator {
 
     // The package name rewrites same-package `package:` imports onto
     // repo-relative `lib/` paths so they participate in the cycle graph.
-    final nameMatch = RegExp(r'^name:\s*(\S+)', multiLine: true)
-        .firstMatch(await pubspec.readAsString());
+    final nameMatch = RegExp(
+      r'^name:\s*(\S+)',
+      multiLine: true,
+    ).firstMatch(await pubspec.readAsString());
     final packageName = nameMatch?.group(1);
 
-    return Isolate.run(() => DartAstAnalyzer()
-        .detectImportCyclesInSources(dartSources, packageName: packageName));
+    return Isolate.run(
+      () => DartAstAnalyzer().detectImportCyclesInSources(
+        dartSources,
+        packageName: packageName,
+      ),
+    );
   }
 
   Future<List<Finding>> _securityFindings(
@@ -436,8 +495,13 @@ class ReportOrchestrator {
     required bool checkFreshness,
     required String? branch,
   }) async {
-    final secretsFuture = SecretsScanner(runner).findSecrets(directory,
-        limit: lim, since: since, until: until, branch: branch);
+    final secretsFuture = SecretsScanner(runner).findSecrets(
+      directory,
+      limit: lim,
+      since: since,
+      until: until,
+      branch: branch,
+    );
     final complianceFuture = ComplianceScanner(runner).scanComplianceIssues(
       directory,
       limit: lim,
@@ -449,8 +513,9 @@ class ReportOrchestrator {
     final freshness = <FreshnessResult>[];
     final client = httpClient;
     if (checkFreshness && client != null) {
-      final manifests = await DependencyManifestParser(runner)
-          .parseDependencyManifests(directory);
+      final manifests = await DependencyManifestParser(
+        runner,
+      ).parseDependencyManifests(directory);
       final checker = DependencyFreshnessChecker(client);
       for (final e in manifests.ecosystems) {
         freshness.addAll(await checker.checkFreshness(e.dependencies, e.type));

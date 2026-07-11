@@ -44,7 +44,7 @@ Once the target file is located, use your file editing tools to safely merge the
       "command": "npx",
       "args": [
         "-y",
-        "@gbrandtio/rw-git-mcp"
+        "@rw-core/rw-git-mcp"
       ]
     }
   }
@@ -66,7 +66,7 @@ After updating the configuration file, instruct the user to restart their AI cli
 To proactively verify that the server works on their machine, you can run a quick test via standard input:
 
 ```bash
-echo '{"jsonrpc": "2.0", "id": 1, "method": "prompts/list"}' | npx -y @gbrandtio/rw-git-mcp
+echo '{"jsonrpc": "2.0", "id": 1, "method": "prompts/list"}' | npx -y @rw-core/rw-git-mcp
 ```
 If the command outputs a valid JSON-RPC response containing a prompt named `rw-git-mcp-reporting`, the installation is successful!
 

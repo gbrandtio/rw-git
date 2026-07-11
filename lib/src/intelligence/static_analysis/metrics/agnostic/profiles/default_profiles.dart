@@ -14,7 +14,7 @@ class DefaultProfiles {
       'case',
       'catch',
       '?',
-      '??'
+      '??',
     },
     structuralAnchors: {
       'class',
@@ -22,7 +22,7 @@ class DefaultProfiles {
       'extension',
       'void',
       'Future',
-      'Stream'
+      'Stream',
     },
     operatorKeywords: {'as', 'is'},
   );
@@ -41,7 +41,7 @@ class DefaultProfiles {
       'finally',
       'with',
       'match',
-      'case'
+      'case',
     },
     structuralAnchors: {'def', 'class', 'async'},
     operatorKeywords: {'and', 'or', 'not', 'in', 'is'},
@@ -59,7 +59,7 @@ class DefaultProfiles {
       'switch',
       'case',
       'catch',
-      '?'
+      '?',
     },
     structuralAnchors: {'function', 'class', 'const', 'let', 'var'},
     operatorKeywords: {'typeof', 'instanceof', 'void', 'delete', 'in', 'of'},
@@ -77,7 +77,7 @@ class DefaultProfiles {
       'switch',
       'case',
       'catch',
-      '?'
+      '?',
     },
     structuralAnchors: {'class', 'interface', 'public', 'private', 'protected'},
     operatorKeywords: {'instanceof', 'typeof', 'is', 'as'},
@@ -94,7 +94,7 @@ class DefaultProfiles {
       'case',
       'select',
       'defer',
-      'go'
+      'go',
     },
     structuralAnchors: {'func', 'type', 'struct', 'interface'},
     operatorKeywords: {},
@@ -110,7 +110,7 @@ class DefaultProfiles {
       'while',
       'switch',
       'case',
-      'catch'
+      'catch',
     },
     structuralAnchors: {'class', 'function', 'def', 'func', 'void'},
     operatorKeywords: {},

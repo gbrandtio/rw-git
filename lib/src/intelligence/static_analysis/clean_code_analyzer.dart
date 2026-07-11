@@ -30,20 +30,25 @@ class CleanCodeAnalyzer {
   /// report orchestrator on the same bounded top-churn sample the lexical
   /// sampler reads.
   Future<List<CleanCodeMetricsDto>> analyzeSources(
-      Map<String, String> sources) async {
+    Map<String, String> sources,
+  ) async {
     if (sources.isEmpty) return const [];
-    return Isolate.run(() => sources.entries
-        .map((entry) => analyzeSource(entry.key, entry.value))
-        .toList());
+    return Isolate.run(
+      () =>
+          sources.entries
+              .map((entry) => analyzeSource(entry.key, entry.value))
+              .toList(),
+    );
   }
 
   CleanCodeMetricsDto analyzeSource(String filePath, String source) {
     // Mirror `File.readAsLines` semantics: normalise CRLF and do not count
     // a trailing newline as an extra empty line.
     final normalized = source.replaceAll('\r\n', '\n');
-    final trimmed = normalized.endsWith('\n')
-        ? normalized.substring(0, normalized.length - 1)
-        : normalized;
+    final trimmed =
+        normalized.endsWith('\n')
+            ? normalized.substring(0, normalized.length - 1)
+            : normalized;
     final lines = trimmed.split('\n');
     final totalLines = lines.length;
 
@@ -88,25 +93,35 @@ class CleanCodeAnalyzer {
 
     final issues = <String>[];
     if (totalLines > cleanCodeFileLengthThreshold) {
-      issues.add('File is too long ($totalLines lines), indicating potential '
-          'violation of Single Responsibility Principle.');
+      issues.add(
+        'File is too long ($totalLines lines), indicating potential '
+        'violation of Single Responsibility Principle.',
+      );
     }
     if (maxIndentation >= cleanCodeNestingDepthThreshold) {
-      issues.add('Deep nesting detected (max $maxIndentation levels). '
-          'Consider extracting methods to reduce complexity.');
+      issues.add(
+        'Deep nesting detected (max $maxIndentation levels). '
+        'Consider extracting methods to reduce complexity.',
+      );
     }
     if (longLines > totalLines * cleanCodeLongLineShareThreshold) {
-      issues.add('$longLines lines are longer than $cleanCodeLongLineLength '
-          'characters, which may affect readability.');
+      issues.add(
+        '$longLines lines are longer than $cleanCodeLongLineLength '
+        'characters, which may affect readability.',
+      );
     }
     if (magicNumbers > cleanCodeMagicNumberThreshold) {
-      issues.add('$magicNumbers magic number literals detected. Replace with '
-          'named constants to improve clarity.');
+      issues.add(
+        '$magicNumbers magic number literals detected. Replace with '
+        'named constants to improve clarity.',
+      );
     }
     if (totalLines > 0 &&
         duplicateLines > totalLines * cleanCodeDuplicateLineShareThreshold) {
-      issues.add('$duplicateLines duplicate lines detected (Type-1 clones). '
-          'Extract the repeated logic into a shared function.');
+      issues.add(
+        '$duplicateLines duplicate lines detected (Type-1 clones). '
+        'Extract the repeated logic into a shared function.',
+      );
     }
 
     return CleanCodeMetricsDto(

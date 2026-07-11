@@ -6,10 +6,14 @@ void main() {
     if (!file.path.endsWith('.dart')) continue;
     var content = file.readAsStringSync();
     if (content.startsWith("import '../models/analysis_type.dart';\n")) {
-      content =
-          content.replaceFirst("import '../models/analysis_type.dart';\n", "");
       content = content.replaceFirst(
-          "library;\n", "library;\n\nimport '../models/analysis_type.dart';\n");
+        "import '../models/analysis_type.dart';\n",
+        "",
+      );
+      content = content.replaceFirst(
+        "library;\n",
+        "library;\n\nimport '../models/analysis_type.dart';\n",
+      );
       file.writeAsStringSync(content);
       print('Fixed ${file.path}');
     }

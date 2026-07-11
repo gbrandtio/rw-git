@@ -8,9 +8,12 @@ class ShortStatDto {
   final int insertions;
 
   const ShortStatDto(
-      this.numberOfChangedFiles, this.insertions, this.deletions);
+    this.numberOfChangedFiles,
+    this.insertions,
+    this.deletions,
+  );
   const ShortStatDto.defaultStats()
-      : numberOfChangedFiles = -1,
-        deletions = -1,
-        insertions = -1;
+    : numberOfChangedFiles = -1,
+      deletions = -1,
+      insertions = -1;
 }

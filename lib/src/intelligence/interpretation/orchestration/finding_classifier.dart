@@ -93,8 +93,9 @@ class FindingClassifier {
       const CommitHygieneClassifier().classifyMegaCommits(megaCommits);
 
   List<Finding> fromSuspiciousCommits(List<String> suspiciousCommits) =>
-      const CommitHygieneClassifier()
-          .classifySuspiciousCommits(suspiciousCommits);
+      const CommitHygieneClassifier().classifySuspiciousCommits(
+        suspiciousCommits,
+      );
 
   List<Finding> fromRefactoringActivity(List<RefactoringDto> refactorings) =>
       const RefactoringContextClassifier().classify(refactorings);
@@ -102,6 +103,7 @@ class FindingClassifier {
   /// Downgrades churn-derived findings whose subject was refactored; see
   /// [RefactoringContextClassifier.annotate].
   List<Finding> applyRefactoringContext(
-          List<Finding> findings, List<RefactoringDto> refactorings) =>
-      const RefactoringContextClassifier().annotate(findings, refactorings);
+    List<Finding> findings,
+    List<RefactoringDto> refactorings,
+  ) => const RefactoringContextClassifier().annotate(findings, refactorings);
 }

@@ -11,7 +11,9 @@ void main() {
 
   test('clean source yields zero issues', () {
     final metrics = analyzer.analyzeSource(
-        'lib/clean.dart', 'void main() {\n  print("ok");\n}\n');
+      'lib/clean.dart',
+      'void main() {\n  print("ok");\n}\n',
+    );
 
     expect(metrics.totalLines, 3);
     expect(metrics.issues, isEmpty);
@@ -19,11 +21,10 @@ void main() {
   });
 
   test('file longer than 300 lines is a Single Responsibility issue', () {
-    final source = List.filled(301, 'var uniqueLine;')
-        .asMap()
-        .entries
-        .map((entry) => 'var uniqueLine${entry.key};')
-        .join('\n');
+    final source = List.filled(
+      301,
+      'var uniqueLine;',
+    ).asMap().entries.map((entry) => 'var uniqueLine${entry.key};').join('\n');
     final metrics = analyzer.analyzeSource('lib/long.dart', source);
 
     expect(metrics.totalLines, 301);

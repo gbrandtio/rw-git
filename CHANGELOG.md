@@ -436,7 +436,7 @@
 - **FEAT (MCP):** Added `output_file` and `return_full_json` arguments to all verbose analysis tools to allow LLMs to control context ingestion and orchestration paths.
 
 ## 3.0.1
-- **FIX (MCP/NPM):** Resolved an issue where `npx @gbrandtio/rw-git-mcp` would fail with an `ENOEXEC` error. The npm package's `install.js` script now correctly handles non-200 HTTP responses and expects the raw, uncompressed binary executable to be available on GitHub Releases.
+- **FIX (MCP/NPM):** Resolved an issue where `npx @rw-core/rw-git-mcp` would fail with an `ENOEXEC` error. The npm package's `install.js` script now correctly handles non-200 HTTP responses and expects the raw, uncompressed binary executable to be available on GitHub Releases.
 - **CHORE (Distribution):** Updated the GitHub Actions release workflow (`release_mcp.yml`) to upload the raw uncompressed executables in addition to the `.tar.gz` and `.zip` archives.
 
 ## 3.0.0

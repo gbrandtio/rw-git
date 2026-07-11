@@ -17,19 +17,30 @@ abstract class ProcessRunner {
   factory ProcessRunner.mock() => MockProcessRunner();
 
   /// Executes the given [executable] with the provided [arguments] securely.
-  Future<ProcessResult> run(String executable, List<String> arguments,
-      {String? workingDirectory, bool streamOutput = false});
+  Future<ProcessResult> run(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+    bool streamOutput = false,
+  });
 
   /// Executes the given [executable] and streams stdout line-by-line.
   /// Standard error is buffered and an exception is thrown if the process fails.
-  Stream<String> runStream(String executable, List<String> arguments,
-      {String? workingDirectory});
+  Stream<String> runStream(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  });
 }
 
 class StandardProcessRunner implements ProcessRunner {
   @override
-  Future<ProcessResult> run(String executable, List<String> arguments,
-      {String? workingDirectory, bool streamOutput = false}) async {
+  Future<ProcessResult> run(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+    bool streamOutput = false,
+  }) async {
     try {
       // Inject safety flags for diff-generating commands to prevent them from
       // crashing on unreadable/binary files with broken textconv/ext-diff.
@@ -60,26 +71,30 @@ class StandardProcessRunner implements ProcessRunner {
       final stdoutFuture = process.stdout
           .transform(const Utf8Decoder(allowMalformed: true))
           .forEach((data) {
-        stdoutBuffer.write(data);
-        if (streamOutput) {
-          stdout.write(data);
-        }
-      });
+            stdoutBuffer.write(data);
+            if (streamOutput) {
+              stdout.write(data);
+            }
+          });
 
       final stderrFuture = process.stderr
           .transform(const Utf8Decoder(allowMalformed: true))
           .forEach((data) {
-        stderrBuffer.write(data);
-        if (streamOutput) {
-          stderr.write(data);
-        }
-      });
+            stderrBuffer.write(data);
+            if (streamOutput) {
+              stderr.write(data);
+            }
+          });
 
       final exitCode = await process.exitCode;
       await Future.wait([stdoutFuture, stderrFuture]);
 
-      return ProcessResult(process.pid, exitCode, stdoutBuffer.toString(),
-          stderrBuffer.toString());
+      return ProcessResult(
+        process.pid,
+        exitCode,
+        stdoutBuffer.toString(),
+        stderrBuffer.toString(),
+      );
     } on ProcessException catch (e) {
       throw GitExecutableNotFoundException(
         message:
@@ -90,8 +105,11 @@ class StandardProcessRunner implements ProcessRunner {
   }
 
   @override
-  Stream<String> runStream(String executable, List<String> arguments,
-      {String? workingDirectory}) async* {
+  Stream<String> runStream(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  }) async* {
     try {
       // Inject safety flags for diff-generating commands to prevent them from
       // crashing on unreadable/binary files with broken textconv/ext-diff.
@@ -118,10 +136,13 @@ class StandardProcessRunner implements ProcessRunner {
 
       final stderrBuffer = StringBuffer();
       final stderrCompleter = Completer<void>();
-      process.stderr.transform(const Utf8Decoder(allowMalformed: true)).listen(
-          stderrBuffer.write,
-          onDone: stderrCompleter.complete,
-          onError: stderrCompleter.completeError);
+      process.stderr
+          .transform(const Utf8Decoder(allowMalformed: true))
+          .listen(
+            stderrBuffer.write,
+            onDone: stderrCompleter.complete,
+            onError: stderrCompleter.completeError,
+          );
 
       yield* process.stdout
           .transform(const Utf8Decoder(allowMalformed: true))
@@ -132,7 +153,8 @@ class StandardProcessRunner implements ProcessRunner {
 
       if (exitCode != 0) {
         evaluateProcessResult(
-            ProcessResult(process.pid, exitCode, '', stderrBuffer.toString()));
+          ProcessResult(process.pid, exitCode, '', stderrBuffer.toString()),
+        );
       }
     } on ProcessException catch (e) {
       throw GitExecutableNotFoundException(
@@ -149,18 +171,28 @@ class MockProcessRunner implements ProcessRunner {
 
   MockProcessRunner();
 
-  void setMockResult(String executable, List<String> arguments, int exitCode,
-      String stdout, String stderr) {
+  void setMockResult(
+    String executable,
+    List<String> arguments,
+    int exitCode,
+    String stdout,
+    String stderr,
+  ) {
     final key = '$executable ${arguments.join(' ')}';
     _mockResults[key] = ProcessResult(0, exitCode, stdout, stderr);
   }
 
   @override
-  Future<ProcessResult> run(String executable, List<String> arguments,
-      {String? workingDirectory, bool streamOutput = false}) async {
+  Future<ProcessResult> run(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+    bool streamOutput = false,
+  }) async {
     final key = '$executable ${arguments.join(' ')}';
 
-    final result = _mockResults[key] ??
+    final result =
+        _mockResults[key] ??
         ProcessResult(0, 1, '', 'Mock result not found for $key');
 
     if (streamOutput) {
@@ -172,14 +204,18 @@ class MockProcessRunner implements ProcessRunner {
   }
 
   @override
-  Stream<String> runStream(String executable, List<String> arguments,
-      {String? workingDirectory}) async* {
+  Stream<String> runStream(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  }) async* {
     final key = '$executable ${arguments.join(' ')}';
     final result = _mockResults[key];
 
     if (result == null) {
       evaluateProcessResult(
-          ProcessResult(0, 1, '', 'Mock result not found for $key'));
+        ProcessResult(0, 1, '', 'Mock result not found for $key'),
+      );
     } else {
       if (result.stdout != null) {
         final lines = result.stdout.toString().split('\n');
@@ -201,14 +237,22 @@ void evaluateProcessResult(ProcessResult result) {
 
     if (errOutput.contains('did not match any file(s) known to git')) {
       // Extract branch name roughly if possible or just use generic
-      throw GitBranchNotFoundException('Unknown',
-          exitCode: result.exitCode, stderr: errOutput);
+      throw GitBranchNotFoundException(
+        'Unknown',
+        exitCode: result.exitCode,
+        stderr: errOutput,
+      );
     } else if (errOutput.contains('not a git repository')) {
-      throw GitNotInitializedException('Unknown',
-          exitCode: result.exitCode, stderr: errOutput);
+      throw GitNotInitializedException(
+        'Unknown',
+        exitCode: result.exitCode,
+        stderr: errOutput,
+      );
     } else if (errOutput.contains('conflict')) {
       throw GitMergeConflictException(
-          exitCode: result.exitCode, stderr: errOutput);
+        exitCode: result.exitCode,
+        stderr: errOutput,
+      );
     } else if (errOutput.contains('unsupported file type') ||
         errOutput.contains('unable to read files to diff')) {
       throw GitDiffException(exitCode: result.exitCode, stderr: errOutput);

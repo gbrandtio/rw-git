@@ -96,8 +96,13 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   // Read-only analysis tools (offloaded), with standard annotations attached
   // as the outermost wrapper so the registry can advertise them.
   void registerReadOnly(McpTool tool, {Map<String, dynamic>? outputSchema}) =>
-      registry.registerTool(McpToolWithMetadata(tool,
-          annotations: _readOnly, outputSchema: outputSchema));
+      registry.registerTool(
+        McpToolWithMetadata(
+          tool,
+          annotations: _readOnly,
+          outputSchema: outputSchema,
+        ),
+      );
 
   // Splices research-grounded ToolHints into a tool's payload when the
   // catalog has an entry for it; a no-op passthrough otherwise. Applied
@@ -110,16 +115,25 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
 
   void offloadedRo(McpTool inner, {Map<String, dynamic>? outputSchema}) =>
       registerReadOnly(
-          McpToolFileOffloadDecorator(withHints(inner),
-              resources: registry.resources,
-              // Per-tool size gate (ADR-0011); global default when unlisted.
-              offloadThresholdBytes: perToolOffloadThresholdBytes[inner.name] ??
-                  offloadSizeThresholdBytes),
-          outputSchema: outputSchema);
+        McpToolFileOffloadDecorator(
+          withHints(inner),
+          resources: registry.resources,
+          // Per-tool size gate (ADR-0011); global default when unlisted.
+          offloadThresholdBytes:
+              perToolOffloadThresholdBytes[inner.name] ??
+              offloadSizeThresholdBytes,
+        ),
+        outputSchema: outputSchema,
+      );
 
   void mutating(McpTool tool, {Map<String, dynamic>? outputSchema}) =>
-      registry.registerTool(McpToolWithMetadata(tool,
-          annotations: _mutating, outputSchema: outputSchema));
+      registry.registerTool(
+        McpToolWithMetadata(
+          tool,
+          annotations: _mutating,
+          outputSchema: outputSchema,
+        ),
+      );
 
   // One-call, pre-interpreted report meta-tools. Registered first so they are
   // the prominent choice for small models: a single call returns a complete,
@@ -128,16 +142,26 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   // itself. Registration order is a deliberate discoverability ranking
   // (ADR-0009): report tools must stay at the top of tools/list; do not
   // reorder alphabetically or append new tools blindly.
-  offloadedRo(GenerateRepositoryAuditTool(processRunner),
-      outputSchema: _reportOutputSchema);
-  offloadedRo(GenerateTechnicalReportTool(processRunner),
-      outputSchema: _reportOutputSchema);
-  offloadedRo(GenerateSecurityReportTool(processRunner),
-      outputSchema: _reportOutputSchema);
-  offloadedRo(GeneratePmReportTool(processRunner),
-      outputSchema: _reportOutputSchema);
-  offloadedRo(GenerateCodeReviewReportTool(processRunner),
-      outputSchema: _reportOutputSchema);
+  offloadedRo(
+    GenerateRepositoryAuditTool(processRunner),
+    outputSchema: _reportOutputSchema,
+  );
+  offloadedRo(
+    GenerateTechnicalReportTool(processRunner),
+    outputSchema: _reportOutputSchema,
+  );
+  offloadedRo(
+    GenerateSecurityReportTool(processRunner),
+    outputSchema: _reportOutputSchema,
+  );
+  offloadedRo(
+    GeneratePmReportTool(processRunner),
+    outputSchema: _reportOutputSchema,
+  );
+  offloadedRo(
+    GenerateCodeReviewReportTool(processRunner),
+    outputSchema: _reportOutputSchema,
+  );
 
   // outputSchema policy (ADR-0013): a schema is advertised only where the
   // shape is stable, compact, and drives `structuredContent` — the report
@@ -152,39 +176,48 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   registerReadOnly(GetRwGitDocumentationTool(registry));
   registerReadOnly(ReadReportSliceTool());
   mutating(InitRepositoryTool(git), outputSchema: _successOutputSchema);
-  registerReadOnly(IsGitRepositoryTool(git, gitQuery), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'isGitRepository': {'type': 'boolean'},
-      'health_dashboard': {
-        'type': 'object',
-        'properties': {
-          'current_branch': {'type': 'string'},
-          'has_uncommitted_changes': {'type': 'boolean'},
-          'last_commit_date': {'type': 'string'},
-          'total_commits': {'type': 'integer'},
+  registerReadOnly(
+    IsGitRepositoryTool(git, gitQuery),
+    outputSchema: const {
+      'type': 'object',
+      'properties': {
+        'isGitRepository': {'type': 'boolean'},
+        'health_dashboard': {
+          'type': 'object',
+          'properties': {
+            'current_branch': {'type': 'string'},
+            'has_uncommitted_changes': {'type': 'boolean'},
+            'last_commit_date': {'type': 'string'},
+            'total_commits': {'type': 'integer'},
+          },
         },
       },
     },
-  });
+  );
   mutating(CloneRepositoryTool(git), outputSchema: _successOutputSchema);
   mutating(CheckoutBranchTool(git), outputSchema: _successOutputSchema);
-  mutating(FetchTagsTool(git), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'tags': {'type': 'array'},
+  mutating(
+    FetchTagsTool(git),
+    outputSchema: const {
+      'type': 'object',
+      'properties': {
+        'tags': {'type': 'array'},
+      },
     },
-  });
+  );
   offloadedRo(GetCommitsBetweenTool(git));
-  offloadedRo(GetStatsTool(git, gitQuery), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'numberOfChangedFiles': {'type': 'integer'},
-      'insertions': {'type': 'integer'},
-      'deletions': {'type': 'integer'},
-      'stats_by_extension': {'type': 'object'},
+  offloadedRo(
+    GetStatsTool(git, gitQuery),
+    outputSchema: const {
+      'type': 'object',
+      'properties': {
+        'numberOfChangedFiles': {'type': 'integer'},
+        'insertions': {'type': 'integer'},
+        'deletions': {'type': 'integer'},
+        'stats_by_extension': {'type': 'object'},
+      },
     },
-  });
+  );
   offloadedRo(GetContributionsByAuthorTool(git));
   mutating(CloneSpecificBranchTool(git), outputSchema: _successOutputSchema);
   offloadedRo(AnalyzeReleaseDeltaTool(gitQuery, processRunner));
@@ -204,19 +237,22 @@ McpRegistry buildDefaultRegistry({ProcessRunner? runner, RwGit? rwGit}) {
   offloadedRo(AnalyzeDartAstQualityTool(gitQuery));
   offloadedRo(AnalyzeArchitectureDriftTool(gitQuery));
   offloadedRo(AnalyzeCleanCodeTool());
-  offloadedRo(CalculateUniversalLexicalMetricsTool(), outputSchema: const {
-    'type': 'object',
-    'properties': {
-      'language_profile': {'type': 'string'},
-      'cyclomatic_complexity': {'type': 'integer'},
-      'npath_complexity': {'type': 'integer'},
-      'abc_score': {'type': 'object'},
-      'cognitive_complexity': {'type': 'integer'},
-      'indentation_complexity': {'type': 'object'},
-      'halstead_metrics': {'type': 'object'},
-      'maintainability_index': {'type': 'object'},
+  offloadedRo(
+    CalculateUniversalLexicalMetricsTool(),
+    outputSchema: const {
+      'type': 'object',
+      'properties': {
+        'language_profile': {'type': 'string'},
+        'cyclomatic_complexity': {'type': 'integer'},
+        'npath_complexity': {'type': 'integer'},
+        'abc_score': {'type': 'object'},
+        'cognitive_complexity': {'type': 'integer'},
+        'indentation_complexity': {'type': 'object'},
+        'halstead_metrics': {'type': 'object'},
+        'maintainability_index': {'type': 'object'},
+      },
     },
-  });
+  );
 
   registry.registerPrompt(RwGitMcpReportingPrompt());
 

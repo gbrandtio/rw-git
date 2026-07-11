@@ -25,59 +25,68 @@ class ArchitectureDriftClassifier {
 
     for (final smell in drift.smells) {
       final isScattered = smell.type == 'Scattered Functionality';
-      findings.add(Finding(
-        category: 'architectureDrift',
-        source: [AnalysisType.architectureDrift],
-        severity: isScattered ? Severity.moderate : Severity.high,
-        subject: smell.layer ?? 'repository',
-        metric: 'architectural_smell',
-        value: smell.type,
-        band: isScattered
-            ? '>= $scatteredFunctionalityLayerCount layers per commit'
-            : smell.type == 'God Component'
-                ? '> ${(godComponentDriftShareThreshold * 100).round()}% of '
-                    'drift commits'
-                : '>= half of layers coupled',
-        evidence: {
-          'smell_type': smell.type,
-          if (smell.count != null) 'occurrences': smell.count,
-          'commits_with_drift': drift.driftCommits.length,
-          'total_commits_analyzed': drift.totalCommitsAnalyzed,
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'architectureDrift',
+          source: [AnalysisType.architectureDrift],
+          severity: isScattered ? Severity.moderate : Severity.high,
+          subject: smell.layer ?? 'repository',
+          metric: 'architectural_smell',
+          value: smell.type,
+          band:
+              isScattered
+                  ? '>= $scatteredFunctionalityLayerCount layers per commit'
+                  : smell.type == 'God Component'
+                  ? '> ${(godComponentDriftShareThreshold * 100).round()}% of '
+                      'drift commits'
+                  : '>= half of layers coupled',
+          evidence: {
+            'smell_type': smell.type,
+            if (smell.count != null) 'occurrences': smell.count,
+            'commits_with_drift': drift.driftCommits.length,
+            'total_commits_analyzed': drift.totalCommitsAnalyzed,
+          },
+        ),
+      );
     }
 
     if (drift.couplingRatio > couplingRatioElevatedThreshold) {
-      findings.add(Finding(
-        category: 'architectureDrift',
-        source: [AnalysisType.architectureDrift],
-        severity: Severity.elevated,
-        subject: 'repository',
-        metric: 'coupling_ratio',
-        value: double.parse(drift.couplingRatio.toStringAsFixed(3)),
-        band: '> ${(couplingRatioElevatedThreshold * 100).round()}% of '
-            'commits cross layer boundaries',
-        evidence: {
-          'commits_with_drift': drift.driftCommits.length,
-          'total_commits_analyzed': drift.totalCommitsAnalyzed,
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'architectureDrift',
+          source: [AnalysisType.architectureDrift],
+          severity: Severity.elevated,
+          subject: 'repository',
+          metric: 'coupling_ratio',
+          value: double.parse(drift.couplingRatio.toStringAsFixed(3)),
+          band:
+              '> ${(couplingRatioElevatedThreshold * 100).round()}% of '
+              'commits cross layer boundaries',
+          evidence: {
+            'commits_with_drift': drift.driftCommits.length,
+            'total_commits_analyzed': drift.totalCommitsAnalyzed,
+          },
+        ),
+      );
     }
 
     if (drift.couplingDensity > couplingDensityElevatedThreshold) {
-      findings.add(Finding(
-        category: 'architectureDrift',
-        source: [AnalysisType.architectureDrift],
-        severity: Severity.elevated,
-        subject: 'repository',
-        metric: 'coupling_density',
-        value: double.parse(drift.couplingDensity.toStringAsFixed(3)),
-        band: '> ${(couplingDensityElevatedThreshold * 100).round()}% of '
-            'layer pairs coupled',
-        evidence: {
-          'coupling_matrix_layers': drift.couplingMatrix.keys.toList(),
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'architectureDrift',
+          source: [AnalysisType.architectureDrift],
+          severity: Severity.elevated,
+          subject: 'repository',
+          metric: 'coupling_density',
+          value: double.parse(drift.couplingDensity.toStringAsFixed(3)),
+          band:
+              '> ${(couplingDensityElevatedThreshold * 100).round()}% of '
+              'layer pairs coupled',
+          evidence: {
+            'coupling_matrix_layers': drift.couplingMatrix.keys.toList(),
+          },
+        ),
+      );
     }
 
     return findings;

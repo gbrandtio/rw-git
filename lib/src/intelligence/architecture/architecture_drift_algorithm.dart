@@ -69,11 +69,13 @@ class ArchitectureDriftAlgorithm {
     for (final entry in commitLayers.entries) {
       final layers = entry.value.toList()..sort();
       if (layers.length <= 1) continue;
-      driftCommits.add(DriftCommit(
-        hash: entry.key,
-        message: commitMessages[entry.key] ?? '',
-        layersCoupled: layers,
-      ));
+      driftCommits.add(
+        DriftCommit(
+          hash: entry.key,
+          message: commitMessages[entry.key] ?? '',
+          layersCoupled: layers,
+        ),
+      );
       for (int i = 0; i < layers.length; i++) {
         for (int j = i + 1; j < layers.length; j++) {
           couplingMatrix.putIfAbsent(layers[i], () => {});
@@ -125,14 +127,16 @@ class ArchitectureDriftAlgorithm {
     }
     for (final entry in layerDriftCount.entries) {
       if (entry.value > driftCommits.length * godComponentDriftShareThreshold) {
-        smells.add(ArchitecturalSmell(
-          type: 'God Component',
-          layer: entry.key,
-          description:
-              'Layer "${entry.key}" appears in ${entry.value}/${driftCommits.length} '
-              'drift commits. It has too many cross-cutting concerns and likely '
-              'violates the Single Responsibility Principle at the architecture level.',
-        ));
+        smells.add(
+          ArchitecturalSmell(
+            type: 'God Component',
+            layer: entry.key,
+            description:
+                'Layer "${entry.key}" appears in ${entry.value}/${driftCommits.length} '
+                'drift commits. It has too many cross-cutting concerns and likely '
+                'violates the Single Responsibility Principle at the architecture level.',
+          ),
+        );
       }
     }
 
@@ -142,33 +146,41 @@ class ArchitectureDriftAlgorithm {
       for (final entry in couplingMatrix.entries) {
         final degree = entry.value.length;
         if (degree >= numLayers / 2) {
-          smells.add(ArchitecturalSmell(
-            type: 'Hub-Like Dependency',
-            layer: entry.key,
-            description:
-                'Layer "${entry.key}" is coupled with $degree/${numLayers - 1} '
-                'other layers, acting as a central coupling hub and introducing '
-                'fragility.',
-          ));
+          smells.add(
+            ArchitecturalSmell(
+              type: 'Hub-Like Dependency',
+              layer: entry.key,
+              description:
+                  'Layer "${entry.key}" is coupled with $degree/${numLayers - 1} '
+                  'other layers, acting as a central coupling hub and introducing '
+                  'fragility.',
+            ),
+          );
         }
       }
     }
 
     // Scattered Functionality: single commits spanning three or more layers
     // suggest concerns not cleanly assigned to any one layer.
-    final scattered = driftCommits
-        .where((commit) =>
-            commit.layersCoupled.length >= scatteredFunctionalityLayerCount)
-        .length;
+    final scattered =
+        driftCommits
+            .where(
+              (commit) =>
+                  commit.layersCoupled.length >=
+                  scatteredFunctionalityLayerCount,
+            )
+            .length;
     if (scattered > 0) {
-      smells.add(ArchitecturalSmell(
-        type: 'Scattered Functionality',
-        count: scattered,
-        description:
-            '$scattered commits simultaneously modify 3 or more layers, '
-            'suggesting business logic or infrastructure concerns that are not '
-            'cleanly assigned to a single layer.',
-      ));
+      smells.add(
+        ArchitecturalSmell(
+          type: 'Scattered Functionality',
+          count: scattered,
+          description:
+              '$scattered commits simultaneously modify 3 or more layers, '
+              'suggesting business logic or infrastructure concerns that are not '
+              'cleanly assigned to a single layer.',
+        ),
+      );
     }
 
     return smells;
@@ -220,8 +232,9 @@ class ArchitectureDriftAlgorithm {
           (fileCountByLayerPrefix[prefix] ?? 0) + 1;
     }
 
-    final rankedPrefixes = fileCountByLayerPrefix.entries.toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final rankedPrefixes =
+        fileCountByLayerPrefix.entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
     final topPrefixes =
         rankedPrefixes.take(maxInferredArchitectureLayers).toList();
     if (topPrefixes.length < minInferredArchitectureLayers) return const {};

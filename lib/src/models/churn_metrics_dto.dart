@@ -9,16 +9,10 @@ class ChurnMetricsDto {
   final Map<String, int> fileChurn;
   final int totalCommits;
 
-  const ChurnMetricsDto({
-    required this.fileChurn,
-    required this.totalCommits,
-  });
+  const ChurnMetricsDto({required this.fileChurn, required this.totalCommits});
 
   /// Factory constructor returning an empty instance.
   factory ChurnMetricsDto.empty() {
-    return const ChurnMetricsDto(
-      fileChurn: {},
-      totalCommits: 0,
-    );
+    return const ChurnMetricsDto(fileChurn: {}, totalCommits: 0);
   }
 }

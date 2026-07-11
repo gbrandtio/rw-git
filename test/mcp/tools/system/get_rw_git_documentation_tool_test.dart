@@ -40,18 +40,21 @@ void main() {
     });
 
     test(
-        'execute returns documentation markdown dynamically generated from registry',
-        () async {
-      final result = await tool.execute({});
+      'execute returns documentation markdown dynamically generated from registry',
+      () async {
+        final result = await tool.execute({});
 
-      expect(result, contains('# RwGit Agent Guide & Documentation'));
-      expect(result, contains('**IMPORTANT INSTRUCTIONS FOR AI AGENTS**'));
+        expect(result, contains('# RwGit Agent Guide & Documentation'));
+        expect(result, contains('**IMPORTANT INSTRUCTIONS FOR AI AGENTS**'));
 
-      // Verify the dynamically injected dummy tool
-      expect(
+        // Verify the dynamically injected dummy tool
+        expect(
           result,
           contains(
-              '**dummy_test_tool**: A dummy tool used for testing the documentation generation.'));
-    });
+            '**dummy_test_tool**: A dummy tool used for testing the documentation generation.',
+          ),
+        );
+      },
+    );
   });
 }

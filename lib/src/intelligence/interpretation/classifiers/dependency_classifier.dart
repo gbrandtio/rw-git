@@ -35,19 +35,21 @@ class DependencyClassifier {
           continue;
       }
 
-      findings.add(Finding(
-        category: 'dependency',
-        source: [AnalysisType.dependencyDrift],
-        severity: severity,
-        subject: r.name,
-        metric: 'freshness',
-        value: r.classification,
-        band: band,
-        evidence: {
-          'declared_version': r.declaredVersion,
-          if (r.latestVersion != null) 'latest_version': r.latestVersion,
-        },
-      ));
+      findings.add(
+        Finding(
+          category: 'dependency',
+          source: [AnalysisType.dependencyDrift],
+          severity: severity,
+          subject: r.name,
+          metric: 'freshness',
+          value: r.classification,
+          band: band,
+          evidence: {
+            'declared_version': r.declaredVersion,
+            if (r.latestVersion != null) 'latest_version': r.latestVersion,
+          },
+        ),
+      );
     }
     return findings;
   }

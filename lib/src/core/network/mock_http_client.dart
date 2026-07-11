@@ -21,11 +21,19 @@ class MockHttpClient implements RwHttpClient {
 
   /// Queues a single mock response for [method]/[url]. Calling this multiple
   /// times for the same key enqueues additional responses, returned in order.
-  void setMockResponse(String method, Uri url, int statusCode, String body,
-      {Map<String, String>? headers}) {
+  void setMockResponse(
+    String method,
+    Uri url,
+    int statusCode,
+    String body, {
+    Map<String, String>? headers,
+  }) {
     setMockResponses(method, url, [
       RwHttpResponse(
-          statusCode: statusCode, body: body, headers: headers ?? const {}),
+        statusCode: statusCode,
+        body: body,
+        headers: headers ?? const {},
+      ),
     ]);
   }
 
@@ -33,7 +41,10 @@ class MockHttpClient implements RwHttpClient {
   /// successive calls. Useful for testing retry behavior (e.g. two 503s
   /// followed by a 200).
   void setMockResponses(
-      String method, Uri url, List<RwHttpResponse> responses) {
+    String method,
+    Uri url,
+    List<RwHttpResponse> responses,
+  ) {
     final key = _key(method, url);
     _mockResponses.putIfAbsent(key, () => []).addAll(responses);
   }
@@ -44,14 +55,19 @@ class MockHttpClient implements RwHttpClient {
   }
 
   @override
-  Future<RwHttpResponse> get(Uri url,
-      {Map<String, String>? headers, Duration? timeout}) {
-    return send(RwHttpRequest(
-      method: 'GET',
-      url: url,
-      headers: headers ?? const {},
-      timeout: timeout,
-    ));
+  Future<RwHttpResponse> get(
+    Uri url, {
+    Map<String, String>? headers,
+    Duration? timeout,
+  }) {
+    return send(
+      RwHttpRequest(
+        method: 'GET',
+        url: url,
+        headers: headers ?? const {},
+        timeout: timeout,
+      ),
+    );
   }
 
   @override

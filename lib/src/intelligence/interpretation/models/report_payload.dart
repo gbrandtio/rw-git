@@ -63,8 +63,8 @@ class ReportPayload {
       summary[f.severity.label] = (summary[f.severity.label] ?? 0) + 1;
     }
 
-    final singletons = findings.where((f) => f.severity.isMaterial).toList()
-      ..sort(_rank);
+    final singletons =
+        findings.where((f) => f.severity.isMaterial).toList()..sort(_rank);
     final rankedCompounds = compounds.toList()..sort(_rank);
 
     final boundedTopFindings = singletons.take(maxTopFindings).toList();
@@ -78,8 +78,10 @@ class ReportPayload {
       summaryBySeverity: summary,
       metadata: metadata,
       refactoringTargets: refactoringTargets,
-      hints:
-          _aggregateHints([...boundedCompoundFindings, ...boundedTopFindings]),
+      hints: _aggregateHints([
+        ...boundedCompoundFindings,
+        ...boundedTopFindings,
+      ]),
     );
   }
 
@@ -95,8 +97,9 @@ class ReportPayload {
   /// composes many analyses, and each one's guidance is worth surfacing in
   /// full rather than truncated.
   static ReportHints _aggregateHints(List<Finding> findings) {
-    final sortedSources = findings.expand((f) => f.source).toSet().toList()
-      ..sort((a, b) => a.name.compareTo(b.name));
+    final sortedSources =
+        findings.expand((f) => f.source).toSet().toList()
+          ..sort((a, b) => a.name.compareTo(b.name));
 
     final bySource = <String, ToolHints>{};
 
@@ -125,23 +128,22 @@ class ReportPayload {
   }
 
   Map<String, dynamic> toJson() => {
-        'report_type': reportType,
-        'summary': summaryBySeverity,
-        'top_findings': topFindings.map((f) => f.toJson()).toList(),
-        'compound_findings': compoundFindings.map((f) => f.toJson()).toList(),
-        if (refactoringTargets.isNotEmpty)
-          'refactoring_targets': {
-            'basis': RefactoringTargetRanker.researchBasis,
-            'targets':
-                refactoringTargets.map((target) => target.toJson()).toList(),
-          },
-        'metadata': metadata,
-        'guidance':
-            'Findings are already classified into severity bands and ranked. '
-                'Narrate each using its severity, subject, band, and message. '
-                'Use the hints map to surface contextually relevant '
-                'expert interpretation, caveats, and pair_with guidance '
-                'for each analysis type.',
-        if (!hints.isEmpty) 'hints': hints.toJson(),
-      };
+    'report_type': reportType,
+    'summary': summaryBySeverity,
+    'top_findings': topFindings.map((f) => f.toJson()).toList(),
+    'compound_findings': compoundFindings.map((f) => f.toJson()).toList(),
+    if (refactoringTargets.isNotEmpty)
+      'refactoring_targets': {
+        'basis': RefactoringTargetRanker.researchBasis,
+        'targets': refactoringTargets.map((target) => target.toJson()).toList(),
+      },
+    'metadata': metadata,
+    'guidance':
+        'Findings are already classified into severity bands and ranked. '
+        'Narrate each using its severity, subject, band, and message. '
+        'Use the hints map to surface contextually relevant '
+        'expert interpretation, caveats, and pair_with guidance '
+        'for each analysis type.',
+    if (!hints.isEmpty) 'hints': hints.toJson(),
+  };
 }

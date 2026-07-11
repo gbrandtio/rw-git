@@ -3,8 +3,7 @@ import 'package:test/test.dart';
 
 void main() {
   group('buildJsonStructurePreview', () {
-    test(
-        'maps each top-level key exactly once to a compact type tag, so the '
+    test('maps each top-level key exactly once to a compact type tag, so the '
         'inline preview cost stays one entry per key', () {
       final preview = buildJsonStructurePreview({
         'findings': [1, 2, 3],
@@ -29,17 +28,21 @@ void main() {
     });
 
     test('describes a scalar root by its runtime type', () {
-      expect(buildJsonStructurePreview('text')['top_level_type'],
-          equals('String'));
+      expect(
+        buildJsonStructurePreview('text')['top_level_type'],
+        equals('String'),
+      );
       expect(buildJsonStructurePreview(null)['top_level_type'], equals('Null'));
     });
 
-    test('stringifies non-string map keys so the preview stays serializable',
-        () {
-      final preview = buildJsonStructurePreview({1: 'a'});
+    test(
+      'stringifies non-string map keys so the preview stays serializable',
+      () {
+        final preview = buildJsonStructurePreview({1: 'a'});
 
-      final structure = preview['structure'] as Map<String, String>;
-      expect(structure['1'], equals('String'));
-    });
+        final structure = preview['structure'] as Map<String, String>;
+        expect(structure['1'], equals('String'));
+      },
+    );
   });
 }

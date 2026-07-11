@@ -40,22 +40,27 @@ void main() {
 
     test('resolves a nested dot-separated path', () async {
       final file = await writeReport({
-        'summary': {'totals': 42}
+        'summary': {'totals': 42},
       });
 
-      final resultString =
-          await tool.execute({'file': file, 'path': 'summary.totals'});
+      final resultString = await tool.execute({
+        'file': file,
+        'path': 'summary.totals',
+      });
       final result = jsonDecode(resultString) as Map<String, dynamic>;
 
       expect(result['data'], equals(42));
     });
 
     test('slices an array with default offset/limit', () async {
-      final file =
-          await writeReport({'findings': List.generate(120, (i) => i)});
+      final file = await writeReport({
+        'findings': List.generate(120, (i) => i),
+      });
 
-      final resultString =
-          await tool.execute({'file': file, 'path': 'findings'});
+      final resultString = await tool.execute({
+        'file': file,
+        'path': 'findings',
+      });
       final result = jsonDecode(resultString) as Map<String, dynamic>;
 
       expect(result['total_length'], equals(120));
@@ -66,8 +71,9 @@ void main() {
     });
 
     test('slices an array with explicit offset/limit', () async {
-      final file =
-          await writeReport({'findings': List.generate(120, (i) => i)});
+      final file = await writeReport({
+        'findings': List.generate(120, (i) => i),
+      });
 
       final resultString = await tool.execute({
         'file': file,
@@ -77,13 +83,16 @@ void main() {
       });
       final result = jsonDecode(resultString) as Map<String, dynamic>;
 
-      expect((result['data'] as List),
-          equals([100, 101, 102, 103, 104, 105, 106, 107, 108, 109]));
+      expect(
+        (result['data'] as List),
+        equals([100, 101, 102, 103, 104, 105, 106, 107, 108, 109]),
+      );
     });
 
     test('caps limit at the maximum allowed value', () async {
-      final file =
-          await writeReport({'findings': List.generate(1000, (i) => i)});
+      final file = await writeReport({
+        'findings': List.generate(1000, (i) => i),
+      });
 
       final resultString = await tool.execute({
         'file': file,
@@ -98,8 +107,10 @@ void main() {
     test('returns an error with available keys for a missing path', () async {
       final file = await writeReport({'summary': {}, 'findings': []});
 
-      final resultString =
-          await tool.execute({'file': file, 'path': 'nonexistent'});
+      final resultString = await tool.execute({
+        'file': file,
+        'path': 'nonexistent',
+      });
       final result = jsonDecode(resultString) as Map<String, dynamic>;
 
       expect(result['error'], equals('Path not found'));
@@ -128,11 +139,11 @@ void main() {
       expect(result['error'], contains('Security violation'));
     });
 
-    test(
-        'rejects paths containing .rw_git and reports as non-adjacent '
+    test('rejects paths containing .rw_git and reports as non-adjacent '
         'components', () async {
-      final decoyDir =
-          Directory(p.join(tempDir.path, 'reports', '.rw_git', 'other'));
+      final decoyDir = Directory(
+        p.join(tempDir.path, 'reports', '.rw_git', 'other'),
+      );
       await decoyDir.create(recursive: true);
       final decoyFile = File(p.join(decoyDir.path, 'decoy.json'));
       await decoyFile.writeAsString(jsonEncode({'a': 1}));

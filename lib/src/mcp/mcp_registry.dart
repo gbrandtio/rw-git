@@ -14,7 +14,7 @@ class McpRegistry {
   final ResourceRegistry resources;
 
   McpRegistry({ResourceRegistry? resources})
-      : resources = resources ?? ResourceRegistry();
+    : resources = resources ?? ResourceRegistry();
 
   /// Registers a new tool into the registry.
   void registerTool(McpTool tool) {
@@ -58,10 +58,7 @@ class McpRegistry {
   /// Returns a list of all registered prompts formatted for the 'prompts/list' MCP method.
   List<Map<String, dynamic>> getPromptListings() {
     return _prompts.values.map((prompt) {
-      return {
-        'name': prompt.name,
-        'description': prompt.description,
-      };
+      return {'name': prompt.name, 'description': prompt.description};
     }).toList();
   }
 }

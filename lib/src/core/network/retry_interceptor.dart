@@ -34,10 +34,10 @@ class RetryInterceptor implements HttpInterceptor {
     Set<int>? retryableStatusCodes,
     Future<void> Function(Duration delay)? delay,
     Random? random,
-  })  : retryableStatusCodes =
-            retryableStatusCodes ?? const {429, 502, 503, 504},
-        delay = delay ?? Future.delayed,
-        random = random ?? Random();
+  }) : retryableStatusCodes =
+           retryableStatusCodes ?? const {429, 502, 503, 504},
+       delay = delay ?? Future.delayed,
+       random = random ?? Random();
 
   @override
   Future<RwHttpResponse> intercept(
@@ -50,7 +50,7 @@ class RetryInterceptor implements HttpInterceptor {
         final response = await next(request.copyWith(attempt: attempt));
         final shouldRetry =
             retryableStatusCodes.contains(response.statusCode) &&
-                attempt < maxRetries;
+            attempt < maxRetries;
         if (!shouldRetry) {
           return response;
         }

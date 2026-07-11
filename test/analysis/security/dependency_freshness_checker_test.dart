@@ -7,8 +7,11 @@ class _ConcurrencyTrackingHttpClient implements RwHttpClient {
   int requestCount = 0;
 
   @override
-  Future<RwHttpResponse> get(Uri url,
-      {Map<String, String>? headers, Duration? timeout}) async {
+  Future<RwHttpResponse> get(
+    Uri url, {
+    Map<String, String>? headers,
+    Duration? timeout,
+  }) async {
     requestCount++;
     _inFlight++;
     if (_inFlight > maxInFlight) maxInFlight = _inFlight;
@@ -32,7 +35,10 @@ void main() {
       final checker = DependencyFreshnessChecker(client);
       final results = await checker.checkFreshness([
         const DependencyEntry(
-            name: 'path', declaredVersion: '^1.2.3', isPinned: false),
+          name: 'path',
+          declaredVersion: '^1.2.3',
+          isPinned: false,
+        ),
       ], 'dart');
 
       expect(results, hasLength(1));
@@ -48,7 +54,10 @@ void main() {
       final checker = DependencyFreshnessChecker(client);
       final results = await checker.checkFreshness([
         const DependencyEntry(
-            name: '@scope/name', declaredVersion: '1.0.0', isPinned: true),
+          name: '@scope/name',
+          declaredVersion: '1.0.0',
+          isPinned: true,
+        ),
       ], 'npm');
 
       expect(results.first.latestVersion, '2.0.0');
@@ -59,17 +68,26 @@ void main() {
       final client = MockHttpClient();
       final url = Uri.parse('https://crates.io/api/v1/crates/serde');
       client.setMockResponse(
-          'GET', url, 200, '{"crate":{"max_stable_version":"1.0.0"}}');
+        'GET',
+        url,
+        200,
+        '{"crate":{"max_stable_version":"1.0.0"}}',
+      );
 
       final checker = DependencyFreshnessChecker(client);
       await checker.checkFreshness([
         const DependencyEntry(
-            name: 'serde', declaredVersion: '1.0.0', isPinned: true),
+          name: 'serde',
+          declaredVersion: '1.0.0',
+          isPinned: true,
+        ),
       ], 'rust');
 
       expect(client.capturedRequests, hasLength(1));
-      expect(client.capturedRequests.first.headers['User-Agent'],
-          contains('rw-git'));
+      expect(
+        client.capturedRequests.first.headers['User-Agent'],
+        contains('rw-git'),
+      );
     });
 
     test('one failed lookup does not affect the rest of the batch', () async {
@@ -77,15 +95,25 @@ void main() {
       final okUrl = Uri.parse('https://pypi.org/pypi/requests/json');
       final missingUrl = Uri.parse('https://pypi.org/pypi/totally-fake/json');
       client.setMockResponse(
-          'GET', okUrl, 200, '{"info":{"version":"2.31.0"}}');
+        'GET',
+        okUrl,
+        200,
+        '{"info":{"version":"2.31.0"}}',
+      );
       client.setMockResponse('GET', missingUrl, 404, 'not found');
 
       final checker = DependencyFreshnessChecker(client);
       final results = await checker.checkFreshness([
         const DependencyEntry(
-            name: 'requests', declaredVersion: '2.26.0', isPinned: true),
+          name: 'requests',
+          declaredVersion: '2.26.0',
+          isPinned: true,
+        ),
         const DependencyEntry(
-            name: 'totally-fake', declaredVersion: '1.0.0', isPinned: true),
+          name: 'totally-fake',
+          declaredVersion: '1.0.0',
+          isPinned: true,
+        ),
       ], 'python');
 
       final ok = results.firstWhere((r) => r.name == 'requests');
@@ -96,21 +124,26 @@ void main() {
       expect(missing.error, isNotNull);
     });
 
-    test('transport failure for one dependency yields unknown, not a throw',
-        () async {
-      final client = MockHttpClient();
-      final url = Uri.parse('https://rubygems.org/api/v1/gems/rails.json');
-      client.setMockError('GET', url, Exception('connection reset'));
+    test(
+      'transport failure for one dependency yields unknown, not a throw',
+      () async {
+        final client = MockHttpClient();
+        final url = Uri.parse('https://rubygems.org/api/v1/gems/rails.json');
+        client.setMockError('GET', url, Exception('connection reset'));
 
-      final checker = DependencyFreshnessChecker(client);
-      final results = await checker.checkFreshness([
-        const DependencyEntry(
-            name: 'rails', declaredVersion: '6.1.4', isPinned: true),
-      ], 'ruby');
+        final checker = DependencyFreshnessChecker(client);
+        final results = await checker.checkFreshness([
+          const DependencyEntry(
+            name: 'rails',
+            declaredVersion: '6.1.4',
+            isPinned: true,
+          ),
+        ], 'ruby');
 
-      expect(results.first.classification, 'unknown');
-      expect(results.first.error, isNotNull);
-    });
+        expect(results.first.classification, 'unknown');
+        expect(results.first.error, isNotNull);
+      },
+    );
 
     test('respects the concurrency cap', () async {
       final client = _ConcurrencyTrackingHttpClient();
@@ -118,12 +151,18 @@ void main() {
       final dependencies = List.generate(
         10,
         (i) => DependencyEntry(
-            name: 'pkg$i', declaredVersion: '1.0.0', isPinned: true),
+          name: 'pkg$i',
+          declaredVersion: '1.0.0',
+          isPinned: true,
+        ),
       );
 
       final checker = DependencyFreshnessChecker(client);
-      final results =
-          await checker.checkFreshness(dependencies, 'ruby', concurrency: 3);
+      final results = await checker.checkFreshness(
+        dependencies,
+        'ruby',
+        concurrency: 3,
+      );
 
       expect(results, hasLength(10));
       expect(client.requestCount, 10);

@@ -35,8 +35,10 @@ void main() {
 
   group('report meta-tools execution', () {
     test('technical report returns a pre-interpreted payload', () async {
-      final raw = await tools['generate_technical_report']!
-          .execute({'directory': './', 'limit': '80'});
+      final raw = await tools['generate_technical_report']!.execute({
+        'directory': './',
+        'limit': '80',
+      });
       final json = jsonDecode(raw) as Map<String, dynamic>;
 
       expect(json['report_type'], 'technical');
@@ -52,44 +54,53 @@ void main() {
     });
 
     test('pm report returns a pre-interpreted payload', () async {
-      final raw = await tools['generate_pm_report']!
-          .execute({'directory': './', 'limit': '80'});
+      final raw = await tools['generate_pm_report']!.execute({
+        'directory': './',
+        'limit': '80',
+      });
       final json = jsonDecode(raw) as Map<String, dynamic>;
       expect(json['report_type'], 'pm');
       expect(json['top_findings'], isA<List>());
     });
 
     test('ReportOrchestrator is reusable from the library directly', () async {
-      final payload =
-          await ReportOrchestrator(runner).technicalReport('./', limit: '60');
+      final payload = await ReportOrchestrator(
+        runner,
+      ).technicalReport('./', limit: '60');
       expect(payload.reportType, 'technical');
       expect(payload.toJson()['guidance'], isA<String>());
     });
 
-    test('technical report accepts since/until and echoes them in metadata',
-        () async {
-      final raw = await tools['generate_technical_report']!.execute({
-        'directory': './',
-        'limit': '80',
-        'since': '2024-01-01',
-        'until': '2024-12-31',
-      });
-      final json = jsonDecode(raw) as Map<String, dynamic>;
-      expect(json['report_type'], 'technical');
-      final metadata = json['metadata'] as Map<String, dynamic>;
-      expect(metadata['since'], '2024-01-01');
-      expect(metadata['until'], '2024-12-31');
-    });
+    test(
+      'technical report accepts since/until and echoes them in metadata',
+      () async {
+        final raw = await tools['generate_technical_report']!.execute({
+          'directory': './',
+          'limit': '80',
+          'since': '2024-01-01',
+          'until': '2024-12-31',
+        });
+        final json = jsonDecode(raw) as Map<String, dynamic>;
+        expect(json['report_type'], 'technical');
+        final metadata = json['metadata'] as Map<String, dynamic>;
+        expect(metadata['since'], '2024-01-01');
+        expect(metadata['until'], '2024-12-31');
+      },
+    );
 
-    test('technical report omits since/until from metadata when not supplied',
-        () async {
-      final raw = await tools['generate_technical_report']!
-          .execute({'directory': './', 'limit': '80'});
-      final json = jsonDecode(raw) as Map<String, dynamic>;
-      final metadata = json['metadata'] as Map<String, dynamic>;
-      expect(metadata.containsKey('since'), isFalse);
-      expect(metadata.containsKey('until'), isFalse);
-    });
+    test(
+      'technical report omits since/until from metadata when not supplied',
+      () async {
+        final raw = await tools['generate_technical_report']!.execute({
+          'directory': './',
+          'limit': '80',
+        });
+        final json = jsonDecode(raw) as Map<String, dynamic>;
+        final metadata = json['metadata'] as Map<String, dynamic>;
+        expect(metadata.containsKey('since'), isFalse);
+        expect(metadata.containsKey('until'), isFalse);
+      },
+    );
 
     test('technical report rejects an invalid since value', () async {
       final raw = await tools['generate_technical_report']!.execute({

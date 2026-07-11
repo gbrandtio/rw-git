@@ -13,7 +13,8 @@ class RwHttpTransportException implements Exception {
   RwHttpTransportException(this.message, {this.originalException});
 
   @override
-  String toString() => 'RwHttpTransportException: $message'
+  String toString() =>
+      'RwHttpTransportException: $message'
       '${originalException != null ? '\nOriginal exception: $originalException' : ''}';
 }
 

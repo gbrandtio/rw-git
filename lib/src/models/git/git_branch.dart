@@ -6,13 +6,7 @@ class GitBranch {
   final String name;
   final bool isCurrent;
 
-  const GitBranch({
-    required this.name,
-    this.isCurrent = false,
-  });
+  const GitBranch({required this.name, this.isCurrent = false});
 
-  Map<String, dynamic> toJson() => {
-        'name': name,
-        'isCurrent': isCurrent,
-      };
+  Map<String, dynamic> toJson() => {'name': name, 'isCurrent': isCurrent};
 }

@@ -14,8 +14,10 @@ void main() {
     test('has valid name, description, and schema', () {
       expect(tool.name, 'calculate_universal_lexical_metrics');
       expect(tool.description, isNotEmpty);
-      expect(tool.inputSchema['required'],
-          containsAll(['directory', 'file_path']));
+      expect(
+        tool.inputSchema['required'],
+        containsAll(['directory', 'file_path']),
+      );
     });
 
     test('rejects path traversal outside directory', () async {
@@ -28,8 +30,9 @@ void main() {
     });
 
     test('returns error when file does not exist', () async {
-      final tempDir =
-          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final tempDir = Directory.systemTemp.createTempSync(
+        'lexical_metrics_test_',
+      );
       final result = await tool.execute({
         'directory': tempDir.path,
         'file_path': 'no_such_file.dart',
@@ -40,8 +43,9 @@ void main() {
     });
 
     test('returns metrics for a valid Dart file', () async {
-      final tempDir =
-          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final tempDir = Directory.systemTemp.createTempSync(
+        'lexical_metrics_test_',
+      );
       final srcFile = File('${tempDir.path}/sample.dart');
       await srcFile.writeAsString('''
 void main() {
@@ -67,8 +71,9 @@ void main() {
     });
 
     test('accepts absolute file_path within directory', () async {
-      final tempDir =
-          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final tempDir = Directory.systemTemp.createTempSync(
+        'lexical_metrics_test_',
+      );
       final srcFile = File('${tempDir.path}/abs.dart');
       await srcFile.writeAsString('void main() {}');
 
@@ -83,8 +88,9 @@ void main() {
     });
 
     test('returns npath_complexity for a valid file', () async {
-      final tempDir =
-          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final tempDir = Directory.systemTemp.createTempSync(
+        'lexical_metrics_test_',
+      );
       final srcFile = File('${tempDir.path}/sample.dart');
       await srcFile.writeAsString('''
 void foo(int x) {
@@ -109,8 +115,9 @@ void foo(int x) {
     });
 
     test('returns abc_score with assignments, branches, conditions', () async {
-      final tempDir =
-          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final tempDir = Directory.systemTemp.createTempSync(
+        'lexical_metrics_test_',
+      );
       final srcFile = File('${tempDir.path}/abc_sample.dart');
       await srcFile.writeAsString('''
 void bar(int a, int b) {
@@ -138,8 +145,9 @@ void bar(int a, int b) {
     });
 
     test('npath_complexity is 1 for a file with no branches', () async {
-      final tempDir =
-          Directory.systemTemp.createTempSync('lexical_metrics_test_');
+      final tempDir = Directory.systemTemp.createTempSync(
+        'lexical_metrics_test_',
+      );
       final srcFile = File('${tempDir.path}/simple.dart');
       await srcFile.writeAsString('void hello() { print("hi"); }');
 
