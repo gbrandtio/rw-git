@@ -27,37 +27,35 @@ class ReadReportSliceTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'file': {
-        'type': 'string',
-        'description':
-            'Absolute path to a previously offloaded report file. Must '
-            'reside within a .rw_git/reports directory.',
-      },
-      'path': {
-        'type': 'string',
-        'description':
-            'Optional dot-separated key path into the JSON (e.g. '
-            '"findings" or "summary.totals"). Omit to operate on '
-            'the root value.',
-      },
-      'offset': {
-        'type': 'integer',
-        'description':
-            'If the resolved value is an array, the start index '
-            '(default 0).',
-      },
-      'limit': {
-        'type': 'integer',
-        'description':
-            'If the resolved value is an array, the maximum '
-            'number of items to return (default $_defaultLimit, max '
-            '$_maxLimit).',
-      },
-    },
-    'required': ['file'],
-  };
+        'type': 'object',
+        'properties': {
+          'file': {
+            'type': 'string',
+            'description':
+                'Absolute path to a previously offloaded report file. Must '
+                    'reside within a .rw_git/reports directory.',
+          },
+          'path': {
+            'type': 'string',
+            'description':
+                'Optional dot-separated key path into the JSON (e.g. '
+                    '"findings" or "summary.totals"). Omit to operate on '
+                    'the root value.',
+          },
+          'offset': {
+            'type': 'integer',
+            'description': 'If the resolved value is an array, the start index '
+                '(default 0).',
+          },
+          'limit': {
+            'type': 'integer',
+            'description': 'If the resolved value is an array, the maximum '
+                'number of items to return (default $_defaultLimit, max '
+                '$_maxLimit).',
+          },
+        },
+        'required': ['file'],
+      };
 
   Map<String, dynamic>? _previewOf(dynamic value) {
     if (value is Map || value is List) {
@@ -85,8 +83,7 @@ class ReadReportSliceTool implements McpTool {
 
     if (!insideReportsDirectory) {
       return jsonEncode({
-        'error':
-            'Security violation: file must reside within a '
+        'error': 'Security violation: file must reside within a '
             '.rw_git/reports directory.',
         'file': normalizedFile,
       });

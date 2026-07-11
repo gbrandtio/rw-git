@@ -44,11 +44,14 @@ void main() {
 
   group('CodeVolatilityAlgorithm', () {
     test('calculates volatility correctly', () async {
-      mockRunner.mockResult('git', [
-        'log',
-        '--name-only',
-        '--format=AUTHOR:%an',
-      ], 'AUTHOR:Alice\nfile1.dart\nfile2.dart\nAUTHOR:Bob\nfile1.dart\n');
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '--name-only',
+            '--format=AUTHOR:%an',
+          ],
+          'AUTHOR:Alice\nfile1.dart\nfile2.dart\nAUTHOR:Bob\nfile1.dart\n');
 
       final results = await algorithm.execute('./test');
 
@@ -60,13 +63,16 @@ void main() {
     });
 
     test('respects limit', () async {
-      mockRunner.mockResult('git', [
-        'log',
-        '-n',
-        '10',
-        '--name-only',
-        '--format=AUTHOR:%an',
-      ], 'AUTHOR:Alice\nfile1.dart\n');
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '-n',
+            '10',
+            '--name-only',
+            '--format=AUTHOR:%an',
+          ],
+          'AUTHOR:Alice\nfile1.dart\n');
 
       final results = await algorithm.execute('./test', limit: '10');
 
@@ -74,23 +80,29 @@ void main() {
     });
 
     test('handles empty git log', () async {
-      mockRunner.mockResult('git', [
-        'log',
-        '--name-only',
-        '--format=AUTHOR:%an',
-      ], '');
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '--name-only',
+            '--format=AUTHOR:%an',
+          ],
+          '');
       final results = await algorithm.execute('./test');
       expect(results, isEmpty);
     });
 
     test('forwards since/until as git flags', () async {
-      mockRunner.mockResult('git', [
-        'log',
-        '--name-only',
-        '--format=AUTHOR:%an',
-        '--since=2024-01-01',
-        '--until=2024-12-31',
-      ], 'AUTHOR:Alice\nfile1.dart\n');
+      mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '--name-only',
+            '--format=AUTHOR:%an',
+            '--since=2024-01-01',
+            '--until=2024-12-31',
+          ],
+          'AUTHOR:Alice\nfile1.dart\n');
       final results = await algorithm.execute(
         './test',
         since: '2024-01-01',

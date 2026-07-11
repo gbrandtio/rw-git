@@ -96,11 +96,11 @@ void main() {
         'Already up to date.',
         '',
       );
-      final result =
-          (await rwGit.pull(
-            'my_dir',
-            extraArgs: ['origin', 'main'],
-          )).getOrThrow();
+      final result = (await rwGit.pull(
+        'my_dir',
+        extraArgs: ['origin', 'main'],
+      ))
+          .getOrThrow();
       expect(result, true);
     });
 
@@ -125,11 +125,11 @@ void main() {
         'Merge made by the \'ort\' strategy.',
         '',
       );
-      final result =
-          (await rwGit.merge(
-            'my_dir',
-            extraArgs: ['feature-branch'],
-          )).getOrThrow();
+      final result = (await rwGit.merge(
+        'my_dir',
+        extraArgs: ['feature-branch'],
+      ))
+          .getOrThrow();
       expect(result, true);
     });
 
@@ -141,11 +141,11 @@ void main() {
         'Saved working directory and index state msg',
         '',
       );
-      final result =
-          (await rwGit.stash(
-            'my_dir',
-            extraArgs: ['push', '-m', 'msg'],
-          )).getOrThrow();
+      final result = (await rwGit.stash(
+        'my_dir',
+        extraArgs: ['push', '-m', 'msg'],
+      ))
+          .getOrThrow();
       expect(result, true);
     });
 

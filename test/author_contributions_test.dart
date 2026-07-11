@@ -30,8 +30,9 @@ void main() {
 
         List<ShortLogDto> contributionsByAuthor =
             (await rwGit.contributionsByAuthor(
-              clonedFiles[0].uri.path,
-            )).getOrThrow();
+          clonedFiles[0].uri.path,
+        ))
+                .getOrThrow();
 
         expect(contributionsByAuthor.length, greaterThan(1));
         expect(contributionsByAuthor[0].numberOfContributions, greaterThan(0));
@@ -57,11 +58,11 @@ void main() {
 
       final unbounded =
           (await rwGit.contributionsByAuthor(directory)).getOrThrow();
-      final scoped =
-          (await rwGit.contributionsByAuthor(
-            directory,
-            since: '1 second ago',
-          )).getOrThrow();
+      final scoped = (await rwGit.contributionsByAuthor(
+        directory,
+        since: '1 second ago',
+      ))
+          .getOrThrow();
 
       int totalCommits(List<ShortLogDto> contributions) =>
           contributions.fold(0, (sum, c) => sum + c.numberOfContributions);

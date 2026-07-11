@@ -50,10 +50,9 @@ void main() {
     'reportAnalysisSources exactly matches the classifiers ReportOrchestrator '
     'invokes per report',
     () {
-      final source =
-          File(
-            'lib/src/mcp/reports/report_orchestrator.dart',
-          ).readAsStringSync();
+      final source = File(
+        'lib/src/mcp/reports/report_orchestrator.dart',
+      ).readAsStringSync();
 
       String methodBody(String signature) {
         final start = source.indexOf(signature);
@@ -99,14 +98,13 @@ void main() {
           expect(
             invoked,
             isDeclared,
-            reason:
-                invoked
-                    ? 'reportAnalysisSources[\'$reportType\'] is missing '
-                        '${entry.key} (its classifier, ${entry.value}, is '
-                        'invoked by this report)'
-                    : 'reportAnalysisSources[\'$reportType\'] declares '
-                        '${entry.key}, but its classifier, ${entry.value}, is '
-                        'never invoked by this report',
+            reason: invoked
+                ? 'reportAnalysisSources[\'$reportType\'] is missing '
+                    '${entry.key} (its classifier, ${entry.value}, is '
+                    'invoked by this report)'
+                : 'reportAnalysisSources[\'$reportType\'] declares '
+                    '${entry.key}, but its classifier, ${entry.value}, is '
+                    'never invoked by this report',
           );
         }
       }

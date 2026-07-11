@@ -71,20 +71,20 @@ class StandardProcessRunner implements ProcessRunner {
       final stdoutFuture = process.stdout
           .transform(const Utf8Decoder(allowMalformed: true))
           .forEach((data) {
-            stdoutBuffer.write(data);
-            if (streamOutput) {
-              stdout.write(data);
-            }
-          });
+        stdoutBuffer.write(data);
+        if (streamOutput) {
+          stdout.write(data);
+        }
+      });
 
       final stderrFuture = process.stderr
           .transform(const Utf8Decoder(allowMalformed: true))
           .forEach((data) {
-            stderrBuffer.write(data);
-            if (streamOutput) {
-              stderr.write(data);
-            }
-          });
+        stderrBuffer.write(data);
+        if (streamOutput) {
+          stderr.write(data);
+        }
+      });
 
       final exitCode = await process.exitCode;
       await Future.wait([stdoutFuture, stderrFuture]);
@@ -136,9 +136,7 @@ class StandardProcessRunner implements ProcessRunner {
 
       final stderrBuffer = StringBuffer();
       final stderrCompleter = Completer<void>();
-      process.stderr
-          .transform(const Utf8Decoder(allowMalformed: true))
-          .listen(
+      process.stderr.transform(const Utf8Decoder(allowMalformed: true)).listen(
             stderrBuffer.write,
             onDone: stderrCompleter.complete,
             onError: stderrCompleter.completeError,
@@ -191,8 +189,7 @@ class MockProcessRunner implements ProcessRunner {
   }) async {
     final key = '$executable ${arguments.join(' ')}';
 
-    final result =
-        _mockResults[key] ??
+    final result = _mockResults[key] ??
         ProcessResult(0, 1, '', 'Mock result not found for $key');
 
     if (streamOutput) {

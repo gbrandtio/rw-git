@@ -16,10 +16,9 @@ class RepoStats {
     final sorted = values.map((v) => v.toDouble()).toList()..sort();
     if (sorted.isEmpty) return 0.0;
     if (sorted.length == 1) return sorted.first;
-    final clamped =
-        p < 0
-            ? 0.0
-            : p > 1
+    final clamped = p < 0
+        ? 0.0
+        : p > 1
             ? 1.0
             : p;
     final rank = clamped * (sorted.length - 1);
@@ -35,9 +34,9 @@ class RepoStats {
 
   /// The first and third quartiles `(q1, q3)`.
   static (double, double) quartiles(Iterable<num> values) => (
-    percentile(values, 0.25),
-    percentile(values, 0.75),
-  );
+        percentile(values, 0.25),
+        percentile(values, 0.75),
+      );
 
   /// The inter-quartile range `q3 - q1`.
   static double iqr(Iterable<num> values) {

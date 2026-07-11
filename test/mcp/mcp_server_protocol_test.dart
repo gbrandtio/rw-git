@@ -34,21 +34,20 @@ void main() {
       input.add(utf8.encode('${jsonEncode(json)}\n'));
 
   Future<Map<String, dynamic>> firstResponse() async {
-    final line =
-        await output.stream
-            .transform(utf8.decoder)
-            .transform(const LineSplitter())
-            .first;
+    final line = await output.stream
+        .transform(utf8.decoder)
+        .transform(const LineSplitter())
+        .first;
     return jsonDecode(line) as Map<String, dynamic>;
   }
 
   McpServer makeServer(McpRegistry registry, {int? pageSize}) => McpServer(
-    registry: registry,
-    inputStream: input.stream,
-    outputSink: outSink,
-    errorSink: IOSink(StreamController<List<int>>().sink),
-    toolsPageSize: pageSize,
-  );
+        registry: registry,
+        inputStream: input.stream,
+        outputSink: outSink,
+        errorSink: IOSink(StreamController<List<int>>().sink),
+        toolsPageSize: pageSize,
+      );
 
   test('initialize echoes a supported requested protocol version', () async {
     makeServer(McpRegistry()).start();
@@ -62,7 +61,8 @@ void main() {
     expect(res['result']['protocolVersion'], '2024-11-05');
   });
 
-  test('unrecognized notification (no id) is silently dropped, not replied '
+  test(
+      'unrecognized notification (no id) is silently dropped, not replied '
       'to with id: null', () async {
     makeServer(McpRegistry()).start();
     send({'jsonrpc': '2.0', 'method': 'notifications/roots/list_changed'});
@@ -164,20 +164,21 @@ void main() {
     return firstResponse();
   }
 
-  test('tools/call returns structuredContent alongside text when the tool '
+  test(
+      'tools/call returns structuredContent alongside text when the tool '
       'advertises an outputSchema (MCP 2025-06-18)', () async {
-    final registry =
-        McpRegistry()..registerTool(
-          McpToolWithMetadata(
-            _JsonPayloadTool(),
-            outputSchema: {
-              'type': 'object',
-              'properties': {
-                'answer': {'type': 'integer'},
-              },
+    final registry = McpRegistry()
+      ..registerTool(
+        McpToolWithMetadata(
+          _JsonPayloadTool(),
+          outputSchema: {
+            'type': 'object',
+            'properties': {
+              'answer': {'type': 'integer'},
             },
-          ),
-        );
+          },
+        ),
+      );
 
     final res = await callTool(registry, 'json_payload');
     final result = res['result'] as Map<String, dynamic>;
@@ -200,18 +201,19 @@ void main() {
     },
   );
 
-  test('tools/call omits structuredContent for non-object output even when a '
+  test(
+      'tools/call omits structuredContent for non-object output even when a '
       'schema is declared', () async {
-    final registry =
-        McpRegistry()..registerTool(
-          McpToolWithMetadata(
-            _MarkdownTool(),
-            outputSchema: const {
-              'type': 'object',
-              'properties': <String, dynamic>{},
-            },
-          ),
-        );
+    final registry = McpRegistry()
+      ..registerTool(
+        McpToolWithMetadata(
+          _MarkdownTool(),
+          outputSchema: const {
+            'type': 'object',
+            'properties': <String, dynamic>{},
+          },
+        ),
+      );
 
     final res = await callTool(registry, 'markdown_tool');
     final result = res['result'] as Map<String, dynamic>;

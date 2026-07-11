@@ -50,11 +50,11 @@ void main() async {
   print("Modified Status - Untracked files: ${status.untrackedFiles.length}\n");
 
   // 4. Show: View the HEAD commit details
-  GitCommit headCommit =
-      (await rwGit.show(
-        localDirectoryToCloneInto,
-        extraArgs: ["HEAD"],
-      )).getOrThrow();
+  GitCommit headCommit = (await rwGit.show(
+    localDirectoryToCloneInto,
+    extraArgs: ["HEAD"],
+  ))
+      .getOrThrow();
   print("HEAD Commit Details:");
   print("  Hash: ${headCommit.hash}");
   print("  Author: ${headCommit.authorName} <${headCommit.authorEmail}>");
@@ -72,22 +72,23 @@ void main() async {
     // 6. Get the commits between two tags
     List<GitCommit> listOfCommitsBetweenTwoTags =
         (await rwGit.getCommitsBetween(
-          localDirectoryToCloneInto,
-          oldTag,
-          newTag,
-        )).getOrThrow();
+      localDirectoryToCloneInto,
+      oldTag,
+      newTag,
+    ))
+            .getOrThrow();
     print(
       "Number of commits between $oldTag and $newTag: ${listOfCommitsBetweenTwoTags.length}\n",
     );
 
     // 7. Retrieve lines of code inserted, deleted and number of changed files
     // between two tags.
-    ShortStatDto shortStatDto =
-        (await rwGit.stats(
-          localDirectoryToCloneInto,
-          oldTag,
-          newTag,
-        )).getOrThrow();
+    ShortStatDto shortStatDto = (await rwGit.stats(
+      localDirectoryToCloneInto,
+      oldTag,
+      newTag,
+    ))
+        .getOrThrow();
     print('Number of lines inserted: ${shortStatDto.insertions}');
     print('Number of lines deleted: ${shortStatDto.deletions}');
     print('Number of files changed: ${shortStatDto.numberOfChangedFiles}\n');

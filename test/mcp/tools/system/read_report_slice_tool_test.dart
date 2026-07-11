@@ -139,7 +139,8 @@ void main() {
       expect(result['error'], contains('Security violation'));
     });
 
-    test('rejects paths containing .rw_git and reports as non-adjacent '
+    test(
+        'rejects paths containing .rw_git and reports as non-adjacent '
         'components', () async {
       final decoyDir = Directory(
         p.join(tempDir.path, 'reports', '.rw_git', 'other'),

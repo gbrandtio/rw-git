@@ -20,15 +20,15 @@ class FetchTagsTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local directory containing the git repository.',
-      },
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local directory containing the git repository.',
+          },
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

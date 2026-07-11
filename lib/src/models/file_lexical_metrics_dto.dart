@@ -39,12 +39,12 @@ class FileLexicalMetricsDto {
   });
 
   Map<String, dynamic> toJson() => {
-    'file_path': filePath,
-    'cyclomatic_complexity': cyclomaticComplexity,
-    'maintainability_index': maintainabilityIndex,
-    'abc_score': abcScore,
-    'npath_complexity': npathComplexity,
-    'cognitive_complexity': cognitiveComplexity,
-    'halstead_delivered_bugs': halsteadDeliveredBugs,
-  };
+        'file_path': filePath,
+        'cyclomatic_complexity': cyclomaticComplexity,
+        'maintainability_index': maintainabilityIndex,
+        'abc_score': abcScore,
+        'npath_complexity': npathComplexity,
+        'cognitive_complexity': cognitiveComplexity,
+        'halstead_delivered_bugs': halsteadDeliveredBugs,
+      };
 }

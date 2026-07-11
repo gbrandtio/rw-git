@@ -24,10 +24,10 @@ class McpToolHintsDecorator implements McpTool {
   final AnalysisType analysisType;
 
   McpToolHintsDecorator(this._inner, this.analysisType)
-    : assert(
-        analysisHintsCatalog.containsKey(analysisType),
-        '${_inner.name} (mapped to $analysisType) has no analysisHintsCatalog entry to inject',
-      );
+      : assert(
+          analysisHintsCatalog.containsKey(analysisType),
+          '${_inner.name} (mapped to $analysisType) has no analysisHintsCatalog entry to inject',
+        );
 
   @override
   String get name => _inner.name;
@@ -68,10 +68,9 @@ class McpToolHintsDecorator implements McpTool {
   /// overwrites the other. Duplicate strings are collapsed.
   ToolHints _merge(dynamic existing, ToolHints catalogHints) {
     List<String> category(String key, List<String> catalogList) {
-      final ownList =
-          existing is Map && existing[key] is List
-              ? [...(existing[key] as List).whereType<String>()]
-              : const <String>[];
+      final ownList = existing is Map && existing[key] is List
+          ? [...(existing[key] as List).whereType<String>()]
+          : const <String>[];
       return {...ownList, ...catalogList}.toList();
     }
 

@@ -18,10 +18,9 @@ class InitializeRule implements McpRule {
     // Echo the client's protocol version when we support it; otherwise fall
     // back to our latest implemented revision.
     final requested = params['protocolVersion'] as String?;
-    final version =
-        supportedMcpProtocolVersions.contains(requested)
-            ? requested!
-            : mcpProtocolVersion;
+    final version = supportedMcpProtocolVersions.contains(requested)
+        ? requested!
+        : mcpProtocolVersion;
     ctx.sendResponse(id, {
       'protocolVersion': version,
       'capabilities': {

@@ -22,20 +22,20 @@ class AnalyzeRefactoringTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local repository path.',
-      },
-      'limit': {
-        'type': 'number',
-        'description':
-            'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
-      },
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local repository path.',
+          },
+          'limit': {
+            'type': 'number',
+            'description':
+                'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
+          },
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {

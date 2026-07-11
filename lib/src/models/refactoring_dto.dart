@@ -8,7 +8,7 @@ class RefactoringDto {
   final int linesInserted;
   final int linesDeleted;
   final bool
-  isSimplification; // True if significantly more lines deleted than inserted
+      isSimplification; // True if significantly more lines deleted than inserted
 
   RefactoringDto({
     required this.commitHash,

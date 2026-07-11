@@ -88,8 +88,7 @@ void _printReport(
   Scorecard baseline,
   Scorecard meta,
 ) {
-  String row(Scorecard s) =>
-      '${s.hopsToReport.toString().padLeft(8)}'
+  String row(Scorecard s) => '${s.hopsToReport.toString().padLeft(8)}'
       '${s.toolCalls.toString().padLeft(12)}'
       '${s.followupReads.toString().padLeft(12)}'
       '${s.estimatedTokens.toString().padLeft(12)}'

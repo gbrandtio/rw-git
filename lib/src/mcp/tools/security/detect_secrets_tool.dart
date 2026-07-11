@@ -16,35 +16,32 @@ class DetectSecretsTool implements McpTool {
   String get name => 'detect_secrets_in_commits';
 
   @override
-  String get description =>
-      'Scans commit deltas (or entire branches) using '
+  String get description => 'Scans commit deltas (or entire branches) using '
       'Isolates for exposed secrets, API keys, or sensitive credentials '
       'before they are pushed or merged. Returns a list of detected secrets '
       'with commit hashes and file names.';
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The absolute path to the local git repository.',
-      },
-      'limit': {
-        'type': 'string',
-        'description':
-            'Optional. The number of commits to scan (e.g. "10"). '
-            'Defaults to $defaultCommitLimit. If omitted, scans up to the limit of the given branch.',
-      },
-      'branch': {
-        'type': 'string',
-        'description':
-            'Optional. The branch or commit range to scan. '
-            'If omitted, scans the current HEAD.',
-      },
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The absolute path to the local git repository.',
+          },
+          'limit': {
+            'type': 'string',
+            'description': 'Optional. The number of commits to scan (e.g. "10"). '
+                'Defaults to $defaultCommitLimit. If omitted, scans up to the limit of the given branch.',
+          },
+          'branch': {
+            'type': 'string',
+            'description': 'Optional. The branch or commit range to scan. '
+                'If omitted, scans the current HEAD.',
+          },
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -71,8 +68,7 @@ class DetectSecretsTool implements McpTool {
 
     return jsonEncode({
       'secrets_found': secrets.length,
-      'message':
-          'WARNING: Potential secrets exposed in commit history! '
+      'message': 'WARNING: Potential secrets exposed in commit history! '
           'Values are redacted. Review each finding immediately.',
       'findings': secrets,
     });

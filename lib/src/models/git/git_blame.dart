@@ -10,6 +10,6 @@ class GitBlame {
   const GitBlame({this.lines = const []});
 
   Map<String, dynamic> toJson() => {
-    'lines': lines.map((e) => e.toJson()).toList(),
-  };
+        'lines': lines.map((e) => e.toJson()).toList(),
+      };
 }

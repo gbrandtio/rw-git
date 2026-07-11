@@ -21,29 +21,27 @@ class GetContributionsByAuthorTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local directory containing the git repository.',
-      },
-      'since': {
-        'type': 'string',
-        'description':
-            'Only commits after this date (e.g. '
-            '"2024-01-01") — accepts ISO-8601 dates or git relative '
-            'phrases (e.g. "6 months ago").',
-      },
-      'until': {
-        'type': 'string',
-        'description':
-            'Only commits before this date (e.g. '
-            '"2024-12-31") — accepts ISO-8601 dates or git relative '
-            'phrases (e.g. "yesterday").',
-      },
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local directory containing the git repository.',
+          },
+          'since': {
+            'type': 'string',
+            'description': 'Only commits after this date (e.g. '
+                '"2024-01-01") — accepts ISO-8601 dates or git relative '
+                'phrases (e.g. "6 months ago").',
+          },
+          'until': {
+            'type': 'string',
+            'description': 'Only commits before this date (e.g. '
+                '"2024-12-31") — accepts ISO-8601 dates or git relative '
+                'phrases (e.g. "yesterday").',
+          },
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -53,35 +51,32 @@ class GetContributionsByAuthorTool implements McpTool {
 
     if (since != null && !isValidDateInput(since)) {
       return jsonEncode({
-        'error':
-            'Invalid "since" value. Use ISO-8601 (e.g. "2024-01-01") '
+        'error': 'Invalid "since" value. Use ISO-8601 (e.g. "2024-01-01") '
             'or a git relative date (e.g. "2 weeks ago").',
       });
     }
     if (until != null && !isValidDateInput(until)) {
       return jsonEncode({
-        'error':
-            'Invalid "until" value. Use ISO-8601 (e.g. "2024-12-31") '
+        'error': 'Invalid "until" value. Use ISO-8601 (e.g. "2024-12-31") '
             'or a git relative date (e.g. "1 month ago").',
       });
     }
 
-    final contributions =
-        (await rwGit.contributionsByAuthor(
-          localDir,
-          since: since,
-          until: until,
-        )).getOrThrow();
+    final contributions = (await rwGit.contributionsByAuthor(
+      localDir,
+      since: since,
+      until: until,
+    ))
+        .getOrThrow();
     return jsonEncode({
-      'contributions':
-          contributions
-              .map(
-                (c) => {
-                  'authorName': c.authorName,
-                  'numberOfContributions': c.numberOfContributions,
-                },
-              )
-              .toList(),
+      'contributions': contributions
+          .map(
+            (c) => {
+              'authorName': c.authorName,
+              'numberOfContributions': c.numberOfContributions,
+            },
+          )
+          .toList(),
     });
   }
 }

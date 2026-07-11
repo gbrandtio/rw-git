@@ -43,20 +43,23 @@ enum McpLogLevel {
   /// The equivalent `dart:developer` numeric level (package:logging scale),
   /// so IDE log views keep ranking severities correctly.
   int get developerLogLevel => switch (this) {
-    McpLogLevel.debug => 500,
-    McpLogLevel.info => 800,
-    McpLogLevel.notice => 850,
-    McpLogLevel.warning => 900,
-    McpLogLevel.error => 1000,
-    McpLogLevel.critical || McpLogLevel.alert || McpLogLevel.emergency => 1200,
-  };
+        McpLogLevel.debug => 500,
+        McpLogLevel.info => 800,
+        McpLogLevel.notice => 850,
+        McpLogLevel.warning => 900,
+        McpLogLevel.error => 1000,
+        McpLogLevel.critical ||
+        McpLogLevel.alert ||
+        McpLogLevel.emergency =>
+          1200,
+      };
 }
 
 /// Receives every structured log event, regardless of level; the listener
 /// decides what to forward (the MCP server applies the host-selected
 /// minimum level there).
-typedef RwGitLogListener =
-    void Function(McpLogLevel level, String message, Object? error);
+typedef RwGitLogListener = void Function(
+    McpLogLevel level, String message, Object? error);
 
 /// Process-wide logging facade. A singleton (rather than injection into
 /// every `GitCommand`) keeps the logging concern out of dozens of

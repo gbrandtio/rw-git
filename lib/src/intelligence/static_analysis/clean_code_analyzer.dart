@@ -34,10 +34,9 @@ class CleanCodeAnalyzer {
   ) async {
     if (sources.isEmpty) return const [];
     return Isolate.run(
-      () =>
-          sources.entries
-              .map((entry) => analyzeSource(entry.key, entry.value))
-              .toList(),
+      () => sources.entries
+          .map((entry) => analyzeSource(entry.key, entry.value))
+          .toList(),
     );
   }
 
@@ -45,10 +44,9 @@ class CleanCodeAnalyzer {
     // Mirror `File.readAsLines` semantics: normalise CRLF and do not count
     // a trailing newline as an extra empty line.
     final normalized = source.replaceAll('\r\n', '\n');
-    final trimmed =
-        normalized.endsWith('\n')
-            ? normalized.substring(0, normalized.length - 1)
-            : normalized;
+    final trimmed = normalized.endsWith('\n')
+        ? normalized.substring(0, normalized.length - 1)
+        : normalized;
     final lines = trimmed.split('\n');
     final totalLines = lines.length;
 

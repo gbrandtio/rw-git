@@ -13,7 +13,7 @@ class ShortStatDto {
     this.deletions,
   );
   const ShortStatDto.defaultStats()
-    : numberOfChangedFiles = -1,
-      deletions = -1,
-      insertions = -1;
+      : numberOfChangedFiles = -1,
+        deletions = -1,
+        insertions = -1;
 }

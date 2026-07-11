@@ -18,10 +18,10 @@ class GitCommit {
   });
 
   Map<String, dynamic> toJson() => {
-    'hash': hash,
-    'authorName': authorName,
-    'authorEmail': authorEmail,
-    'date': date,
-    'message': message,
-  };
+        'hash': hash,
+        'authorName': authorName,
+        'authorEmail': authorEmail,
+        'date': date,
+        'message': message,
+      };
 }

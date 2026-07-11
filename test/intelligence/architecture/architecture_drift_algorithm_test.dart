@@ -36,8 +36,7 @@ void main() {
   test(
     'flags commits spanning multiple layers and builds the matrix',
     () async {
-      const log =
-          'aaa||cross-layer change\n'
+      const log = 'aaa||cross-layer change\n'
           'ui/screen.dart\n'
           'data/repo.dart\n'
           '\n'
@@ -73,10 +72,10 @@ void main() {
     expect(drift.smells, isEmpty);
   });
 
-  test('God Component: a layer in more than half of drift commits '
+  test(
+      'God Component: a layer in more than half of drift commits '
       '(Garcia et al. 2009)', () async {
-    const log =
-        'aaa||one\nui/a.dart\ndata/b.dart\n\n'
+    const log = 'aaa||one\nui/a.dart\ndata/b.dart\n\n'
         'bbb||two\nui/c.dart\ndomain/d.dart\n\n'
         'ccc||three\nui/e.dart\ninfra/f.dart\n';
     final drift = await ArchitectureDriftAlgorithm(

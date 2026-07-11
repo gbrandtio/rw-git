@@ -32,10 +32,9 @@ class LexicalMetricsRunner {
         tokens,
         activeProfile,
       ),
-      maintainabilityIndex:
-          MaintainabilityIndexAlgorithm()
-              .calculate(tokens, activeProfile)
-              .score,
+      maintainabilityIndex: MaintainabilityIndexAlgorithm()
+          .calculate(tokens, activeProfile)
+          .score,
       abcScore: AbcScoreAlgorithm().calculate(tokens, activeProfile).score,
       npathComplexity: NpathComplexityAlgorithm().calculate(
         tokens,
@@ -45,10 +44,9 @@ class LexicalMetricsRunner {
         tokens,
         activeProfile,
       ),
-      halsteadDeliveredBugs:
-          HalsteadComplexityAlgorithm()
-              .calculate(tokens, activeProfile)
-              .deliveredBugs,
+      halsteadDeliveredBugs: HalsteadComplexityAlgorithm()
+          .calculate(tokens, activeProfile)
+          .deliveredBugs,
     );
   }
 }

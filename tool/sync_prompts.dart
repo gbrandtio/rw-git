@@ -54,8 +54,7 @@ void main(List<String> args) {
       withIncludes,
       (directive, reportType) => switch (directive) {
         'deep_dive_tools' => renderDeepDiveTools(reportType),
-        _ =>
-          throw FormatException(
+        _ => throw FormatException(
             'Unknown generate directive: '
             '$directive',
           ),
@@ -92,8 +91,7 @@ void main(List<String> args) {
       // Format-independent comparison: the on-disk prompt is in sync if its
       // name, description, and body match the canonical expanded template.
       final onDisk = extractFromPromptSource(promptFile.readAsStringSync());
-      final inSync =
-          onDisk.name == doc.name &&
+      final inSync = onDisk.name == doc.name &&
           onDisk.description == doc.description &&
           onDisk.body.trimRight() == doc.body.trimRight();
       if (!inSync) {

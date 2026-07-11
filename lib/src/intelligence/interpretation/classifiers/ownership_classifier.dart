@@ -77,15 +77,13 @@ class OwnershipClassifier {
 
       // Bird's second finding: many minor contributors predict defects
       // independently of who the majority owner is.
-      final minorContributors =
-          stats.authors.entries
-              .where(
-                (author) =>
-                    author.value / stats.total <
-                    birdMinorContributorShareThreshold,
-              )
-              .map((author) => author.key)
-              .toList();
+      final minorContributors = stats.authors.entries
+          .where(
+            (author) =>
+                author.value / stats.total < birdMinorContributorShareThreshold,
+          )
+          .map((author) => author.key)
+          .toList();
       if (minorContributors.length >= birdMinorContributorMinimumCount) {
         findings.add(
           Finding(
@@ -95,15 +93,13 @@ class OwnershipClassifier {
             subject: normalized,
             metric: 'minor_contributor_count',
             value: minorContributors.length,
-            band:
-                '>= $birdMinorContributorMinimumCount contributors below '
+            band: '>= $birdMinorContributorMinimumCount contributors below '
                 '${(birdMinorContributorShareThreshold * 100).round()}% share',
             evidence: {
               'minor_contributor_count': minorContributors.length,
-              'minor_contributors_sample':
-                  minorContributors
-                      .take(aggregateFindingEvidenceSampleSize)
-                      .toList(),
+              'minor_contributors_sample': minorContributors
+                  .take(aggregateFindingEvidenceSampleSize)
+                  .toList(),
               'total_authors': stats.authors.length,
             },
           ),

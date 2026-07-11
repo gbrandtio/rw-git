@@ -20,34 +20,33 @@ class AnalyzeLogicalCouplingTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local repository path.',
-      },
-      'limit': {
-        'type': 'number',
-        'description':
-            'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
-      },
-      'min_co_changes': {
-        'type': 'number',
-        'description':
-            'Minimum number of times two files must change together to be reported (default: 3).',
-      },
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local repository path.',
+          },
+          'limit': {
+            'type': 'number',
+            'description':
+                'Maximum number of recent commits to analyze (default: $defaultCommitLimit).',
+          },
+          'min_co_changes': {
+            'type': 'number',
+            'description':
+                'Minimum number of times two files must change together to be reported (default: 3).',
+          },
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final directory = arguments.getStringArgument('directory');
     final limit = arguments['limit']?.toString() ?? defaultCommitLimit;
-    final minCoChanges =
-        arguments['min_co_changes'] != null
-            ? int.tryParse(arguments['min_co_changes'].toString()) ?? 3
-            : 3;
+    final minCoChanges = arguments['min_co_changes'] != null
+        ? int.tryParse(arguments['min_co_changes'].toString()) ?? 3
+        : 3;
 
     final algo = LogicalCouplingAlgorithm(runner);
     final results = await algo.execute(

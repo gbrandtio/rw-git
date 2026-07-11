@@ -58,27 +58,25 @@ class EvaluateCommentsTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local repository path.',
-      },
-      'limit': {
-        'type': 'number',
-        'description':
-            'Number of commits to retrieve for comment '
-            'evaluation (default: $defaultCommitLimit).',
-      },
-      'aspects': {
-        'type': 'string',
-        'description':
-            'Optional. Comma-separated aspects to evaluate: '
-            'quality, necessity, llm_generation. Defaults to all.',
-      },
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local repository path.',
+          },
+          'limit': {
+            'type': 'number',
+            'description': 'Number of commits to retrieve for comment '
+                'evaluation (default: $defaultCommitLimit).',
+          },
+          'aspects': {
+            'type': 'string',
+            'description': 'Optional. Comma-separated aspects to evaluate: '
+                'quality, necessity, llm_generation. Defaults to all.',
+          },
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -93,8 +91,7 @@ class EvaluateCommentsTool implements McpTool {
     if (changedComments.isEmpty) {
       return jsonEncode({
         'status': 'no_comments_found',
-        'message':
-            'No comments found in the added/modified lines for the last '
+        'message': 'No comments found in the added/modified lines for the last '
             '$limit commits (excluding doc-only PRs).',
       });
     }
@@ -108,12 +105,11 @@ class EvaluateCommentsTool implements McpTool {
 
   List<String> _parseAspects(String? raw) {
     if (raw == null || raw.trim().isEmpty) return aspectCriteria.keys.toList();
-    final requested =
-        raw
-            .split(',')
-            .map((e) => e.trim().toLowerCase())
-            .where(aspectCriteria.containsKey)
-            .toList();
+    final requested = raw
+        .split(',')
+        .map((e) => e.trim().toLowerCase())
+        .where(aspectCriteria.containsKey)
+        .toList();
     return requested.isEmpty ? aspectCriteria.keys.toList() : requested;
   }
 }

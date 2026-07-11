@@ -34,12 +34,12 @@ class ArchitectureDriftDto {
 
   /// An analysis over an empty history window: nothing to report.
   const ArchitectureDriftDto.empty()
-    : totalCommitsAnalyzed = 0,
-      driftCommits = const [],
-      couplingMatrix = const {},
-      couplingRatio = 0,
-      couplingDensity = 0,
-      smells = const [];
+      : totalCommitsAnalyzed = 0,
+        driftCommits = const [],
+        couplingMatrix = const {},
+        couplingRatio = 0,
+        couplingDensity = 0,
+        smells = const [];
 }
 
 /// One commit that modified more than one architectural layer.
@@ -55,10 +55,10 @@ class DriftCommit {
   });
 
   Map<String, dynamic> toJson() => {
-    'hash': hash,
-    'message': message,
-    'layers_coupled': layersCoupled,
-  };
+        'hash': hash,
+        'message': message,
+        'layers_coupled': layersCoupled,
+      };
 }
 
 /// One detected architectural smell (Garcia, Oliveira & Murta 2009):
@@ -84,9 +84,9 @@ class ArchitecturalSmell {
   });
 
   Map<String, dynamic> toJson() => {
-    'type': type,
-    if (layer != null) 'layer': layer,
-    if (count != null) 'count': count,
-    'description': description,
-  };
+        'type': type,
+        if (layer != null) 'layer': layer,
+        if (count != null) 'count': count,
+        'description': description,
+      };
 }

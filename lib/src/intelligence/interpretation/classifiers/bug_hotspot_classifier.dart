@@ -59,10 +59,9 @@ class BugHotspotClassifier {
       if (severity == timeSeverity && timeSeverity.rank >= countSeverity.rank) {
         metric = 'file_average_bug_lifetime_in_days';
         value = lifetimeDays;
-        band =
-            timeSeverity == Severity.critical
-                ? '> 2x global average bug lifetime'
-                : '1-2x global average bug lifetime';
+        band = timeSeverity == Severity.critical
+            ? '> 2x global average bug lifetime'
+            : '1-2x global average bug lifetime';
       } else {
         metric = 'bug_introductions';
         value = count;

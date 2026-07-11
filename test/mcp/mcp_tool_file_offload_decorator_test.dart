@@ -15,12 +15,12 @@ class MockTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {'type': 'string', 'description': 'The repo directory.'},
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {'type': 'string', 'description': 'The repo directory.'},
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -42,12 +42,12 @@ class MockSmallTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {'type': 'string', 'description': 'The repo directory.'},
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {'type': 'string', 'description': 'The repo directory.'},
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -66,12 +66,12 @@ class MockFindingsTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {'type': 'string', 'description': 'The repo directory.'},
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {'type': 'string', 'description': 'The repo directory.'},
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -83,8 +83,7 @@ class MockFindingsTool implements McpTool {
           'subject': 'lib/x.dart',
           'message': 'bad',
           'basis': 'Churn (Nagappan & Ball 2005)',
-          'rationale':
-              'Churn predicts defect density (Nagappan & Ball, '
+          'rationale': 'Churn predicts defect density (Nagappan & Ball, '
               'ICSE 2005).',
         },
       ],
@@ -105,12 +104,12 @@ class MockHintedTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {'type': 'string'},
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {'type': 'string'},
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -134,12 +133,12 @@ class MockStructuredTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {'type': 'string'},
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {'type': 'string'},
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -390,7 +389,8 @@ void main() {
       },
     );
 
-    test('per-tool threshold: a lower gate offloads payloads the global '
+    test(
+        'per-tool threshold: a lower gate offloads payloads the global '
         'default would keep inline', () async {
       // MockSmallTool's payload is well under the 8 KiB global default, so a
       // decorator with a 16-byte gate must offload it: the per-tool value,
@@ -400,17 +400,16 @@ void main() {
         offloadThresholdBytes: 16,
       );
 
-      final result =
-          jsonDecode(
-                await aggressiveDecorator.execute({'directory': tempDir.path}),
-              )
-              as Map<String, dynamic>;
+      final result = jsonDecode(
+        await aggressiveDecorator.execute({'directory': tempDir.path}),
+      ) as Map<String, dynamic>;
 
       expect(result['status'], equals('success'));
       expect(result['file'], isNotNull);
     });
 
-    test('per-tool threshold: a higher gate keeps payloads inline that the '
+    test(
+        'per-tool threshold: a higher gate keeps payloads inline that the '
         'global default would offload', () async {
       // MockTool's ~9 KB payload exceeds the 8 KiB global default but not a
       // 32 KiB per-tool gate, so it must be returned inline.
@@ -462,7 +461,8 @@ void main() {
       expect(preview.containsKey('value_types'), isFalse);
     });
 
-    test('preview carries all hints uncapped, caveats first, then pair_with, '
+    test(
+        'preview carries all hints uncapped, caveats first, then pair_with, '
         'then interpretation', () async {
       final hintedDecorator = McpToolFileOffloadDecorator(MockHintedTool());
 

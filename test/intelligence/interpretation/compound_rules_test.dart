@@ -9,23 +9,23 @@ void main() {
   const correlator = CompoundFindingCorrelator();
 
   List<Finding> lexicalHigh(String subject) => fc.fromLexicalMetrics([
-    FileLexicalMetricsDto(
-      filePath: subject,
-      cyclomaticComplexity: 30,
-      maintainabilityIndex: 90,
-      abcScore: 0,
-      npathComplexity: 1,
-      cognitiveComplexity: 0,
-      halsteadDeliveredBugs: 0,
-    ),
-  ]);
+        FileLexicalMetricsDto(
+          filePath: subject,
+          cyclomaticComplexity: 30,
+          maintainabilityIndex: 90,
+          abcScore: 0,
+          npathComplexity: 1,
+          cognitiveComplexity: 0,
+          halsteadDeliveredBugs: 0,
+        ),
+      ]);
 
   List<Finding> churnOn(String subject) => fc.fromChurn(
-    ChurnMetricsDto(
-      fileChurn: {subject: 10, 'a': 1, 'b': 1, 'c': 1},
-      totalCommits: 13,
-    ),
-  );
+        ChurnMetricsDto(
+          fileChurn: {subject: 10, 'a': 1, 'b': 1, 'c': 1},
+          totalCommits: 13,
+        ),
+      );
 
   test(
     'Rule 5: high McCabe complexity + churn on the same file is Critical',
@@ -47,9 +47,10 @@ void main() {
   test('Rule 5 requires the same subject and at least High severity', () {
     // Different files: no compound.
     expect(
-      correlator
-          .correlate([...lexicalHigh('lib/x.dart'), ...churnOn('lib/y.dart')])
-          .where((c) => c.metric == 'real_complexity_x_churn'),
+      correlator.correlate([
+        ...lexicalHigh('lib/x.dart'),
+        ...churnOn('lib/y.dart')
+      ]).where((c) => c.metric == 'real_complexity_x_churn'),
       isEmpty,
     );
 
@@ -66,9 +67,8 @@ void main() {
       ),
     ]);
     expect(
-      correlator
-          .correlate([...elevatedOnly, ...churnOn('lib/x.dart')])
-          .where((c) => c.metric == 'real_complexity_x_churn'),
+      correlator.correlate([...elevatedOnly, ...churnOn('lib/x.dart')]).where(
+          (c) => c.metric == 'real_complexity_x_churn'),
       isEmpty,
     );
   });

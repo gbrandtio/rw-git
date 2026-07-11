@@ -4,7 +4,7 @@ class LogicalCouplingDto {
   final String fileB;
   final int coChangeCount;
   final double
-  confidence; // optional: how often A changes when B changes (or vice versa)
+      confidence; // optional: how often A changes when B changes (or vice versa)
 
   LogicalCouplingDto({
     required this.fileA,

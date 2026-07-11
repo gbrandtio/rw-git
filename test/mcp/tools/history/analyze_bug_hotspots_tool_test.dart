@@ -70,10 +70,13 @@ void main() {
       '0123456789abcdef0123456789abcdef01234567\tFixer\tfixer@author.com\t2023-01-02T12:00:00Z\tfix: fixed a critical bug\n',
     );
 
-    runner.mockResult('git', [
-      'rev-parse',
-      '0123456789abcdef0123456789abcdef01234567^',
-    ], '1111222233334444555566667777888899990000\n');
+    runner.mockResult(
+        'git',
+        [
+          'rev-parse',
+          '0123456789abcdef0123456789abcdef01234567^',
+        ],
+        '1111222233334444555566667777888899990000\n');
 
     runner.mockResult(
       'git',

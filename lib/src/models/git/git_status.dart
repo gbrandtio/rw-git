@@ -16,8 +16,8 @@ class GitStatus {
   });
 
   Map<String, dynamic> toJson() => {
-    'stagedChanges': stagedChanges.map((e) => e.toJson()).toList(),
-    'unstagedChanges': unstagedChanges.map((e) => e.toJson()).toList(),
-    'untrackedFiles': untrackedFiles,
-  };
+        'stagedChanges': stagedChanges.map((e) => e.toJson()).toList(),
+        'unstagedChanges': unstagedChanges.map((e) => e.toJson()).toList(),
+        'untrackedFiles': untrackedFiles,
+      };
 }

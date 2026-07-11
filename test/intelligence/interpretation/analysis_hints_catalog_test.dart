@@ -59,8 +59,7 @@ void main() {
       expect(
         registeredToolNames.contains(name),
         isTrue,
-        reason:
-            "analysisHintsCatalog has an entry for '$type', which is not "
+        reason: "analysisHintsCatalog has an entry for '$type', which is not "
             'a registered tool name',
       );
     }
@@ -73,8 +72,7 @@ void main() {
         expect(
           analysisHintsCatalog.containsKey(type),
           isFalse,
-          reason:
-              "'$name' has no academic basis and should not carry "
+          reason: "'$name' has no academic basis and should not carry "
               'invented hints',
         );
       }

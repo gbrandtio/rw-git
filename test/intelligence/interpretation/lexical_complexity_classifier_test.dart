@@ -19,15 +19,16 @@ void main() {
     int npath = 1,
     int cognitive = 0,
     double deliveredBugs = 0,
-  }) => FileLexicalMetricsDto(
-    filePath: path,
-    cyclomaticComplexity: cc,
-    maintainabilityIndex: mi,
-    abcScore: abc,
-    npathComplexity: npath,
-    cognitiveComplexity: cognitive,
-    halsteadDeliveredBugs: deliveredBugs,
-  );
+  }) =>
+      FileLexicalMetricsDto(
+        filePath: path,
+        cyclomaticComplexity: cc,
+        maintainabilityIndex: mi,
+        abcScore: abc,
+        npathComplexity: npath,
+        cognitiveComplexity: cognitive,
+        halsteadDeliveredBugs: deliveredBugs,
+      );
 
   test('McCabe bands: >50 critical, 21-50 high, 11-20 elevated, <=10 skip', () {
     final findings = fc.fromLexicalMetrics([
@@ -105,7 +106,8 @@ void main() {
     },
   );
 
-  test('Halstead delivered-bugs band: >2.0 elevated, <=2.0 skip '
+  test(
+      'Halstead delivered-bugs band: >2.0 elevated, <=2.0 skip '
       '(Halstead 1977)', () {
     final findings = fc.fromLexicalMetrics([
       metrics('lib/buggy_estimate.dart', 5, 95, deliveredBugs: 2.1),

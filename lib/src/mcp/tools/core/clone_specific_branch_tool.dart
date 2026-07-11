@@ -20,35 +20,35 @@ class CloneSpecificBranchTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local directory to clone the repository into.',
-      },
-      'repository': {
-        'type': 'string',
-        'description': 'The remote repository URL.',
-      },
-      'branchToCheckout': {
-        'type': 'string',
-        'description': 'The name of the branch to checkout.',
-      },
-    },
-    'required': ['directory', 'repository', 'branchToCheckout'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local directory to clone the repository into.',
+          },
+          'repository': {
+            'type': 'string',
+            'description': 'The remote repository URL.',
+          },
+          'branchToCheckout': {
+            'type': 'string',
+            'description': 'The name of the branch to checkout.',
+          },
+        },
+        'required': ['directory', 'repository', 'branchToCheckout'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
     final localDir = arguments.getStringArgument('directory');
     final repoUrl = arguments.getStringArgument('repository');
     final branch = arguments.getStringArgument('branchToCheckout');
-    final result =
-        (await rwGit.cloneSpecificBranch(
-          localDir,
-          repoUrl,
-          branch,
-        )).getOrThrow();
+    final result = (await rwGit.cloneSpecificBranch(
+      localDir,
+      repoUrl,
+      branch,
+    ))
+        .getOrThrow();
     return jsonEncode({'success': result});
   }
 }

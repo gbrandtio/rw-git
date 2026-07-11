@@ -42,8 +42,7 @@ void main() {
       expect(
         bytes,
         lessThan(budgetBytes),
-        reason:
-            'tools/list grew to $bytes bytes (budget $budgetBytes). '
+        reason: 'tools/list grew to $bytes bytes (budget $budgetBytes). '
             'Keep per-tool descriptions terse and defer detail to '
             'get_rw_git_documentation.',
       );

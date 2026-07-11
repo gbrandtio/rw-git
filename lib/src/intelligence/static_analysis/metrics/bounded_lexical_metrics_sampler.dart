@@ -67,8 +67,8 @@ class BoundedLexicalMetricsSampler {
     int maxFiles = maxLexicalMetricsFilesPerReport,
     int maxFileSizeBytes = maxLexicalMetricsFileSizeBytes,
   }) async {
-    final rankedByChurn =
-        fileChurn.entries.toList()..sort((a, b) => b.value.compareTo(a.value));
+    final rankedByChurn = fileChurn.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     final canonicalDirectory = p.canonicalize(directory);
 
     // Read sources on the main isolate (async IO).
@@ -76,10 +76,9 @@ class BoundedLexicalMetricsSampler {
     for (final entry in rankedByChurn) {
       if (sourcesByChurnPath.length >= maxFiles) break;
       if (!SourceFileFilter.isSource(entry.key)) continue;
-      final resolvedPath =
-          p.isAbsolute(entry.key)
-              ? p.canonicalize(entry.key)
-              : p.canonicalize(p.join(directory, entry.key));
+      final resolvedPath = p.isAbsolute(entry.key)
+          ? p.canonicalize(entry.key)
+          : p.canonicalize(p.join(directory, entry.key));
       if (!p.isWithin(canonicalDirectory, resolvedPath)) continue;
 
       final file = File(resolvedPath);

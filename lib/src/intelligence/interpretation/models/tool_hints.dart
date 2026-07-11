@@ -30,8 +30,8 @@ class ToolHints {
   });
 
   Map<String, dynamic> toJson() => {
-    if (interpretation.isNotEmpty) 'interpretation': interpretation,
-    if (caveats.isNotEmpty) 'caveats': caveats,
-    if (pairWith.isNotEmpty) 'pair_with': pairWith,
-  };
+        if (interpretation.isNotEmpty) 'interpretation': interpretation,
+        if (caveats.isNotEmpty) 'caveats': caveats,
+        if (pairWith.isNotEmpty) 'pair_with': pairWith,
+      };
 }

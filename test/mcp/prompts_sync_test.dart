@@ -27,12 +27,13 @@ void main() {
       };
 
   String expandedTemplate(String skillName) => expandGenerated(
-    expandIncludes(
-      File('.agents/skills/$skillName/SKILL.template.md').readAsStringSync(),
-      readPartial,
-    ),
-    renderGenerated,
-  );
+        expandIncludes(
+          File('.agents/skills/$skillName/SKILL.template.md')
+              .readAsStringSync(),
+          readPartial,
+        ),
+        renderGenerated,
+      );
 
   group('SKILL.md files are generated from their templates', () {
     for (final skillName in promptSkillNames) {
@@ -46,8 +47,7 @@ void main() {
         expect(
           skill.readAsStringSync(),
           renderGeneratedSkill(expandedTemplate(skillName)),
-          reason:
-              'SKILL.md drifted from SKILL.template.md. '
+          reason: 'SKILL.md drifted from SKILL.template.md. '
               'Run: dart run tool/sync_prompts.dart',
         );
       });
@@ -72,8 +72,7 @@ void main() {
         expect(
           onDisk.body.trimRight(),
           canonical.body.trimRight(),
-          reason:
-              'Prompt body drifted from SKILL.template.md. '
+          reason: 'Prompt body drifted from SKILL.template.md. '
               'Run: dart run tool/sync_prompts.dart',
         );
       });
@@ -83,10 +82,9 @@ void main() {
       // The contract block must come from the single partial, not be
       // re-duplicated per template: templates reference it by marker.
       for (final skillName in promptSkillNames) {
-        final template =
-            File(
-              '.agents/skills/$skillName/SKILL.template.md',
-            ).readAsStringSync();
+        final template = File(
+          '.agents/skills/$skillName/SKILL.template.md',
+        ).readAsStringSync();
         expect(
           template,
           contains('<!-- include:reporting_contract.md -->'),
@@ -111,8 +109,7 @@ void main() {
         expect(
           expanded,
           contains('read_report_slice'),
-          reason:
-              '$skillName deep-dive must route through '
+          reason: '$skillName deep-dive must route through '
               'read_report_slice',
         );
       }
@@ -159,8 +156,10 @@ void main() {
   });
 
   group('generated deep-dive tool lists are catalog-native', () {
-    test('the consolidated skill carries a deep_dive tool list for every '
-        'report type, each matching reportAnalysisSources exactly, in order', () {
+    test(
+        'the consolidated skill carries a deep_dive tool list for every '
+        'report type, each matching reportAnalysisSources exactly, in order',
+        () {
       final expanded = expandedTemplate(_anySkill);
       for (final entry in reportAnalysisSources.entries) {
         final expectedLine =
@@ -169,8 +168,7 @@ void main() {
         expect(
           expanded,
           contains(expectedLine),
-          reason:
-              '$_anySkill must carry a deep_dive tool list generated '
+          reason: '$_anySkill must carry a deep_dive tool list generated '
               'from reportAnalysisSources[\'${entry.key}\']',
         );
       }

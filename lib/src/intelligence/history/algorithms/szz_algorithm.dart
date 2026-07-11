@@ -88,14 +88,12 @@ class SzzAlgorithm {
     final lines = rawOutput.split('\n');
     final fixCommits = <_FixCommitInfo>[];
 
-    final posRegex =
-        positiveRegex != null
-            ? RegExp(positiveRegex, caseSensitive: false)
-            : null;
-    final negRegex =
-        negativeRegex != null
-            ? RegExp(negativeRegex, caseSensitive: false)
-            : null;
+    final posRegex = positiveRegex != null
+        ? RegExp(positiveRegex, caseSensitive: false)
+        : null;
+    final negRegex = negativeRegex != null
+        ? RegExp(negativeRegex, caseSensitive: false)
+        : null;
 
     final defaultPosRegex = RegExp(
       r'\b(fix|fixes|fixed|fixing|bug|bugs|patch|issue|resolve|resolves|resolved)\b',
@@ -176,24 +174,30 @@ class SzzAlgorithm {
     final matches = <SzzMatch>[];
 
     // Get parent of fix commit
-    final parentRes = await runner.run('git', [
-      'rev-parse',
-      '$commit^',
-    ], workingDirectory: directory);
+    final parentRes = await runner.run(
+        'git',
+        [
+          'rev-parse',
+          '$commit^',
+        ],
+        workingDirectory: directory);
     if (parentRes.exitCode != 0) return matches;
     final parent = parentRes.stdout?.toString().trim() ?? '';
     if (parent.isEmpty) return matches;
 
     // MA-SZZ: ignore whitespace and blank-line changes to avoid attributing
     // cosmetic edits as bug introductions (da Costa et al., 2017).
-    final diffRes = await runner.run('git', [
-      'diff',
-      '-M',
-      '-w',
-      '--ignore-blank-lines',
-      parent,
-      commit,
-    ], workingDirectory: directory);
+    final diffRes = await runner.run(
+        'git',
+        [
+          'diff',
+          '-M',
+          '-w',
+          '--ignore-blank-lines',
+          parent,
+          commit,
+        ],
+        workingDirectory: directory);
     if (diffRes.exitCode != 0) return matches;
 
     final commitDiff = _parseUnifiedDiff(diffRes.stdout?.toString() ?? '');
@@ -203,24 +207,26 @@ class SzzAlgorithm {
 
       // RA-SZZ line filter: a deleted line whose content re-appears among
       // the commit's added lines was moved, not fixed (Neto et al., 2018).
-      final survivingLines =
-          entry.value
-              .where((deleted) => !commitDiff.isMovedLine(deleted.content))
-              .toList();
+      final survivingLines = entry.value
+          .where((deleted) => !commitDiff.isMovedLine(deleted.content))
+          .toList();
 
       for (final range in _contiguousRanges(survivingLines)) {
-        final blameRes = await runner.run('git', [
-          'blame',
-          '--date=iso-strict',
-          '-l', // long hash
-          '-w', // ignore whitespace
-          '-C', '-C', '-M', // detect moves and copies
-          '-L',
-          '${range.start},${range.end}',
-          parent,
-          '--',
-          filePath,
-        ], workingDirectory: directory);
+        final blameRes = await runner.run(
+            'git',
+            [
+              'blame',
+              '--date=iso-strict',
+              '-l', // long hash
+              '-w', // ignore whitespace
+              '-C', '-C', '-M', // detect moves and copies
+              '-L',
+              '${range.start},${range.end}',
+              parent,
+              '--',
+              filePath,
+            ],
+            workingDirectory: directory);
         if (blameRes.exitCode != 0) continue;
 
         final blameLines = (blameRes.stdout?.toString() ?? '')
@@ -234,8 +240,7 @@ class SzzAlgorithm {
             // corrupt the analysis.
             throw GitOutputParseException(
               offendingLine: blameLine,
-              reason:
-                  'does not match the git blame -l --date=iso-strict '
+              reason: 'does not match the git blame -l --date=iso-strict '
                   'format',
             );
           }
@@ -287,12 +292,15 @@ class SzzAlgorithm {
       return _commitMetadataCache[cacheKey];
     }
 
-    final res = await runner.run('git', [
-      'log',
-      '-1',
-      '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
-      hash,
-    ], workingDirectory: directory);
+    final res = await runner.run(
+        'git',
+        [
+          'log',
+          '-1',
+          '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
+          hash,
+        ],
+        workingDirectory: directory);
 
     _CommitMetadata? metadata;
     if (res.exitCode == 0) {

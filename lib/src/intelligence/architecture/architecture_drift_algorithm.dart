@@ -162,14 +162,12 @@ class ArchitectureDriftAlgorithm {
 
     // Scattered Functionality: single commits spanning three or more layers
     // suggest concerns not cleanly assigned to any one layer.
-    final scattered =
-        driftCommits
-            .where(
-              (commit) =>
-                  commit.layersCoupled.length >=
-                  scatteredFunctionalityLayerCount,
-            )
-            .length;
+    final scattered = driftCommits
+        .where(
+          (commit) =>
+              commit.layersCoupled.length >= scatteredFunctionalityLayerCount,
+        )
+        .length;
     if (scattered > 0) {
       smells.add(
         ArchitecturalSmell(
@@ -232,9 +230,8 @@ class ArchitectureDriftAlgorithm {
           (fileCountByLayerPrefix[prefix] ?? 0) + 1;
     }
 
-    final rankedPrefixes =
-        fileCountByLayerPrefix.entries.toList()
-          ..sort((a, b) => b.value.compareTo(a.value));
+    final rankedPrefixes = fileCountByLayerPrefix.entries.toList()
+      ..sort((a, b) => b.value.compareTo(a.value));
     final topPrefixes =
         rankedPrefixes.take(maxInferredArchitectureLayers).toList();
     if (topPrefixes.length < minInferredArchitectureLayers) return const {};

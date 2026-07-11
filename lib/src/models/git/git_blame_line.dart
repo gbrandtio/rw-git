@@ -18,10 +18,10 @@ class GitBlameLine {
   });
 
   Map<String, dynamic> toJson() => {
-    'commitHash': commitHash,
-    'author': author,
-    'date': date.toIso8601String(),
-    'lineNumber': lineNumber,
-    'content': content,
-  };
+        'commitHash': commitHash,
+        'author': author,
+        'date': date.toIso8601String(),
+        'lineNumber': lineNumber,
+        'content': content,
+      };
 }

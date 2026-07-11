@@ -174,10 +174,9 @@ class DartAstAnalyzer {
 
     for (final entry in fileImports.entries) {
       final file = entry.key;
-      final targets =
-          entry.value
-              .where((u) => !u.startsWith('package:') && !u.startsWith('dart:'))
-              .toList();
+      final targets = entry.value
+          .where((u) => !u.startsWith('package:') && !u.startsWith('dart:'))
+          .toList();
       graph[file] = targets;
     }
 
@@ -205,13 +204,12 @@ class DartAstAnalyzer {
       } catch (_) {
         continue;
       }
-      fileImports[entry.key] =
-          rawImports
-              .map(
-                (uri) => _resolveImportToRepoPath(entry.key, uri, packageName),
-              )
-              .whereType<String>()
-              .toList();
+      fileImports[entry.key] = rawImports
+          .map(
+            (uri) => _resolveImportToRepoPath(entry.key, uri, packageName),
+          )
+          .whereType<String>()
+          .toList();
     }
     return _tarjanScc(fileImports);
   }

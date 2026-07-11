@@ -28,11 +28,11 @@ void main() {
         List<FileSystemEntity> clonedFiles =
             await Directory(testDir).list().toList();
 
-        bool isCheckoutSuccess =
-            (await rwGit.checkout(
-              clonedFiles[0].uri.path,
-              "main",
-            )).getOrThrow();
+        bool isCheckoutSuccess = (await rwGit.checkout(
+          clonedFiles[0].uri.path,
+          "main",
+        ))
+            .getOrThrow();
         expect(isCheckoutSuccess, true);
       },
     );

@@ -23,11 +23,11 @@ class ShowCommand extends GitCommand<GitCommit> {
     return commits.isNotEmpty
         ? commits.first
         : const GitCommit(
-          hash: '',
-          authorName: '',
-          authorEmail: '',
-          date: '',
-          message: '',
-        );
+            hash: '',
+            authorName: '',
+            authorEmail: '',
+            date: '',
+            message: '',
+          );
   }
 }

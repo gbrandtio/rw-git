@@ -37,8 +37,8 @@ class MockMcpPrompt implements McpPrompt {
 
   @override
   List<Map<String, dynamic>> get messages => [
-    {'role': 'user', 'content': 'hello'},
-  ];
+        {'role': 'user', 'content': 'hello'},
+      ];
 }
 
 void main() {
@@ -81,12 +81,11 @@ void main() {
       server.start();
       sendInput({'jsonrpc': '2.0', 'id': 1, 'method': 'initialize'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 1);
@@ -102,12 +101,11 @@ void main() {
       server.start();
       sendInput({'jsonrpc': '2.0', 'id': 1, 'method': 'initialize'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(
@@ -127,12 +125,11 @@ void main() {
           'params': {'level': 'verbose'},
         });
 
-        final outputLines =
-            await outputStreamController.stream
-                .transform(utf8.decoder)
-                .transform(const LineSplitter())
-                .take(1)
-                .toList();
+        final outputLines = await outputStreamController.stream
+            .transform(utf8.decoder)
+            .transform(const LineSplitter())
+            .take(1)
+            .toList();
 
         final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
         expect(response['error']['code'], -32602);
@@ -140,7 +137,8 @@ void main() {
       },
     );
 
-    test('library log events reach the host as notifications/message once '
+    test(
+        'library log events reach the host as notifications/message once '
         'the host lowers the level via logging/setLevel', () async {
       server.start();
       sendInput({
@@ -182,7 +180,8 @@ void main() {
       );
     });
 
-    test('debug events are suppressed at the default warning level so an '
+    test(
+        'debug events are suppressed at the default warning level so an '
         'idle host is not flooded', () async {
       server.start();
 
@@ -191,12 +190,11 @@ void main() {
       RwGitLogger.instance.debug('should be suppressed');
       sendInput({'jsonrpc': '2.0', 'id': 9, 'method': 'ping'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 9);
@@ -207,12 +205,11 @@ void main() {
       server.start();
       sendInput({'jsonrpc': '2.0', 'id': 99, 'method': 'ping'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 99);
@@ -223,12 +220,11 @@ void main() {
       server.start();
       sendInput({'jsonrpc': '2.0', 'id': 100, 'method': 'resources/list'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 100);
@@ -243,12 +239,11 @@ void main() {
         'method': 'resources/templates/list',
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 100);
@@ -259,12 +254,11 @@ void main() {
       server.start();
       sendInput({'jsonrpc': '2.0', 'id': 101, 'method': 'prompts/list'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 101);
@@ -277,12 +271,11 @@ void main() {
 
       sendInput({'jsonrpc': '2.0', 'id': 2, 'method': 'tools/list'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 2);
@@ -300,12 +293,11 @@ void main() {
         'params': {'name': 'test_prompt'},
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 102);
@@ -323,12 +315,11 @@ void main() {
         'params': {},
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32602);
@@ -345,12 +336,11 @@ void main() {
         'params': {'name': 'unknown_prompt'},
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32601);
@@ -379,12 +369,11 @@ void main() {
         },
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 3);
@@ -401,12 +390,11 @@ void main() {
         'params': {'arguments': {}},
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32602);
@@ -423,12 +411,11 @@ void main() {
         'params': {'name': 'unknown_tool'},
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32601);
@@ -442,12 +429,11 @@ void main() {
       registry.registerTool(
         MockMcpTool(
           'test_tool',
-          (_) async =>
-              throw RwGitException(
-                message: 'Custom Git Error',
-                exitCode: 128,
-                stderr: 'stderr msg',
-              ),
+          (_) async => throw RwGitException(
+            message: 'Custom Git Error',
+            exitCode: 128,
+            stderr: 'stderr msg',
+          ),
         ),
       );
       server.start();
@@ -459,12 +445,11 @@ void main() {
         'params': {'name': 'test_tool'},
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 6);
@@ -488,12 +473,11 @@ void main() {
         'params': {'name': 'test_tool'},
       });
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 7);
@@ -509,12 +493,11 @@ void main() {
 
       sendInput({'jsonrpc': '2.0', 'id': 8, 'method': 'unknown/method'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['error']['code'], -32601);
@@ -534,12 +517,11 @@ void main() {
       // We check this by sending another request and expecting only one response
       sendInput({'jsonrpc': '2.0', 'id': 9, 'method': 'initialize'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 9);
@@ -550,12 +532,11 @@ void main() {
 
       inputStreamController.add(utf8.encode('invalid json\n'));
 
-      final errorLines =
-          await errorStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final errorLines = await errorStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       expect(errorLines.first, contains('Error processing message'));
     });
@@ -570,12 +551,11 @@ void main() {
       // No output should be sent
       sendInput({'jsonrpc': '2.0', 'id': 10, 'method': 'initialize'});
 
-      final outputLines =
-          await outputStreamController.stream
-              .transform(utf8.decoder)
-              .transform(const LineSplitter())
-              .take(1)
-              .toList();
+      final outputLines = await outputStreamController.stream
+          .transform(utf8.decoder)
+          .transform(const LineSplitter())
+          .take(1)
+          .toList();
 
       final response = jsonDecode(outputLines.first) as Map<String, dynamic>;
       expect(response['id'], 10);

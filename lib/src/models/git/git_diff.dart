@@ -15,11 +15,11 @@ class GitDiff {
   });
 
   Map<String, dynamic> toJson() => {
-    'files': files.map((e) => e.toJson()).toList(),
-    'shortStat': {
-      'numberOfChangedFiles': shortStat.numberOfChangedFiles,
-      'insertions': shortStat.insertions,
-      'deletions': shortStat.deletions,
-    },
-  };
+        'files': files.map((e) => e.toJson()).toList(),
+        'shortStat': {
+          'numberOfChangedFiles': shortStat.numberOfChangedFiles,
+          'insertions': shortStat.insertions,
+          'deletions': shortStat.deletions,
+        },
+      };
 }

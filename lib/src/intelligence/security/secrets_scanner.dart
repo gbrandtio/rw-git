@@ -123,8 +123,7 @@ List<String> _parseSecrets(String rawLog) {
     } else if (line.startsWith('+') && !line.startsWith('+++')) {
       if (skipBlob) continue;
       // Add Context-Aware Risk Scoring (ignoring test/, etc.)
-      final isTestOrMock =
-          currentFile.contains('test/') ||
+      final isTestOrMock = currentFile.contains('test/') ||
           currentFile.contains('tests/') ||
           currentFile.contains('__tests__/') ||
           currentFile.contains('spec/') ||
@@ -136,8 +135,7 @@ List<String> _parseSecrets(String rawLog) {
           currentFile.endsWith('.md');
 
       // Exclude lock files entirely
-      final isLockFile =
-          currentFile.endsWith('package-lock.json') ||
+      final isLockFile = currentFile.endsWith('package-lock.json') ||
           currentFile.endsWith('yarn.lock') ||
           currentFile.endsWith('pnpm-lock.yaml') ||
           currentFile.endsWith('pubspec.lock') ||
@@ -167,10 +165,9 @@ List<String> _parseSecrets(String rawLog) {
         }
 
         // Redact the secret for reporting to avoid exposing it again
-        final redacted =
-            secretVal.length > 6
-                ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
-                : '***';
+        final redacted = secretVal.length > 6
+            ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
+            : '***';
 
         detectedSecrets.add(
           'Commit: $currentCommitHeader\nFile: $currentFile\nFound Potential Secret (Regex): $redacted',
@@ -228,10 +225,9 @@ List<String> _parseSecrets(String rawLog) {
                   lowerSec.contains('your_')) {
                 continue;
               }
-              final redacted =
-                  secretVal.length > 6
-                      ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
-                      : '***';
+              final redacted = secretVal.length > 6
+                  ? '${secretVal.substring(0, 3)}***${secretVal.substring(secretVal.length - 3)}'
+                  : '***';
               detectedSecrets.add(
                 'Commit: $currentCommitHeader\nFile: $currentFile\n'
                 'Found Potential Secret (Base64-encoded Regex): $redacted',

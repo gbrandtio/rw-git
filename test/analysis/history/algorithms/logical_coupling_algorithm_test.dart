@@ -21,7 +21,8 @@ class MockProcessRunner implements ProcessRunner {
     String ex,
     List<String> arg, {
     String? workingDirectory,
-  }) => throw UnimplementedError();
+  }) =>
+      throw UnimplementedError();
 }
 
 void main() {

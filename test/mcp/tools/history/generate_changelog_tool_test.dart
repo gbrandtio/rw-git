@@ -15,14 +15,16 @@ class _SilentMockProcessRunner implements ProcessRunner {
     List<String> arguments, {
     String? workingDirectory,
     bool streamOutput = false,
-  }) async => ProcessResult(0, 0, '', '');
+  }) async =>
+      ProcessResult(0, 0, '', '');
 
   @override
   Stream<String> runStream(
     String executable,
     List<String> arguments, {
     String? workingDirectory,
-  }) => throw UnimplementedError();
+  }) =>
+      throw UnimplementedError();
 }
 
 /// Scripted runner for the shared RA-SZZ pipeline: exact-argument mocks so
@@ -51,7 +53,8 @@ class _ScriptedMockProcessRunner implements ProcessRunner {
     String executable,
     List<String> arguments, {
     String? workingDirectory,
-  }) => throw UnimplementedError();
+  }) =>
+      throw UnimplementedError();
 }
 
 class _MockGitQuery implements GitQuery {
@@ -181,8 +184,10 @@ void main() {
       }
     });
 
-    test('fix enrichment runs through the shared RA-SZZ core: introducing '
-        'commits carry temporal context and refactoring commits are excluded', () async {
+    test(
+        'fix enrichment runs through the shared RA-SZZ core: introducing '
+        'commits carry temporal context and refactoring commits are excluded',
+        () async {
       const fixHash = 'bbb';
       const parentHash = '1111222233334444555566667777888899990000';
       const bugOriginHash = 'aaaa5678aaaa5678aaaa5678aaaa5678aaaa5678';

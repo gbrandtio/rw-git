@@ -21,8 +21,7 @@ class GenerateChangelogTool implements McpTool {
   String get name => 'generate_changelog';
 
   @override
-  String get description =>
-      'Generates a structured changelog between two tags '
+  String get description => 'Generates a structured changelog between two tags '
       'or commits. Enriches the output with RA-SZZ algorithm '
       'results (linking fixes to bug-introducing commits) '
       'and structural impact (changed files) for deep '
@@ -32,20 +31,23 @@ class GenerateChangelogTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local repository path.',
-      },
-      'from': {
-        'type': 'string',
-        'description': 'The starting tag or commit hash.',
-      },
-      'to': {'type': 'string', 'description': 'The ending tag or commit hash.'},
-    },
-    'required': ['directory', 'from', 'to'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local repository path.',
+          },
+          'from': {
+            'type': 'string',
+            'description': 'The starting tag or commit hash.',
+          },
+          'to': {
+            'type': 'string',
+            'description': 'The ending tag or commit hash.'
+          },
+        },
+        'required': ['directory', 'from', 'to'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -53,12 +55,12 @@ class GenerateChangelogTool implements McpTool {
     final from = arguments.getStringArgument('from');
     final toReference = arguments.getStringArgument('to');
 
-    final logRaw =
-        (await gitQuery.run(directory, [
-          'log',
-          '$from..$toReference',
-          '--format=%H||%an||%s',
-        ])).getOrThrow();
+    final logRaw = (await gitQuery.run(directory, [
+      'log',
+      '$from..$toReference',
+      '--format=%H||%an||%s',
+    ]))
+        .getOrThrow();
 
     final parsed = await Isolate.run(() => parseConventionalCommits(logRaw));
 
@@ -135,8 +137,7 @@ class GenerateChangelogTool implements McpTool {
     }
     contributors.removeWhere((c) => c.isEmpty);
 
-    final totalCommits =
-        enrichedFeatures.length +
+    final totalCommits = enrichedFeatures.length +
         enrichedFixes.length +
         enrichedBreaking.length +
         enrichedOther.length;
@@ -190,7 +191,7 @@ class GenerateChangelogTool implements McpTool {
       byIntroducingHash.putIfAbsent(match.introducingCommitHash, () {
         final daysBugLived =
             match.fixingDate.difference(match.introducingDate).inMinutes /
-            minutesPerDay;
+                minutesPerDay;
         return {
           'introducing_commit': match.introducingCommitHash,
           'introduced_date': match.introducingDate.toIso8601String(),

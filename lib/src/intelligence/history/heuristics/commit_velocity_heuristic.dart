@@ -120,7 +120,7 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
         commitCounts.take(mid).fold<int>(0, (sum, v) => sum + v) / mid;
     final secondHalfAvg =
         commitCounts.skip(mid).fold<int>(0, (sum, v) => sum + v) /
-        (buckets.length - mid);
+            (buckets.length - mid);
     if (secondHalfAvg > firstHalfAvg * 1.2) {
       trend = 'accelerating';
     } else if (secondHalfAvg < firstHalfAvg * 0.8) {
@@ -132,8 +132,7 @@ CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
   final anomalies = <TimeBucket>[];
   if (commitCounts.length >= 3) {
     final mean = avg;
-    final variance =
-        commitCounts.fold<double>(
+    final variance = commitCounts.fold<double>(
           0.0,
           (sum, v) => sum + (v - mean) * (v - mean),
         ) /

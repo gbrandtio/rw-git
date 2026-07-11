@@ -21,11 +21,11 @@ void main() {
         '',
       );
 
-      final result =
-          (await rwGit.clone(
-            'my_dir',
-            'https://fake.url/repo.git',
-          )).getOrThrow();
+      final result = (await rwGit.clone(
+        'my_dir',
+        'https://fake.url/repo.git',
+      ))
+          .getOrThrow();
       expect(result, true);
     });
 

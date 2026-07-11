@@ -212,18 +212,16 @@ class CompoundFindingCorrelator {
     // bug hotspots → the delivery-health and defect problems reinforce each
     // other. Repo-level co-occurrence, deliberately not a per-commit causal
     // attribution (SZZ dates are UTC-normalized; burnout is wall-clock).
-    final burnout =
-        of('velocity')
-            .where(
-              (v) =>
-                  v.metric == 'burnout_commit_share' &&
-                  v.severity.rank >= Severity.high.rank,
-            )
-            .toList();
-    final activeHotspots =
-        of(
-          'bugHotspot',
-        ).where((h) => h.severity.rank >= Severity.elevated.rank).toList();
+    final burnout = of('velocity')
+        .where(
+          (v) =>
+              v.metric == 'burnout_commit_share' &&
+              v.severity.rank >= Severity.high.rank,
+        )
+        .toList();
+    final activeHotspots = of(
+      'bugHotspot',
+    ).where((h) => h.severity.rank >= Severity.elevated.rank).toList();
     if (burnout.isNotEmpty && activeHotspots.isNotEmpty) {
       compounds.add(
         _compound(
@@ -252,10 +250,10 @@ class CompoundFindingCorrelator {
   /// compound without embedding the full finding (which would bloat the
   /// payload and push it past the inline threshold).
   Map<String, dynamic> _ref(Finding f) => {
-    'subject': f.subject,
-    'severity': f.severity.label,
-    'band': f.band,
-  };
+        'subject': f.subject,
+        'severity': f.severity.label,
+        'band': f.band,
+      };
 
   Finding _compound({
     required String subject,

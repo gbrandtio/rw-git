@@ -16,9 +16,9 @@ class GitFileDiff {
   });
 
   Map<String, dynamic> toJson() => {
-    'path': path,
-    'additions': additions,
-    'deletions': deletions,
-    'contentDiff': contentDiff,
-  };
+        'path': path,
+        'additions': additions,
+        'deletions': deletions,
+        'contentDiff': contentDiff,
+      };
 }

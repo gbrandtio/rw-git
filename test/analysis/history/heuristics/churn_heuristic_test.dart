@@ -29,7 +29,8 @@ class MockProcessRunner implements ProcessRunner {
 
 void main() {
   group('ChurnHeuristic', () {
-    test('calculateChurn forwards since/until as git flags on both count '
+    test(
+        'calculateChurn forwards since/until as git flags on both count '
         'and log calls', () async {
       final runner = MockProcessRunner();
       await ChurnHeuristic(
@@ -51,7 +52,8 @@ void main() {
       );
     });
 
-    test('calculateChurnWithAuthors forwards since/until as git flags on both '
+    test(
+        'calculateChurnWithAuthors forwards since/until as git flags on both '
         'count and log calls', () async {
       final runner = MockProcessRunner();
       await ChurnHeuristic(runner).calculateChurnWithAuthors(

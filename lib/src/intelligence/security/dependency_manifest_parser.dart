@@ -16,18 +16,20 @@ class DependencyManifestParser {
     String directory,
   ) async {
     // Check which manifest files exist in HEAD
-    final lsResult = await runner.run('git', [
-      'ls-tree',
-      '-r',
-      '--name-only',
-      'HEAD',
-    ], workingDirectory: directory);
+    final lsResult = await runner.run(
+        'git',
+        [
+          'ls-tree',
+          '-r',
+          '--name-only',
+          'HEAD',
+        ],
+        workingDirectory: directory);
     evaluateProcessResult(lsResult);
-    final allFiles =
-        (lsResult.stdout?.toString() ?? '')
-            .split('\n')
-            .where((l) => l.trim().isNotEmpty)
-            .toList();
+    final allFiles = (lsResult.stdout?.toString() ?? '')
+        .split('\n')
+        .where((l) => l.trim().isNotEmpty)
+        .toList();
 
     final manifestMap = <String, String>{
       'pubspec.yaml': 'dart',
@@ -51,26 +53,27 @@ class DependencyManifestParser {
 
     for (final entry in manifestMap.entries) {
       // Find manifests at any path depth
-      final matches =
-          allFiles
-              .where((f) => f == entry.key || f.endsWith('/${entry.key}'))
-              .toList();
+      final matches = allFiles
+          .where((f) => f == entry.key || f.endsWith('/${entry.key}'))
+          .toList();
 
       for (final manifestPath in matches) {
         // Read manifest content via git show
-        final showResult = await runner.run('git', [
-          'show',
-          'HEAD:$manifestPath',
-        ], workingDirectory: directory);
+        final showResult = await runner.run(
+            'git',
+            [
+              'show',
+              'HEAD:$manifestPath',
+            ],
+            workingDirectory: directory);
         evaluateProcessResult(showResult);
         final content = showResult.stdout?.toString() ?? '';
 
         // Check for corresponding lock file
         final lockFileName = lockFileMap[entry.value] ?? '';
-        final dir =
-            manifestPath.contains('/')
-                ? manifestPath.substring(0, manifestPath.lastIndexOf('/') + 1)
-                : '';
+        final dir = manifestPath.contains('/')
+            ? manifestPath.substring(0, manifestPath.lastIndexOf('/') + 1)
+            : '';
         final hasLock = allFiles.contains('$dir$lockFileName');
 
         final report = await Isolate.run(
@@ -228,8 +231,7 @@ EcosystemReport _parseSingleManifest(
         if (inDeps && trimmed.contains('=')) {
           final name = trimmed.substring(0, trimmed.indexOf('=')).trim();
           final version = trimmed.substring(trimmed.indexOf('=') + 1).trim();
-          final isPinned =
-              trimmed.contains('"=') ||
+          final isPinned = trimmed.contains('"=') ||
               RegExp(r'"\d+\.\d+\.\d+"').hasMatch(trimmed);
           entries.add(
             DependencyEntry(

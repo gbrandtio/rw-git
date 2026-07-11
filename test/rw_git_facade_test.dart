@@ -31,10 +31,11 @@ void main() {
       () async {
         bool specificBranchClonedSuccessfully =
             (await rwGit.cloneSpecificBranch(
-              testDir,
-              validRemoteRepository,
-              'main',
-            )).getOrThrow();
+          testDir,
+          validRemoteRepository,
+          'main',
+        ))
+                .getOrThrow();
         expect(specificBranchClonedSuccessfully, true);
       },
       timeout: const Timeout(Duration(minutes: 2)),
@@ -48,7 +49,8 @@ void main() {
             testDir,
             validRemoteRepository,
             invalidBranch,
-          )).getOrThrow();
+          ))
+              .getOrThrow();
           fail('Should throw RwGitException for invalid branch');
         } on RwGitException catch (e) {
           expect(e.exitCode != 0, true);
@@ -61,7 +63,8 @@ void main() {
           testDir,
           'invalid_repository_url_12345',
           branch,
-        )).getOrThrow();
+        ))
+            .getOrThrow();
         fail('Should throw RwGitException');
       } catch (e) {
         expect(e, isA<RwGitException>());
@@ -87,12 +90,12 @@ void main() {
 
       final mockGit = RwGit(runner: mockRunner);
       expect(
-        () async =>
-            (await mockGit.cloneSpecificBranch(
-              testDir,
-              validRemoteRepository,
-              invalidBranch,
-            )).getOrThrow(),
+        () async => (await mockGit.cloneSpecificBranch(
+          testDir,
+          validRemoteRepository,
+          invalidBranch,
+        ))
+            .getOrThrow(),
         throwsA(isA<RwGitException>()),
       );
     });

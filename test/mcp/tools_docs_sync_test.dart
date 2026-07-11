@@ -28,29 +28,27 @@ void main() {
 
   group('doc/tools stays in sync with the registered tool surface', () {
     final registeredToolNames = buildDefaultRegistry(
-          runner: MockProcessRunner(),
-        )
+      runner: MockProcessRunner(),
+    )
         .getToolListings()
         .map((tool) => tool['name'] as String)
         .toSet()
         .difference(plainGitOperationToolNames);
 
-    final documentedToolNames =
-        Directory('doc/tools')
-            .listSync(recursive: true)
-            .whereType<File>()
-            .where((file) => file.path.endsWith('.md'))
-            .map((file) => p.basenameWithoutExtension(file.path))
-            .where((name) => name != 'REFERENCES')
-            .toSet();
+    final documentedToolNames = Directory('doc/tools')
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.md'))
+        .map((file) => p.basenameWithoutExtension(file.path))
+        .where((name) => name != 'REFERENCES')
+        .toSet();
 
     test('every registered tool has a doc/tools/**/<name>.md document', () {
       final undocumented = registeredToolNames.difference(documentedToolNames);
       expect(
         undocumented,
         isEmpty,
-        reason:
-            'Registered tools without a per-tool document under '
+        reason: 'Registered tools without a per-tool document under '
             'doc/tools/: $undocumented. Add the missing document(s) in the '
             'same commit as the registration change (AGENTS.md, Tool '
             'Documentation Sync).',
@@ -62,8 +60,7 @@ void main() {
       expect(
         stale,
         isEmpty,
-        reason:
-            'doc/tools documents without a registered tool: $stale. '
+        reason: 'doc/tools documents without a registered tool: $stale. '
             'Remove or rename them so the documentation tree cannot '
             'describe tools that no longer exist.',
       );

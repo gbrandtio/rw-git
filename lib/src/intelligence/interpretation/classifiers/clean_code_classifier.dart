@@ -35,11 +35,10 @@ class CleanCodeClassifier {
           subject: normalized,
           metric: 'clean_code_issues',
           value: file.issues.length,
-          band:
-              escalated
-                  ? '>= $cleanCodeHighSeverityIssueCount clean-code heuristics '
-                      'crossed'
-                  : 'clean-code threshold crossed',
+          band: escalated
+              ? '>= $cleanCodeHighSeverityIssueCount clean-code heuristics '
+                  'crossed'
+              : 'clean-code threshold crossed',
           evidence: {
             'total_lines': file.totalLines,
             'max_indentation_level': file.maxIndentationLevel,

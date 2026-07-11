@@ -47,12 +47,9 @@ SkillDoc parseSkill(String raw) {
   final frontmatter = normalized.substring(3, end);
   // Body starts after the line that closes the frontmatter.
   final afterClose = normalized.indexOf('\n', end + 1);
-  final body =
-      afterClose == -1
-          ? ''
-          : normalized
-              .substring(afterClose + 1)
-              .replaceFirst(RegExp(r'^\n+'), '');
+  final body = afterClose == -1
+      ? ''
+      : normalized.substring(afterClose + 1).replaceFirst(RegExp(r'^\n+'), '');
 
   String? name;
   String? description;
@@ -86,12 +83,11 @@ String _unquote(String rawValue) {
 
 /// `rw-git-mcp-pm-reporting` -> `RwGitMcpPmReportingPrompt`.
 String dartClassName(String skillName) {
-  final pascal =
-      skillName
-          .split('-')
-          .where((p) => p.isNotEmpty)
-          .map((p) => p[0].toUpperCase() + p.substring(1))
-          .join();
+  final pascal = skillName
+      .split('-')
+      .where((p) => p.isNotEmpty)
+      .map((p) => p[0].toUpperCase() + p.substring(1))
+      .join();
   return '${pascal}Prompt';
 }
 
@@ -224,9 +220,8 @@ String renderGeneratedSkill(String expandedTemplate) {
   }
   final afterClose = normalized.indexOf('\n', frontmatterEnd + 1);
   final head = normalized.substring(0, afterClose + 1);
-  final body = normalized
-      .substring(afterClose + 1)
-      .replaceFirst(RegExp(r'^\n+'), '');
+  final body =
+      normalized.substring(afterClose + 1).replaceFirst(RegExp(r'^\n+'), '');
   return '$head\n$generatedSkillNotice\n\n$body';
 }
 

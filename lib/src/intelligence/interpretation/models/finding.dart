@@ -68,13 +68,13 @@ class Finding {
   }
 
   Map<String, dynamic> toJson() => {
-    'category': category,
-    'source': source.map((s) => s.name).toList(),
-    'severity': severity.label,
-    'subject': subject,
-    'metric': metric,
-    'value': value,
-    'band': band,
-    if (evidence.isNotEmpty) 'evidence': evidence,
-  };
+        'category': category,
+        'source': source.map((s) => s.name).toList(),
+        'severity': severity.label,
+        'subject': subject,
+        'metric': metric,
+        'value': value,
+        'band': band,
+        if (evidence.isNotEmpty) 'evidence': evidence,
+      };
 }

@@ -248,12 +248,10 @@ dependencies:
         final eco =
             (parsed['ecosystems'] as List).first as Map<String, dynamic>;
         final deps = (eco['dependencies'] as List).cast<Map<String, dynamic>>();
-        final pathDep =
-            deps.firstWhere((d) => d['name'] == 'path')['freshness']
-                as Map<String, dynamic>;
-        final httpDep =
-            deps.firstWhere((d) => d['name'] == 'http')['freshness']
-                as Map<String, dynamic>;
+        final pathDep = deps.firstWhere((d) => d['name'] == 'path')['freshness']
+            as Map<String, dynamic>;
+        final httpDep = deps.firstWhere((d) => d['name'] == 'http')['freshness']
+            as Map<String, dynamic>;
 
         expect(pathDep['classification'], 'current');
         expect(httpDep['classification'], 'unknown');

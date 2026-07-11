@@ -56,10 +56,9 @@ class RefactoringContextClassifier {
         band: '${finding.band} (partly explained by refactoring)',
         evidence: {
           ...finding.evidence,
-          'refactoring_commits':
-              refactoringCommits
-                  .take(aggregateFindingEvidenceSampleSize)
-                  .toList(),
+          'refactoring_commits': refactoringCommits
+              .take(aggregateFindingEvidenceSampleSize)
+              .toList(),
         },
       );
     }).toList();
@@ -86,11 +85,10 @@ class RefactoringContextClassifier {
         evidence: {
           'refactoring_commits_detected': refactorings.length,
           'simplifications': simplificationCount,
-          'sample_commits':
-              refactorings
-                  .take(aggregateFindingEvidenceSampleSize)
-                  .map((r) => r.commitHash)
-                  .toList(),
+          'sample_commits': refactorings
+              .take(aggregateFindingEvidenceSampleSize)
+              .map((r) => r.commitHash)
+              .toList(),
         },
       ),
     ];

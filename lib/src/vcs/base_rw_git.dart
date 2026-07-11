@@ -24,8 +24,7 @@ abstract class BaseRwGit implements RwGit {
     );
 
     return cloneResult.fold((_) {
-      String localCheckoutDirectory =
-          localDirectoryToCloneInto +
+      String localCheckoutDirectory = localDirectoryToCloneInto +
           Platform.pathSeparator +
           GitUrlParser.parseRepositoryNameFromRepositoryUrl(repository);
 

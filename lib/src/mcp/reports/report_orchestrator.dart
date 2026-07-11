@@ -51,8 +51,10 @@ import 'package:rw_git/src/intelligence/interpretation/models/report_payload.dar
 
 /// The findings plus the ranked Tornhill refactoring targets a technical
 /// analysis pass produces from one shared set of git data.
-typedef TechnicalAnalysis =
-    ({List<Finding> findings, List<RefactoringTarget> refactoringTargets});
+typedef TechnicalAnalysis = ({
+  List<Finding> findings,
+  List<RefactoringTarget> refactoringTargets
+});
 
 /// Builds pre-interpreted report payloads for the report meta-tools.
 class ReportOrchestrator {
@@ -404,18 +406,17 @@ class ReportOrchestrator {
     final inferredLayers = ArchitectureDriftAlgorithm.inferLayerPatterns(
       churn.fileChurn.keys,
     );
-    final drift =
-        inferredLayers.isEmpty
-            ? const ArchitectureDriftDto.empty()
-            : await ArchitectureDriftAlgorithm(
-              ReadOnlyGitQuery(runner),
-            ).execute(
-              directory,
-              inferredLayers,
-              limit: lim,
-              since: since,
-              until: until,
-            );
+    final drift = inferredLayers.isEmpty
+        ? const ArchitectureDriftDto.empty()
+        : await ArchitectureDriftAlgorithm(
+            ReadOnlyGitQuery(runner),
+          ).execute(
+            directory,
+            inferredLayers,
+            limit: lim,
+            since: since,
+            until: until,
+          );
 
     final advanced = await advancedFuture;
     final refactorings = await refactoringsFuture;

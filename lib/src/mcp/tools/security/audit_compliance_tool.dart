@@ -17,8 +17,7 @@ class AuditComplianceTool implements McpTool {
   String get name => 'audit_compliance';
 
   @override
-  String get description =>
-      'Scans commit history for compliance policy '
+  String get description => 'Scans commit history for compliance policy '
       'violations: unsigned commits (no GPG/SSH '
       'signature), empty commit messages, and commits '
       'from unrecognized author emails. Optionally '
@@ -29,28 +28,26 @@ class AuditComplianceTool implements McpTool {
 
   @override
   Map<String, dynamic> get inputSchema => {
-    'type': 'object',
-    'properties': {
-      'directory': {
-        'type': 'string',
-        'description': 'The local repository path.',
-      },
-      'limit': {
-        'type': 'number',
-        'description':
-            'Number of commits to scan '
-            '(default: $defaultCommitLimit).',
-      },
-      'allowedEmails': {
-        'type': 'string',
-        'description':
-            'Comma-separated list of allowed '
-            'author email addresses. Commits '
-            'from other emails will be flagged.',
-      },
-    },
-    'required': ['directory'],
-  };
+        'type': 'object',
+        'properties': {
+          'directory': {
+            'type': 'string',
+            'description': 'The local repository path.',
+          },
+          'limit': {
+            'type': 'number',
+            'description': 'Number of commits to scan '
+                '(default: $defaultCommitLimit).',
+          },
+          'allowedEmails': {
+            'type': 'string',
+            'description': 'Comma-separated list of allowed '
+                'author email addresses. Commits '
+                'from other emails will be flagged.',
+          },
+        },
+        'required': ['directory'],
+      };
 
   @override
   Future<String> execute(Map<String, dynamic> arguments) async {
@@ -78,53 +75,49 @@ class AuditComplianceTool implements McpTool {
     return jsonEncode({
       'total_commits_scanned': report.totalCommitsScanned,
       'total_violations': report.totalViolations,
-      'unsigned_commits':
-          report.unsignedCommits
-              .map(
-                (v) => {
-                  'hash': v.hash,
-                  'author': v.author,
-                  'email': v.email,
-                  'date': v.date,
-                  'message': v.message,
-                },
-              )
-              .toList(),
-      'empty_message_commits':
-          report.emptyMessageCommits
-              .map(
-                (v) => {
-                  'hash': v.hash,
-                  'author': v.author,
-                  'email': v.email,
-                  'date': v.date,
-                },
-              )
-              .toList(),
-      'unrecognized_author_commits':
-          report.unrecognizedAuthorCommits
-              .map(
-                (v) => {
-                  'hash': v.hash,
-                  'author': v.author,
-                  'email': v.email,
-                  'date': v.date,
-                  'message': v.message,
-                },
-              )
-              .toList(),
-      'non_conventional_commits':
-          report.nonConventionalCommits
-              .map(
-                (v) => {
-                  'hash': v.hash,
-                  'author': v.author,
-                  'email': v.email,
-                  'date': v.date,
-                  'message': v.message,
-                },
-              )
-              .toList(),
+      'unsigned_commits': report.unsignedCommits
+          .map(
+            (v) => {
+              'hash': v.hash,
+              'author': v.author,
+              'email': v.email,
+              'date': v.date,
+              'message': v.message,
+            },
+          )
+          .toList(),
+      'empty_message_commits': report.emptyMessageCommits
+          .map(
+            (v) => {
+              'hash': v.hash,
+              'author': v.author,
+              'email': v.email,
+              'date': v.date,
+            },
+          )
+          .toList(),
+      'unrecognized_author_commits': report.unrecognizedAuthorCommits
+          .map(
+            (v) => {
+              'hash': v.hash,
+              'author': v.author,
+              'email': v.email,
+              'date': v.date,
+              'message': v.message,
+            },
+          )
+          .toList(),
+      'non_conventional_commits': report.nonConventionalCommits
+          .map(
+            (v) => {
+              'hash': v.hash,
+              'author': v.author,
+              'email': v.email,
+              'date': v.date,
+              'message': v.message,
+            },
+          )
+          .toList(),
     });
   }
 }

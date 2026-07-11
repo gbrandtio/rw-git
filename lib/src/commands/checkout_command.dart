@@ -14,10 +14,9 @@ class CheckoutCommand extends GitCommand<bool> {
   }) async {
     // Ensure branchToCheckout doesn't start with hyphen to prevent flag injection.
     // We cannot use '--' before the branch name because git treats it as a pathspec.
-    final sanitizedBranch =
-        branchToCheckout.startsWith('-')
-            ? 'refs/heads/$branchToCheckout'
-            : branchToCheckout;
+    final sanitizedBranch = branchToCheckout.startsWith('-')
+        ? 'refs/heads/$branchToCheckout'
+        : branchToCheckout;
     final result = await runner.run(
       'git',
       ['checkout', sanitizedBranch],
