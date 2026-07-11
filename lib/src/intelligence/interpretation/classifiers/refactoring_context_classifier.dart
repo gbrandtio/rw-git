@@ -24,19 +24,6 @@ import '../models/severity.dart';
 class RefactoringContextClassifier {
   const RefactoringContextClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Refactoring-aware change attribution (Neto et al. 2018; Murphy-Hill '
-      '2009)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Changes that are structural refactorings do not carry the defect '
-      'risk raw churn implies (Neto et al., SANER 2018 — the RA-SZZ '
-      'insight); developers refactor far more than commit messages admit '
-      '(Murphy-Hill, Parnin & Black, ICSE 2009), so rename detection is '
-      'used instead of message keywords alone.';
-
   /// Categories whose findings are churn-derived and therefore softened
   /// when the underlying changes are refactorings.
   static const List<String> _churnDerivedCategories = [
@@ -96,11 +83,6 @@ class RefactoringContextClassifier {
         metric: 'refactoring_commits',
         value: refactorings.length,
         band: 'notable refactoring activity',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '${refactorings.length} refactoring commit(s) detected '
-            '($simplificationCount simplification(s)) — active tech-debt '
-            'paydown; churn on the renamed files is discounted accordingly.',
         evidence: {
           'refactoring_commits_detected': refactorings.length,
           'simplifications': simplificationCount,

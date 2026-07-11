@@ -15,17 +15,6 @@ import '../models/severity.dart';
 class ComplianceClassifier {
   const ComplianceClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Secure development provenance controls (NIST SP 800-218, 2022)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Commit signing, verifiable authorship, and message hygiene are '
-      'provenance controls in the NIST Secure Software Development '
-      'Framework (SP 800-218, 2022); gaps weaken supply-chain '
-      'accountability for every downstream consumer.';
-
   List<Finding> classify(ComplianceReportDto dto) {
     final findings = <Finding>[];
 
@@ -44,10 +33,6 @@ class ComplianceClassifier {
         metric: metric,
         value: violations.length,
         band: '${violations.length} $label',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '${violations.length} $label out of '
-            '${dto.totalCommitsScanned} commits scanned.',
         evidence: {
           'count': violations.length,
           'total_commits_scanned': dto.totalCommitsScanned,

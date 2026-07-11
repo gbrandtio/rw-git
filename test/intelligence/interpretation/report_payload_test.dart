@@ -16,7 +16,6 @@ void main() {
         metric: 'm',
         value: 1,
         band: 'b',
-        message: 'msg',
       );
 
   test(
@@ -37,8 +36,10 @@ void main() {
       compounds: const [],
     );
 
-    expect(payload.hints.caveats, equals(catalogEntry.caveats.toSet()));
-    expect(payload.hints.pairWith, equals(catalogEntry.pairWith.toSet()));
+    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.caveats,
+        equals(catalogEntry.caveats));
+    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.pairWith,
+        equals(catalogEntry.pairWith));
   });
 
   test('aggregates every category across multiple distinct sources', () {
@@ -54,18 +55,21 @@ void main() {
     final busFactor = analysisHintsCatalog[AnalysisType.busFactor]!;
     final bugHotspots = analysisHintsCatalog[AnalysisType.bugHotspots]!;
 
-    for (final s in [
-      ...busFactor.interpretation,
-      ...bugHotspots.interpretation
-    ]) {
-      expect(payload.hints.interpretation, contains(s));
-    }
-    for (final s in [...busFactor.caveats, ...bugHotspots.caveats]) {
-      expect(payload.hints.caveats, contains(s));
-    }
-    for (final s in [...busFactor.pairWith, ...bugHotspots.pairWith]) {
-      expect(payload.hints.pairWith, contains(s));
-    }
+    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.interpretation,
+        equals(busFactor.interpretation));
+    expect(
+        payload.hints.bySource[AnalysisType.bugHotspots.name]!.interpretation,
+        equals(bugHotspots.interpretation));
+
+    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.caveats,
+        equals(busFactor.caveats));
+    expect(payload.hints.bySource[AnalysisType.bugHotspots.name]!.caveats,
+        equals(bugHotspots.caveats));
+
+    expect(payload.hints.bySource[AnalysisType.busFactor.name]!.pairWith,
+        equals(busFactor.pairWith));
+    expect(payload.hints.bySource[AnalysisType.bugHotspots.name]!.pairWith,
+        equals(bugHotspots.pairWith));
   });
 
   test(
@@ -85,19 +89,15 @@ void main() {
       compounds: const [],
     );
 
-    final expectedInterpretation = <String>{};
-    final expectedCaveats = <String>{};
-    final expectedPairWith = <String>{};
     for (final source in manySources) {
-      final hints = analysisHintsCatalog[source]!;
-      expectedInterpretation.addAll(hints.interpretation);
-      expectedCaveats.addAll(hints.caveats);
-      expectedPairWith.addAll(hints.pairWith);
-    }
+      final catalogHints = analysisHintsCatalog[source]!;
+      final aggregatedHints = payload.hints.bySource[source.name]!;
 
-    expect(payload.hints.interpretation.toSet(), expectedInterpretation);
-    expect(payload.hints.caveats.toSet(), expectedCaveats);
-    expect(payload.hints.pairWith.toSet(), expectedPairWith);
+      expect(
+          aggregatedHints.interpretation, equals(catalogHints.interpretation));
+      expect(aggregatedHints.caveats, equals(catalogHints.caveats));
+      expect(aggregatedHints.pairWith, equals(catalogHints.pairWith));
+    }
   });
 
   test('deduplicates each category independently', () {
@@ -110,15 +110,11 @@ void main() {
       compounds: const [],
     );
 
-    expect(
-      payload.hints.interpretation.length,
-      payload.hints.interpretation.toSet().length,
-    );
-    expect(payload.hints.caveats.length, payload.hints.caveats.toSet().length);
-    expect(
-      payload.hints.pairWith.length,
-      payload.hints.pairWith.toSet().length,
-    );
+    for (final hints in payload.hints.bySource.values) {
+      expect(hints.interpretation.length, hints.interpretation.toSet().length);
+      expect(hints.caveats.length, hints.caveats.toSet().length);
+      expect(hints.pairWith.length, hints.pairWith.toSet().length);
+    }
   });
 
   test('omits hints when no source has a catalog entry', () {
@@ -173,12 +169,12 @@ void main() {
 
     final bugHotspots = analysisHintsCatalog[AnalysisType.bugHotspots]!;
     final ownership = analysisHintsCatalog[AnalysisType.fileOwnership]!;
-    for (final s in [
-      ...bugHotspots.interpretation,
-      ...ownership.interpretation
-    ]) {
-      expect(payload.hints.interpretation, contains(s));
-    }
+    expect(
+        payload.hints.bySource[AnalysisType.bugHotspots.name]!.interpretation,
+        equals(bugHotspots.interpretation));
+    expect(
+        payload.hints.bySource[AnalysisType.fileOwnership.name]!.interpretation,
+        equals(ownership.interpretation));
   });
 
   test('toJson emits refactoring_targets with basis only when non-empty', () {

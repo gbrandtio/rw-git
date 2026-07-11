@@ -279,7 +279,7 @@ void main() {
   group('ComplianceClassifier', () {
     test('per-violation findings', () {
       const v = ComplianceViolation(
-          hash: 'abc', author: 'A', email: 'a@x', message: 'm', date: 'd');
+          hash: 'abc', author: 'A', message: 'm', email: 'a@x', date: 'd');
       final findings = fc.fromCompliance(const ComplianceReportDto(
         totalCommitsScanned: 20,
         unsignedCommits: [v],
@@ -405,7 +405,6 @@ void main() {
         metric: 'file_complexity',
         value: 30,
         band: 'b',
-        message: 'm',
       );
       final compound = const Finding(
         category: 'compound',
@@ -415,7 +414,6 @@ void main() {
         metric: 'complexity_x_churn',
         value: 1,
         band: 'b',
-        message: 'm',
       );
       final payload = ReportPayload.fromFindings(
         reportType: 'technical',
@@ -446,7 +444,6 @@ void main() {
           metric: 'm',
           value: i,
           band: 'b',
-          message: 'm',
         ),
       );
       final payload = ReportPayload.fromFindings(

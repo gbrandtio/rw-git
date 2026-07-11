@@ -18,18 +18,6 @@ import '../models/severity.dart';
 class CommitHygieneClassifier {
   const CommitHygieneClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Change-set size and intent signals (Nagappan & Ball 2005; Mockus & '
-      'Votta 2000)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Large change sets are disproportionately defect-prone and hard to '
-      'review (Nagappan & Ball, ICSE 2005); commit messages reliably encode '
-      'change intent, so suspicious wording flags risky changes (Mockus & '
-      'Votta, ICSM 2000).';
-
   /// [megaCommits] are the formatted `hash - author (date): message` lines
   /// produced by `MegaCommitsHeuristic.findMegaCommits`.
   List<Finding> classifyMegaCommits(List<String> megaCommits) =>
@@ -53,10 +41,6 @@ class CommitHygieneClassifier {
         metric: metric,
         value: flaggedCommits.length,
         band: '${flaggedCommits.length} $label',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '${flaggedCommits.length} $label detected in the analysed '
-            'history.',
         evidence: {
           'count': flaggedCommits.length,
           'samples':

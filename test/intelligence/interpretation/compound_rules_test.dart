@@ -34,8 +34,6 @@ void main() {
     expect(compound.severity, Severity.critical);
     expect(compound.subject, 'lib/x.dart');
     expect(compound.source, contains(AnalysisType.universalLexicalMetrics));
-    expect(compound.basis, contains('McCabe'));
-    expect(compound.rationale, contains('1976'));
   });
 
   test('Rule 5 requires the same subject and at least High severity', () {

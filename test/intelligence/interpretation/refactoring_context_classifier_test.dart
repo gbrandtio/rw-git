@@ -12,9 +12,9 @@ void main() {
           {bool simplification = false, String hash = 'abc123'}) =>
       RefactoringDto(
         commitHash: hash,
+        message: 'm',
         date: '2026-01-01',
         author: 'A',
-        message: 'refactor: restructure',
         renamedFiles: renamed,
         linesInserted: 10,
         linesDeleted: simplification ? 100 : 10,
@@ -29,7 +29,6 @@ void main() {
         metric: 'file_churn',
         value: 12,
         band: 'top-decile change frequency',
-        message: 'm',
       );
 
   test('downgrades churn findings on refactored files one band', () {
@@ -55,7 +54,6 @@ void main() {
       metric: 'exposed_secret',
       value: 'redacted',
       band: 'credential exposed in history',
-      message: 'm',
     );
     final annotated = fc.applyRefactoringContext(
       [secret, churnFinding('lib/other.dart', Severity.elevated)],
@@ -85,7 +83,6 @@ void main() {
     expect(finding.category, 'refactoring');
     expect(finding.severity, Severity.elevated);
     expect(finding.value, 5);
-    expect(finding.basis, contains('Neto'));
   });
 
   test('sparse refactoring activity stays silent', () {

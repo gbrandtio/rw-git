@@ -21,18 +21,6 @@ import '../models/severity.dart';
 class CleanCodeClassifier {
   const CleanCodeClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Clean-code heuristics (Martin 2008; Fowler 1999; Koschke 2007)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Oversized files and deep nesting are the structural signature of '
-      'Single Responsibility violations (Martin 2008); magic numbers hide '
-      'intent behind literals (Fowler 1999); and duplicated lines are '
-      'Type-1 clones whose copies drift apart under maintenance (Koschke '
-      '2007). Multiple heuristics agreeing on one file compounds the risk.';
-
   List<Finding> classify(List<CleanCodeMetricsDto> files) {
     final findings = <Finding>[];
     for (final file in files) {
@@ -50,9 +38,6 @@ class CleanCodeClassifier {
             ? '>= $cleanCodeHighSeverityIssueCount clean-code heuristics '
                 'crossed'
             : 'clean-code threshold crossed',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '$normalized: ${file.issues.join(' ')}',
         evidence: {
           'total_lines': file.totalLines,
           'max_indentation_level': file.maxIndentationLevel,

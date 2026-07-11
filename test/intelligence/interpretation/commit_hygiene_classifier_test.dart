@@ -20,7 +20,6 @@ void main() {
     expect(finding.value, 8);
     // Evidence sample is bounded so the finding stays inline-sized.
     expect((finding.evidence['samples'] as List).length, 5);
-    expect(finding.basis, contains('Nagappan'));
   });
 
   test('suspicious commits aggregate under their own metric', () {

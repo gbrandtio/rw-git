@@ -66,7 +66,6 @@ void main() {
       expect(compound.severity, Severity.critical);
       expect(compound.subject, 'alice');
       expect(compound.evidence['at_risk_files'], ['lib/a.dart', 'lib/b.dart']);
-      expect(compound.basis, contains('Avelino'));
     });
 
     test('stays silent below the minimum file count', () {
@@ -95,7 +94,6 @@ void main() {
           .singleWhere((c) => c.metric == 'minor_contributors_x_hotspot');
       expect(compound.severity, Severity.high);
       expect(compound.subject, 'lib/hot.dart');
-      expect(compound.basis, contains('Bird'));
     });
 
     test('stays silent without the hotspot half of the join', () {
@@ -122,7 +120,6 @@ void main() {
       expect(compound.severity, Severity.high);
       expect(compound.subject, 'repository');
       expect(compound.evidence['active_bug_hotspots'], ['lib/a.dart']);
-      expect(compound.basis, contains('Claes'));
     });
 
     test('stays silent without hotspots', () {
@@ -142,7 +139,6 @@ void main() {
       expect(finding.severity, Severity.elevated);
       expect(finding.value, 3);
       expect(finding.evidence['minor_contributor_count'], 3);
-      expect(finding.basis, contains('Bird'));
     });
 
     test('fewer than 3 minor contributors stay silent', () {

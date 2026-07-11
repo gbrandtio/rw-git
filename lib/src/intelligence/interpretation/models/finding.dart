@@ -35,20 +35,6 @@ class Finding {
   /// Human-readable band description, e.g. `> 2x global average`.
   final String band;
 
-  /// One-line human summary of the finding.
-  final String message;
-
-  /// Compact academic citation tag behind the band, e.g.
-  /// `Truck-factor estimation (Avelino et al. 2016)`. Carried inline in the
-  /// offload preview, so classifiers must keep it short (~90 chars) — every
-  /// character is a recurring token cost in each report.
-  final String? basis;
-
-  /// One-to-two-sentence research rationale with the citation, explaining
-  /// why the metric predicts risk. Present only in the offloaded full
-  /// report: the offload decorator strips it from preview copies.
-  final String? rationale;
-
   /// Supporting evidence: thresholds, correlated sources, raw numbers.
   final Map<String, dynamic> evidence;
 
@@ -60,9 +46,6 @@ class Finding {
     required this.metric,
     required this.value,
     required this.band,
-    required this.message,
-    this.basis,
-    this.rationale,
     this.evidence = const {},
   });
 
@@ -70,9 +53,6 @@ class Finding {
   Finding copyWith({
     Severity? severity,
     String? band,
-    String? message,
-    String? basis,
-    String? rationale,
     Map<String, dynamic>? evidence,
   }) {
     return Finding(
@@ -83,9 +63,6 @@ class Finding {
       metric: metric,
       value: value,
       band: band ?? this.band,
-      message: message ?? this.message,
-      basis: basis ?? this.basis,
-      rationale: rationale ?? this.rationale,
       evidence: evidence ?? this.evidence,
     );
   }
@@ -98,9 +75,6 @@ class Finding {
         'metric': metric,
         'value': value,
         'band': band,
-        'message': message,
-        if (basis != null) 'basis': basis,
-        if (rationale != null) 'rationale': rationale,
         if (evidence.isNotEmpty) 'evidence': evidence,
       };
 }

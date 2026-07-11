@@ -8,25 +8,17 @@
 /// so raw-tool hints and report hints read identically to a calling model.
 library;
 
+import 'tool_hints.dart';
+
 /// Research-grounded guidance aggregated across every tool that fed a
 /// report's findings, grouped into the same three categories as [ToolHints].
 class ReportHints {
-  final List<String> interpretation;
-  final List<String> caveats;
-  final List<String> pairWith;
+  final Map<String, ToolHints> bySource;
 
-  const ReportHints({
-    this.interpretation = const [],
-    this.caveats = const [],
-    this.pairWith = const [],
-  });
+  const ReportHints({this.bySource = const {}});
 
-  bool get isEmpty =>
-      interpretation.isEmpty && caveats.isEmpty && pairWith.isEmpty;
+  bool get isEmpty => bySource.isEmpty;
 
-  Map<String, dynamic> toJson() => {
-        if (interpretation.isNotEmpty) 'interpretation': interpretation,
-        if (caveats.isNotEmpty) 'caveats': caveats,
-        if (pairWith.isNotEmpty) 'pair_with': pairWith,
-      };
+  Map<String, dynamic> toJson() =>
+      bySource.map((key, value) => MapEntry(key, value.toJson()));
 }

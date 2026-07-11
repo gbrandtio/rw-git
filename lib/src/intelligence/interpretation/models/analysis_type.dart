@@ -28,4 +28,5 @@ enum AnalysisType {
   contributionsByAuthor,
   stats,
   commitsBetween,
+  compound,
 }

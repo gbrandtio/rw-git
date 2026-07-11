@@ -11,6 +11,7 @@ import 'finding.dart';
 import '../orchestration/refactoring_target_ranker.dart';
 import 'report_hints.dart';
 import '../catalogs/analysis_hints_catalog.dart';
+import 'package:rw_git/src/intelligence/interpretation/models/tool_hints.dart';
 
 /// A ranked, size-bounded report payload.
 class ReportPayload {
@@ -97,24 +98,16 @@ class ReportPayload {
     final sortedSources = findings.expand((f) => f.source).toSet().toList()
       ..sort((a, b) => a.name.compareTo(b.name));
 
-    final interpretation = <String>[];
-    final caveats = <String>[];
-    final pairWith = <String>[];
+    final bySource = <String, ToolHints>{};
 
     for (final source in sortedSources) {
       final catalogHints = analysisHintsCatalog[source];
-      if (catalogHints == null) continue;
-
-      interpretation.addAll(catalogHints.interpretation);
-      caveats.addAll(catalogHints.caveats);
-      pairWith.addAll(catalogHints.pairWith);
+      if (catalogHints != null) {
+        bySource[source.name] = catalogHints;
+      }
     }
 
-    return ReportHints(
-      interpretation: interpretation.toSet().toList(),
-      caveats: caveats.toSet().toList(),
-      pairWith: pairWith.toSet().toList(),
-    );
+    return ReportHints(bySource: bySource);
   }
 
   /// Ranks by severity (desc), then compound-first, then numeric magnitude.
@@ -145,9 +138,10 @@ class ReportPayload {
         'metadata': metadata,
         'guidance':
             'Findings are already classified into severity bands and ranked. '
-                'Narrate each using its severity, subject, band, and message; '
-                'no further interpretation, statistics, or cross-referencing '
-                'is required.',
+                'Narrate each using its severity, subject, band, and message. '
+                'Use the hints map to surface contextually relevant '
+                'expert interpretation, caveats, and pair_with guidance '
+                'for each analysis type.',
         if (!hints.isEmpty) 'hints': hints.toJson(),
       };
 }

@@ -20,8 +20,6 @@ void main() {
     expect(finding.subject, 'lib/a.dart');
     expect(finding.value, 2);
     expect(finding.evidence['cycle_members'], ['lib/a.dart', 'lib/b.dart']);
-    expect(finding.basis, contains('Tarjan'));
-    expect(finding.rationale, contains('1972'));
   });
 
   test('no cycles, no findings', () {

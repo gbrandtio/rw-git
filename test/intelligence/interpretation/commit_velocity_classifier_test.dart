@@ -63,6 +63,5 @@ void main() {
     expect(findings.single.severity, Severity.high);
     expect(findings.single.metric, 'burnout_commit_share');
     expect(findings.single.value, 0.2);
-    expect(findings.single.basis, contains('Claes'));
   });
 }

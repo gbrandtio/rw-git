@@ -135,11 +135,5 @@ void main() {
     expect(finding.evidence['npath_complexity'], 300);
     expect(finding.evidence['cognitive_complexity'], 20);
     expect(finding.evidence['halstead_delivered_bugs'], 2.5);
-    expect(finding.basis, contains('McCabe'));
-    expect(finding.rationale, contains('1976'));
-    expect(finding.rationale, contains('Fitzpatrick'));
-    expect(finding.rationale, contains('Nejmeh'));
-    expect(finding.rationale, contains('Campbell'));
-    expect(finding.rationale, contains('Halstead'));
   });
 }

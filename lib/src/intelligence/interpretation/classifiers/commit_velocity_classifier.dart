@@ -17,18 +17,6 @@ import '../models/severity.dart';
 class CommitVelocityClassifier {
   const CommitVelocityClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Cadence, commit inequality, off-hours work (Gini 1912; Claes et al. '
-      '2018)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Commit inequality is measured with the Gini coefficient (Gini, 1912) '
-      '— high concentration means delivery depends on few people; sustained '
-      'night/weekend commits correlate with unsustainable pace and burnout '
-      '(Claes, Mens & Grosjean, ICSE 2018).';
-
   List<Finding> classify(CommitVelocityDto dto) {
     if (dto.totalCommits <= 0) return const [];
     final findings = <Finding>[];
@@ -42,11 +30,6 @@ class CommitVelocityClassifier {
         metric: 'velocity_slope',
         value: double.parse(dto.velocitySlope.toStringAsFixed(3)),
         band: 'declining commit trend',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: 'Commit velocity is declining '
-            '(slope ${dto.velocitySlope.toStringAsFixed(2)} per period, '
-            'avg ${dto.averagePerPeriod.toStringAsFixed(1)} commits).',
         evidence: {
           'trend': dto.trend,
           'average_per_period':
@@ -67,12 +50,6 @@ class CommitVelocityClassifier {
         value: double.parse(dto.giniCoefficient.toStringAsFixed(3)),
         band: '> $giniAuthorConcentrationHighThreshold Gini author '
             'concentration',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: 'Commit activity is concentrated '
-            '(Gini ${dto.giniCoefficient.toStringAsFixed(2)}'
-            '${topAuthor != null ? ', led by $topAuthor' : ''}) — delivery '
-            'depends on very few people.',
         evidence: {
           'gini_coefficient':
               double.parse(dto.giniCoefficient.toStringAsFixed(3)),
@@ -92,11 +69,6 @@ class CommitVelocityClassifier {
         value: double.parse(burnoutShare.toStringAsFixed(3)),
         band: '> ${(burnoutCommitShareHighThreshold * 100).toStringAsFixed(0)}'
             '% commits in the burnout window',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '${dto.totalBurnoutCommits} of ${dto.totalCommits} commits '
-            '(${(burnoutShare * 100).toStringAsFixed(1)}%) land in the '
-            'burnout window (nights/weekends).',
         evidence: {
           'total_burnout_commits': dto.totalBurnoutCommits,
           'total_commits': dto.totalCommits,

@@ -32,7 +32,6 @@ void main() {
     expect(finding.category, 'cleanCode');
     expect(finding.source, [AnalysisType.cleanCode]);
     expect(finding.value, 1);
-    expect(finding.basis, contains('Martin'));
   });
 
   test('three or more agreeing heuristics escalate to High', () {

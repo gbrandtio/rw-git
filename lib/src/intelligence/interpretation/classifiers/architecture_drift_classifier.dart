@@ -20,19 +20,6 @@ import '../models/severity.dart';
 class ArchitectureDriftClassifier {
   const ArchitectureDriftClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Architectural bad smells (Garcia et al. 2009; Perry & Wolf 1992)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Commits that repeatedly span multiple architectural layers are the '
-      'historical signature of eroding boundaries (Perry & Wolf 1992). '
-      'Garcia, Oliveira & Murta (2009) catalogue the recurring shapes of '
-      'that erosion: a God Component absorbing cross-cutting concerns, a '
-      'hub layer coupled to most others, and functionality scattered '
-      'across layers no single one owns.';
-
   List<Finding> classify(ArchitectureDriftDto drift) {
     final findings = <Finding>[];
 
@@ -51,9 +38,6 @@ class ArchitectureDriftClassifier {
                 ? '> ${(godComponentDriftShareThreshold * 100).round()}% of '
                     'drift commits'
                 : '>= half of layers coupled',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: smell.description,
         evidence: {
           'smell_type': smell.type,
           if (smell.count != null) 'occurrences': smell.count,
@@ -73,11 +57,6 @@ class ArchitectureDriftClassifier {
         value: double.parse(drift.couplingRatio.toStringAsFixed(3)),
         band: '> ${(couplingRatioElevatedThreshold * 100).round()}% of '
             'commits cross layer boundaries',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '${(drift.couplingRatio * 100).toStringAsFixed(1)}% of '
-            'analyzed commits modify more than one architectural layer — '
-            'the declared boundaries are not containing change.',
         evidence: {
           'commits_with_drift': drift.driftCommits.length,
           'total_commits_analyzed': drift.totalCommitsAnalyzed,
@@ -95,11 +74,6 @@ class ArchitectureDriftClassifier {
         value: double.parse(drift.couplingDensity.toStringAsFixed(3)),
         band: '> ${(couplingDensityElevatedThreshold * 100).round()}% of '
             'layer pairs coupled',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '${(drift.couplingDensity * 100).toStringAsFixed(1)}% of '
-            'possible layer pairs co-change — the architecture behaves as '
-            'an entangled whole rather than independent layers.',
         evidence: {
           'coupling_matrix_layers': drift.couplingMatrix.keys.toList(),
         },

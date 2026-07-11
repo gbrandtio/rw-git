@@ -19,17 +19,6 @@ import '../models/severity.dart';
 class ComplexityClassifier {
   const ComplexityClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Control-flow keyword proxy, repo-relative bands (McCabe 1976)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Counts control-flow keywords on changed lines as a lightweight proxy '
-      'for cyclomatic complexity (McCabe, IEEE TSE 1976). The count is not a '
-      'normalised score, so bands compare each file against the '
-      'repository\'s own median rather than an absolute cut-off.';
-
   List<Finding> classify(AdvancedCodeQualityDto dto) {
     // The keyword proxy matches English prose too, so non-source files
     // (SourceFileFilter) are dropped before the median: they are not valid
@@ -66,11 +55,6 @@ class ComplexityClassifier {
         metric: 'file_complexity',
         value: complexity,
         band: band,
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: 'High complexity in $normalized: $complexity control-flow '
-            'keywords (${ratio.toStringAsFixed(1)}x repo median '
-            '${median.toStringAsFixed(1)}).',
         evidence: {
           'file_complexity': complexity,
           'repo_median': double.parse(median.toStringAsFixed(2)),

@@ -17,17 +17,6 @@ import '../models/severity.dart';
 class VolatilityClassifier {
   const VolatilityClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Churn x authors defect prediction (Nagappan & Ball 2005; Weyuker '
-      '2008)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'High change volume combined with many distinct authors predicts '
-      'fault-proneness beyond churn alone (Nagappan & Ball, ICSE 2005; '
-      'Weyuker, Ostrand & Bell, Empirical SE 2008).';
-
   List<Finding> classify(List<CodeVolatilityDto> files) {
     if (files.isEmpty) return const [];
     final threshold =
@@ -47,10 +36,6 @@ class VolatilityClassifier {
         metric: 'volatility_score',
         value: score,
         band: 'top-decile volatility',
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '$normalized is highly volatile '
-            '(${f.totalChanges} changes, ${f.uniqueAuthors} authors).',
         evidence: {
           'total_changes': f.totalChanges,
           'unique_authors': f.uniqueAuthors,

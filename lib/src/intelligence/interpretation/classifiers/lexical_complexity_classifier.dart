@@ -23,26 +23,6 @@ import '../models/severity.dart';
 class LexicalComplexityClassifier {
   const LexicalComplexityClassifier();
 
-  /// Compact citation tag carried inline on every finding.
-  static const String researchBasis =
-      'Lexical complexity suite bands (McCabe 1976; Coleman 1994; '
-      'Fitzpatrick 1997; Nejmeh 1988; Campbell 2018; Halstead 1977)';
-
-  /// Fuller research rationale carried only in the offloaded full report.
-  static const String researchRationale =
-      'Cyclomatic complexity counts independent execution paths; above 20 a '
-      'unit is high-risk and above 50 effectively untestable (McCabe, IEEE '
-      'TSE 1976). The maintainability index composes Halstead volume, '
-      'complexity, and size; below 65 signals hard-to-maintain code '
-      '(Coleman et al., ICSM 1994). The ABC score measures raw program size '
-      'as the vector magnitude of assignments, branches, and conditions; '
-      'above 30 a unit needs refactoring (Fitzpatrick 1997). NPath counts '
-      'acyclic execution paths; above 200 path coverage is impractical '
-      '(Nejmeh, CACM 1988). Cognitive complexity weights nesting, measuring '
-      'understandability rather than testability (Campbell 2018). The '
-      'Halstead delivered-bugs estimate (volume / 3000) approximates latent '
-      'defects from program vocabulary and size (Halstead 1977).';
-
   List<Finding> classify(List<FileLexicalMetricsDto> files) {
     final findings = <Finding>[];
     for (final file in files) {
@@ -60,11 +40,6 @@ class LexicalComplexityClassifier {
         metric: worst.metric,
         value: worst.value,
         band: worst.band,
-        basis: researchBasis,
-        rationale: researchRationale,
-        message: '$normalized has ${worst.metric.replaceAll('_', ' ')} '
-            '${worst.formattedValue} (${worst.band}); full complexity '
-            'suite in evidence.',
         evidence: {
           'cyclomatic_complexity': file.cyclomaticComplexity,
           'maintainability_index': file.maintainabilityIndex,
