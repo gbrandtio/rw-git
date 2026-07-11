@@ -1,6 +1,7 @@
 # 3.3.1
 - **Feat (GitHub):** Moved from @gbrandtio personal github, to @rw-core organisation in github.
 - **Feat (Distribution):** Updated the npm package to reflect the new organisation name, along with pubspec assets and git jobs.
+- **CHORE (Distribution):** Removed flutter dependency and pumped dart version to >=3.10.0 <4.0.0
 
 # 3.3.0
 - **FEAT (Library):** Exposed the pure lexical metrics algorithms (`FsmLexer`, `CyclomaticComplexityAlgorithm`, `HalsteadComplexityAlgorithm`, etc.) via `lexical_metrics.dart` so 3rd party packages can build custom static analysis pipelines.
