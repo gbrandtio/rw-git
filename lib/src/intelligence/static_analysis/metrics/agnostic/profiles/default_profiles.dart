@@ -14,8 +14,6 @@ class DefaultProfiles {
       'switch',
       'case',
       'catch',
-      '?',
-      '??',
     },
     structuralAnchors: {
       'class',
@@ -27,6 +25,8 @@ class DefaultProfiles {
     },
     operatorKeywords: {'as', 'is'},
     lexical: LexicalProfile.dart,
+    // No lambdaIntroducers: `=> {` in Dart is a set/map literal, not a
+    // lambda body; closure arguments are caught by the `(){ }` heuristic.
   );
 
   static const python = LanguageProfile(
@@ -48,6 +48,7 @@ class DefaultProfiles {
     structuralAnchors: {'def', 'class', 'async'},
     operatorKeywords: {'and', 'or', 'not', 'in', 'is'},
     lexical: LexicalProfile.python,
+    blockStructure: BlockStructure.indentation,
   );
 
   static const javascript = LanguageProfile(
@@ -62,11 +63,11 @@ class DefaultProfiles {
       'switch',
       'case',
       'catch',
-      '?',
     },
     structuralAnchors: {'function', 'class', 'const', 'let', 'var'},
     operatorKeywords: {'typeof', 'instanceof', 'void', 'delete', 'in', 'of'},
     lexical: LexicalProfile.javascript,
+    lambdaIntroducers: {'=>'},
   );
 
   static const java = LanguageProfile(
@@ -81,11 +82,11 @@ class DefaultProfiles {
       'switch',
       'case',
       'catch',
-      '?',
     },
     structuralAnchors: {'class', 'interface', 'public', 'private', 'protected'},
     operatorKeywords: {'instanceof', 'typeof', 'is', 'as'},
     lexical: LexicalProfile.cLike,
+    lambdaIntroducers: {'->', '=>'},
   );
 
   static const c = LanguageProfile(
@@ -100,7 +101,6 @@ class DefaultProfiles {
       'switch',
       'case',
       'catch',
-      '?',
     },
     structuralAnchors: {'class', 'struct', 'union', 'enum', 'void', 'template'},
     operatorKeywords: {'sizeof', 'typeof', 'new', 'delete'},
@@ -147,6 +147,11 @@ class DefaultProfiles {
     structuralAnchors: {'def', 'class', 'module'},
     operatorKeywords: {'and', 'or', 'not'},
     lexical: LexicalProfile.ruby,
+    blockStructure: BlockStructure.keywordEnd,
+    blockOpeners: {'if', 'unless', 'while', 'until', 'case', 'for', 'begin'},
+    structuralBlockOpeners: {'def', 'class', 'module'},
+    lambdaBlockOpeners: {'do'},
+    blockClosers: {'end'},
   );
 
   static const lua = LanguageProfile(
@@ -164,6 +169,10 @@ class DefaultProfiles {
     structuralAnchors: {'function', 'local'},
     operatorKeywords: {'and', 'or', 'not'},
     lexical: LexicalProfile.lua,
+    blockStructure: BlockStructure.keywordEnd,
+    blockOpeners: {'if', 'while', 'for', 'repeat'},
+    structuralBlockOpeners: {'function', 'do'},
+    blockClosers: {'end', 'until'},
   );
 
   static const shell = LanguageProfile(
@@ -181,6 +190,10 @@ class DefaultProfiles {
     structuralAnchors: {'function'},
     operatorKeywords: {},
     lexical: LexicalProfile.shell,
+    blockStructure: BlockStructure.keywordEnd,
+    blockOpeners: {'if', 'for', 'while', 'until', 'case'},
+    structuralBlockOpeners: {'function'},
+    blockClosers: {'fi', 'done', 'esac'},
   );
 
   static const xml = LanguageProfile(

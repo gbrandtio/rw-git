@@ -148,6 +148,38 @@ void main() {
     });
   });
 
+  group('FsmLexer indentation stamps', () {
+    Token newlineAt(List<Token> tokens, int nth) =>
+        tokens.where((t) => t.type == TokenType.newline).elementAt(nth);
+
+    test('newline carries the indent width of the next line', () {
+      final tokens = FsmLexer('a\n    b', LexicalProfile.python).tokenize();
+      expect(newlineAt(tokens, 0).indentWidth, 4);
+    });
+    test('tabs expand to the next multiple of 8', () {
+      final tokens = FsmLexer('a\n\tb', LexicalProfile.python).tokenize();
+      expect(newlineAt(tokens, 0).indentWidth, 8);
+    });
+    test('blank lines carry no indent signal', () {
+      final tokens = FsmLexer('a\n\nb', LexicalProfile.python).tokenize();
+      expect(newlineAt(tokens, 0).indentWidth, -1);
+      expect(newlineAt(tokens, 1).indentWidth, 0);
+    });
+    test('comment-only lines carry no indent signal', () {
+      final tokens =
+          FsmLexer('a\n    # note\nb', LexicalProfile.python).tokenize();
+      expect(newlineAt(tokens, 0).indentWidth, -1);
+    });
+    test('end of input carries no indent signal', () {
+      final tokens = FsmLexer('a\n', LexicalProfile.python).tokenize();
+      expect(newlineAt(tokens, 0).indentWidth, -1);
+    });
+    test('non-newline tokens default to -1', () {
+      final tokens = FsmLexer('a b').tokenize();
+      expect(tokens[0].indentWidth, -1);
+    });
+  });
+
   group('FsmLexer', () {
     test('Tokenizes basic identifiers and punctuation', () {
       final lexer = FsmLexer('void main() { }');

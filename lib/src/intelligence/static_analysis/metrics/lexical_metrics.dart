@@ -15,4 +15,5 @@ export 'agnostic/lexer/fsm_lexer.dart';
 export 'agnostic/lexer/lexical_profile.dart';
 export 'agnostic/lexer/sliding_window_token_stream.dart';
 export 'agnostic/lexer/token.dart';
+export 'agnostic/nesting_resolver.dart';
 export 'agnostic/profiles/default_profiles.dart';

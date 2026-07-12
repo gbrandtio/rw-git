@@ -90,10 +90,17 @@ class FsmLexer {
     final start = _position;
     final code = _source.codeUnitAt(_position);
 
-    // Newline
+    // Newline, stamped with the indentation width of the line it opens so
+    // structural analysis of indentation languages stays possible downstream.
     if (code == _lf) {
       _position++;
-      return _createToken(TokenType.newline, start, _position);
+      return Token(
+        type: TokenType.newline,
+        start: start,
+        end: _position,
+        source: _source,
+        indentWidth: _measureIndent(_position),
+      );
     }
 
     // Identifier or Keyword
@@ -190,6 +197,37 @@ class FsmLexer {
 
       break;
     }
+  }
+
+  /// Measures the indentation width of the line starting at [pos], expanding
+  /// tabs to the next multiple of 8 columns (Python's rule). Returns -1 when
+  /// the line carries no code: blank, line-comment-only, or end of input.
+  /// Pure lookahead; does not consume.
+  int _measureIndent(int pos) {
+    var width = 0;
+    var p = pos;
+    while (p < _length) {
+      final c = _source.codeUnitAt(p);
+      if (c == _space) {
+        width++;
+      } else if (c == _tab) {
+        width += 8 - (width % 8);
+      } else if (c == _cr) {
+        // Width contribution of \r is nil; \r\n blank lines resolve below.
+      } else {
+        break;
+      }
+      p++;
+    }
+    if (p >= _length || _source.codeUnitAt(p) == _lf) {
+      return -1; // Blank line or end of input.
+    }
+    for (final prefix in _profile.lineComments) {
+      if (_matchesAt(p, prefix)) {
+        return -1; // Comment-only line.
+      }
+    }
+    return width;
   }
 
   void _skipWhitespaceAndMaskedRegions() {

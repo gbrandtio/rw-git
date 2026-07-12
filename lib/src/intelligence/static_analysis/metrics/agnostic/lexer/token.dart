@@ -20,6 +20,14 @@ class Token {
   final int start;
   final int end;
 
+  /// For [TokenType.newline] tokens: the indentation width of the *next*
+  /// line, with tabs expanded to the next multiple of 8 columns. `-1` when
+  /// the next line carries no code (blank, comment-only, or end of file) or
+  /// for non-newline tokens. This is the only structural whitespace signal
+  /// the lexer preserves; the [NestingResolver] uses it to synthesize
+  /// indent/dedent events for indentation-structured languages.
+  final int indentWidth;
+
   /// A reference to the original source string to avoid allocation.
   final String _source;
 
@@ -28,6 +36,7 @@ class Token {
     required this.start,
     required this.end,
     required String source,
+    this.indentWidth = -1,
   }) : _source = source;
 
   /// Lazily extracts the lexeme string when needed.

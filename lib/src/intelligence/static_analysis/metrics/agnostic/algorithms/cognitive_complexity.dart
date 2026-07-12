@@ -1,38 +1,134 @@
 import 'agnostic_metric_algorithm.dart';
 import '../lexer/token.dart';
 import '../language_profile.dart';
+import '../nesting_resolver.dart';
 
-/// Calculates Cognitive Complexity, which heavily penalizes deeply nested
-/// control flow structures.
+/// Calculates Cognitive Complexity following the SonarSource specification:
+/// structural control flow scores `1 + nesting depth`, hybrid branches
+/// (`else`, `elif`) score a flat +1 with no depth penalty, and boolean
+/// operators score +1 per use.
+///
+/// Nesting depth comes from the [NestingResolver], so only control-flow
+/// blocks and lambdas nest — function bodies, argument lists, and literal
+/// brackets do not.
 class CognitiveComplexityAlgorithm implements AgnosticMetricAlgorithm<int> {
+  /// Branch continuations that score +1 flat and never carry a depth
+  /// penalty. An `else if` / `else unless` pair scores once, not twice.
+  static const Set<String> _hybridBranches = {
+    'else',
+    'elif',
+    'elsif',
+    'elseif',
+  };
+
+  /// Control-flow keywords that structure a construct already counted by
+  /// another keyword (`do`-while counts at its `while`; `case`/`when` arms
+  /// are covered by their `switch`) or that the specification does not
+  /// increment (`try`, `finally`, `with`, jump helpers).
+  static const Set<String> _noIncrement = {
+    'do',
+    'case',
+    'when',
+    'then',
+    'try',
+    'finally',
+    'ensure',
+    'with',
+    'defer',
+    'go',
+    'retry',
+  };
+
   @override
   int calculate(List<Token> tokens, LanguageProfile profile) {
-    int complexity = 0;
-    int nestingDepth = 0;
+    final resolution = NestingResolver(profile).resolve(tokens);
+    var complexity = 0;
+    final skip = <int>{};
+    Token? prevSignificant;
 
-    for (final token in tokens) {
-      if (token.type == TokenType.punctuation) {
-        if (token.lexeme == '{' || token.lexeme == '[' || token.lexeme == '(') {
-          nestingDepth++;
-        } else if (token.lexeme == '}' ||
-            token.lexeme == ']' ||
-            token.lexeme == ')') {
-          nestingDepth--;
-          if (nestingDepth < 0) nestingDepth = 0;
-        }
-      } else if (token.type == TokenType.identifier) {
-        if (profile.isControlFlow(token.lexeme)) {
-          // Add 1 for the branch itself, plus an increment for its nesting depth.
-          complexity += 1 + nestingDepth;
+    for (var i = 0; i < tokens.length; i++) {
+      final token = tokens[i];
+      if (token.type == TokenType.newline) {
+        continue;
+      }
+
+      if (token.type == TokenType.identifier) {
+        final lexeme = token.lexeme;
+        if (profile.isControlFlow(lexeme) &&
+            !_isPreprocessor(prevSignificant, token)) {
+          if (_hybridBranches.contains(lexeme)) {
+            complexity += 1;
+            // `else if` is one branch: suppress the trailing keyword.
+            final next = _nextSignificantIndex(tokens, i);
+            if (next != -1 &&
+                (tokens[next].lexeme == 'if' ||
+                    tokens[next].lexeme == 'unless')) {
+              skip.add(next);
+            }
+          } else if (!_noIncrement.contains(lexeme) && !skip.contains(i)) {
+            complexity += 1 + resolution.depths[i];
+          }
+        } else if (profile.isOperatorKeyword(lexeme) &&
+            (lexeme == 'and' || lexeme == 'or')) {
+          complexity += 1;
         }
       } else if (token.type == TokenType.operator) {
-        if (token.lexeme == '&&' || token.lexeme == '||') {
-          complexity +=
-              1; // Logical operators add complexity but aren't penalized by depth in the same way as structural loops.
+        final lexeme = token.lexeme;
+        if (lexeme == '&&' || lexeme == '||' || lexeme == '??') {
+          complexity += 1;
+        } else if (lexeme == '?' && _isTernary(tokens, i)) {
+          complexity += 1 + resolution.depths[i];
         }
       }
+
+      prevSignificant = token;
     }
 
     return complexity;
+  }
+
+  /// A control keyword glued to `#` is a preprocessor directive (`#if`).
+  bool _isPreprocessor(Token? prev, Token current) =>
+      prev != null &&
+      prev.type == TokenType.unknown &&
+      prev.lexeme == '#' &&
+      prev.end == current.start;
+
+  int _nextSignificantIndex(List<Token> tokens, int from) {
+    for (var j = from + 1; j < tokens.length; j++) {
+      if (tokens[j].type != TokenType.newline) return j;
+    }
+    return -1;
+  }
+
+  /// Distinguishes a conditional expression's `?` from a nullable-type
+  /// marker (`int? x`): a ternary has a matching `:` at the same bracket
+  /// level before the expression ends.
+  bool _isTernary(List<Token> tokens, int from) {
+    var delta = 0;
+    for (var j = from + 1; j < tokens.length; j++) {
+      final token = tokens[j];
+      if (token.type == TokenType.punctuation) {
+        switch (token.lexeme) {
+          case '(':
+          case '[':
+          case '{':
+            delta++;
+          case ')':
+          case ']':
+          case '}':
+            if (delta == 0) return false; // Expression closed without a `:`.
+            delta--;
+          case ';':
+          case ',':
+            if (delta == 0) return false;
+        }
+      } else if (token.type == TokenType.operator &&
+          token.lexeme == ':' &&
+          delta == 0) {
+        return true;
+      }
+    }
+    return false;
   }
 }
