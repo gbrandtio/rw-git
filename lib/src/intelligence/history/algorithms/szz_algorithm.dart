@@ -59,6 +59,7 @@ class SzzAlgorithm {
     String? until,
     String? positiveRegex,
     String? negativeRegex,
+    List<String>? targetFiles,
   }) async {
     final args = [
       'log',
@@ -77,6 +78,10 @@ class SzzAlgorithm {
     }
     if (until != null) {
       args.add('--until=$until');
+    }
+    if (targetFiles != null && targetFiles.isNotEmpty) {
+      args.add('--');
+      args.addAll(targetFiles);
     }
 
     final res = await runner.run('git', args, workingDirectory: directory);

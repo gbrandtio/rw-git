@@ -18,6 +18,7 @@ class SuspiciousCommitsHeuristic {
     String? limit,
     String? since,
     String? until,
+    String? revisionRange,
   }) async {
     final args = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
@@ -29,6 +30,9 @@ class SuspiciousCommitsHeuristic {
     }
     if (until != null) {
       args.add('--until=$until');
+    }
+    if (revisionRange != null) {
+      args.add(revisionRange);
     }
 
     final stream = runner.runStream('git', args, workingDirectory: directory);
@@ -100,6 +104,7 @@ class SuspiciousCommitsHeuristic {
     String? limit,
     String? since,
     String? until,
+    String? revisionRange,
   }) async {
     final logArgs = ['log', '-p', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
@@ -111,6 +116,9 @@ class SuspiciousCommitsHeuristic {
     }
     if (until != null) {
       logArgs.add('--until=$until');
+    }
+    if (revisionRange != null) {
+      logArgs.add(revisionRange);
     }
     final result = await runner.run(
       'git',

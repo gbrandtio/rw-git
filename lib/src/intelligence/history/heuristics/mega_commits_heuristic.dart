@@ -17,6 +17,7 @@ class MegaCommitsHeuristic {
     String? limit,
     String? since,
     String? until,
+    String? revisionRange,
   }) async {
     final args = ['log', '--shortstat', '--format=%H||%an||%aI||%s'];
     if (limit != null) {
@@ -28,6 +29,9 @@ class MegaCommitsHeuristic {
     }
     if (until != null) {
       args.add('--until=$until');
+    }
+    if (revisionRange != null) {
+      args.add(revisionRange);
     }
     final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);

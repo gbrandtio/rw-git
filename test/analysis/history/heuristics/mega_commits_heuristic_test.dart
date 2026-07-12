@@ -88,5 +88,20 @@ void main() {
       );
       expect(results, isEmpty);
     });
+
+    test('forwards revisionRange as a git argument', () async {
+      mockRunner.mockResult('git', [
+        'log',
+        '--shortstat',
+        '--format=%H||%an||%aI||%s',
+        'origin/main..HEAD',
+      ], '');
+      final results = await heuristic.findMegaCommits(
+        './test',
+        lineThreshold: 100,
+        revisionRange: 'origin/main..HEAD',
+      );
+      expect(results, isEmpty);
+    });
   });
 }

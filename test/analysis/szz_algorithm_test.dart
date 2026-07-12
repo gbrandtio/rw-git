@@ -138,6 +138,32 @@ void main() {
       expect(matches, isEmpty);
     });
 
+    test(
+      'forwards targetFiles as pathspecs on the fix-commit selection call',
+      () async {
+        mockRunner.mockResult('git', [
+          'log',
+          '-n',
+          '500',
+          '--grep=fix\\|bug\\|patch\\|issue\\|resolv',
+          '-i',
+          '--no-merges',
+          '--format=format:%H%x09%aI%x09%s',
+          '--',
+          'file1.dart',
+          'file2.dart',
+        ], '');
+
+        final matches = await szz.execute(
+          './test_dir',
+          limit: '500',
+          targetFiles: ['file1.dart', 'file2.dart'],
+        );
+
+        expect(matches, isEmpty);
+      },
+    );
+
     test('parses -C -C filename columns and boundary (^) hashes instead of '
         'silently dropping them', () async {
       mockRunner.mockResult(

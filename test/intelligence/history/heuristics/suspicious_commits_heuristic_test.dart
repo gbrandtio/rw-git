@@ -171,5 +171,31 @@ void main() {
       expect(runner.lastRunArgs, contains('--since=2024-01-01'));
       expect(runner.lastRunArgs, contains('--until=2024-12-31'));
     });
+
+    test(
+      'findSuspiciousCommits forwards revisionRange as a git argument',
+      () async {
+        final runner = _MockRunner();
+        final heuristic = SuspiciousCommitsHeuristic(runner);
+        await heuristic.findSuspiciousCommits(
+          '/test',
+          revisionRange: 'origin/main..HEAD',
+        );
+        expect(runner.lastStreamArgs, contains('origin/main..HEAD'));
+      },
+    );
+
+    test(
+      'extractChangedComments forwards revisionRange as a git argument',
+      () async {
+        final runner = _MockRunner();
+        final heuristic = SuspiciousCommitsHeuristic(runner);
+        await heuristic.extractChangedComments(
+          '/test',
+          revisionRange: 'origin/main..HEAD',
+        );
+        expect(runner.lastRunArgs, contains('origin/main..HEAD'));
+      },
+    );
   });
 }
