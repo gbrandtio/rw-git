@@ -1,3 +1,9 @@
+# 3.4.1
+- **Improvement:** Add support for filtering analysis by target files and revision ranges.
+- **Improvement:** SzzAlgorithm add targetFiles parameter to restrict fix-commit search to specific files via git pathspecs
+- **Improvement:** MegaCommitsHeuristic add revisionRange parameter to restrict analysis to a specific revision range
+- **Improvement:** SuspiciousCommitsHeuristic add revisionRange parameter to both findSuspiciousCommits and extractChangedComments methods
+
 # 3.4.0
 - **FEAT (Metrics):** Added a shared `NestingResolver` that computes control-flow nesting depth per token in a single pass, with per-language strategies declared via a new `BlockStructure` on `LanguageProfile`: brace-delimited (control/lambda/neutral frame classification), indentation-based (indent/dedent synthesis from newline indent stamps, with bracket-continuation handling), and keyword-terminated (`end`/`fi`/`done`, with statement-position filtering of Ruby/Lua modifier forms). Exported via `lexical_metrics.dart`. See ADR-0018.
 - **BREAKING (Metrics):** Rewrote `CognitiveComplexityAlgorithm` against the SonarSource specification on top of resolved depths. Function bodies, argument lists, and literals no longer count as nesting; `else`/`elif` score a flat +1 with `else if` collapsed to one increment; `switch` counts once and `case` arms do not; ternary `?` counts (disambiguated from nullable-type markers) and `??` scores +1; C preprocessor `#if` is ignored. Python nesting is now visible (previously the metric degenerated to cyclomatic counting for indentation languages). Scores are not comparable with pre-3.4.0 values.
