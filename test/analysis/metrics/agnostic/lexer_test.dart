@@ -166,8 +166,10 @@ void main() {
       expect(newlineAt(tokens, 1).indentWidth, 0);
     });
     test('comment-only lines carry no indent signal', () {
-      final tokens =
-          FsmLexer('a\n    # note\nb', LexicalProfile.python).tokenize();
+      final tokens = FsmLexer(
+        'a\n    # note\nb',
+        LexicalProfile.python,
+      ).tokenize();
       expect(newlineAt(tokens, 0).indentWidth, -1);
     });
     test('end of input carries no indent signal', () {

@@ -58,16 +58,18 @@ void main() {
       expect(CognitiveComplexityAlgorithm().calculate(tokens, profile), 1);
     });
 
-    test('Cognitive Complexity: else-if chain scores flat, once per branch',
-        () {
-      final tokens = FsmLexer('''
+    test(
+      'Cognitive Complexity: else-if chain scores flat, once per branch',
+      () {
+        final tokens = FsmLexer('''
         void main() {
           if (a) {} else if (b) {} else {}
         }
       ''').tokenize();
-      // if +1, else-if +1, else +1
-      expect(CognitiveComplexityAlgorithm().calculate(tokens, profile), 3);
-    });
+        // if +1, else-if +1, else +1
+        expect(CognitiveComplexityAlgorithm().calculate(tokens, profile), 3);
+      },
+    );
 
     test('Cognitive Complexity: switch counts once, cases do not', () {
       final tokens = FsmLexer('''
@@ -205,11 +207,12 @@ int x;
       expect(result['average_nesting_depth'], 0.5);
     });
 
-    test('Indentation/Nesting Complexity: empty input keys are consistent',
-        () {
+    test('Indentation/Nesting Complexity: empty input keys are consistent', () {
       final result = IndentationComplexityAlgorithm().calculate([], profile);
-      expect(result.keys,
-          containsAll(['max_nesting_depth', 'average_nesting_depth']));
+      expect(
+        result.keys,
+        containsAll(['max_nesting_depth', 'average_nesting_depth']),
+      );
     });
 
     test('Halstead Complexity', () {

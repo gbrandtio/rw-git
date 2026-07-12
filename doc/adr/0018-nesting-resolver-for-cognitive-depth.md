@@ -71,5 +71,5 @@ resolution.
   Go composite literals in conditions, Ruby brace-blocks vs hash literals,
   Lua `repeat/until` double-counting, TypeScript optional-parameter `?:`.
   These are rare and bounded; full fidelity is the AST path's job.
-- Depth truth lives in one place; future algorithms (NPath, cyclomatic
-  variants) can adopt it without re-deriving structure.
+- Depth truth lives in one place; other structural algorithms (NPath) adopt
+  it without re-deriving structure.

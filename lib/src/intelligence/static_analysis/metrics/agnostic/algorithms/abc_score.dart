@@ -44,23 +44,37 @@ class AbcScoreAlgorithm implements AgnosticMetricAlgorithm<AbcScore> {
   AbcScore calculate(List<Token> tokens, LanguageProfile profile) {
     int a = 0, b = 0, c = 0;
 
-    for (final token in tokens) {
+    for (var i = 0; i < tokens.length; i++) {
+      final token = tokens[i];
       if (token.type == TokenType.operator) {
         final lex = token.lexeme;
         // Assignment: must not overlap with comparisons (== is not =)
         if (_assignmentOps.contains(lex) && !_comparisonOps.contains(lex)) {
           a++;
         }
-        if (_comparisonOps.contains(lex)) {
+        if (_comparisonOps.contains(lex) || _logicalBranchOps.contains(lex)) {
           c++;
         }
-        if (_logicalBranchOps.contains(lex)) {
-          b++;
-        }
       }
-      if (token.type == TokenType.identifier &&
-          profile.isControlFlow(token.lexeme)) {
-        b++;
+
+      if (token.type == TokenType.identifier) {
+        if (profile.isControlFlow(token.lexeme)) {
+          c++; // Control flow keywords are conditions (if, while)
+        } else {
+          // Identify function/method calls for Branches (B)
+          // Look ahead for an opening parenthesis '('
+          for (var j = i + 1; j < tokens.length; j++) {
+            final nextToken = tokens[j];
+            if (nextToken.type == TokenType.newline) {
+              continue; // skip newlines
+            }
+            if (nextToken.type == TokenType.punctuation &&
+                nextToken.lexeme == '(') {
+              b++; // It's a function or method call!
+            }
+            break; // Stop looking ahead once we hit any non-newline token
+          }
+        }
       }
     }
 
