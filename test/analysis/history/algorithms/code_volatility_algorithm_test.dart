@@ -98,5 +98,35 @@ void main() {
       );
       expect(results.length, 1);
     });
+
+    test('forwards revisionRange as a git argument', () async {
+      mockRunner.mockResult('git', [
+        'log',
+        '--name-only',
+        '--format=AUTHOR:%an',
+        'origin/main..HEAD',
+      ], 'AUTHOR:Alice\nfile1.dart\n');
+      final results = await algorithm.execute(
+        './test',
+        revisionRange: 'origin/main..HEAD',
+      );
+      expect(results.length, 1);
+    });
+
+    test('forwards targetFiles as pathspecs', () async {
+      mockRunner.mockResult('git', [
+        'log',
+        '--name-only',
+        '--format=AUTHOR:%an',
+        '--',
+        'file1.dart',
+        'file2.dart',
+      ], 'AUTHOR:Alice\nfile1.dart\n');
+      final results = await algorithm.execute(
+        './test',
+        targetFiles: ['file1.dart', 'file2.dart'],
+      );
+      expect(results.length, 1);
+    });
   });
 }

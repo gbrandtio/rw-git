@@ -15,6 +15,7 @@ class ChurnHeuristic {
     String? limit,
     String? since,
     String? until,
+    String? revisionRange,
   }) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
@@ -27,7 +28,11 @@ class ChurnHeuristic {
     if (until != null) {
       countArgs.add('--until=$until');
     }
-    countArgs.add('HEAD');
+    if (revisionRange != null) {
+      countArgs.add(revisionRange);
+    } else {
+      countArgs.add('HEAD');
+    }
     final commitCountResult = await runner.run(
       'git',
       countArgs,
@@ -47,6 +52,9 @@ class ChurnHeuristic {
     }
     if (until != null) {
       logArgs.add('--until=$until');
+    }
+    if (revisionRange != null) {
+      logArgs.add(revisionRange);
     }
 
     final stream = runner.runStream(
@@ -72,6 +80,7 @@ class ChurnHeuristic {
     String? limit,
     String? since,
     String? until,
+    String? revisionRange,
   }) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
@@ -84,7 +93,11 @@ class ChurnHeuristic {
     if (until != null) {
       countArgs.add('--until=$until');
     }
-    countArgs.add('HEAD');
+    if (revisionRange != null) {
+      countArgs.add(revisionRange);
+    } else {
+      countArgs.add('HEAD');
+    }
     final commitCountResult = await runner.run(
       'git',
       countArgs,
@@ -104,6 +117,9 @@ class ChurnHeuristic {
     }
     if (until != null) {
       logArgs.add('--until=$until');
+    }
+    if (revisionRange != null) {
+      logArgs.add(revisionRange);
     }
 
     final stream = runner.runStream(

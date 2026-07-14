@@ -20,6 +20,8 @@ class CodeVolatilityAlgorithm {
     String? limit,
     String? since,
     String? until,
+    String? revisionRange,
+    List<String>? targetFiles,
   }) async {
     // We need authors and files changed. `git log --name-only --format=AUTHOR:%an`
     final args = ['log', '--name-only', '--format=AUTHOR:%an'];
@@ -32,6 +34,13 @@ class CodeVolatilityAlgorithm {
     }
     if (until != null) {
       args.add('--until=$until');
+    }
+    if (revisionRange != null) {
+      args.add(revisionRange);
+    }
+    if (targetFiles != null && targetFiles.isNotEmpty) {
+      args.add('--');
+      args.addAll(targetFiles);
     }
 
     final result = await runner.run('git', args, workingDirectory: directory);

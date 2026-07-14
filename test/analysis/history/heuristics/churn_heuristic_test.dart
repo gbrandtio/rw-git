@@ -64,5 +64,29 @@ void main() {
       expect(runner.lastStreamArgs, contains('--since=2024-01-01'));
       expect(runner.lastStreamArgs, contains('--until=2024-12-31'));
     });
+
+    test('calculateChurn forwards revisionRange as a git argument', () async {
+      final runner = MockProcessRunner();
+      await ChurnHeuristic(
+        runner,
+      ).calculateChurn('./test', revisionRange: 'origin/main..HEAD');
+      expect(runner.lastRunArgs, contains('origin/main..HEAD'));
+      expect(runner.lastRunArgs, isNot(contains('HEAD')));
+      expect(runner.lastStreamArgs, contains('origin/main..HEAD'));
+    });
+
+    test(
+      'calculateChurnWithAuthors forwards revisionRange as a git argument',
+      () async {
+        final runner = MockProcessRunner();
+        await ChurnHeuristic(runner).calculateChurnWithAuthors(
+          './test',
+          revisionRange: 'origin/main..HEAD',
+        );
+        expect(runner.lastRunArgs, contains('origin/main..HEAD'));
+        expect(runner.lastRunArgs, isNot(contains('HEAD')));
+        expect(runner.lastStreamArgs, contains('origin/main..HEAD'));
+      },
+    );
   });
 }
