@@ -1,7 +1,7 @@
+import 'package:pool/pool.dart';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/constants.dart';
 
-/// ----------------------------------------------------------------------------
 /// szz_algorithm.dart
 /// ----------------------------------------------------------------------------
 /// Core reusable implementation of the RA-SZZ algorithm (Refactoring-Aware
@@ -129,20 +129,20 @@ class SzzAlgorithm {
     }
 
     final matches = <SzzMatch>[];
-    const chunkSize = 10;
-    for (var i = 0; i < fixCommits.length; i += chunkSize) {
-      final chunk = fixCommits.skip(i).take(chunkSize);
-      final futures = chunk.map(
-        (fixInfo) => _traceIntroducingCommits(
-          directory,
-          fixInfo.hash,
-          fixInfo.date,
-          targetFiles: targetFiles,
-        ),
-      );
-      final results = await Future.wait(futures);
-      matches.addAll(results.expand((m) => m));
-    }
+    final pool = Pool(20);
+
+    final futures = fixCommits.map(
+      (fixInfo) => _traceIntroducingCommits(
+        directory,
+        fixInfo.hash,
+        fixInfo.date,
+        pool: pool,
+        targetFiles: targetFiles,
+      ),
+    );
+    final results = await Future.wait(futures);
+    matches.addAll(results.expand((m) => m));
+
     return matches;
   }
 
@@ -158,10 +158,20 @@ class SzzAlgorithm {
     String directory,
     String fixCommitHash,
   ) async {
-    final metadata = await _commitMetadata(directory, fixCommitHash);
+    final pool = Pool(20);
+    final metadata = await _commitMetadata(
+      directory,
+      fixCommitHash,
+      pool: pool,
+    );
     if (metadata == null) return [];
     final fixDate = GitDateTime.parse(metadata.isoAuthorDate).utc;
-    return _traceIntroducingCommits(directory, fixCommitHash, fixDate);
+    return _traceIntroducingCommits(
+      directory,
+      fixCommitHash,
+      fixDate,
+      pool: pool,
+    );
   }
 
   /// The shared RA-SZZ core for one fix commit:
@@ -179,32 +189,39 @@ class SzzAlgorithm {
     String directory,
     String commit,
     DateTime fixDate, {
+    required Pool pool,
     List<String>? targetFiles,
   }) async {
     final matches = <SzzMatch>[];
 
     // Get parent of fix commit
-    final parentRes = await runner.run('git', [
-      'rev-parse',
-      '$commit^',
-    ], workingDirectory: directory);
+    final parentRes = await pool.withResource(
+      () => runner.run('git', [
+        'rev-parse',
+        '$commit^',
+      ], workingDirectory: directory),
+    );
     if (parentRes.exitCode != 0) return matches;
     final parent = parentRes.stdout?.toString().trim() ?? '';
     if (parent.isEmpty) return matches;
 
     // MA-SZZ: ignore whitespace and blank-line changes to avoid attributing
     // cosmetic edits as bug introductions (da Costa et al., 2017).
-    final diffRes = await runner.run('git', [
-      'diff',
-      '-M',
-      '-w',
-      '--ignore-blank-lines',
-      parent,
-      commit,
-    ], workingDirectory: directory);
+    final diffRes = await pool.withResource(
+      () => runner.run('git', [
+        'diff',
+        '-M',
+        '-w',
+        '--ignore-blank-lines',
+        parent,
+        commit,
+      ], workingDirectory: directory),
+    );
     if (diffRes.exitCode != 0) return matches;
 
     final commitDiff = _parseUnifiedDiff(diffRes.stdout?.toString() ?? '');
+
+    final blameFutures = <Future<void>>[];
 
     for (final entry in commitDiff.deletedLinesByFile.entries) {
       final filePath = entry.key;
@@ -222,69 +239,78 @@ class SzzAlgorithm {
           .toList();
 
       for (final range in _contiguousRanges(survivingLines)) {
-        final blameRes = await runner.run('git', [
-          'blame',
-          '--date=iso-strict',
-          '-l', // long hash
-          '-w', // ignore whitespace
-          '-C', '-C', '-M', // detect moves and copies
-          '-L',
-          '${range.start},${range.end}',
-          parent,
-          '--',
-          filePath,
-        ], workingDirectory: directory);
-        if (blameRes.exitCode != 0) continue;
+        blameFutures.add(
+          pool.withResource(() async {
+            final blameRes = await runner.run('git', [
+              'blame',
+              '--date=iso-strict',
+              '-l', // long hash
+              '-w', // ignore whitespace
+              '-C', '-C', '-M', // detect moves and copies
+              '-L',
+              '${range.start},${range.end}',
+              parent,
+              '--',
+              filePath,
+            ], workingDirectory: directory);
+            if (blameRes.exitCode != 0) return;
 
-        final blameLines = (blameRes.stdout?.toString() ?? '')
-            .split('\n')
-            .where((l) => l.trim().isNotEmpty);
-        for (final blameLine in blameLines) {
-          final blameMatch = _blameLinePattern.firstMatch(blameLine);
-          if (blameMatch == null) {
-            // --date=iso-strict is pinned above, so every line must match;
-            // silently skipping would drop bug attributions and quietly
-            // corrupt the analysis.
-            throw GitOutputParseException(
-              offendingLine: blameLine,
-              reason:
-                  'does not match the git blame -l --date=iso-strict '
-                  'format',
-            );
-          }
+            final blameLines = (blameRes.stdout?.toString() ?? '')
+                .split('\n')
+                .where((l) => l.trim().isNotEmpty);
+            for (final blameLine in blameLines) {
+              final blameMatch = _blameLinePattern.firstMatch(blameLine);
+              if (blameMatch == null) {
+                // --date=iso-strict is pinned above, so every line must match;
+                // silently skipping would drop bug attributions and quietly
+                // corrupt the analysis.
+                throw GitOutputParseException(
+                  offendingLine: blameLine,
+                  reason:
+                      'does not match the git blame -l --date=iso-strict '
+                      'format',
+                );
+              }
 
-          // Strip the boundary marker before handing the hash back to git:
-          // in rev syntax a leading `^` means exclusion, not boundary.
-          final rawHash = blameMatch.group(1)!;
-          final introHash = rawHash.startsWith('^')
-              ? rawHash.substring(1)
-              : rawHash;
-          final author = blameMatch.group(3)!.trim();
-          final introDate = GitDateTime.parse(blameMatch.group(4)!).utc;
+              // Strip the boundary marker before handing the hash back to git:
+              // in rev syntax a leading `^` means exclusion, not boundary.
+              final rawHash = blameMatch.group(1)!;
+              final introHash = rawHash.startsWith('^')
+                  ? rawHash.substring(1)
+                  : rawHash;
+              final author = blameMatch.group(3)!.trim();
+              final introDate = GitDateTime.parse(blameMatch.group(4)!).utc;
 
-          // RA-SZZ commit filter: skip introducing commits that are
-          // themselves refactorings. An unknown subject keeps the
-          // attribution — failing open preserves recall.
-          final introMetadata = await _commitMetadata(directory, introHash);
-          final subject = introMetadata?.subject;
-          if (subject != null && _refactoringSubjectPattern.hasMatch(subject)) {
-            continue;
-          }
+              // RA-SZZ commit filter: skip introducing commits that are
+              // themselves refactorings. An unknown subject keeps the
+              // attribution — failing open preserves recall.
+              final introMetadata = await _commitMetadata(
+                directory,
+                introHash,
+              );
+              final subject = introMetadata?.subject;
+              if (subject != null &&
+                  _refactoringSubjectPattern.hasMatch(subject)) {
+                continue;
+              }
 
-          matches.add(
-            SzzMatch(
-              introducingCommitHash: introHash,
-              introducingDate: introDate,
-              introducingAuthor: author,
-              fixingCommitHash: commit,
-              fixingDate: fixDate,
-              filePath: filePath,
-            ),
-          );
-        }
+              matches.add(
+                SzzMatch(
+                  introducingCommitHash: introHash,
+                  introducingDate: introDate,
+                  introducingAuthor: author,
+                  fixingCommitHash: commit,
+                  fixingDate: fixDate,
+                  filePath: filePath,
+                ),
+              );
+            }
+          }),
+        );
       }
     }
 
+    await Future.wait(blameFutures);
     return matches;
   }
 
@@ -294,19 +320,22 @@ class SzzAlgorithm {
   /// trace entirely for [traceFixCommit]).
   Future<_CommitMetadata?> _commitMetadata(
     String directory,
-    String hash,
-  ) async {
+    String hash, {
+    Pool? pool,
+  }) async {
     final cacheKey = '$directory@$hash';
     if (_commitMetadataCache.containsKey(cacheKey)) {
       return _commitMetadataCache[cacheKey];
     }
 
-    final res = await runner.run('git', [
+    final runAction = () => runner.run('git', [
       'log',
       '-1',
       '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
       hash,
     ], workingDirectory: directory);
+
+    final res = pool != null ? await pool.withResource(runAction) : await runAction();
 
     _CommitMetadata? metadata;
     if (res.exitCode == 0) {
