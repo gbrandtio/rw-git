@@ -1,3 +1,6 @@
+# 3.4.3
+- **FIX (NPath Calculation):** Fixing NPath calculation bugs.
+
 # 3.4.2
 - **Improvement:** Introduce optional revisionRange throughout history analysis: CodeVolatilityAlgorithm.execute now accepts revisionRange and targetFiles and forwards them to git.
 
