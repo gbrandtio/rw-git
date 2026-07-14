@@ -133,8 +133,12 @@ class SzzAlgorithm {
     for (var i = 0; i < fixCommits.length; i += chunkSize) {
       final chunk = fixCommits.skip(i).take(chunkSize);
       final futures = chunk.map(
-        (fixInfo) =>
-            _traceIntroducingCommits(directory, fixInfo.hash, fixInfo.date),
+        (fixInfo) => _traceIntroducingCommits(
+          directory,
+          fixInfo.hash,
+          fixInfo.date,
+          targetFiles: targetFiles,
+        ),
       );
       final results = await Future.wait(futures);
       matches.addAll(results.expand((m) => m));
@@ -174,8 +178,9 @@ class SzzAlgorithm {
   Future<List<SzzMatch>> _traceIntroducingCommits(
     String directory,
     String commit,
-    DateTime fixDate,
-  ) async {
+    DateTime fixDate, {
+    List<String>? targetFiles,
+  }) async {
     final matches = <SzzMatch>[];
 
     // Get parent of fix commit
@@ -203,6 +208,12 @@ class SzzAlgorithm {
 
     for (final entry in commitDiff.deletedLinesByFile.entries) {
       final filePath = entry.key;
+
+      if (targetFiles != null &&
+          targetFiles.isNotEmpty &&
+          !targetFiles.contains(filePath)) {
+        continue;
+      }
 
       // RA-SZZ line filter: a deleted line whose content re-appears among
       // the commit's added lines was moved, not fixed (Neto et al., 2018).
