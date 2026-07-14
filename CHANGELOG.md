@@ -1,3 +1,5 @@
+# 3.4.5
+- **FIX (SZZ Algorithm):** Fixing SZZ algorithm to use only the `targetFiles` list and calculate bug-hotspots only for them, in case the `targetFiles` has been provided. This is helpful for Github Actions that want to check only the files that the commit is touching (and nothing else). Previously, it would blame the lines that the commit is touching, go to previous commits, and blame all the files of the previous commit.
 
 # 3.4.4
 - **BREAKING (Metrics):** NPath complexity now folds guard-clause branches (those ending in `return`, `throw`, `break`, `continue`, `raise`) additively instead of multiplicatively, modeling the reality that terminated branches do not combine with downstream paths. This produces lower, more accurate scores for well-structured code and diverges from PMD's standard computation. See ADR-0019.
