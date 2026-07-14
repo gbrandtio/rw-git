@@ -87,7 +87,14 @@ const double abcScoreHighThreshold = 30;
 
 /// NPath acyclic-path bands (Nejmeh, CACM 1988): above 200 paths a unit is
 /// effectively untestable by path coverage; above 1000 the combinatorial
-/// explosion makes reasoning about all behaviours impractical.
+/// explosion makes reasoning about all behaviours impractical. The file
+/// value is the maximum per-function NPath, so these per-function bands
+/// apply directly.
+///
+/// Unlike PMD's standard computation, this implementation folds branches
+/// whose bodies end in a jump terminator (`return`, `throw`, `break`,
+/// `continue`, `raise`) additively instead of multiplicatively, accurately
+/// modeling that terminated paths never reach downstream code (ADR-0019).
 const int npathElevatedThreshold = 200;
 const int npathHighThreshold = 1000;
 

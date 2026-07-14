@@ -27,9 +27,11 @@ Each addition represents one new independent execution path. Base value 1 repres
 
 ### 2. NPath Complexity (Nejmeh, 1988)
 
-**Formula:** `NPath = 2^#{decision_points}`
+**Formula:** Per-construct acyclic-path products: sequential decisions multiply, `if` branches sum, loops contribute `body + 1`, switches sum their arms, and each boolean operator in a condition adds one path.
 
-Decision points are control-flow keywords that add new acyclic execution paths. `else` and `catch` are excluded because they do not add new paths rather they handle the path already opened by their corresponding `if` or `try`. Clamped at `1 << 30` (~1 billion) to prevent integer overflow.
+Decision points are control-flow keywords that add new acyclic execution paths. `else` and `catch` are excluded because they do not add new paths — they handle the path already opened by their corresponding `if` or `try`. Clamped at `1 << 30` (~1 billion) to prevent integer overflow.
+
+**Guard-clause awareness (ADR-0019):** When an `if`/`else-if` branch body ends in a jump terminator (`return`, `throw`, `break`, `continue`, `raise`), its paths are folded **additively** instead of multiplicatively. This models the reality that terminated branches exit the function and never combine with downstream code. This diverges from PMD's standard NPath computation, which multiplies guard clauses as if both outcomes flow through the entire remaining function.
 
 **Thresholds:** NPath > 200 (≈ 8 decisions) = more test cases than a team can realistically write.
 
@@ -113,7 +115,7 @@ where V = Halstead volume, G = cyclomatic complexity, LOC = source lines of code
 
 **Key claim:** NPath counts the number of acyclic execution paths through a function, a number that grows exponentially with branching depth. Functions with NPath > 200 are statistically associated with significantly higher field defect rates. NPath is stricter than CC because it captures the "combinatorial explosion" of test cases required by nested branching.
 
-**How rw-git uses it:** `2^decisions` is an approximation of the exact NPath formula that avoids summing path products per construct. For standard structured programs it produces equivalent results. The `1 << 30` (~1 billion) cap prevents nonsensical values for functions with extreme nesting.
+**How rw-git uses it:** Per-construct path products (sequential multiply, branches sum, loops add the skip path) computed from the token stream and `NestingResolver` frame events. Jump-terminated guard branches (`return`, `throw`, `break`, `continue`, `raise`) are folded additively instead of multiplicatively (ADR-0019), diverging from PMD to accurately model that terminated paths never reach downstream code. The `1 << 30` (~1 billion) cap prevents nonsensical values for functions with extreme nesting.
 
 ---
 

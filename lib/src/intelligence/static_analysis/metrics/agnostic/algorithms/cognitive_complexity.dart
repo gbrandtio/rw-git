@@ -1,4 +1,5 @@
 import 'agnostic_metric_algorithm.dart';
+import 'token_scan.dart';
 import '../lexer/token.dart';
 import '../language_profile.dart';
 import '../nesting_resolver.dart';
@@ -55,7 +56,7 @@ class CognitiveComplexityAlgorithm implements AgnosticMetricAlgorithm<int> {
       if (token.type == TokenType.identifier) {
         final lexeme = token.lexeme;
         if (profile.isControlFlow(lexeme) &&
-            !_isPreprocessor(prevSignificant, token)) {
+            !isPreprocessorKeyword(prevSignificant, token)) {
           if (_hybridBranches.contains(lexeme)) {
             complexity += 1;
             // `else if` is one branch: suppress the trailing keyword.
@@ -76,7 +77,7 @@ class CognitiveComplexityAlgorithm implements AgnosticMetricAlgorithm<int> {
         final lexeme = token.lexeme;
         if (lexeme == '&&' || lexeme == '||' || lexeme == '??') {
           complexity += 1;
-        } else if (lexeme == '?' && _isTernary(tokens, i)) {
+        } else if (lexeme == '?' && isTernaryOperator(tokens, i)) {
           complexity += 1 + resolution.depths[i];
         }
       }
@@ -87,48 +88,10 @@ class CognitiveComplexityAlgorithm implements AgnosticMetricAlgorithm<int> {
     return complexity;
   }
 
-  /// A control keyword glued to `#` is a preprocessor directive (`#if`).
-  bool _isPreprocessor(Token? prev, Token current) =>
-      prev != null &&
-      prev.type == TokenType.unknown &&
-      prev.lexeme == '#' &&
-      prev.end == current.start;
-
   int _nextSignificantIndex(List<Token> tokens, int from) {
     for (var j = from + 1; j < tokens.length; j++) {
       if (tokens[j].type != TokenType.newline) return j;
     }
     return -1;
-  }
-
-  /// Distinguishes a conditional expression's `?` from a nullable-type
-  /// marker (`int? x`): a ternary has a matching `:` at the same bracket
-  /// level before the expression ends.
-  bool _isTernary(List<Token> tokens, int from) {
-    var delta = 0;
-    for (var j = from + 1; j < tokens.length; j++) {
-      final token = tokens[j];
-      if (token.type == TokenType.punctuation) {
-        switch (token.lexeme) {
-          case '(':
-          case '[':
-          case '{':
-            delta++;
-          case ')':
-          case ']':
-          case '}':
-            if (delta == 0) return false; // Expression closed without a `:`.
-            delta--;
-          case ';':
-          case ',':
-            if (delta == 0) return false;
-        }
-      } else if (token.type == TokenType.operator &&
-          token.lexeme == ':' &&
-          delta == 0) {
-        return true;
-      }
-    }
-    return false;
   }
 }

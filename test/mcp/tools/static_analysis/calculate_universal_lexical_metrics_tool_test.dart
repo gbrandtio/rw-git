@@ -108,8 +108,8 @@ void foo(int x) {
       });
       final parsed = jsonDecode(result) as Map<String, dynamic>;
       expect(parsed.containsKey('npath_complexity'), isTrue);
-      // 2 if-statements → NPath = 2^2 = 4
-      expect(parsed['npath_complexity'], greaterThan(1));
+      // Nested ifs: NPath = (1 + NP(inner)) = 1 + 2 = 3.
+      expect(parsed['npath_complexity'], 3);
 
       await tempDir.delete(recursive: true);
     });

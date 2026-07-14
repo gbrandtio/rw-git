@@ -9,6 +9,18 @@ import 'lexer/token.dart';
 /// bodies, and literal braces do not.
 enum FrameKind { control, lambda, neutral }
 
+/// A frame boundary observed at a token index: a block of [kind] opened
+/// (`isOpen`) or closed at [tokenIndex]. Neutral frames are reported too,
+/// so consumers that need scope boundaries (function/class bodies) can see
+/// them even though they do not contribute to nesting depth.
+class NestingEvent {
+  final int tokenIndex;
+  final FrameKind kind;
+  final bool isOpen;
+
+  const NestingEvent(this.tokenIndex, this.kind, {required this.isOpen});
+}
+
 /// The result of a nesting pass: a per-token control-flow nesting depth,
 /// plus aggregate frame statistics for depth-distribution metrics.
 class NestingResolution {
@@ -26,11 +38,17 @@ class NestingResolution {
   /// Sum over all nesting frames of the depth at which each opened.
   final int frameDepthSum;
 
+  /// Ordered frame open/close events for all frame kinds, including
+  /// neutral ones. Several events may share a token index (e.g. a single
+  /// dedent closing multiple indentation blocks); process them in order.
+  final List<NestingEvent> events;
+
   const NestingResolution({
     required this.depths,
     required this.maxDepth,
     required this.frameCount,
     required this.frameDepthSum,
+    this.events = const [],
   });
 
   double get averageFrameDepth =>
@@ -74,6 +92,7 @@ class NestingResolver {
   /// brackets are expression grouping, never nesting.
   NestingResolution _resolveBraces(List<Token> tokens) {
     final depths = List<int>.filled(tokens.length, 0);
+    final events = <NestingEvent>[];
     final frames = <FrameKind>[];
     var depth = 0;
     var maxDepth = 0;
@@ -116,6 +135,7 @@ class NestingResolver {
               kind = FrameKind.neutral;
             }
             frames.add(kind);
+            events.add(NestingEvent(i, kind, isOpen: true));
             if (kind != FrameKind.neutral) {
               frameCount++;
               frameDepthSum += depth;
@@ -123,8 +143,10 @@ class NestingResolver {
               if (depth > maxDepth) maxDepth = depth;
             }
           case '}':
-            if (frames.isNotEmpty && frames.removeLast() != FrameKind.neutral) {
-              depth--;
+            if (frames.isNotEmpty) {
+              final kind = frames.removeLast();
+              events.add(NestingEvent(i, kind, isOpen: false));
+              if (kind != FrameKind.neutral) depth--;
             }
           case ';':
             // Statement end at clause level: the control structure took a
@@ -143,6 +165,7 @@ class NestingResolver {
       maxDepth: maxDepth,
       frameCount: frameCount,
       frameDepthSum: frameDepthSum,
+      events: events,
     );
   }
 
@@ -175,6 +198,7 @@ class NestingResolver {
   /// opened by a structural line (`def`, `class`) does not.
   NestingResolution _resolveIndentation(List<Token> tokens) {
     final depths = List<int>.filled(tokens.length, 0);
+    final events = <NestingEvent>[];
     final widths = <int>[0];
     final kinds = <FrameKind>[];
     var depth = 0;
@@ -195,6 +219,7 @@ class NestingResolver {
           if (width > widths.last) {
             widths.add(width);
             kinds.add(lineKind);
+            events.add(NestingEvent(i, lineKind, isOpen: true));
             if (lineKind == FrameKind.control) {
               frameCount++;
               frameDepthSum += depth;
@@ -206,7 +231,9 @@ class NestingResolver {
             // dedents by stopping at the first level <= the new width.
             while (widths.length > 1 && widths.last > width) {
               widths.removeLast();
-              if (kinds.removeLast() == FrameKind.control) depth--;
+              final kind = kinds.removeLast();
+              events.add(NestingEvent(i, kind, isOpen: false));
+              if (kind == FrameKind.control) depth--;
             }
           }
         }
@@ -244,6 +271,7 @@ class NestingResolver {
       maxDepth: maxDepth,
       frameCount: frameCount,
       frameDepthSum: frameDepthSum,
+      events: events,
     );
   }
 
@@ -255,6 +283,7 @@ class NestingResolver {
   /// two). Closers pop unconditionally.
   NestingResolution _resolveKeywordEnd(List<Token> tokens) {
     final depths = List<int>.filled(tokens.length, 0);
+    final events = <NestingEvent>[];
     final frames = <FrameKind>[];
     var depth = 0;
     var maxDepth = 0;
@@ -263,8 +292,9 @@ class NestingResolver {
     var atLineStart = true;
     var lineOpenedFrame = false;
 
-    void open(FrameKind kind) {
+    void open(FrameKind kind, int tokenIndex) {
       frames.add(kind);
+      events.add(NestingEvent(tokenIndex, kind, isOpen: true));
       lineOpenedFrame = true;
       if (kind != FrameKind.neutral) {
         frameCount++;
@@ -287,17 +317,19 @@ class NestingResolver {
       if (token.type == TokenType.identifier) {
         final lexeme = token.lexeme;
         if (profile.blockClosers.contains(lexeme)) {
-          if (frames.isNotEmpty && frames.removeLast() != FrameKind.neutral) {
-            depth--;
+          if (frames.isNotEmpty) {
+            final kind = frames.removeLast();
+            events.add(NestingEvent(i, kind, isOpen: false));
+            if (kind != FrameKind.neutral) depth--;
           }
         } else if (atLineStart && profile.blockOpeners.contains(lexeme)) {
-          open(FrameKind.control);
+          open(FrameKind.control, i);
         } else if (atLineStart &&
             profile.structuralBlockOpeners.contains(lexeme)) {
-          open(FrameKind.neutral);
+          open(FrameKind.neutral, i);
         } else if (!lineOpenedFrame &&
             profile.lambdaBlockOpeners.contains(lexeme)) {
-          open(FrameKind.lambda);
+          open(FrameKind.lambda, i);
         }
       }
 
@@ -309,6 +341,7 @@ class NestingResolver {
       maxDepth: maxDepth,
       frameCount: frameCount,
       frameDepthSum: frameDepthSum,
+      events: events,
     );
   }
 }

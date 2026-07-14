@@ -77,7 +77,7 @@ class BusFactorAlgorithm {
       args.add(file);
 
       final result = await runner.run('git', args, workingDirectory: directory);
-      
+
       if (result.exitCode != 0) {
         fileBusFactors[file] = BusFactorDto(
           busFactor: 0,
@@ -86,7 +86,7 @@ class BusFactorAlgorithm {
         );
         continue;
       }
-      
+
       final rawOutput = result.stdout?.toString() ?? '';
       if (rawOutput.isEmpty) {
         fileBusFactors[file] = BusFactorDto(
@@ -96,7 +96,7 @@ class BusFactorAlgorithm {
         );
         continue;
       }
-      
+
       fileBusFactors[file] = await Isolate.run(
         () => _parseBusFactor(rawOutput, knowledgeThreshold),
       );

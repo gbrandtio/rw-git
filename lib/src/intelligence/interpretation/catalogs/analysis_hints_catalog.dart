@@ -562,7 +562,11 @@ const Map<AnalysisType, ToolHints> analysisHintsCatalog = {
           'complexity that cyclomatic complexity misses entirely.',
       'An NPath figure (Nejmeh 1988) above 200 means the number of '
           'distinct acyclic execution paths makes exhaustive testing '
-          'impossible.',
+          'impossible. Guard-clause branches (ending in return, throw, '
+          'break, continue, or raise) are folded additively instead of '
+          'multiplicatively (ADR-0019), so guard-heavy functions score '
+          'accurately rather than being penalised for well-structured '
+          'code — this diverges from PMD\'s standard computation.',
       'For Halstead metrics (Halstead 1977), you must explain the '
           'underlying algorithms: Volume measures the program\'s size based on '
           'its total operators and operands (N) and vocabulary (n) as V = N * '

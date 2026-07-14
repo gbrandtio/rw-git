@@ -207,4 +207,82 @@ end
       expect(r.maxDepth, 2);
     });
   });
+
+  group('NestingResolver frame events', () {
+    List<String> describe(NestingResolution r) => [
+      for (final e in r.events) '${e.isOpen ? 'open' : 'close'}:${e.kind.name}',
+    ];
+
+    test('braces mode reports neutral, control, and lambda frames', () {
+      final r = resolveWith(DefaultProfiles.dart, '''
+        void main() {
+          if (a) {}
+          items.forEach((x) {});
+        }
+      ''');
+      expect(describe(r), [
+        'open:neutral',
+        'open:control',
+        'close:control',
+        'open:lambda',
+        'close:lambda',
+        'close:neutral',
+      ]);
+    });
+
+    test('indentation mode emits one close per dedented block', () {
+      final r = resolveWith(DefaultProfiles.python, '''
+def f():
+    if a:
+        if b:
+            pass
+x = 1
+''');
+      expect(describe(r), [
+        'open:neutral',
+        'open:control',
+        'open:control',
+        'close:control',
+        'close:control',
+        'close:neutral',
+      ]);
+    });
+
+    test('keyword-end mode pairs openers with closers', () {
+      final r = resolveWith(DefaultProfiles.ruby, '''
+def f
+  if a
+    x = 1
+  end
+end
+''');
+      expect(describe(r), [
+        'open:neutral',
+        'open:control',
+        'close:control',
+        'close:neutral',
+      ]);
+    });
+
+    test('events balance and existing depth metrics are unchanged', () {
+      final r = resolveWith(DefaultProfiles.lua, '''
+function f()
+  if a then
+    while b do
+      x = 1
+    end
+  end
+end
+''');
+      expect(r.maxDepth, 2);
+      expect(r.frameCount, 2);
+      final opens = r.events.where((e) => e.isOpen).length;
+      final closes = r.events.where((e) => !e.isOpen).length;
+      expect(opens, closes);
+      expect(
+        r.events.where((e) => e.kind != FrameKind.neutral && e.isOpen).length,
+        r.frameCount,
+      );
+    });
+  });
 }
