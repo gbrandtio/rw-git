@@ -27,9 +27,10 @@ class NpathComplexityAlgorithm implements AgnosticMetricAlgorithm<int> {
     for (var i = 0; i < tokens.length; i++) {
       final d = depths[i];
 
-      // If we dedented, we fold the deeper paths into the current depth by multiplying.
+      // If we dedented, the nested block adds its paths to the parent depth,
+      // minus 1 (since the parent decision already assumes 1 path for the true branch).
       while (currentDepth > d) {
-        pathsAtDepth[currentDepth - 1] *= pathsAtDepth[currentDepth];
+        pathsAtDepth[currentDepth - 1] += pathsAtDepth[currentDepth] - 1;
         pathsAtDepth[currentDepth] = 1; // reset for future use
         currentDepth--;
       }
@@ -48,7 +49,8 @@ class NpathComplexityAlgorithm implements AgnosticMetricAlgorithm<int> {
         // 'else' and 'catch' share the path of an existing branch; they do not
         // introduce a new independent path.
         if (token.lexeme != 'else' && token.lexeme != 'catch') {
-          pathsAtDepth[currentDepth] += 1;
+          // Sequential decisions multiply the current depth's paths.
+          pathsAtDepth[currentDepth] *= 2;
         }
       } else if (token.type == TokenType.operator &&
           (token.lexeme == '&&' ||
@@ -60,7 +62,7 @@ class NpathComplexityAlgorithm implements AgnosticMetricAlgorithm<int> {
 
     // Fold any remaining depths back to 0
     while (currentDepth > 0) {
-      pathsAtDepth[currentDepth - 1] *= pathsAtDepth[currentDepth];
+      pathsAtDepth[currentDepth - 1] += pathsAtDepth[currentDepth] - 1;
       currentDepth--;
     }
 
