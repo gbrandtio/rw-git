@@ -1,3 +1,7 @@
+
+# 3.4.4
+- **BREAKING (Metrics):** NPath complexity now folds guard-clause branches (those ending in `return`, `throw`, `break`, `continue`, `raise`) additively instead of multiplicatively, modeling the reality that terminated branches do not combine with downstream paths. This produces lower, more accurate scores for well-structured code and diverges from PMD's standard computation. See ADR-0019.
+
 # 3.4.3
 - **FIX (NPath Calculation):** Fixing NPath calculation bugs.
 
