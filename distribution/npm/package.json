@@ -1,6 +1,6 @@
 {
   "name": "@gbrandtio/rw-git-mcp",
-  "version": "3.4.1",
+  "version": "3.4.2",
   "description": "Model Context Protocol (MCP) server for rw-git, a git intelligence library and MCP server, designed to provide deep intelligence via research-backed algorithms.",
   "main": "index.js",
   "scripts": {

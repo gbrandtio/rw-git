@@ -1,3 +1,6 @@
+# 3.4.2
+- **Improvement:** Introduce optional revisionRange throughout history analysis: CodeVolatilityAlgorithm.execute now accepts revisionRange and targetFiles and forwards them to git.
+
 # 3.4.1
 - **Improvement:** Add support for filtering analysis by target files and revision ranges.
 - **Improvement:** SzzAlgorithm add targetFiles parameter to restrict fix-commit search to specific files via git pathspecs
