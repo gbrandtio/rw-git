@@ -41,6 +41,34 @@ class CommitVelocityHeuristic {
       () => _parseCommitVelocity(rawOutput, granularity),
     );
   }
+
+  /// Finds specific burnout commits (commits outside configured working hours)
+  /// in the given revision range.
+  /// Returns a list of formatted strings: "[SHA] - Author - Message (Time)".
+  Future<List<String>> findBurnoutCommits(
+    String directory, {
+    required String revisionRange,
+    int workHoursStart = 9,
+    int workHoursEnd = 17,
+  }) async {
+    final args = [
+      'log',
+      '--format=%H||%an||%aI||%s',
+      revisionRange,
+    ];
+
+    final result = await runner.run('git', args, workingDirectory: directory);
+    evaluateProcessResult(result);
+    final rawOutput = result.stdout?.toString() ?? '';
+
+    return await Isolate.run(
+      () => _parseBurnoutCommits(
+        rawOutput,
+        workHoursStart,
+        workHoursEnd,
+      ),
+    );
+  }
 }
 
 CommitVelocityDto _parseCommitVelocity(String rawLog, String granularity) {
@@ -208,4 +236,35 @@ double _linearRegressionSlope(List<int> values) {
   final denom = sampleCount * sumX2 - sumX * sumX;
   if (denom == 0) return 0.0;
   return (sampleCount * sumXY - sumX * sumY) / denom;
+}
+
+List<String> _parseBurnoutCommits(
+  String rawLog,
+  int workHoursStart,
+  int workHoursEnd,
+) {
+  final lines = rawLog.split('\n');
+  final burnoutCommits = <String>[];
+
+  for (final line in lines) {
+    if (line.trim().isEmpty) continue;
+    final parts = line.split('||');
+    if (parts.length < 4) continue;
+
+    final sha = parts[0].trim();
+    final author = parts[1].trim();
+    final dateStr = parts[2].trim();
+    final message = parts.sublist(3).join('||').trim();
+
+    final date = GitDateTime.parse(dateStr).authorLocal;
+    final isBurnout = date.hour < workHoursStart || date.hour >= workHoursEnd;
+
+    if (isBurnout) {
+      final formattedTime =
+          '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+      burnoutCommits.add('[$sha] - $author - $message ($formattedTime)');
+    }
+  }
+
+  return burnoutCommits;
 }
