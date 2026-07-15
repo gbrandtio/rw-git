@@ -128,5 +128,23 @@ void main() {
       );
       expect(results.length, 1);
     });
+
+    test('excludes files outside targetFiles even when a matching commit '
+        'touched them too (git pathspec only filters commits, not each '
+        'commit\'s --name-only file list)', () async {
+      mockRunner.mockResult('git', [
+        'log',
+        '--name-only',
+        '--format=AUTHOR:%an',
+        '--',
+        'file1.dart',
+      ], 'AUTHOR:Alice\nfile1.dart\nunrelated.dart\n');
+      final results = await algorithm.execute(
+        './test',
+        targetFiles: ['file1.dart'],
+      );
+      expect(results.length, 1);
+      expect(results.single.filePath, 'file1.dart');
+    });
   });
 }

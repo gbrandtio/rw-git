@@ -16,6 +16,7 @@ class ChurnHeuristic {
     String? since,
     String? until,
     String? revisionRange,
+    List<String>? targetFiles,
   }) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
@@ -56,6 +57,10 @@ class ChurnHeuristic {
     if (revisionRange != null) {
       logArgs.add(revisionRange);
     }
+    if (targetFiles != null && targetFiles.isNotEmpty) {
+      logArgs.add('--');
+      logArgs.addAll(targetFiles);
+    }
 
     final stream = runner.runStream(
       'git',
@@ -64,10 +69,18 @@ class ChurnHeuristic {
     );
 
     final Map<String, int> fileChurn = {};
+    final targetSet = (targetFiles != null && targetFiles.isNotEmpty)
+        ? targetFiles.toSet()
+        : null;
 
     await for (final line in stream) {
       final trimmedLine = line.trim();
       if (trimmedLine.isEmpty) continue;
+      // `git log -- <pathspec>` only restricts which *commits* are shown;
+      // each shown commit's `--name-only` listing still includes every file
+      // it touched, not just the ones matching the pathspec. Re-filter so
+      // targetFiles is an exact result restriction.
+      if (targetSet != null && !targetSet.contains(trimmedLine)) continue;
 
       fileChurn[trimmedLine] = (fileChurn[trimmedLine] ?? 0) + 1;
     }
@@ -81,6 +94,7 @@ class ChurnHeuristic {
     String? since,
     String? until,
     String? revisionRange,
+    List<String>? targetFiles,
   }) async {
     final countArgs = ['rev-list', '--count'];
     if (limit != null) {
@@ -121,6 +135,10 @@ class ChurnHeuristic {
     if (revisionRange != null) {
       logArgs.add(revisionRange);
     }
+    if (targetFiles != null && targetFiles.isNotEmpty) {
+      logArgs.add('--');
+      logArgs.addAll(targetFiles);
+    }
 
     final stream = runner.runStream(
       'git',
@@ -129,6 +147,9 @@ class ChurnHeuristic {
     );
 
     final Map<String, Map<String, int>> fileChurn = {};
+    final targetSet = (targetFiles != null && targetFiles.isNotEmpty)
+        ? targetFiles.toSet()
+        : null;
 
     String currentAuthor = 'Unknown';
 
@@ -139,6 +160,9 @@ class ChurnHeuristic {
       if (trimmedLine.startsWith('AUTHOR:')) {
         currentAuthor = trimmedLine.substring(7).trim();
       } else {
+        // See calculateChurn: git's pathspec only filters commits, not each
+        // commit's file list, so targetFiles is re-applied here.
+        if (targetSet != null && !targetSet.contains(trimmedLine)) continue;
         fileChurn.putIfAbsent(trimmedLine, () => {});
         fileChurn[trimmedLine]![currentAuthor] =
             (fileChurn[trimmedLine]![currentAuthor] ?? 0) + 1;

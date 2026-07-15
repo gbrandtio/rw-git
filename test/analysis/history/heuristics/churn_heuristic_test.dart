@@ -5,6 +5,7 @@ import 'package:test/test.dart';
 class MockProcessRunner implements ProcessRunner {
   List<String>? lastRunArgs;
   List<String>? lastStreamArgs;
+  List<String> streamLines = const [];
 
   @override
   Future<ProcessResult> run(
@@ -24,6 +25,9 @@ class MockProcessRunner implements ProcessRunner {
     String? workingDirectory,
   }) async* {
     lastStreamArgs = arg;
+    for (final line in streamLines) {
+      yield line;
+    }
   }
 }
 
@@ -88,5 +92,35 @@ void main() {
         expect(runner.lastStreamArgs, contains('origin/main..HEAD'));
       },
     );
+
+    test('calculateChurn forwards targetFiles as pathspecs', () async {
+      final runner = MockProcessRunner();
+      await ChurnHeuristic(
+        runner,
+      ).calculateChurn('./test', targetFiles: ['a.dart', 'b.dart']);
+      expect(runner.lastStreamArgs, contains('--'));
+      expect(runner.lastStreamArgs, containsAll(['a.dart', 'b.dart']));
+    });
+
+    test('calculateChurn excludes files outside targetFiles even when a '
+        'matching commit touched them too (git pathspec only filters '
+        'commits, not each commit\'s --name-only file list)', () async {
+      final runner = MockProcessRunner()
+        ..streamLines = ['a.dart', 'unrelated.dart'];
+      final result = await ChurnHeuristic(
+        runner,
+      ).calculateChurn('./test', targetFiles: ['a.dart']);
+      expect(result.fileChurn.keys, ['a.dart']);
+    });
+
+    test('calculateChurnWithAuthors excludes files outside targetFiles even '
+        'when a matching commit touched them too', () async {
+      final runner = MockProcessRunner()
+        ..streamLines = ['AUTHOR:Alice', 'a.dart', 'unrelated.dart'];
+      final result = await ChurnHeuristic(
+        runner,
+      ).calculateChurnWithAuthors('./test', targetFiles: ['a.dart']);
+      expect(result.fileChurn.keys, ['a.dart']);
+    });
   });
 }

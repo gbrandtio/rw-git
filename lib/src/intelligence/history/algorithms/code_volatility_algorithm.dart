@@ -49,7 +49,18 @@ class CodeVolatilityAlgorithm {
     final rawOutput = result.stdout?.toString() ?? '';
     if (rawOutput.isEmpty) return [];
 
-    return await Isolate.run(() => _parseCodeVolatility(rawOutput));
+    final parsed = await Isolate.run(() => _parseCodeVolatility(rawOutput));
+
+    // `git log -- <pathspec>` only restricts which *commits* are shown; each
+    // shown commit's `--name-only` listing still includes every file it
+    // touched, not just the ones matching the pathspec. Re-filter here so
+    // [targetFiles] is an exact result restriction, not just a commit
+    // pre-filter (mirrors SzzAlgorithm's own targetFiles handling).
+    if (targetFiles != null && targetFiles.isNotEmpty) {
+      final targetSet = targetFiles.toSet();
+      return parsed.where((r) => targetSet.contains(r.filePath)).toList();
+    }
+    return parsed;
   }
 }
 
