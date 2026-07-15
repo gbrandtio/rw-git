@@ -284,10 +284,7 @@ class SzzAlgorithm {
               // RA-SZZ commit filter: skip introducing commits that are
               // themselves refactorings. An unknown subject keeps the
               // attribution — failing open preserves recall.
-              final introMetadata = await _commitMetadata(
-                directory,
-                introHash,
-              );
+              final introMetadata = await _commitMetadata(directory, introHash);
               final subject = introMetadata?.subject;
               if (subject != null &&
                   _refactoringSubjectPattern.hasMatch(subject)) {
@@ -335,7 +332,9 @@ class SzzAlgorithm {
       hash,
     ], workingDirectory: directory);
 
-    final res = pool != null ? await pool.withResource(runAction) : await runAction();
+    final res = pool != null
+        ? await pool.withResource(runAction)
+        : await runAction();
 
     _CommitMetadata? metadata;
     if (res.exitCode == 0) {
