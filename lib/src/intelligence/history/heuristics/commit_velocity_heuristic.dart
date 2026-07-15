@@ -51,22 +51,14 @@ class CommitVelocityHeuristic {
     int workHoursStart = 9,
     int workHoursEnd = 17,
   }) async {
-    final args = [
-      'log',
-      '--format=%H||%an||%aI||%s',
-      revisionRange,
-    ];
+    final args = ['log', '--format=%H||%an||%aI||%s', revisionRange];
 
     final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);
     final rawOutput = result.stdout?.toString() ?? '';
 
     return await Isolate.run(
-      () => _parseBurnoutCommits(
-        rawOutput,
-        workHoursStart,
-        workHoursEnd,
-      ),
+      () => _parseBurnoutCommits(rawOutput, workHoursStart, workHoursEnd),
     );
   }
 }
