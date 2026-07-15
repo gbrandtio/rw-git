@@ -1,3 +1,6 @@
+# 3.4.6
+- **PERFORMANCE (SZZ Algorithm):** Fully refactored `SzzAlgorithm` execution model to use `package:pool` for global concurrency management. Eliminated head-of-line blocking by resolving commit lines into flat, concurrent `git blame` tasks governed by a bounded resource pool (`Pool(20)`), maximizing CPU utilization without exhausting OS fork limits or crashing CI runners.
+
 # 3.4.5
 - **FIX (SZZ Algorithm):** Fixing SZZ algorithm to use only the `targetFiles` list and calculate bug-hotspots only for them, in case the `targetFiles` has been provided. This is helpful for Github Actions that want to check only the files that the commit is touching (and nothing else). Previously, it would blame the lines that the commit is touching, go to previous commits, and blame all the files of the previous commit.
 
