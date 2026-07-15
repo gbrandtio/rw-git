@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:pool/pool.dart';
 import 'package:rw_git/rw_git.dart';
 import 'package:rw_git/src/constants.dart';
@@ -325,7 +327,7 @@ class SzzAlgorithm {
       return _commitMetadataCache[cacheKey];
     }
 
-    final runAction = () => runner.run('git', [
+    Future<ProcessResult> runAction() => runner.run('git', [
       'log',
       '-1',
       '--format=format:%H%x09%an%x09%ae%x09%aI%x09%s',
