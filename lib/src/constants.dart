@@ -16,7 +16,7 @@ const List<String> supportedMcpProtocolVersions = [
 
 /// Server version advertised in the MCP `initialize` handshake. Keep in sync
 /// with the `version` field in `pubspec.yaml`.
-const String rwGitMcpVersion = '3.4.6';
+const String rwGitMcpVersion = '3.4.7';
 
 /// JSON-RPC 2.0 error codes used by the MCP server. Per the JSON-RPC
 /// specification these are all negative; MCP-specific server errors live in

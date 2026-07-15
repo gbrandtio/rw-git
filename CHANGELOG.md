@@ -1,3 +1,6 @@
+# 3.4.7
+- **FIX (Churn/Volatility):** `CodeVolatilityAlgorithm.execute` and the new `targetFiles` parameter on `ChurnHeuristic.calculateChurn`/`calculateChurnWithAuthors` now re-filter their parsed `git log --name-only` output against `targetFiles` instead of trusting git's pathspec alone. A pathspec passed after `--` only restricts which *commits* `git log` shows; each shown commit's `--name-only`/`--stat` listing still includes every file that commit touched, not just the ones matching the pathspec. Callers scoping analysis to a specific file set (e.g. a PR's modified files) were previously getting unrelated files back in the results whenever a matching commit also touched other files.
+
 # 3.4.6
 - **PERFORMANCE (SZZ Algorithm):** Fully refactored `SzzAlgorithm` execution model to use `package:pool` for global concurrency management. Eliminated head-of-line blocking by resolving commit lines into flat, concurrent `git blame` tasks governed by a bounded resource pool (`Pool(20)`), maximizing CPU utilization without exhausting OS fork limits or crashing CI runners.
 
