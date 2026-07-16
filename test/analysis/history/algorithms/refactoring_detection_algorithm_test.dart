@@ -79,6 +79,35 @@ void main() {
       expect(results, isEmpty);
     });
 
+    test(
+      'forwards targetFiles as a git pathspec and filters renames',
+      () async {
+        mockRunner.mockResult(
+          'git',
+          [
+            'log',
+            '-M',
+            '--name-status',
+            '--shortstat',
+            '--format=COMMIT||%H||%an||%aI||%s',
+            '--',
+            'lib/new.dart',
+          ],
+          'COMMIT||hash123||Alice||2023-01-01T00:00:00Z||move files\n'
+              'R100\tlib/old.dart\tlib/new.dart\n'
+              'R100\tlib/other_old.dart\tlib/other_new.dart\n',
+        );
+
+        final results = await algorithm.execute(
+          './test',
+          targetFiles: ['lib/new.dart'],
+        );
+
+        expect(results.length, 1);
+        expect(results[0].renamedFiles, ['lib/old.dart -> lib/new.dart']);
+      },
+    );
+
     test('forwards since/until as git flags', () async {
       mockRunner.mockResult('git', [
         'log',

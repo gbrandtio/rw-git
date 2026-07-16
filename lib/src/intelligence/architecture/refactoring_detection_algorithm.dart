@@ -16,11 +16,19 @@ class RefactoringDetectionAlgorithm {
 
   /// Executes the Refactoring Detection analysis.
   /// Uses an Isolate to process the `git log` output asynchronously.
+  ///
+  /// When [targetFiles] is provided, the history walk is limited to commits
+  /// touching those paths (git pathspec) and reported renames are restricted
+  /// to pairs whose old or new path is in [targetFiles]. Caveat: git can only
+  /// pair a rename (`R` status) when the pathspec covers both of the rename's
+  /// endpoints — a rename whose other endpoint falls outside [targetFiles]
+  /// surfaces as an add/delete instead and goes undetected.
   Future<List<RefactoringDto>> execute(
     String directory, {
     String? limit,
     String? since,
     String? until,
+    List<String>? targetFiles,
   }) async {
     // We need commits that are either explicitly marked as refactors,
     // OR contain file renames/moves.
@@ -42,6 +50,10 @@ class RefactoringDetectionAlgorithm {
     if (until != null) {
       args.add('--until=$until');
     }
+    if (targetFiles != null && targetFiles.isNotEmpty) {
+      args.add('--');
+      args.addAll(targetFiles);
+    }
 
     final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);
@@ -49,11 +61,20 @@ class RefactoringDetectionAlgorithm {
     final rawOutput = result.stdout?.toString() ?? '';
     if (rawOutput.isEmpty) return [];
 
-    return await Isolate.run(() => _parseRefactorings(rawOutput));
+    // targetFiles is an exact result restriction, not just a commit
+    // pre-filter (mirrors ChurnHeuristic's own targetFiles handling).
+    final targetSet = (targetFiles != null && targetFiles.isNotEmpty)
+        ? targetFiles.toSet()
+        : null;
+
+    return await Isolate.run(() => _parseRefactorings(rawOutput, targetSet));
   }
 }
 
-List<RefactoringDto> _parseRefactorings(String rawLog) {
+List<RefactoringDto> _parseRefactorings(
+  String rawLog,
+  Set<String>? targetFiles,
+) {
   final lines = rawLog.split('\n');
   final results = <RefactoringDto>[];
 
@@ -123,7 +144,13 @@ List<RefactoringDto> _parseRefactorings(String rawLog) {
       // Rename detected: R100 old_name new_name
       final parts = line.split('\t');
       if (parts.length >= 3) {
-        renamedFiles.add('${parts[1]} -> ${parts[2]}');
+        // Under targetFiles, only renames touching the target set are
+        // reported (either endpoint qualifies).
+        if (targetFiles == null ||
+            targetFiles.contains(parts[1]) ||
+            targetFiles.contains(parts[2])) {
+          renamedFiles.add('${parts[1]} -> ${parts[2]}');
+        }
       }
     } else if (line.contains(' changed') &&
         (line.contains(' insertion') || line.contains(' deletion'))) {

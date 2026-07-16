@@ -13,11 +13,19 @@ class AdvancedMetricsHeuristic {
   /// Computes advanced codebase metrics such as cyclomatic complexity
   /// approximations, co-change matrices, and architectural
   /// distribution.
+  ///
+  /// When [targetFiles] is provided, the history walk is limited to commits
+  /// touching those paths (git pathspec) and every reported metric —
+  /// complexity, co-change matrix, architecture distribution — is restricted
+  /// to exactly those files. Callers scoping analysis to a specific file set
+  /// (e.g. a PR's modified files) avoid paying for a full-repository
+  /// `git log -p` scan.
   Future<AdvancedCodeQualityDto> calculateAdvancedMetrics(
     String directory, {
     String? limit,
     String? since,
     String? until,
+    List<String>? targetFiles,
   }) async {
     final args = ['log', '-p', '--format=COMMIT:%H'];
     if (limit != null) {
@@ -30,16 +38,31 @@ class AdvancedMetricsHeuristic {
     if (until != null) {
       args.add('--until=$until');
     }
+    if (targetFiles != null && targetFiles.isNotEmpty) {
+      args.add('--');
+      args.addAll(targetFiles);
+    }
 
     final result = await runner.run('git', args, workingDirectory: directory);
     evaluateProcessResult(result);
     final rawOutput = result.stdout?.toString() ?? '';
 
-    return await Isolate.run(() => _parseAdvancedCodeQuality(rawOutput));
+    // targetFiles is an exact result restriction, not just a commit
+    // pre-filter (mirrors ChurnHeuristic's own targetFiles handling).
+    final targetSet = (targetFiles != null && targetFiles.isNotEmpty)
+        ? targetFiles.toSet()
+        : null;
+
+    return await Isolate.run(
+      () => _parseAdvancedCodeQuality(rawOutput, targetSet),
+    );
   }
 }
 
-AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
+AdvancedCodeQualityDto _parseAdvancedCodeQuality(
+  String rawLog,
+  Set<String>? targetFiles,
+) {
   final lines = rawLog.split('\n');
 
   final fileComplexity = <String, int>{};
@@ -50,6 +73,16 @@ AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
 
   List<String> currentCommitFiles = [];
   String currentFile = '';
+
+  bool inScope(String file) =>
+      targetFiles == null || targetFiles.contains(file);
+
+  void trackFile(String file) {
+    if (!inScope(file)) return;
+    if (!currentCommitFiles.contains(file)) {
+      currentCommitFiles.add(file);
+    }
+  }
 
   void flushCommit() {
     if (currentCommitFiles.isNotEmpty) {
@@ -77,15 +110,27 @@ AdvancedCodeQualityDto _parseAdvancedCodeQuality(String rawLog) {
 
     if (line.startsWith('COMMIT:')) {
       flushCommit();
-    } else if (line.startsWith('--- a/')) {
-      final fileName = line.substring(6).trim();
-      if (fileName != '/dev/null') {
-        currentFile = fileName;
-        if (!currentCommitFiles.contains(fileName)) {
-          currentCommitFiles.add(fileName);
-        }
+      currentFile = '';
+    } else if (line.startsWith('--- ')) {
+      // Pre-image header. Reset attribution at every file boundary so a new
+      // file's added lines (pre-image `/dev/null`) are never credited to the
+      // previous file in the diff; the post-image `+++` header below decides
+      // where added lines belong.
+      currentFile = '';
+      if (line.startsWith('--- a/')) {
+        trackFile(line.substring(6).trim());
       }
-    } else if (line.startsWith('+') && !line.startsWith('+++')) {
+    } else if (line.startsWith('+++ ')) {
+      if (line.startsWith('+++ b/')) {
+        final fileName = line.substring(6).trim();
+        // Complexity of added lines keys on the post-image path, so newly
+        // added files are attributed to themselves rather than skipped.
+        if (inScope(fileName)) {
+          currentFile = fileName;
+        }
+        trackFile(fileName);
+      }
+    } else if (line.startsWith('+')) {
       if (currentFile.isNotEmpty) {
         final matches = controlFlowRegex.allMatches(line);
         if (matches.isNotEmpty) {
